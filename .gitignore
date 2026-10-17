@@ -1,0 +1,7 @@
+node_modules/
+package-lock.json
+tests/*.png
+art/source/
+art/characters/
+art/decks/
+.DS_Store

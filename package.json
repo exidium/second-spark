@@ -1,0 +1,14 @@
+{
+  "name": "second-spark",
+  "private": true,
+  "description": "The Second Spark: a solo digital adaptation of Abomination: The Heir of Frankenstein",
+  "scripts": {
+    "build": "python3 build.py",
+    "test:sim": "node tests/sim.js 20",
+    "test:ui": "node tests/ui.js",
+    "test": "python3 build.py && node tests/sim.js 20 && node tests/ui.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}
