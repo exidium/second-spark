@@ -18,7 +18,7 @@ This document describes the game **as currently built** (version 12 of the publi
 ## 2. Technology and architecture
 
 ### 2.1 Delivery
-- One self-contained HTML page, published as a claude.ai Artifact (private by default). No server.
+- One self-contained HTML page. Public test build on GitHub Pages at https://exidium.github.io/second-spark/ (`npm run deploy`); private preview as a claude.ai Artifact. No server.
 - No JavaScript libraries. Locations, cards and dice are hand-written inline SVG. The six character portraits are generated images (see 12.5) embedded as data URIs; the SVG portrait is the fallback when an image is missing.
 - Fonts from Google Fonts: **Amarante** (every title, card name, button and label), **EB Garamond** (body text, italic for flavor). Georgia/serif fallback. Body size 16px.
 - External network: none except Google Fonts. (Artifact sandbox blocks other hosts.)

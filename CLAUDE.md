@@ -34,4 +34,6 @@ All four JS files are concatenated into one IIFE by `build.py`, so they share sc
 - Test hooks live on `window.__spark`. Don't remove them.
 
 ## Publishing
-The page is published as a claude.ai Artifact. Publish `dist/second-spark.html`; the page has no external dependencies besides Google Fonts.
+Two targets, both from `dist/second-spark.html` (no external dependencies besides Google Fonts):
+- **Public test build:** `npm run deploy` rebuilds and pushes `dist/` to the `gh-pages` branch, served at https://exidium.github.io/second-spark/. Commit to `main` first so the source matches.
+- **Private preview:** the claude.ai Artifact (publish the same file to the existing URL).
