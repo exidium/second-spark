@@ -6,7 +6,8 @@
     "build": "python3 build.py",
     "test:sim": "node tests/sim.js 20",
     "test:ui": "node tests/ui.js",
-    "test": "python3 build.py && node tests/sim.js 20 && node tests/ui.js"
+    "test": "python3 build.py && node tests/sim.js 20 && node tests/ui.js",
+    "deploy": "python3 build.py && git subtree push --prefix dist origin gh-pages"
   },
   "devDependencies": {
     "playwright": "^1.47.0"
