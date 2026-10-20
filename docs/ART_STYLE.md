@@ -1,4 +1,7 @@
-# Card art style: dark coloured-pencil
+# Card art style
+
+> **Current direction (2026-10-20): 96-pixel, 32-colour pixel art.** The prompts in `docs/prompts/all-images.md` carry the full style block; `tools/pixelize.py` snaps any generated image to the exact canvas and palette. The coloured-pencil style below is the earlier direction, kept for the six character portraits, the board and the title already made in it.
+
 
 One shared style block keeps all 140+ illustrations consistent. Every card prompt = **subject line** + **style block** + **format line**, with the **negative prompt** if your tool supports one.
 
