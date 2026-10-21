@@ -30,9 +30,11 @@ src/data.js      all game data (anatomy, decks, events, encounters, characters, 
 src/art.js       SVG illustrations (locations, lab spaces, portraits, card icons, dice faces)
 src/engine.js    rules, state, async game loop, AI, scoring, persistence
 src/ui.js        modals, tooltips, human input, all rendering, boot
-build.py         concatenates the above into dist/second-spark.html, embedding art/*.jpg|png|webp as `const IMG`
-art/             web-sized images only, embedded by build.py (character-*.jpg, bg-wall.jpg, title.webp, board.jpg, card-tall-front.webp, card-tall-back.webp); art/decks/ holds Bruno's deck designs (originals); art/source/ keeps large originals, never embedded
-tools/gen_art.py Higgsfield platform API generator (needs API credits; see D37)
+build.py         concatenates the above into dist/second-spark.html, embedding every image under art/ (except source/) as `const IMG`, keyed by file stem
+art/<set>/       web-sized images: ui/ (bg-wall, board, title), frames/ (card-tall-front, card-tall-back), characters/, locations/, cadavers/, scoundrels/, research/, humanity/, events/, encounters/
+art/source/<set>/ originals, never embedded, ignored by git (pencil/ holds the earlier pencil-style art)
+tools/gen_gemini.py  generates images with Nano Banana 2 from docs/prompts/all-images.md (needs GEMINI_API_KEY)
+tools/pixelize.py    makes the game copies: 32 colours at 384px wide (--width) or a true 96-pixel canvas
 ```
 `build.py` wraps `data.js + art.js + engine.js + ui.js` in one `(() => { "use strict"; ... })();` IIFE inside a `<script>` after `head.html` and a `<div id="tip" hidden></div>`.
 
@@ -396,7 +398,7 @@ Balance target and result (30+ AI games): games end on Days 10 to 12, roughly a 
 ## 12. User interface
 
 ### 12.1 Visual identity
-- Single dark look by choice: a tiled stone wall (`art/bg-wall.jpg`, 1024px tile) under an ink wash on every screen, lamp-black `#121016` fallback, panels `#1b171f`, parchment text `#ece0c6`. Accent "galvanic blue" `#9fd0ff`. Engraved paper map `#d9c8a3` with ink `#3b2d22`.
+- Single dark look by choice: a tiled stone wall (`art/ui/bg-wall.jpg`, 1024px tile) under an ink wash on every screen, lamp-black `#121016` fallback, panels `#1b171f`, parchment text `#ece0c6`. Accent "galvanic blue" `#9fd0ff`. Engraved paper map `#d9c8a3` with ink `#3b2d22`.
 - Material colours: muscle `#8a4b2b`, organ `#7a5a96`, blood `#c03b3b`, bone `#ece6d6`, animal `#e38b2c`.
 - Body part state colours: **muscle bold red** (`#b23a2b`/`#e0533f`), **skin bold yellow** (`#e0b22e`/`#f0c419`), **alive blue** (`#9fd0ff`, glow). Damage: yellow lightning `#ffd36a`.
 - Player colours: you `#9fd0ff`, Pell `#d6675f`, Varnier `#74b393`, Quill `#cda65c`.
@@ -409,7 +411,7 @@ Desktop (1100px and wider): the page uses the full browser width; the right colu
 **Left column**
 - Top row: the logo, the 4 bonus objectives (claimed ones show the claimant's colour) and the Captain Walton track (12 steps, skull at the end) at the right end.
 - Toolbar on top of the board: "Day N · phase · first player" and "Today: card name" (click it to see the full event or encounter card). No bump track on the page; bump costs appear in the place popup.
-- **The board**: Bruno's painted Paris (`art/board.jpg`, 16:9). Each place is a chip with its name and one meeple slot per action space (dashed when free, filled with the occupant's colour, larger with a dark base for a scientist). Places you can use pulse blue; closed places are struck through and dimmed. Positions are percentages in `BOARD_POS` (data.js). **Tooltips only on the places.**
+- **The board**: Bruno's painted Paris (`art/ui/board.jpg`, 16:9). Each place is a chip with its name and one meeple slot per action space (dashed when free, filled with the occupant's colour, larger with a dark base for a scientist). Places you can use pulse blue; closed places are struck through and dimmed. Positions are percentages in `BOARD_POS` (data.js). **Tooltips only on the places.**
 - Beside each place, its cards at mini size (art and name only): the face-down deck with the count left for Cemetery and Morgue; the face-up rows for Hospital (2 bodies), Academy (3 research), Saint-Roch (3 humanity), Docks (3 scoundrels), Public Square (bodies after an execution, else an empty slot).
 - "Your laboratory" strip on the lower edge: Practice, Give Blood, Repair, Charge Jars as small places with your own meeple once used.
 - "Who do you send?" box bottom-left: Scientist and Assistant buttons stacked, with counts, on your turn; otherwise who is choosing, or the phase.
@@ -438,7 +440,7 @@ Desktop (1100px and wider): the page uses the full browser width; the right colu
 ---
 
 ### 12.5 Generated art
-The title logo (`art/title.webp`, transparent WebP) and six character portraits made in the Higgsfield app from the prompts in `docs/card-list.xlsx` (style in `ART_STYLE.md`). Cropped to 3:4, 480x640 JPEG, about 80KB each. Shown in the picker, your character line (44x58 avatar), the rivals panel (30x40), the rival lab window (72x96) and the card catalog. Hospital cadaver and Research cards are drawn on an engraved parchment frame (`art/card-tall-front.webp`, 190px wide, 3:4) with the stage numeral in the foot cartouche; the Hospital and Academy location cards show the wooden deck back (`art/card-tall-back.webp`) with the deck name on its brass plate and the cards left. Everything else is still SVG.
+The title logo (`art/ui/title.webp`, transparent WebP) and six pixel-art character portraits made with Nano Banana 2 from the prompts in `docs/prompts/all-images.md` (style in `ART_STYLE.md`): 384x576 PNG, 32 colours, about 60KB each. Shown in the picker, your character line (44x58 avatar), the rivals panel (30x40), the rival lab window (72x96) and the card catalog. Hospital cadaver and Research cards are drawn on an engraved parchment frame (`art/frames/card-tall-front.webp`, 190px wide, 3:4) with the stage numeral in the foot cartouche; the Hospital and Academy location cards show the wooden deck back (`art/frames/card-tall-back.webp`) with the deck name on its brass plate and the cards left. Everything else is still SVG.
 
 ## 13. Testing
 - `tests/sim.js` (Playwright): runs N full games with all players as AI in fast mode; reports stuck games, game length and ending type, winners, average alive parts, and page errors.
