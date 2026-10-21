@@ -16,7 +16,8 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parent.parent
 def canvas_for(stem):
     if stem.startswith(('location-', 'lab-')): return (96, 54)
-    if stem.split('-')[0] in ('cemetery', 'hospital', 'morgue', 'square', 'scoundrel', 'character'): return (64, 96)
+    if stem.split('-')[0] in ('cemetery', 'hospital', 'morgue', 'square'): return (72, 96)
+    if stem.split('-')[0] in ('scoundrel', 'character', 'card'): return (64, 96)
     return (96, 72)
 
 def folder_for(stem):
