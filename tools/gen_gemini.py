@@ -6,7 +6,7 @@ Usage:
   python3 tools/gen_gemini.py --set Locations --ref art/source/location-cemetery.png
   python3 tools/gen_gemini.py --all --ref art/source/location-cemetery.png --cadaver-ref art/source/hospital-01.png
 
-Reads GEMINI_API_KEY from the environment. Saves originals to art/source/<file>.png, skips files that exist
+Reads GEMINI_API_KEY from the environment. Saves originals to art/source/<set folder>/<file>.png, skips files that exist
 unless --force. Pass --ref to attach a finished image as the style reference ("same style and palette as this image").
 Run tools/pixelize.py afterwards to make the 96-pixel game copies.
 """
@@ -18,6 +18,8 @@ SHEET = ROOT / 'docs' / 'prompts' / 'all-images.md'
 MODEL = os.environ.get('NB_MODEL', 'gemini-3.1-flash-image')
 API = f'https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent'
 ASPECT = {(96, 54): '16:9', (64, 96): '2:3', (96, 72): '4:3'}
+# Sheet section -> folder under art/source/ (originals) and art/ (game copies)
+FOLDER = {'Locations': 'locations', 'Lab spaces': 'locations', 'Cadavers': 'cadavers', 'Scoundrels': 'scoundrels', 'Research': 'research', 'Humanity': 'humanity', 'Events': 'events', 'Encounters': 'encounters', 'Characters': 'characters'}
 
 def parse_sheet():
     txt = SHEET.read_text(encoding='utf-8'); items = []; section = None
@@ -55,12 +57,12 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--only', nargs='*', default=[]); ap.add_argument('--set', dest='sets', nargs='*', default=[])
     ap.add_argument('--all', action='store_true'); ap.add_argument('--ref'); ap.add_argument('--cadaver-ref'); ap.add_argument('--force', action='store_true'); ap.add_argument('--limit', type=int, default=0)
     a = ap.parse_args(); key = os.environ.get('GEMINI_API_KEY') or sys.exit('GEMINI_API_KEY not set')
-    items = parse_sheet(); out_dir = ROOT / 'art' / 'source'; out_dir.mkdir(exist_ok=True)
+    items = parse_sheet()
     todo = [i for i in items if a.all or i['set'] in a.sets or Path(i['file']).stem in a.only]
     if a.limit: todo = todo[:a.limit]
     print(f'{len(todo)} images with {MODEL}'); done = fail = 0
     for i in todo:
-        out = out_dir / i['file']
+        out = ROOT / 'art' / 'source' / FOLDER.get(i['set'], 'misc') / i['file']; out.parent.mkdir(parents=True, exist_ok=True)
         if out.exists() and not a.force: print(f'skip {i["file"]} (exists)'); continue
         ref = Path(a.cadaver_ref) if (i['set'] == 'Cadavers' and a.cadaver_ref) else (Path(a.ref) if a.ref else None)
         print(f'{i["file"]} ...', end=' ', flush=True)

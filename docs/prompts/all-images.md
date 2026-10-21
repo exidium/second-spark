@@ -1,6 +1,6 @@
 # Image prompts: 96-pixel, 32-colour pixel art (Nano Banana 2)
 
-One prompt per image, 150 in all. Style: retro pixel art on a 96-pixel canvas with a strict 32-colour gothic palette. Each prompt is complete (subject, style, canvas, avoid list) because Nano Banana 2 has no negative-prompt field. Save each result under the **file name** given into `art/source/`; Claude then snaps it to the exact canvas and 32 colours and writes the game copy into `art/`.
+One prompt per image, 156 in all (the six characters are at the end). Style: retro pixel art on a 96-pixel canvas with a strict 32-colour gothic palette. Each prompt is complete (subject, style, canvas, avoid list) because Nano Banana 2 has no negative-prompt field. Save each result under the **file name** given into `art/source/`; Claude then snaps it to the exact canvas and 32 colours and writes the game copy into `art/`.
 
 ## Before you start
 
@@ -923,4 +923,42 @@ The Creature holding out a heavy burlap bag that moves. Retro pixel art, drawn p
 
 ```
 An open grave at night with three pale fresh bodies, eyes watching from the dark. Retro pixel art, drawn pixel by pixel on a tiny grid, crisp hard-edged pixels, no anti-aliasing, no blur, no gradients, no smooth shading. Strict 32-colour palette: soot black, charcoal, deep plum, bruised purple, oxblood red, dried-blood brown, tarnished brass, candle gold, bone white, parchment, slate blue-grey, and one cold galvanic blue reserved for electricity or life. Gothic 1819 Paris, Mary Shelley mood: a single warm lamp or candle lights the scene out of near-black shadow, dithering for the falloff. Melancholic and unsettling, suggested rather than graphic. Clean silhouettes readable at thumbnail size, one clear focal point, nothing fussy. Canvas 96 by 72 pixels, one clear object or moment, simple dark background. Do not include: text, letters, numbers, captions, logos, watermark, signature, card frame, border, UI, anti-aliasing, blur, gradients, soft shading, photorealism, 3D render, painterly brushwork, pencil strokes, bright saturated colours, daylight, white background, modern clothing, modern objects.
+```
+
+## Characters (6) · used in the character picker, your character popup and the rivals
+
+### Lucien Vautrin (Psychopath) → `character-psycho.png`
+
+```
+Lucien Vautrin, a polished young man with a neat moustache and a cruel calm smile, a carnation in his lapel, a bloodstain on his cuff, alive, eyes open, a living person. Retro pixel art, drawn pixel by pixel on a tiny grid, crisp hard-edged pixels, no anti-aliasing, no blur, no gradients, no smooth shading. Strict 32-colour palette: soot black, charcoal, deep plum, bruised purple, oxblood red, dried-blood brown, tarnished brass, candle gold, bone white, parchment, slate blue-grey, and one cold galvanic blue reserved for electricity or life. Gothic 1819 Paris, Mary Shelley mood: a single warm lamp or candle lights the scene out of near-black shadow, dithering for the falloff. Melancholic and unsettling, suggested rather than graphic. Clean silhouettes readable at thumbnail size, one clear focal point, nothing fussy. Canvas 64 by 96 pixels, portrait, head and shoulders centred, face turned slightly, the lower fifth kept dark and plain. Do not include: text, letters, numbers, captions, logos, watermark, signature, card frame, border, UI, anti-aliasing, blur, gradients, soft shading, photorealism, 3D render, painterly brushwork, pencil strokes, bright saturated colours, daylight, white background, modern clothing, modern objects.
+```
+
+### Amara Okafor (Humanitarian) → `character-human.png`
+
+```
+Amara Okafor, a calm West African physician in a dark dress with a doctor's bag, warm steady gaze, alive, eyes open, a living person. Retro pixel art, drawn pixel by pixel on a tiny grid, crisp hard-edged pixels, no anti-aliasing, no blur, no gradients, no smooth shading. Strict 32-colour palette: soot black, charcoal, deep plum, bruised purple, oxblood red, dried-blood brown, tarnished brass, candle gold, bone white, parchment, slate blue-grey, and one cold galvanic blue reserved for electricity or life. Gothic 1819 Paris, Mary Shelley mood: a single warm lamp or candle lights the scene out of near-black shadow, dithering for the falloff. Melancholic and unsettling, suggested rather than graphic. Clean silhouettes readable at thumbnail size, one clear focal point, nothing fussy. Canvas 64 by 96 pixels, portrait, head and shoulders centred, face turned slightly, the lower fifth kept dark and plain. Do not include: text, letters, numbers, captions, logos, watermark, signature, card frame, border, UI, anti-aliasing, blur, gradients, soft shading, photorealism, 3D render, painterly brushwork, pencil strokes, bright saturated colours, daylight, white background, modern clothing, modern objects.
+```
+
+### Sir Bartholomew Pike (Zoologist) → `character-zoo.png`
+
+```
+Sir Bartholomew Pike, a weathered English naturalist in a top hat and travelling coat, an eel in a glass jar under his arm, alive, eyes open, a living person. Retro pixel art, drawn pixel by pixel on a tiny grid, crisp hard-edged pixels, no anti-aliasing, no blur, no gradients, no smooth shading. Strict 32-colour palette: soot black, charcoal, deep plum, bruised purple, oxblood red, dried-blood brown, tarnished brass, candle gold, bone white, parchment, slate blue-grey, and one cold galvanic blue reserved for electricity or life. Gothic 1819 Paris, Mary Shelley mood: a single warm lamp or candle lights the scene out of near-black shadow, dithering for the falloff. Melancholic and unsettling, suggested rather than graphic. Clean silhouettes readable at thumbnail size, one clear focal point, nothing fussy. Canvas 64 by 96 pixels, portrait, head and shoulders centred, face turned slightly, the lower fifth kept dark and plain. Do not include: text, letters, numbers, captions, logos, watermark, signature, card frame, border, UI, anti-aliasing, blur, gradients, soft shading, photorealism, 3D render, painterly brushwork, pencil strokes, bright saturated colours, daylight, white background, modern clothing, modern objects.
+```
+
+### Lucrezia Fontana (Heiress) → `character-heiress.png`
+
+```
+Lucrezia Fontana, a young Italian heiress in a wide-brimmed hat and pearls, an open anatomy book in her hands, alive, eyes open, a living person. Retro pixel art, drawn pixel by pixel on a tiny grid, crisp hard-edged pixels, no anti-aliasing, no blur, no gradients, no smooth shading. Strict 32-colour palette: soot black, charcoal, deep plum, bruised purple, oxblood red, dried-blood brown, tarnished brass, candle gold, bone white, parchment, slate blue-grey, and one cold galvanic blue reserved for electricity or life. Gothic 1819 Paris, Mary Shelley mood: a single warm lamp or candle lights the scene out of near-black shadow, dithering for the falloff. Melancholic and unsettling, suggested rather than graphic. Clean silhouettes readable at thumbnail size, one clear focal point, nothing fussy. Canvas 64 by 96 pixels, portrait, head and shoulders centred, face turned slightly, the lower fifth kept dark and plain. Do not include: text, letters, numbers, captions, logos, watermark, signature, card frame, border, UI, anti-aliasing, blur, gradients, soft shading, photorealism, 3D render, painterly brushwork, pencil strokes, bright saturated colours, daylight, white background, modern clothing, modern objects.
+```
+
+### Count Achille Duval (Charlatan) → `character-charlatan.png`
+
+```
+Count Achille Duval, a theatrical aristocrat in a top hat and fur collar, rings on every finger, alive, eyes open, a living person. Retro pixel art, drawn pixel by pixel on a tiny grid, crisp hard-edged pixels, no anti-aliasing, no blur, no gradients, no smooth shading. Strict 32-colour palette: soot black, charcoal, deep plum, bruised purple, oxblood red, dried-blood brown, tarnished brass, candle gold, bone white, parchment, slate blue-grey, and one cold galvanic blue reserved for electricity or life. Gothic 1819 Paris, Mary Shelley mood: a single warm lamp or candle lights the scene out of near-black shadow, dithering for the falloff. Melancholic and unsettling, suggested rather than graphic. Clean silhouettes readable at thumbnail size, one clear focal point, nothing fussy. Canvas 64 by 96 pixels, portrait, head and shoulders centred, face turned slightly, the lower fifth kept dark and plain. Do not include: text, letters, numbers, captions, logos, watermark, signature, card frame, border, UI, anti-aliasing, blur, gradients, soft shading, photorealism, 3D render, painterly brushwork, pencil strokes, bright saturated colours, daylight, white background, modern clothing, modern objects.
+```
+
+### Dr Hélène Marchand (Surgeon) → `character-surgeon.png`
+
+```
+Dr Hélène Marchand, a severe French surgeon in a blood-flecked leather apron, scalpel in hand, alive, eyes open, a living person. Retro pixel art, drawn pixel by pixel on a tiny grid, crisp hard-edged pixels, no anti-aliasing, no blur, no gradients, no smooth shading. Strict 32-colour palette: soot black, charcoal, deep plum, bruised purple, oxblood red, dried-blood brown, tarnished brass, candle gold, bone white, parchment, slate blue-grey, and one cold galvanic blue reserved for electricity or life. Gothic 1819 Paris, Mary Shelley mood: a single warm lamp or candle lights the scene out of near-black shadow, dithering for the falloff. Melancholic and unsettling, suggested rather than graphic. Clean silhouettes readable at thumbnail size, one clear focal point, nothing fussy. Canvas 64 by 96 pixels, portrait, head and shoulders centred, face turned slightly, the lower fifth kept dark and plain. Do not include: text, letters, numbers, captions, logos, watermark, signature, card frame, border, UI, anti-aliasing, blur, gradients, soft shading, photorealism, 3D render, painterly brushwork, pencil strokes, bright saturated colours, daylight, white background, modern clothing, modern objects.
 ```

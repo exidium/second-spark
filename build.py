@@ -6,7 +6,8 @@ root = Path(__file__).parent
 src = root / 'src'
 art = root / 'art'
 imgs = {}
-for f in sorted(p for ext in ('*.jpg', '*.png', '*.webp') for p in art.glob(ext)) if art.exists() else []:
+# Every image under art/ (any subfolder except source/) is embedded, keyed by its file stem, e.g. art/characters/character-surgeon.png -> IMG['character-surgeon'].
+for f in sorted(p for p in art.rglob('*') if art.exists() and p.suffix.lower() in ('.jpg', '.jpeg', '.png', '.webp') and 'source' not in p.relative_to(art).parts):
     imgs[f.stem] = f'data:{mimetypes.guess_type(f.name)[0]};base64,' + base64.b64encode(f.read_bytes()).decode()
 js = '// Generated images from art/ (empty when none). Keys are file stems, e.g. character-surgeon.\nconst IMG = ' + json.dumps(imgs) + ';\n'
 js += '\n'.join((src / f).read_text(encoding='utf-8') for f in ['data.js', 'art.js', 'engine.js', 'ui.js'])
