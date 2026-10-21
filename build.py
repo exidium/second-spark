@@ -28,7 +28,7 @@ for f in files:
 # IMG maps a file stem (e.g. character-surgeon, hospital-03, bg-wall) to a URL the page can use.
 js = '// Images from art/ (file stem -> url). Empty when none.\nconst IMG = ' + json.dumps(imgs) + ';\n'
 js += '\n'.join((src / f).read_text(encoding='utf-8') for f in ['data.js', 'art.js', 'engine.js', 'ui.js'])
-html = (src / 'head.html').read_text(encoding='utf-8') + '\n<div id="tip" hidden></div>\n<script>\n(() => {\n"use strict";\n' + js + '\n})();\n</script>\n'
+html = '<!doctype html>\n' + (src / 'head.html').read_text(encoding='utf-8') + '\n<div id="tip" hidden></div>\n<script>\n(() => {\n"use strict";\n' + js + '\n})();\n</script>\n'
 if '—' in html:
     raise SystemExit('Em dash found in the build. Player-facing text must not use em dashes.')
 out = out_dir / 'second-spark.html'

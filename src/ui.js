@@ -245,7 +245,7 @@ function cardHTML(c, extra){
   if(c.kind==='cadaver'){
     const hc=(extra.noCost?0:c.hcost+(extra.extraH||0));
     const body=`<div class="gc-row">${matsHTML(c.mats)}</div>${c.exp?`<div>or <b>+${c.exp} expertise</b></div>`:'<div>Bones only, no expertise</div>'}${hc?`<div class="gc-cost">−${hc} humanity to resolve</div>`:''}${c.cost?`<div class="gc-cost">+${c.cost}f to buy</div>`:''}`;
-    if(c.src==='hospital' && hasFrame()) return framedHTML({sel:extra.sel, kind:`${esc(LOC[c.src].name)} · stage ${c.stage?ROMAN[c.stage-1]:'bones'}`, title:esc(c.name), art:cadaverArt(c), body, mark:c.stage?ROMAN[c.stage-1]:'', acts:extra.acts});
+    if(c.art && IMG[c.art]) return cadaverCardHTML(c, extra, hc);
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">${esc(LOC[c.src].name)} · stage ${c.stage?ROMAN[c.stage-1]:'bones'}</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${cadaverArt(c)}</div>
       <div class="gc-body">${body}</div>
@@ -307,6 +307,17 @@ function catalogHTML(){
 function cadaverFromRowStatic(src,row,k){ const [st,m,exp,hc,name,cost]=row; const mats=[]; ['muscle','organ','blood','bone'].forEach((t,k)=>{ if(m[k]) mats.push([t,t==='bone'?0:st,m[k]]); });
   return {kind:'cadaver', src, stage:st, name:name||(st?`Stage ${ROMAN[st-1]} body`:'A heap of bones'), seed:(m[0]*7+m[1]*13+m[2]*17+m[3]*19+st*23)||5, mats, exp, hcost:hc, cost:cost||0, art: k==null?null:`${src}-${String(k+1).padStart(2,'0')}`}; }
 // Cadaver picture: the generated portrait when art/cadavers/<deck>-NN.png exists, else the seeded SVG face.
+// Cadaver card in the physical game's layout: the portrait fills the card, a strip at the foot shows the stage numeral and the
+// muscle, organ, blood and bone counts in the material colours, and a small row above it carries expertise and humanity cost.
+function cadaverCardHTML(c, extra, hc){
+  const n=t=>{ const m=c.mats.find(x=>x[0]===t); return m?m[2]:0; };
+  const cells=[['muscle',n('muscle')],['organ',n('organ')],['blood',n('blood')],['bone',n('bone')]].map(([t,v])=>`<span class="cs ${t} ${v?'':'z'}" title="${v} ${t}">${v}</span>`).join('');
+  const icons=`${c.exp?`<span class="ci" title="or +${c.exp} expertise">+${c.exp} <i>exp</i></span>`:'<span class="ci dim">bones</span>'}${hc?`<span class="ci cost" title="−${hc} humanity to resolve">−${hc} <i>hum</i></span>`:''}${c.cost?`<span class="ci cost">+${c.cost}f</span>`:''}`;
+  return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="ccard" title="${esc(c.name)}"><img src="${IMG[c.art]}" alt="">
+      <span class="ck">${esc(LOC[c.src].name)}</span><span class="cn">${esc(c.name)}</span>
+      <div class="cicons">${icons}</div>
+      <div class="cstrip"><span class="cs stage">${c.stage?ROMAN[c.stage-1]:'✕'}</span>${cells}</div></div>${extra.acts||''}</div>`;
+}
 function cadaverArt(c){ const src=c.art&&IMG[c.art]; return src ? `<img src="${src}" alt="">` : portrait(c.seed, c.src, false); }
 
 /* =========================================================
@@ -360,7 +371,10 @@ function researchIcon(c){ return ICONART[c.id==='demo'||c.id==='electro'?'jar':c
 function slotDot(key){ const o=S.occ[key]; if(!o) return '<i class="slot"></i>'; return `<i class="slot on ${o.kind==='scientist'?'sci':''}" style="background:${S.players[o.p].color}"></i>`; }
 function miniArt(c){ if(c.kind==='cadaver') return cadaverArt(c); if(SC_WHO[c.kind]) return portrait(c.seed||7,'docks',true); if(c.kind==='research') return researchIcon(c); if(c.kind==='humanity') return ICONART.candle; return ''; }
 // Mini card on the board: art and name only. The place popup shows the same card at full size.
-function miniCard(c){ const framed = hasFrame() && (c.kind==='research' || (c.kind==='cadaver'&&c.src==='hospital'));
+function miniCard(c){
+  if(c.kind==='cadaver' && c.art && IMG[c.art]){ const n=t=>{ const m=c.mats.find(x=>x[0]===t); return m?m[2]:0; };
+    return `<div class="mcard cad" title="${esc(c.name)}"><span class="mart"><img src="${IMG[c.art]}" alt=""></span><span class="mstrip"><span class="stage">${c.stage?ROMAN[c.stage-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span></div>`; }
+  const framed = hasFrame() && c.kind==='research';
   return `<div class="mcard ${framed?'framed':''}"><span class="mart">${miniArt(c)}</span><span class="mname">${esc(c.name)}</span></div>`; }
 function miniBack(name,left){ return IMG['card-tall-back'] ? `<div class="mcard back"><span class="plate">${esc(name)}</span><span class="mcount">${left}</span></div>` : `<div class="mcard back plain"><span class="mname">${esc(name)} deck</span><span class="mcount">${left}</span></div>`; }
 function slotsHTML(l){
