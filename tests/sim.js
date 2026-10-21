@@ -3,11 +3,14 @@
 const path = require('path');
 const fs = require('fs');
 const { chromium } = require('playwright');
+const http = require('http');
+// Serve dist/ so the page's relative art/ paths resolve.
+function serve() { const dist = path.join(__dirname, '..', 'dist'); return new Promise(res => { const srv = http.createServer((q, r) => { const f = path.join(dist, decodeURIComponent(q.url.split('?')[0]).replace(/^\//, '') || 'second-spark.html'); fs.readFile(f, (e, d) => { if (e) { r.writeHead(404); r.end(); return; } const ext = path.extname(f); r.writeHead(200, { 'Content-Type': { '.html': 'text/html; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp' }[ext] || 'application/octet-stream' }); r.end(d); }); }); srv.listen(0, () => res({ srv, url: `http://127.0.0.1:${srv.address().port}/second-spark.html` })); }); }
 (async () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'dist', 'second-spark.html'), 'utf8');
+  const { srv, url } = await serve();
   const b = await chromium.launch(); const pg = await b.newPage();
   const errs = []; pg.on('pageerror', e => errs.push(e.message + ' | ' + (e.stack || '').split('\n').slice(0, 3).join(' ')));
-  await pg.setContent('<!doctype html><html><head><meta charset="utf-8"></head><body>' + html + '</body></html>');
+  await pg.goto(url);
   const N = +process.argv[2] || 20;
   const res = await pg.evaluate(async (N) => {
     const out = [];
@@ -25,5 +28,5 @@ const { chromium } = require('playwright');
   const wins = {}; ok.forEach(r => wins[r.rows[0][0]] = (wins[r.rows[0][0]] || 0) + 1); console.log('wins:', wins);
   console.log('average parts alive:', (ok.flatMap(r => r.rows.map(x => x[3])).reduce((a, b) => a + b, 0) / (ok.length * 4)).toFixed(2));
   console.log('page errors:', errs.filter(e => !e.includes('ERR_')).slice(0, 6));
-  await b.close();
+  await b.close(); srv.close();
 })();

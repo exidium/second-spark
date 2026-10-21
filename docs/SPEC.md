@@ -18,7 +18,7 @@ This document describes the game **as currently built** (version 12 of the publi
 ## 2. Technology and architecture
 
 ### 2.1 Delivery
-- One self-contained HTML page. Public test build on GitHub Pages at https://exidium.github.io/second-spark/ (`npm run deploy`). No server.
+- One HTML page plus an `art/` folder of images beside it (`python3 build.py --embed` makes a single self-contained file instead). Public test build on GitHub Pages at https://exidium.github.io/second-spark/ (`npm run deploy`). No server logic.
 - No JavaScript libraries. Locations, cards and dice are hand-written inline SVG. The six character portraits are generated images (see 12.5) embedded as data URIs; the SVG portrait is the fallback when an image is missing.
 - Fonts from Google Fonts: **Amarante** (every title, card name, button and label), **EB Garamond** (body text, italic for flavor). Georgia/serif fallback. Body size 16px.
 - External network: none except Google Fonts. (Artifact sandbox blocks other hosts.)
@@ -30,7 +30,7 @@ src/data.js      all game data (anatomy, decks, events, encounters, characters, 
 src/art.js       SVG illustrations (locations, lab spaces, portraits, card icons, dice faces)
 src/engine.js    rules, state, async game loop, AI, scoring, persistence
 src/ui.js        modals, tooltips, human input, all rendering, boot
-build.py         concatenates the above into dist/second-spark.html, embedding every image under art/ (except source/) as `const IMG`, keyed by file stem
+build.py         concatenates the above into dist/second-spark.html and copies every image under art/ (except source/) to dist/art/; `const IMG` maps file stems to those paths (`--embed` inlines them instead)
 art/<set>/       web-sized images: ui/ (bg-wall, board, title), frames/ (card-tall-front, card-tall-back), characters/, locations/, cadavers/, scoundrels/, research/, humanity/, events/, encounters/
 art/source/<set>/ originals, never embedded, ignored by git (pencil/ holds the earlier pencil-style art)
 tools/gen_gemini.py  generates images with Nano Banana 2 from docs/prompts/all-images.md (needs GEMINI_API_KEY)
@@ -443,6 +443,7 @@ Desktop (1100px and wider): the page uses the full browser width; the right colu
 The title logo (`art/ui/title.webp`, transparent WebP) and six pixel-art character portraits made with Nano Banana 2 from the prompts in `docs/prompts/all-images.md` (style in `ART_STYLE.md`): 384x576 PNG, 32 colours, about 60KB each. Shown in the picker, your character line (44x58 avatar), the rivals panel (30x40), the rival lab window (72x96) and the card catalog. All 52 cadavers have generated pixel portraits (`art/cadavers/<deck>-NN.png`, 3:4, face to the camera, seen from above on a pillow, slab or straw; cemetery skin grey, bones-only cards show a skull at the same scale). The seeded SVG face is only a fallback for a missing file. Hospital cadaver and Research cards are drawn on an engraved parchment frame (`art/frames/card-tall-front.webp`, 190px wide, 3:4) with the stage numeral in the foot cartouche; the Cemetery and Morgue places show the pixel-art deck back (`art/frames/card-tall-back.png`) with the deck name on its brass plate and the cards left. Everything else is still SVG.
 
 ## 13. Testing
+- Both tests serve `dist/` over a local HTTP server so the relative image paths resolve.
 - `tests/sim.js` (Playwright): runs N full games with all players as AI in fast mode; reports stuck games, game length and ending type, winners, average alive parts, and page errors.
 - `tests/ui.js` (Playwright): plays as the human through the real interface (random places on the board, first option in each popup, builds and throws from the Laboratory popup at night) until the game ends, reports the ending and winner, then checks the 400px layout for page overflow and that the board scrolls inside its own box.
 - Before each publish: no page errors, no stuck games, no em dashes in the built file.

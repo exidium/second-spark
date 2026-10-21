@@ -8,7 +8,7 @@ A solo browser adaptation of *Abomination: The Heir of Frankenstein*: one human 
 
 ## Build and test
 ```
-python3 build.py          # writes dist/second-spark.html from src/
+python3 build.py          # writes dist/second-spark.html and copies art/ to dist/art/ (--embed for one self-contained file)
 npm install               # once, for Playwright
 npm run test:sim          # 20 AI-only games: errors, stuck games, balance
 npm run test:ui           # plays as the human through the UI until the game ends, checks 400px width
@@ -34,5 +34,6 @@ All four JS files are concatenated into one IIFE by `build.py`, so they share sc
 - Test hooks live on `window.__spark`. Don't remove them.
 
 ## Publishing
-Two targets, both from `dist/second-spark.html` (no external dependencies besides Google Fonts):
+`dist/` is the whole deliverable: the page plus `dist/art/`. Open it through a server or as a folder, never as pasted HTML.
 - **Public test build:** `npm run deploy` rebuilds and pushes `dist/` to the `gh-pages` branch, served at https://exidium.github.io/second-spark/. Commit to `main` first so the source matches.
+- **Single file:** `python3 build.py --embed` if someone needs one self-contained HTML (several MB).
