@@ -226,3 +226,6 @@ D67's per-skull angles are withdrawn. All four bones-only cards use the same top
 
 **D69. Morgue cadavers generated.** (Bruno: "Let's go to the morgue now!" then "go ahead. I like it")
 Three examples (01 drowned stage II, 06 river stage III, 11 rat-eaten stage II) were approved, then the other 11 with the drowned woman as the style reference. Each of the 14 states origin, age, face shape and its own EYES line, lying on the stone slab with the sheet at the chest. One card, a young woman with a cut throat, was refused twice; changing "girl of twenty" to "woman in her mid-twenties" and "slashed neck" to "a deep cut across the throat already dark and dry" got it through. Lesson: the image filter reacts to youth words next to violence more than to the violence itself.
+
+**D70. Morgue 10 and 14 regenerated as plainly dead.** (Bruno: "change 14 and 10. 14 seems alive, wtf")
+Open staring eyes on a fresh body read as alive. The carter now has a slack open mouth, grey-white skin with lividity under the jaw, and eyes half open, filmed and rolled up with no focus; the frozen woman has her eyes closed and frosted shut, waxy blue-grey skin and black cracked lips. Rule for the stage I and II cards still to come: "open eyes" must always be paired with dull, filmed, rolled or unfocused, never a direct gaze. Previous versions in `art/source/cadavers/v8/`.
