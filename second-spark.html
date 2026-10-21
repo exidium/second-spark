@@ -1,3 +1,5 @@
+<!doctype html>
+<meta charset="utf-8">
 <title>The Second Spark</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -383,6 +385,29 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .cardback .plate{position:absolute;left:18%;right:18%;top:54%;height:19%;display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-size:8px;letter-spacing:.03em;text-transform:uppercase;color:#2a2217;text-shadow:0 1px 0 rgba(255,255,255,.25)}
 .deckinfo{display:flex;flex-direction:column;font-size:12.5px;color:var(--parch-dim)}
 .deckinfo b{font-family:var(--f-display);font-weight:400;font-size:14px;color:var(--parch)}
+
+/* cadaver cards in the physical game's layout: full-bleed 3:4 portrait, numbers strip at the foot */
+.ccard{position:relative;width:190px;aspect-ratio:3/4;border-radius:7px;overflow:hidden;border:2px solid #2a2320;box-shadow:0 8px 22px rgba(0,0,0,.55);background:#0e0b0c;display:flex;flex-direction:column;justify-content:flex-end}
+.ccard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
+.ccard .ck{position:absolute;top:5px;left:7px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--parch);text-shadow:0 1px 3px #000;opacity:.85}
+.ccard .cn{position:absolute;top:16px;left:7px;right:7px;font-family:var(--f-display);font-size:13px;color:var(--parch);text-shadow:0 1px 3px #000,0 0 6px #000;line-height:1.1}
+.ccard .cicons{position:relative;display:flex;gap:4px;justify-content:center;padding:0 6px 4px;font-size:11px;font-weight:600;color:var(--parch);text-shadow:0 1px 3px #000}
+.ccard .ci{background:rgba(14,11,12,.72);border:1px solid rgba(236,224,198,.3);border-radius:3px;padding:1px 6px}
+.ccard .ci i{font-style:normal;font-weight:400;font-size:9px;letter-spacing:.06em;text-transform:uppercase;opacity:.8}
+.ccard .ci.dim{opacity:.6}.ccard .ci.cost{border-color:#d6675f;color:#f0a79f}
+.ccard .cstrip{position:relative;display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr 1fr;gap:3px;padding:4px;background:#1a1416;border-top:2px solid #3b2d22}
+.ccard .cs{display:flex;align-items:center;justify-content:center;height:24px;border-radius:3px;font-family:var(--f-display);font-size:16px;color:#fff;text-shadow:0 1px 2px #000;border:1px solid rgba(0,0,0,.5)}
+.ccard .cs.stage{background:#2b2730;color:var(--parch);font-size:17px}
+.ccard .cs.muscle{background:#8a4b2b}.ccard .cs.organ{background:#7a5a96}.ccard .cs.blood{background:#c03b3b}.ccard .cs.bone{background:#ece6d6;color:#2b2320;text-shadow:none}
+.ccard .cs.z{opacity:.35}
+.gcard-wrap.sel .ccard{outline:3px solid var(--spark);outline-offset:1px}
+/* mini cards on the board follow the same shape: portrait with a thin numbers strip */
+.mcard.cad{background:#0e0b0c;border:1px solid #2a2320}
+.mcard.cad .mart{flex:1}
+.mcard.cad .mstrip{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr 1fr;gap:1px;padding:1px;background:#1a1416}
+.mcard.cad .mstrip span{height:clamp(6px,.9cqw,10px);font-size:clamp(4px,.65cqw,7px);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--f-display);line-height:1}
+.mcard.cad .mstrip .stage{background:#2b2730;color:var(--parch)}.mcard.cad .mstrip .muscle{background:#8a4b2b}.mcard.cad .mstrip .organ{background:#7a5a96}.mcard.cad .mstrip .blood{background:#c03b3b}.mcard.cad .mstrip .bone{background:#ece6d6;color:#2b2320}
+.mcard.cad .mstrip .z{opacity:.35}
 
 /* generated portraits */
 .gc-art img{display:block;width:100%;height:auto}
@@ -2059,7 +2084,7 @@ function cardHTML(c, extra){
   if(c.kind==='cadaver'){
     const hc=(extra.noCost?0:c.hcost+(extra.extraH||0));
     const body=`<div class="gc-row">${matsHTML(c.mats)}</div>${c.exp?`<div>or <b>+${c.exp} expertise</b></div>`:'<div>Bones only, no expertise</div>'}${hc?`<div class="gc-cost">−${hc} humanity to resolve</div>`:''}${c.cost?`<div class="gc-cost">+${c.cost}f to buy</div>`:''}`;
-    if(c.src==='hospital' && hasFrame()) return framedHTML({sel:extra.sel, kind:`${esc(LOC[c.src].name)} · stage ${c.stage?ROMAN[c.stage-1]:'bones'}`, title:esc(c.name), art:cadaverArt(c), body, mark:c.stage?ROMAN[c.stage-1]:'', acts:extra.acts});
+    if(c.art && IMG[c.art]) return cadaverCardHTML(c, extra, hc);
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">${esc(LOC[c.src].name)} · stage ${c.stage?ROMAN[c.stage-1]:'bones'}</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${cadaverArt(c)}</div>
       <div class="gc-body">${body}</div>
@@ -2121,6 +2146,17 @@ function catalogHTML(){
 function cadaverFromRowStatic(src,row,k){ const [st,m,exp,hc,name,cost]=row; const mats=[]; ['muscle','organ','blood','bone'].forEach((t,k)=>{ if(m[k]) mats.push([t,t==='bone'?0:st,m[k]]); });
   return {kind:'cadaver', src, stage:st, name:name||(st?`Stage ${ROMAN[st-1]} body`:'A heap of bones'), seed:(m[0]*7+m[1]*13+m[2]*17+m[3]*19+st*23)||5, mats, exp, hcost:hc, cost:cost||0, art: k==null?null:`${src}-${String(k+1).padStart(2,'0')}`}; }
 // Cadaver picture: the generated portrait when art/cadavers/<deck>-NN.png exists, else the seeded SVG face.
+// Cadaver card in the physical game's layout: the portrait fills the card, a strip at the foot shows the stage numeral and the
+// muscle, organ, blood and bone counts in the material colours, and a small row above it carries expertise and humanity cost.
+function cadaverCardHTML(c, extra, hc){
+  const n=t=>{ const m=c.mats.find(x=>x[0]===t); return m?m[2]:0; };
+  const cells=[['muscle',n('muscle')],['organ',n('organ')],['blood',n('blood')],['bone',n('bone')]].map(([t,v])=>`<span class="cs ${t} ${v?'':'z'}" title="${v} ${t}">${v}</span>`).join('');
+  const icons=`${c.exp?`<span class="ci" title="or +${c.exp} expertise">+${c.exp} <i>exp</i></span>`:'<span class="ci dim">bones</span>'}${hc?`<span class="ci cost" title="−${hc} humanity to resolve">−${hc} <i>hum</i></span>`:''}${c.cost?`<span class="ci cost">+${c.cost}f</span>`:''}`;
+  return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="ccard" title="${esc(c.name)}"><img src="${IMG[c.art]}" alt="">
+      <span class="ck">${esc(LOC[c.src].name)}</span><span class="cn">${esc(c.name)}</span>
+      <div class="cicons">${icons}</div>
+      <div class="cstrip"><span class="cs stage">${c.stage?ROMAN[c.stage-1]:'✕'}</span>${cells}</div></div>${extra.acts||''}</div>`;
+}
 function cadaverArt(c){ const src=c.art&&IMG[c.art]; return src ? `<img src="${src}" alt="">` : portrait(c.seed, c.src, false); }
 
 /* =========================================================
@@ -2174,7 +2210,10 @@ function researchIcon(c){ return ICONART[c.id==='demo'||c.id==='electro'?'jar':c
 function slotDot(key){ const o=S.occ[key]; if(!o) return '<i class="slot"></i>'; return `<i class="slot on ${o.kind==='scientist'?'sci':''}" style="background:${S.players[o.p].color}"></i>`; }
 function miniArt(c){ if(c.kind==='cadaver') return cadaverArt(c); if(SC_WHO[c.kind]) return portrait(c.seed||7,'docks',true); if(c.kind==='research') return researchIcon(c); if(c.kind==='humanity') return ICONART.candle; return ''; }
 // Mini card on the board: art and name only. The place popup shows the same card at full size.
-function miniCard(c){ const framed = hasFrame() && (c.kind==='research' || (c.kind==='cadaver'&&c.src==='hospital'));
+function miniCard(c){
+  if(c.kind==='cadaver' && c.art && IMG[c.art]){ const n=t=>{ const m=c.mats.find(x=>x[0]===t); return m?m[2]:0; };
+    return `<div class="mcard cad" title="${esc(c.name)}"><span class="mart"><img src="${IMG[c.art]}" alt=""></span><span class="mstrip"><span class="stage">${c.stage?ROMAN[c.stage-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span></div>`; }
+  const framed = hasFrame() && c.kind==='research';
   return `<div class="mcard ${framed?'framed':''}"><span class="mart">${miniArt(c)}</span><span class="mname">${esc(c.name)}</span></div>`; }
 function miniBack(name,left){ return IMG['card-tall-back'] ? `<div class="mcard back"><span class="plate">${esc(name)}</span><span class="mcount">${left}</span></div>` : `<div class="mcard back plain"><span class="mname">${esc(name)} deck</span><span class="mcount">${left}</span></div>`; }
 function slotsHTML(l){
