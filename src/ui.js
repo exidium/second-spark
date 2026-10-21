@@ -245,9 +245,9 @@ function cardHTML(c, extra){
   if(c.kind==='cadaver'){
     const hc=(extra.noCost?0:c.hcost+(extra.extraH||0));
     const body=`<div class="gc-row">${matsHTML(c.mats)}</div>${c.exp?`<div>or <b>+${c.exp} expertise</b></div>`:'<div>Bones only, no expertise</div>'}${hc?`<div class="gc-cost">−${hc} humanity to resolve</div>`:''}${c.cost?`<div class="gc-cost">+${c.cost}f to buy</div>`:''}`;
-    if(c.src==='hospital' && hasFrame()) return framedHTML({sel:extra.sel, kind:`${esc(LOC[c.src].name)} · stage ${c.stage?ROMAN[c.stage-1]:'bones'}`, title:esc(c.name), art:portrait(c.seed, c.src, false), body, mark:c.stage?ROMAN[c.stage-1]:'', acts:extra.acts});
+    if(c.src==='hospital' && hasFrame()) return framedHTML({sel:extra.sel, kind:`${esc(LOC[c.src].name)} · stage ${c.stage?ROMAN[c.stage-1]:'bones'}`, title:esc(c.name), art:cadaverArt(c), body, mark:c.stage?ROMAN[c.stage-1]:'', acts:extra.acts});
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">${esc(LOC[c.src].name)} · stage ${c.stage?ROMAN[c.stage-1]:'bones'}</span><span class="gc-title">${esc(c.name)}</span>
-      <div class="gc-art">${portrait(c.seed, c.src, false)}</div>
+      <div class="gc-art">${cadaverArt(c)}</div>
       <div class="gc-body">${body}</div>
       ${extra.acts||''}</div>`;
   }
@@ -291,7 +291,7 @@ function charArt(id, cls){ const src=IMG['character-'+id]; if(src) return `<img 
   const svg=portrait(CHAR_SEED[id], CHAR_BG[id], false, CHAR_LOOK[id]); return cls?`<span class="${cls}">${svg}</span>`:svg; }
 function charCardHTML(c){ return `<div class="hcard" style="align-items:flex-start">${charArt(c.id,'avatar')}<span><span class="eyebrow">${esc(c.role)}</span><br><b>${esc(c.name)}</b><br><span style="color:var(--parch-dim)">${esc(c.text)}</span></span></div>`; }
 function catalogHTML(){
-  const cad=src=>CADAVERS[src].map(r=>{ const c=cadaverFromRowStatic(src,r); return cardHTML(c); }).join('');
+  const cad=src=>CADAVERS[src].map((r,k)=>{ const c=cadaverFromRowStatic(src,r,k); return cardHTML(c); }).join('');
   return `<p class="flavor">Numbers follow the physical game. Names, wording and art are ours.</p>
     <div class="sub">Cemetery cadavers (14)</div><div class="gcards">${cad('cemetery')}</div>
     <div class="sub">Morgue cadavers (14)</div><div class="gcards">${cad('morgue')}</div>
@@ -304,8 +304,10 @@ function catalogHTML(){
     <div class="sub">Encounters (15)</div><div class="gcards">${ENCOUNTERS.map(encounterCardHTML).join('')}</div>
     <div class="sub">Characters (6)</div><div class="hand">${CHARACTERS.map(charCardHTML).join('')}</div>`;
 }
-function cadaverFromRowStatic(src,row){ const [st,m,exp,hc,name,cost]=row; const mats=[]; ['muscle','organ','blood','bone'].forEach((t,k)=>{ if(m[k]) mats.push([t,t==='bone'?0:st,m[k]]); });
-  return {kind:'cadaver', src, stage:st, name:name||(st?`Stage ${ROMAN[st-1]} body`:'A heap of bones'), seed:(m[0]*7+m[1]*13+m[2]*17+m[3]*19+st*23)||5, mats, exp, hcost:hc, cost:cost||0}; }
+function cadaverFromRowStatic(src,row,k){ const [st,m,exp,hc,name,cost]=row; const mats=[]; ['muscle','organ','blood','bone'].forEach((t,k)=>{ if(m[k]) mats.push([t,t==='bone'?0:st,m[k]]); });
+  return {kind:'cadaver', src, stage:st, name:name||(st?`Stage ${ROMAN[st-1]} body`:'A heap of bones'), seed:(m[0]*7+m[1]*13+m[2]*17+m[3]*19+st*23)||5, mats, exp, hcost:hc, cost:cost||0, art: k==null?null:`${src}-${String(k+1).padStart(2,'0')}`}; }
+// Cadaver picture: the generated portrait when art/cadavers/<deck>-NN.png exists, else the seeded SVG face.
+function cadaverArt(c){ const src=c.art&&IMG[c.art]; return src ? `<img src="${src}" alt="">` : portrait(c.seed, c.src, false); }
 
 /* =========================================================
    BOARD RENDERING
@@ -356,7 +358,7 @@ function visibleLocs(){ return LOCS.filter(l=>!l.event || (l.event==='odeon'&&S.
 function faceUp(id){ return id==='hospital'?S.hosp : id==='academy'?S.researchRow : id==='church'?S.humanityRow : id==='docks'?S.docks : id==='square'?S.square : []; }
 function researchIcon(c){ return ICONART[c.id==='demo'||c.id==='electro'?'jar':c.id==='healing'||c.id==='transfusion'?'flask':c.id==='tutor'||c.id==='guest'?'coin':'book']; }
 function slotDot(key){ const o=S.occ[key]; if(!o) return '<i class="slot"></i>'; return `<i class="slot on ${o.kind==='scientist'?'sci':''}" style="background:${S.players[o.p].color}"></i>`; }
-function miniArt(c){ if(c.kind==='cadaver') return portrait(c.seed,c.src,false); if(SC_WHO[c.kind]) return portrait(c.seed||7,'docks',true); if(c.kind==='research') return researchIcon(c); if(c.kind==='humanity') return ICONART.candle; return ''; }
+function miniArt(c){ if(c.kind==='cadaver') return cadaverArt(c); if(SC_WHO[c.kind]) return portrait(c.seed||7,'docks',true); if(c.kind==='research') return researchIcon(c); if(c.kind==='humanity') return ICONART.candle; return ''; }
 // Mini card on the board: art and name only. The place popup shows the same card at full size.
 function miniCard(c){ const framed = hasFrame() && (c.kind==='research' || (c.kind==='cadaver'&&c.src==='hospital'));
   return `<div class="mcard ${framed?'framed':''}"><span class="mart">${miniArt(c)}</span><span class="mname">${esc(c.name)}</span></div>`; }

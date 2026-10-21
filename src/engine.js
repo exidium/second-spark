@@ -22,14 +22,14 @@ function reqHTML(req){ return Object.entries(req).filter(([,n])=>n>0).map(([k,n]
 /* =========================================================
    CARDS
    ========================================================= */
-function cadaverFromRow(src,row){
+function cadaverFromRow(src,row,k){
   const [st,m,exp,hc,name,cost]=row;
   const mats=[]; ['muscle','organ','blood','bone'].forEach((t,k)=>{ if(m[k]) mats.push([t, t==='bone'?0:st, m[k]]); });
-  return {id:uid(), kind:'cadaver', src, stage:st, name:name||pick(OWNERS), named:!!name, seed:1+rnd(9999), mats, exp, hcost:hc, cost:cost||0};
+  return {id:uid(), kind:'cadaver', src, stage:st, name:name||pick(OWNERS), named:!!name, seed:1+rnd(9999), mats, exp, hcost:hc, cost:cost||0, art: k==null?null:`${src}-${String(k+1).padStart(2,'0')}`};
 }
 function drawCadaver(src){
   const d=S.decks[src]; if(!d.length) S.decks[src]=shuffle(CADAVERS[src].map((r,k)=>k));
-  const k=S.decks[src].shift(); return cadaverFromRow(src, CADAVERS[src][k]);
+  const k=S.decks[src].shift(); return cadaverFromRow(src, CADAVERS[src][k], k);
 }
 function drawScoundrel(){ if(!S.decks.sc.length) S.decks.sc=shuffle(SCOUNDRELS.map((r,k)=>k)); const k=S.decks.sc.shift(); const t=SCOUNDRELS[k];
   return {id:uid(), kind:'scoundrel', tpl:k, ...t, who:pick(SC_WHO[t.kind]), seed:1+rnd(9999)}; }

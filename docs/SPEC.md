@@ -18,7 +18,7 @@ This document describes the game **as currently built** (version 12 of the publi
 ## 2. Technology and architecture
 
 ### 2.1 Delivery
-- One self-contained HTML page. Public test build on GitHub Pages at https://exidium.github.io/second-spark/ (`npm run deploy`); private preview as a claude.ai Artifact. No server.
+- One self-contained HTML page. Public test build on GitHub Pages at https://exidium.github.io/second-spark/ (`npm run deploy`). No server.
 - No JavaScript libraries. Locations, cards and dice are hand-written inline SVG. The six character portraits are generated images (see 12.5) embedded as data URIs; the SVG portrait is the fallback when an image is missing.
 - Fonts from Google Fonts: **Amarante** (every title, card name, button and label), **EB Garamond** (body text, italic for flavor). Georgia/serif fallback. Body size 16px.
 - External network: none except Google Fonts. (Artifact sandbox blocks other hosts.)
@@ -440,7 +440,7 @@ Desktop (1100px and wider): the page uses the full browser width; the right colu
 ---
 
 ### 12.5 Generated art
-The title logo (`art/ui/title.webp`, transparent WebP) and six pixel-art character portraits made with Nano Banana 2 from the prompts in `docs/prompts/all-images.md` (style in `ART_STYLE.md`): 384x576 PNG, 32 colours, about 60KB each. Shown in the picker, your character line (44x58 avatar), the rivals panel (30x40), the rival lab window (72x96) and the card catalog. Hospital cadaver and Research cards are drawn on an engraved parchment frame (`art/frames/card-tall-front.webp`, 190px wide, 3:4) with the stage numeral in the foot cartouche; the Hospital and Academy location cards show the wooden deck back (`art/frames/card-tall-back.webp`) with the deck name on its brass plate and the cards left. Everything else is still SVG.
+The title logo (`art/ui/title.webp`, transparent WebP) and six pixel-art character portraits made with Nano Banana 2 from the prompts in `docs/prompts/all-images.md` (style in `ART_STYLE.md`): 384x576 PNG, 32 colours, about 60KB each. Shown in the picker, your character line (44x58 avatar), the rivals panel (30x40), the rival lab window (72x96) and the card catalog. The 14 Hospital cadavers have generated pixel portraits (`art/cadavers/hospital-NN.png`, 3:4, face to the camera); other decks use the seeded SVG face until their sets exist. Hospital cadaver and Research cards are drawn on an engraved parchment frame (`art/frames/card-tall-front.webp`, 190px wide, 3:4) with the stage numeral in the foot cartouche; the Cemetery and Morgue places show the pixel-art deck back (`art/frames/card-tall-back.png`) with the deck name on its brass plate and the cards left. Everything else is still SVG.
 
 ## 13. Testing
 - `tests/sim.js` (Playwright): runs N full games with all players as AI in fast mode; reports stuck games, game length and ending type, winners, average alive parts, and page errors.
