@@ -17,9 +17,9 @@ ROOT = Path(__file__).resolve().parent.parent
 SHEET = ROOT / 'docs' / 'prompts' / 'all-images.md'
 MODEL = os.environ.get('NB_MODEL', 'gemini-3.1-flash-image')
 API = f'https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent'
-ASPECT = {(96, 54): '16:9', (64, 96): '2:3', (72, 96): '3:4', (96, 72): '4:3'}
+ASPECT = {(96, 54): '16:9', (64, 96): '2:3', (72, 96): '3:4', (96, 72): '4:3', (64, 64): '1:1'}
 # Sheet section -> folder under art/source/ (originals) and art/ (game copies)
-FOLDER = {'Locations': 'locations', 'Lab spaces': 'locations', 'Cadavers': 'cadavers', 'Scoundrels': 'scoundrels', 'Research': 'research', 'Humanity': 'humanity', 'Events': 'events', 'Encounters': 'encounters', 'Characters': 'characters', 'Board': 'ui', 'Frames': 'frames'}
+FOLDER = {'Locations': 'locations', 'Lab spaces': 'locations', 'Cadavers': 'cadavers', 'Scoundrels': 'scoundrels', 'Research': 'research', 'Humanity': 'humanity', 'Events': 'events', 'Encounters': 'encounters', 'Characters': 'characters', 'Board': 'ui', 'Frames': 'frames', 'Icons': 'icons'}
 
 def parse_sheet():
     txt = SHEET.read_text(encoding='utf-8'); items = []; section = None

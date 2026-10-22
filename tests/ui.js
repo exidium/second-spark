@@ -18,7 +18,7 @@ function serve() { const dist = path.join(__dirname, '..', 'dist'); return new P
   while (steps++ < 4000) {
     const st = await pg.evaluate(() => { const S = window.__spark.S; return S ? { ph: S.phase, r: S.round, cur: S.cur } : null; });
     if (!st || st.ph === 'end') break;
-    if (await pg.$('#modalRoot h2')) {
+    if (await pg.$('#modalRoot .modal')) {
       // Night work lives in the Laboratory popup: build, then throw, then end the night.
       const bb = await pg.$('#modalRoot [data-act=build]'); if (bb) { await bb.click().catch(() => {}); await pg.waitForTimeout(30); continue; }
       const th = await pg.$('#modalRoot [data-act=throw]:not([disabled])'); if (th) { await th.click().catch(() => {}); await pg.waitForTimeout(50); continue; }

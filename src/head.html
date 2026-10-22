@@ -389,7 +389,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 
 /* cadaver cards in the physical game's layout: full-bleed 3:4 portrait, numbers strip at the foot */
 .ccard{position:relative;width:190px;aspect-ratio:3/4;border-radius:7px;overflow:hidden;border:2px solid #2a2320;box-shadow:0 8px 22px rgba(0,0,0,.55);background:#0e0b0c;display:flex;flex-direction:column;justify-content:flex-end}
-.ccard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
+.ccard>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
 .ccard .ck{position:absolute;top:5px;left:7px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--parch);text-shadow:0 1px 3px #000;opacity:.85}
 .ccard .cn{position:absolute;top:16px;left:7px;right:7px;font-family:var(--f-display);font-size:13px;color:var(--parch);text-shadow:0 1px 3px #000,0 0 6px #000;line-height:1.1}
 .ccard .cicons{position:relative;display:flex;gap:4px;justify-content:center;padding:0 6px 4px;font-size:11px;font-weight:600;color:var(--parch);text-shadow:0 1px 3px #000}
@@ -414,7 +414,15 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .ecard .em.storm{color:#9fd0ff;border-color:#9fd0ff}.ecard .em.exec{color:#f0a79f;border-color:#d6675f}
 .ecard .ebody{font-size:12.5px;line-height:1.35;padding:8px 10px 9px;display:flex;flex-direction:column;gap:4px}
 /* scoundrel cards: same frame as cadavers, plus marks top left and a title band across the middle */
-.ccard.sc .cmarks{position:absolute;top:6px;left:6px;display:flex;flex-direction:column;gap:3px}
+.ccard.sc .cmarks{position:absolute;top:30px;left:6px;display:flex;flex-direction:column;gap:3px;align-items:flex-start}
+.ccard .cm.coins,.ccard .cm.hearts{background:none;border:0;padding:0;display:flex;gap:1px}
+.ico{width:18px;height:18px;display:inline-block;vertical-align:middle;image-rendering:pixelated;filter:drop-shadow(0 1px 2px #000)}
+.ci .ico{width:13px;height:13px;margin-left:2px}
+.ccard.sc .ck{left:7px}
+.ccard.sc .cn{position:absolute;top:16px;left:7px;right:7px;font-size:15px;color:#fff;text-shadow:0 1px 3px #000,0 0 8px #000}
+.gc-acts.col{flex-direction:column;align-items:stretch;gap:4px}
+.btn.sm{padding:5px 10px;font-size:13px}
+.mcard.cad .mstrip.one{display:flex;justify-content:center;font-size:clamp(4px,.65cqw,7px);color:var(--parch);padding:1px}
 .ccard .cm{font-family:var(--f-display);font-size:12px;padding:1px 6px;border-radius:10px;text-shadow:0 1px 2px #000;border:1px solid rgba(0,0,0,.6)}
 .ccard .cm.coin{background:#b8923a;color:#1a1408;text-shadow:none}
 .ccard .cm.heart{background:#5a1f1f;color:#f0a79f}
@@ -525,10 +533,16 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .rivalmini .rstats{display:flex;flex-direction:column;gap:2px;width:100%;font-size:11.5px;color:var(--parch-dim)}
 .rivalmini .rstats span{display:flex;justify-content:space-between}
 .rivalmini .rstats b{color:var(--parch);font-variant-numeric:tabular-nums}
+.modal.hero{padding-top:0}
+.phero{position:relative;margin:0 -20px 10px;background:#0e0b0c}
+.phero .placeart{margin:0;max-width:none;border-radius:0}
+.phero .placeart img{aspect-ratio:16/9}
+.phero .phname{position:absolute;top:14px;left:20px;font-family:var(--f-display);font-size:30px;line-height:1;color:#fff;text-shadow:0 2px 4px #000,0 0 12px #000}
 .placeart{background:var(--paper);color:var(--paper-ink);border-radius:4px;overflow:hidden;margin:6px 0;max-width:320px}
 .placeart svg{display:block;width:100%;height:auto}
 .placeart img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
-.placeart:has(img){max-width:100%;background:#0e0b0c}
+.placeart:has(img){max-width:360px;background:#0e0b0c}
+.phero .placeart:has(img){max-width:none}
 .scitag{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);margin-left:6px;font-family:var(--f-body)}
 .closedline{color:var(--crim);font-family:var(--f-display)}
 .btn.pulse{animation:btnpulse 1.6s ease-in-out infinite}

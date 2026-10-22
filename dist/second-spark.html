@@ -390,7 +390,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 
 /* cadaver cards in the physical game's layout: full-bleed 3:4 portrait, numbers strip at the foot */
 .ccard{position:relative;width:190px;aspect-ratio:3/4;border-radius:7px;overflow:hidden;border:2px solid #2a2320;box-shadow:0 8px 22px rgba(0,0,0,.55);background:#0e0b0c;display:flex;flex-direction:column;justify-content:flex-end}
-.ccard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
+.ccard>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
 .ccard .ck{position:absolute;top:5px;left:7px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--parch);text-shadow:0 1px 3px #000;opacity:.85}
 .ccard .cn{position:absolute;top:16px;left:7px;right:7px;font-family:var(--f-display);font-size:13px;color:var(--parch);text-shadow:0 1px 3px #000,0 0 6px #000;line-height:1.1}
 .ccard .cicons{position:relative;display:flex;gap:4px;justify-content:center;padding:0 6px 4px;font-size:11px;font-weight:600;color:var(--parch);text-shadow:0 1px 3px #000}
@@ -415,7 +415,15 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .ecard .em.storm{color:#9fd0ff;border-color:#9fd0ff}.ecard .em.exec{color:#f0a79f;border-color:#d6675f}
 .ecard .ebody{font-size:12.5px;line-height:1.35;padding:8px 10px 9px;display:flex;flex-direction:column;gap:4px}
 /* scoundrel cards: same frame as cadavers, plus marks top left and a title band across the middle */
-.ccard.sc .cmarks{position:absolute;top:6px;left:6px;display:flex;flex-direction:column;gap:3px}
+.ccard.sc .cmarks{position:absolute;top:30px;left:6px;display:flex;flex-direction:column;gap:3px;align-items:flex-start}
+.ccard .cm.coins,.ccard .cm.hearts{background:none;border:0;padding:0;display:flex;gap:1px}
+.ico{width:18px;height:18px;display:inline-block;vertical-align:middle;image-rendering:pixelated;filter:drop-shadow(0 1px 2px #000)}
+.ci .ico{width:13px;height:13px;margin-left:2px}
+.ccard.sc .ck{left:7px}
+.ccard.sc .cn{position:absolute;top:16px;left:7px;right:7px;font-size:15px;color:#fff;text-shadow:0 1px 3px #000,0 0 8px #000}
+.gc-acts.col{flex-direction:column;align-items:stretch;gap:4px}
+.btn.sm{padding:5px 10px;font-size:13px}
+.mcard.cad .mstrip.one{display:flex;justify-content:center;font-size:clamp(4px,.65cqw,7px);color:var(--parch);padding:1px}
 .ccard .cm{font-family:var(--f-display);font-size:12px;padding:1px 6px;border-radius:10px;text-shadow:0 1px 2px #000;border:1px solid rgba(0,0,0,.6)}
 .ccard .cm.coin{background:#b8923a;color:#1a1408;text-shadow:none}
 .ccard .cm.heart{background:#5a1f1f;color:#f0a79f}
@@ -526,10 +534,16 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .rivalmini .rstats{display:flex;flex-direction:column;gap:2px;width:100%;font-size:11.5px;color:var(--parch-dim)}
 .rivalmini .rstats span{display:flex;justify-content:space-between}
 .rivalmini .rstats b{color:var(--parch);font-variant-numeric:tabular-nums}
+.modal.hero{padding-top:0}
+.phero{position:relative;margin:0 -20px 10px;background:#0e0b0c}
+.phero .placeart{margin:0;max-width:none;border-radius:0}
+.phero .placeart img{aspect-ratio:16/9}
+.phero .phname{position:absolute;top:14px;left:20px;font-family:var(--f-display);font-size:30px;line-height:1;color:#fff;text-shadow:0 2px 4px #000,0 0 12px #000}
 .placeart{background:var(--paper);color:var(--paper-ink);border-radius:4px;overflow:hidden;margin:6px 0;max-width:320px}
 .placeart svg{display:block;width:100%;height:auto}
 .placeart img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
-.placeart:has(img){max-width:100%;background:#0e0b0c}
+.placeart:has(img){max-width:360px;background:#0e0b0c}
+.phero .placeart:has(img){max-width:none}
 .scitag{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);margin-left:6px;font-family:var(--f-body)}
 .closedline{color:var(--crim);font-family:var(--f-display)}
 .btn.pulse{animation:btnpulse 1.6s ease-in-out infinite}
@@ -563,7 +577,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 (() => {
 "use strict";
 // Images from art/ (file stem -> url). Empty when none.
-const IMG = {"cemetery-01": "art/cadavers/cemetery-01.png", "cemetery-02": "art/cadavers/cemetery-02.png", "cemetery-03": "art/cadavers/cemetery-03.png", "cemetery-04": "art/cadavers/cemetery-04.png", "cemetery-05": "art/cadavers/cemetery-05.png", "cemetery-06": "art/cadavers/cemetery-06.png", "cemetery-07": "art/cadavers/cemetery-07.png", "cemetery-08": "art/cadavers/cemetery-08.png", "cemetery-09": "art/cadavers/cemetery-09.png", "cemetery-10": "art/cadavers/cemetery-10.png", "cemetery-11": "art/cadavers/cemetery-11.png", "cemetery-12": "art/cadavers/cemetery-12.png", "cemetery-13": "art/cadavers/cemetery-13.png", "cemetery-14": "art/cadavers/cemetery-14.png", "hospital-01": "art/cadavers/hospital-01.png", "hospital-02": "art/cadavers/hospital-02.png", "hospital-03": "art/cadavers/hospital-03.png", "hospital-04": "art/cadavers/hospital-04.png", "hospital-05": "art/cadavers/hospital-05.png", "hospital-06": "art/cadavers/hospital-06.png", "hospital-07": "art/cadavers/hospital-07.png", "hospital-08": "art/cadavers/hospital-08.png", "hospital-09": "art/cadavers/hospital-09.png", "hospital-10": "art/cadavers/hospital-10.png", "hospital-11": "art/cadavers/hospital-11.png", "hospital-12": "art/cadavers/hospital-12.png", "hospital-13": "art/cadavers/hospital-13.png", "hospital-14": "art/cadavers/hospital-14.png", "morgue-01": "art/cadavers/morgue-01.png", "morgue-02": "art/cadavers/morgue-02.png", "morgue-03": "art/cadavers/morgue-03.png", "morgue-04": "art/cadavers/morgue-04.png", "morgue-05": "art/cadavers/morgue-05.png", "morgue-06": "art/cadavers/morgue-06.png", "morgue-07": "art/cadavers/morgue-07.png", "morgue-08": "art/cadavers/morgue-08.png", "morgue-09": "art/cadavers/morgue-09.png", "morgue-10": "art/cadavers/morgue-10.png", "morgue-11": "art/cadavers/morgue-11.png", "morgue-12": "art/cadavers/morgue-12.png", "morgue-13": "art/cadavers/morgue-13.png", "morgue-14": "art/cadavers/morgue-14.png", "square-01": "art/cadavers/square-01.png", "square-02": "art/cadavers/square-02.png", "square-03": "art/cadavers/square-03.png", "square-04": "art/cadavers/square-04.png", "square-05": "art/cadavers/square-05.png", "square-06": "art/cadavers/square-06.png", "square-07": "art/cadavers/square-07.png", "square-08": "art/cadavers/square-08.png", "square-09": "art/cadavers/square-09.png", "square-10": "art/cadavers/square-10.png", "character-charlatan": "art/characters/character-charlatan.png", "character-heiress": "art/characters/character-heiress.png", "character-human": "art/characters/character-human.png", "character-psycho": "art/characters/character-psycho.png", "character-surgeon": "art/characters/character-surgeon.png", "character-zoo": "art/characters/character-zoo.png", "encounter-01": "art/encounters/encounter-01.png", "encounter-10": "art/encounters/encounter-10.png", "encounter-12": "art/encounters/encounter-12.png", "event-01": "art/events/event-01.png", "event-02": "art/events/event-02.png", "event-03": "art/events/event-03.png", "event-04": "art/events/event-04.png", "event-05": "art/events/event-05.png", "event-06": "art/events/event-06.png", "event-07": "art/events/event-07.png", "event-08": "art/events/event-08.png", "event-09": "art/events/event-09.png", "event-10": "art/events/event-10.png", "event-11": "art/events/event-11.png", "event-12": "art/events/event-12.png", "event-13": "art/events/event-13.png", "event-14": "art/events/event-14.png", "event-15": "art/events/event-15.png", "event-16": "art/events/event-16.png", "event-17": "art/events/event-17.png", "event-18": "art/events/event-18.png", "event-19": "art/events/event-19.png", "card-tall-back": "art/frames/card-tall-back.png", "card-tall-front": "art/frames/card-tall-front.webp", "lab-blood": "art/locations/lab-blood.png", "lab-charge": "art/locations/lab-charge.png", "lab-practice": "art/locations/lab-practice.png", "lab-repair": "art/locations/lab-repair.png", "location-academy": "art/locations/location-academy.png", "location-alley": "art/locations/location-alley.png", "location-cemetery": "art/locations/location-cemetery.png", "location-church": "art/locations/location-church.png", "location-docks": "art/locations/location-docks.png", "location-first": "art/locations/location-first.png", "location-hospital": "art/locations/location-hospital.png", "location-market": "art/locations/location-market.png", "location-morgue": "art/locations/location-morgue.png", "location-odeon": "art/locations/location-odeon.png", "location-slaughter": "art/locations/location-slaughter.png", "location-square": "art/locations/location-square.png", "scoundrel-01": "art/scoundrels/scoundrel-01.png", "scoundrel-02": "art/scoundrels/scoundrel-02.png", "scoundrel-03": "art/scoundrels/scoundrel-03.png", "scoundrel-04": "art/scoundrels/scoundrel-04.png", "scoundrel-05": "art/scoundrels/scoundrel-05.png", "scoundrel-06": "art/scoundrels/scoundrel-06.png", "scoundrel-07": "art/scoundrels/scoundrel-07.png", "scoundrel-08": "art/scoundrels/scoundrel-08.png", "scoundrel-09": "art/scoundrels/scoundrel-09.png", "scoundrel-10": "art/scoundrels/scoundrel-10.png", "scoundrel-11": "art/scoundrels/scoundrel-11.png", "scoundrel-12": "art/scoundrels/scoundrel-12.png", "scoundrel-13": "art/scoundrels/scoundrel-13.png", "scoundrel-14": "art/scoundrels/scoundrel-14.png", "scoundrel-15": "art/scoundrels/scoundrel-15.png", "scoundrel-16": "art/scoundrels/scoundrel-16.png", "bg-wall": "art/ui/bg-wall.jpg", "board": "art/ui/board.jpg", "title": "art/ui/title.webp"};
+const IMG = {"cemetery-01": "art/cadavers/cemetery-01.png", "cemetery-02": "art/cadavers/cemetery-02.png", "cemetery-03": "art/cadavers/cemetery-03.png", "cemetery-04": "art/cadavers/cemetery-04.png", "cemetery-05": "art/cadavers/cemetery-05.png", "cemetery-06": "art/cadavers/cemetery-06.png", "cemetery-07": "art/cadavers/cemetery-07.png", "cemetery-08": "art/cadavers/cemetery-08.png", "cemetery-09": "art/cadavers/cemetery-09.png", "cemetery-10": "art/cadavers/cemetery-10.png", "cemetery-11": "art/cadavers/cemetery-11.png", "cemetery-12": "art/cadavers/cemetery-12.png", "cemetery-13": "art/cadavers/cemetery-13.png", "cemetery-14": "art/cadavers/cemetery-14.png", "hospital-01": "art/cadavers/hospital-01.png", "hospital-02": "art/cadavers/hospital-02.png", "hospital-03": "art/cadavers/hospital-03.png", "hospital-04": "art/cadavers/hospital-04.png", "hospital-05": "art/cadavers/hospital-05.png", "hospital-06": "art/cadavers/hospital-06.png", "hospital-07": "art/cadavers/hospital-07.png", "hospital-08": "art/cadavers/hospital-08.png", "hospital-09": "art/cadavers/hospital-09.png", "hospital-10": "art/cadavers/hospital-10.png", "hospital-11": "art/cadavers/hospital-11.png", "hospital-12": "art/cadavers/hospital-12.png", "hospital-13": "art/cadavers/hospital-13.png", "hospital-14": "art/cadavers/hospital-14.png", "morgue-01": "art/cadavers/morgue-01.png", "morgue-02": "art/cadavers/morgue-02.png", "morgue-03": "art/cadavers/morgue-03.png", "morgue-04": "art/cadavers/morgue-04.png", "morgue-05": "art/cadavers/morgue-05.png", "morgue-06": "art/cadavers/morgue-06.png", "morgue-07": "art/cadavers/morgue-07.png", "morgue-08": "art/cadavers/morgue-08.png", "morgue-09": "art/cadavers/morgue-09.png", "morgue-10": "art/cadavers/morgue-10.png", "morgue-11": "art/cadavers/morgue-11.png", "morgue-12": "art/cadavers/morgue-12.png", "morgue-13": "art/cadavers/morgue-13.png", "morgue-14": "art/cadavers/morgue-14.png", "square-01": "art/cadavers/square-01.png", "square-02": "art/cadavers/square-02.png", "square-03": "art/cadavers/square-03.png", "square-04": "art/cadavers/square-04.png", "square-05": "art/cadavers/square-05.png", "square-06": "art/cadavers/square-06.png", "square-07": "art/cadavers/square-07.png", "square-08": "art/cadavers/square-08.png", "square-09": "art/cadavers/square-09.png", "square-10": "art/cadavers/square-10.png", "character-charlatan": "art/characters/character-charlatan.png", "character-heiress": "art/characters/character-heiress.png", "character-human": "art/characters/character-human.png", "character-psycho": "art/characters/character-psycho.png", "character-surgeon": "art/characters/character-surgeon.png", "character-zoo": "art/characters/character-zoo.png", "encounter-01": "art/encounters/encounter-01.png", "encounter-10": "art/encounters/encounter-10.png", "encounter-12": "art/encounters/encounter-12.png", "event-01": "art/events/event-01.png", "event-02": "art/events/event-02.png", "event-03": "art/events/event-03.png", "event-04": "art/events/event-04.png", "event-05": "art/events/event-05.png", "event-06": "art/events/event-06.png", "event-07": "art/events/event-07.png", "event-08": "art/events/event-08.png", "event-09": "art/events/event-09.png", "event-10": "art/events/event-10.png", "event-11": "art/events/event-11.png", "event-12": "art/events/event-12.png", "event-13": "art/events/event-13.png", "event-14": "art/events/event-14.png", "event-15": "art/events/event-15.png", "event-16": "art/events/event-16.png", "event-17": "art/events/event-17.png", "event-18": "art/events/event-18.png", "event-19": "art/events/event-19.png", "card-tall-back": "art/frames/card-tall-back.png", "card-tall-front": "art/frames/card-tall-front.webp", "icon-coin": "art/icons/icon-coin.png", "icon-heart-broken": "art/icons/icon-heart-broken.png", "icon-heart": "art/icons/icon-heart.png", "lab-blood": "art/locations/lab-blood.png", "lab-charge": "art/locations/lab-charge.png", "lab-practice": "art/locations/lab-practice.png", "lab-repair": "art/locations/lab-repair.png", "location-academy": "art/locations/location-academy.png", "location-alley": "art/locations/location-alley.png", "location-cemetery": "art/locations/location-cemetery.png", "location-church": "art/locations/location-church.png", "location-docks": "art/locations/location-docks.png", "location-first": "art/locations/location-first.png", "location-hospital": "art/locations/location-hospital.png", "location-market": "art/locations/location-market.png", "location-morgue": "art/locations/location-morgue.png", "location-odeon": "art/locations/location-odeon.png", "location-slaughter": "art/locations/location-slaughter.png", "location-square": "art/locations/location-square.png", "scoundrel-01": "art/scoundrels/scoundrel-01.png", "scoundrel-02": "art/scoundrels/scoundrel-02.png", "scoundrel-03": "art/scoundrels/scoundrel-03.png", "scoundrel-04": "art/scoundrels/scoundrel-04.png", "scoundrel-05": "art/scoundrels/scoundrel-05.png", "scoundrel-06": "art/scoundrels/scoundrel-06.png", "scoundrel-07": "art/scoundrels/scoundrel-07.png", "scoundrel-08": "art/scoundrels/scoundrel-08.png", "scoundrel-09": "art/scoundrels/scoundrel-09.png", "scoundrel-10": "art/scoundrels/scoundrel-10.png", "scoundrel-11": "art/scoundrels/scoundrel-11.png", "scoundrel-12": "art/scoundrels/scoundrel-12.png", "scoundrel-13": "art/scoundrels/scoundrel-13.png", "scoundrel-14": "art/scoundrels/scoundrel-14.png", "scoundrel-15": "art/scoundrels/scoundrel-15.png", "scoundrel-16": "art/scoundrels/scoundrel-16.png", "bg-wall": "art/ui/bg-wall.jpg", "board": "art/ui/board.jpg", "title": "art/ui/title.webp"};
 /* =========================================================
    CARD DATA
    Numbers and effects follow the physical game's cards (read from the
@@ -1887,8 +1901,8 @@ function renderModal(){
   const html = typeof modal.html==='function' ? modal.html(reg) : (modal.html||'');
   const opts=(modal.options||[]).map(o=>o.heading?`<div class="eyebrow" style="margin-top:6px">${o.heading}</div>`:`<button class="opt" ${o.disabled?'disabled':''} data-mfn="${reg(o.fn)}"><span><span class="ot">${o.label}</span>${o.sub?`<small>${o.sub}</small>`:''}</span><span class="num">${o.right||''}</span></button>`).join('');
   const btns=(modal.buttons||[]).map(b=>`<button class="btn ${b.primary?'primary':''}" ${b.disabled?'disabled':''} data-mfn="${reg(b.fn)}">${b.label}</button>`).join('');
-  root.innerHTML=`<div class="scrim" data-scrim="1"><div class="modal ${modal.wide?'wide':''} ${modal.xwide?'xwide':''}" role="dialog" aria-modal="true" aria-label="${esc(String(modal.title).replace(/<[^>]+>/g,''))}">
-    <h2>${modal.title}</h2>${html}${opts?`<div class="opts">${opts}</div>`:''}<div class="actions">${btns}</div></div></div>`;
+  root.innerHTML=`<div class="scrim" data-scrim="1"><div class="modal ${modal.wide?'wide':''} ${modal.xwide?'xwide':''} ${modal.hero?'hero':''}" role="dialog" aria-modal="true" aria-label="${esc(String(modal.title).replace(/<[^>]+>/g,''))}">
+    ${modal.title?`<h2>${modal.title}</h2>`:''}${html}${opts?`<div class="opts">${opts}</div>`:''}<div class="actions">${btns}</div></div></div>`;
   const f=root.querySelector('.opt:not(:disabled), .btn.primary, .btn'); if(f) f.focus({preventScroll:true});
 }
 // ask(): resolves with an option's or button's value. html may be fn(reg, done).
@@ -1938,7 +1952,7 @@ document.addEventListener('scroll', ()=>{ tip.hidden=true; }, true);
 /* =========================================================
    HUMAN INPUT
    ========================================================= */
-let busy=false, humanBlocked=null; const uiOpts={steady:false, surgeon:false};
+let busy=false, humanBlocked=null, dockPick=null; const uiOpts={steady:false, surgeon:false};
 function isMyTurn(){ return S && S.phase==='day' && S.cur===0 && !!humanResolve && !busy; }
 function humanCan(key){ if(!isMyTurn()) return false; const sp=SPACE[key]; if(sp && humanBlocked===sp.loc) return false; return canPlace(0,key); }
 
@@ -2035,7 +2049,7 @@ async function humanPre(i,key,kind,noCancel){
     }
     case 'academy.donate': return await ask({title:'Donate', html:'<p>1 reputation per franc, up to 3.</p>', options:[1,2,3].map(n=>({label:`Donate ${n}f`, value:{n}, disabled:p.coin<n})), buttons:cancel});
     case 'market.trade': return await marketModal(p, cancel.length>0);
-    case 'docks.hire': { const c=await chooseScoundrel(p, S.docks, 'Three scoundrels lean on the bollards.', !noCancel); return c; }
+    case 'docks.hire': { if(dockPick) return dockPick; const c=await chooseScoundrel(p, S.docks, 'Three scoundrels lean on the bollards.', !noCancel); return c; }
     case 'alley.murder': {
       const un=p.hand.some(h=>h.id==='unethical') && charged(p)>0;
       return await ask({title:'Dark Alley', html:`<p>Murder someone for ${matsHTML([['muscle',1,4],['organ',1,4],['blood',1,3],['bone',0,2]])}</p><p class="flavor">Costs 3 humanity and earns a police marker. At 2 markers the Dark Alley is closed to you until you pay 3f.</p>`,
@@ -2058,10 +2072,10 @@ async function humanPre(i,key,kind,noCancel){
 async function chooseScoundrel(p, row, intro, canCancel){
   return await ask({title:'Docks', wide:true, html:(reg,done)=>`<p class="flavor">${intro}</p>
     <div class="gcards">${row.map(c=>{ const ok=scCost(c)<=p.coin && scAllowed(c); const un=c.kind==='cut' && p.hand.some(h=>h.id==='unethical') && charged(p)>0;
-      const b=(label,v)=>`<button class="tog" ${ok?'':'disabled'} data-mfn="${reg(()=>done(v))}">${label}</button>`;
-      const acts = c.kind==='thief' ? b(`Draw ${c.draw} from the Hospital`,{card:c.id,how:'mats'})
-        : [b('Materials',{card:c.id,how:'mats'}), c.exp?b(`+${c.exp} exp${c.expH?' (−1 hum)':''}`,{card:c.id,how:'exp'}):'', c.hum?b(`+${c.hum} humanity`,{card:c.id,how:'hum'}):'', un?b('Unethical Experiment',{card:c.id,how:'exp',unethical:true}):''].join('');
-      return cardHTML(c,{acts:`<div class="gc-acts">${acts}</div>`}); }).join('')}</div>`, buttons:canCancel===false?[]:[{label:'Cancel', value:null}], locked:canCancel===false});
+      const b=(label,v,primary)=>`<button class="btn ${primary?'primary':''} sm" ${ok?'':'disabled'} data-mfn="${reg(()=>done(v))}">${label}</button>`;
+      const acts = c.kind==='thief' ? b(`Draw ${c.draw} from the Hospital`,{card:c.id,how:'mats'},true)
+        : [b('Materials',{card:c.id,how:'mats'},true), c.exp?b(`+${c.exp} expertise${c.expH?' (−1 humanity)':''}`,{card:c.id,how:'exp'}):'', c.hum?b(`+${c.hum} humanity`,{card:c.id,how:'hum'}):'', un?b('Unethical Experiment',{card:c.id,how:'exp',unethical:true}):''].join('');
+      return cardHTML(c,{acts:`<div class="gc-acts col">${acts}</div>`}); }).join('')}</div>`, buttons:canCancel===false?[]:[{label:'Cancel', value:null}], locked:canCancel===false});
 }
 async function marketModal(p, canCancel){
   const o={jars:0, ice:false, sellBone:0, sellPres:0, pickle:false};
@@ -2191,23 +2205,29 @@ function cadaverCardHTML(c, extra, hc){
 }
 // Scoundrel picture: the generated portrait for its template (art/scoundrels/scoundrel-NN.png), else the seeded SVG face.
 // Place illustration: the generated scene (art/locations/location-<id>.png or lab-<id>.png) if present, else the SVG drawing.
+// Place popup header: the scene flush to the modal's top and sides, the place name large in white over it.
+function placeHero(id, name, lab){ return `<div class="phero">${placeArt(id, lab)}<span class="phname">${esc(name)}</span></div>`; }
 function placeArt(id, lab){ const src=IMG[(lab?'lab-':'location-')+id]; return src ? `<img src="${src}" alt="">` : (ART[id]||''); }
 // Scoundrel card in the physical game's layout: full-bleed portrait, cost and humanity marks top left, a title band across the
 // middle with the name and a line of flavour, a benefit row (expertise, humanity, materials), and the stage and counts strip at the foot.
 // Hospital Thieves draw from the Hospital instead, so they get a text panel where the strip would be.
+// Icon images (art/icons/icon-*.png, transparent) with emoji fallback.
+function icon(name, fallback, cls){ const src=IMG['icon-'+name]; return src ? `<img class="ico ${cls||''}" src="${src}" alt="${fallback}">` : `<span class="ico ${cls||''}">${fallback}</span>`; }
+function coins(n){ return Array.from({length:n},()=>icon('coin','🪙')).join(''); }
+function hearts(n, broken){ return Array.from({length:n},()=>icon(broken?'heart-broken':'heart', broken?'💔':'❤️')).join(''); }
 function scoundrelCardHTML(c, extra, cost, hc){
   const n=t=>{ const m=(c.mats||[]).find(x=>x[0]===t); return m?m[2]:0; };
   const st=(c.mats||[]).find(x=>x[0]!=='bone'); const stage=st?ROMAN[st[1]-1]:'';
-  const marks=`<span class="cm coin" title="${cost} francs">${cost}f</span>${hc?`<span class="cm heart" title="−${hc} humanity">−${hc}</span>`:''}`;
-  const ben=[ c.exp?`<span class="ci" title="or +${c.exp} expertise${c.expH?', −1 humanity':''}">+${c.exp} <i>exp</i>${c.expH?'<small>−1 hum</small>':''}</span>`:'',
-              c.hum?`<span class="ci" title="or +${c.hum} humanity">+${c.hum} <i>hum</i></span>`:'',
+  const marks=`<span class="cm coins" title="${cost} francs">${coins(cost)}</span>${hc?`<span class="cm hearts" title="−${hc} humanity">${hearts(hc,true)}</span>`:''}`;
+  const ben=[ c.exp?`<span class="ci" title="or +${c.exp} expertise${c.expH?', −1 humanity':''}">+${c.exp} <i>exp</i>${c.expH?hearts(1,true):''}</span>`:'',
+              c.hum?`<span class="ci" title="or +${c.hum} humanity">+${c.hum} ${hearts(1)}</span>`:'',
               (c.mats&&c.mats.length)?`<span class="ci" title="or the materials below">mats</span>`:'' ].join('');
   const foot = c.kind==='thief'
     ? `<div class="cstrip text">Draw ${c.draw} from the Hospital stack<br><small>(or the deck, if the stack is empty)</small></div>`
     : `<div class="cstrip"><span class="cs stage">${stage||'✕'}</span>${[['muscle',n('muscle')],['organ',n('organ')],['blood',n('blood')],['animal',n('animal')],['bone',n('bone')]].filter(([t])=>t!=='animal'||n('animal')).slice(0,4).map(([t,v])=>`<span class="cs ${t} ${v?'':'z'}">${v}</span>`).join('')}</div>`;
   return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="ccard sc"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt="">
       <div class="cmarks">${marks}</div>
-      <div class="cband"><span class="cn">${esc(c.name)}</span>${c.who?`<span class="cq">${esc(c.who)}</span>`:''}</div>
+      <span class="ck">Scoundrel</span><span class="cn">${esc(c.name)}</span>
       ${c.kind==='thief'?'':`<div class="cicons">${ben}</div>`}${foot}</div>${extra.acts||''}</div>`;
 }
 function scoundrelArt(c){ const k=c.tpl==null?null:`scoundrel-${String(c.tpl+1).padStart(2,'0')}`; const src=k&&IMG[k]; return src ? `<img src="${src}" alt="">` : portrait(c.seed||7,'docks',true); }
@@ -2267,6 +2287,9 @@ function miniArt(c){ if(c.kind==='cadaver') return cadaverArt(c); if(SC_WHO[c.ki
 function miniCard(c){
   if(c.kind==='cadaver' && c.art && IMG[c.art]){ const n=t=>{ const m=c.mats.find(x=>x[0]===t); return m?m[2]:0; };
     return `<div class="mcard cad" title="${esc(c.name)}"><span class="mart"><img src="${IMG[c.art]}" alt=""></span><span class="mstrip"><span class="stage">${c.stage?ROMAN[c.stage-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span></div>`; }
+  if(SC_WHO[c.kind] && c.tpl!=null && IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]){ const n=t=>{ const m=(c.mats||[]).find(x=>x[0]===t); return m?m[2]:0; }; const st=(c.mats||[]).find(x=>x[0]!=='bone');
+    const strip = c.kind==='thief' ? `<span class="mstrip one">Draw ${c.draw}</span>` : `<span class="mstrip"><span class="stage">${st?ROMAN[st[1]-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span>`;
+    return `<div class="mcard cad" title="${esc(c.name)}: ${scCost(c)}f"><span class="mart"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt=""></span>${strip}</div>`; }
   const framed = hasFrame() && c.kind==='research';
   return `<div class="mcard ${framed?'framed':''}"><span class="mart">${miniArt(c)}</span><span class="mname">${esc(c.name)}</span></div>`; }
 function miniBack(name,left){ return IMG['card-tall-back'] ? `<div class="mcard back"><span class="plate">${esc(name)}</span><span class="mcount">${left}</span></div>` : `<div class="mcard back plain"><span class="mname">${esc(name)} deck</span><span class="mcount">${left}</span></div>`; }
@@ -2304,7 +2327,7 @@ function spaceGain(key, kind){
     case 'academy.lecture': return `${S.ev==='hardtimes'?'':'+1f · '}+${1+(sci?1:0)} reputation${sci?'':' (scientist: +2)'}${S.ev==='grant'?' · +2f':''}`;
     case 'academy.donate': return 'Pay 1 to 3f · +1 reputation per franc';
     case 'market.trade': return 'Jar 2f · ice 1f · sell 2 bone 1f · 3 preserved 2f';
-    case 'docks.hire': return 'Pay a scoundrel below';
+    case 'docks.hire': return '';
     case 'alley.murder': return '+4 muscle, 4 organ, 3 blood (I), 2 bone · −3 humanity · +1 police';
     case 'church.atone': return sci?'1 humanity card below · +1 humanity':'1 humanity card below (scientist: +1 humanity)';
     case 'first.first': return 'Become first player · can’t be bumped';
@@ -2325,17 +2348,27 @@ function occupantLine(key, can){ const o=S.occ[key]; if(!o) return ''; const b=c
 async function placeModal(id){
   const L=LOC[id], p=S.players[0], mine=isMyTurn(), closed=!!S.closed[id];
   const opts=L.spaces.map(sp=>{ const key=L.id+'.'+sp.k, can=humanCan(key), kind=kindFor(0,key)||p.sel, who=occupantLine(key,can);
-    return {label:`${esc(sp.n)}${sp.sci?'<small class="scitag">scientist</small>':''}`, sub:`${spaceGain(key,kind)}${who?'<br>'+who:''}`, value:key, disabled:!can}; });
+    const gain=spaceGain(key,kind); return {label:`${esc(sp.n)}${sp.sci?'<small class="scitag">scientist</small>':''}`, sub:`${gain}${who?(gain?'<br>':'')+who:''}`, value:key, disabled:!can}; });
   let cards='';
+  if(id==='docks'){ const key='docks.hire', can=humanCan(key); let picked=null;
+    const html=(reg,done)=>`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}
+      <div class="sub">Hire one of the scoundrels</div><div class="gcards">${S.docks.map(c=>{ const ok=can && scCost(c)<=p.coin && scAllowed(c); const un=c.kind==='cut' && p.hand.some(h=>h.id==='unethical') && charged(p)>0;
+        const b=(label,v,primary)=>`<button class="btn ${primary?'primary':''} sm" ${ok?'':'disabled'} data-mfn="${reg(()=>{ picked=v; done(key); })}">${label}</button>`;
+        const acts = c.kind==='thief' ? b(`Draw ${c.draw} from the Hospital`,{card:c.id,how:'mats'},true)
+          : [b('Materials',{card:c.id,how:'mats'},true), c.exp?b(`+${c.exp} expertise${c.expH?' (−1 humanity)':''}`,{card:c.id,how:'exp'}):'', c.hum?b(`+${c.hum} humanity`,{card:c.id,how:'hum'}):'', un?b('Unethical Experiment',{card:c.id,how:'exp',unethical:true}):''].join('');
+        return cardHTML(c,{acts:`<div class="gc-acts col">${acts}</div>`}); }).join('')}</div>`;
+    const k=await ask({title:'', hero:true, wide:true, html, buttons:[{label:'Close', value:null}]});
+    if(k && picked){ dockPick=picked; await clickSpace(k); dockPick=null; }
+    return; }
   if(id==='cemetery'||id==='morgue') cards=deckHTML(L.name, S.decks[id].length, CADAVERS[id].length);
   else { const rows=faceUp(id); if(ROW_LABEL[id]) cards=`<div class="sub">${ROW_LABEL[id]}</div>${rows.length?`<div class="gcards">${rows.map(c=>cardHTML(c)).join('')}</div>`:'<p class="flavor">None left today.</p>'}`; }
-  const key=await ask({title:esc(L.name), wide:true, html:`<p class="flavor">${esc(L.place)}</p><div class="placeart">${placeArt(id)}</div><p>${L.text}</p>${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${cards}`,
+  const key=await ask({title:'', hero:true, wide:true, html:`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${cards}`,
     options:opts, buttons:[{label:'Close', value:null}]});
   if(key) await clickSpace(key);
 }
 async function labPlaceModal(id){
   const L=LABSPOT[id], key='lab.'+id, p=S.players[0], can=humanCan(key), kind=kindFor(0,key)||p.sel;
-  const k=await ask({title:esc(L.name), html:`<p class="flavor">Your laboratory</p><div class="placeart">${placeArt(id,true)}</div><p>${esc(L.text)}</p>${L.sci?'<p class="flavor">Scientist only.</p>':''}${p.labUsed[id]?'<p class="flavor">Already used today.</p>':''}`,
+  const k=await ask({title:'', hero:true, html:`${placeHero(id, L.name, true)}${L.sci?'<p class="flavor">Scientist only.</p>':''}${p.labUsed[id]?'<p class="flavor">Already used today.</p>':''}`,
     options:[{label:'Use it', sub:spaceGain(key,kind), value:key, disabled:!can}], buttons:[{label:'Close', value:null}]});
   if(k) await clickSpace(k);
 }

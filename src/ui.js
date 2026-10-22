@@ -21,8 +21,8 @@ function renderModal(){
   const html = typeof modal.html==='function' ? modal.html(reg) : (modal.html||'');
   const opts=(modal.options||[]).map(o=>o.heading?`<div class="eyebrow" style="margin-top:6px">${o.heading}</div>`:`<button class="opt" ${o.disabled?'disabled':''} data-mfn="${reg(o.fn)}"><span><span class="ot">${o.label}</span>${o.sub?`<small>${o.sub}</small>`:''}</span><span class="num">${o.right||''}</span></button>`).join('');
   const btns=(modal.buttons||[]).map(b=>`<button class="btn ${b.primary?'primary':''}" ${b.disabled?'disabled':''} data-mfn="${reg(b.fn)}">${b.label}</button>`).join('');
-  root.innerHTML=`<div class="scrim" data-scrim="1"><div class="modal ${modal.wide?'wide':''} ${modal.xwide?'xwide':''}" role="dialog" aria-modal="true" aria-label="${esc(String(modal.title).replace(/<[^>]+>/g,''))}">
-    <h2>${modal.title}</h2>${html}${opts?`<div class="opts">${opts}</div>`:''}<div class="actions">${btns}</div></div></div>`;
+  root.innerHTML=`<div class="scrim" data-scrim="1"><div class="modal ${modal.wide?'wide':''} ${modal.xwide?'xwide':''} ${modal.hero?'hero':''}" role="dialog" aria-modal="true" aria-label="${esc(String(modal.title).replace(/<[^>]+>/g,''))}">
+    ${modal.title?`<h2>${modal.title}</h2>`:''}${html}${opts?`<div class="opts">${opts}</div>`:''}<div class="actions">${btns}</div></div></div>`;
   const f=root.querySelector('.opt:not(:disabled), .btn.primary, .btn'); if(f) f.focus({preventScroll:true});
 }
 // ask(): resolves with an option's or button's value. html may be fn(reg, done).
@@ -72,7 +72,7 @@ document.addEventListener('scroll', ()=>{ tip.hidden=true; }, true);
 /* =========================================================
    HUMAN INPUT
    ========================================================= */
-let busy=false, humanBlocked=null; const uiOpts={steady:false, surgeon:false};
+let busy=false, humanBlocked=null, dockPick=null; const uiOpts={steady:false, surgeon:false};
 function isMyTurn(){ return S && S.phase==='day' && S.cur===0 && !!humanResolve && !busy; }
 function humanCan(key){ if(!isMyTurn()) return false; const sp=SPACE[key]; if(sp && humanBlocked===sp.loc) return false; return canPlace(0,key); }
 
@@ -169,7 +169,7 @@ async function humanPre(i,key,kind,noCancel){
     }
     case 'academy.donate': return await ask({title:'Donate', html:'<p>1 reputation per franc, up to 3.</p>', options:[1,2,3].map(n=>({label:`Donate ${n}f`, value:{n}, disabled:p.coin<n})), buttons:cancel});
     case 'market.trade': return await marketModal(p, cancel.length>0);
-    case 'docks.hire': { const c=await chooseScoundrel(p, S.docks, 'Three scoundrels lean on the bollards.', !noCancel); return c; }
+    case 'docks.hire': { if(dockPick) return dockPick; const c=await chooseScoundrel(p, S.docks, 'Three scoundrels lean on the bollards.', !noCancel); return c; }
     case 'alley.murder': {
       const un=p.hand.some(h=>h.id==='unethical') && charged(p)>0;
       return await ask({title:'Dark Alley', html:`<p>Murder someone for ${matsHTML([['muscle',1,4],['organ',1,4],['blood',1,3],['bone',0,2]])}</p><p class="flavor">Costs 3 humanity and earns a police marker. At 2 markers the Dark Alley is closed to you until you pay 3f.</p>`,
@@ -192,10 +192,10 @@ async function humanPre(i,key,kind,noCancel){
 async function chooseScoundrel(p, row, intro, canCancel){
   return await ask({title:'Docks', wide:true, html:(reg,done)=>`<p class="flavor">${intro}</p>
     <div class="gcards">${row.map(c=>{ const ok=scCost(c)<=p.coin && scAllowed(c); const un=c.kind==='cut' && p.hand.some(h=>h.id==='unethical') && charged(p)>0;
-      const b=(label,v)=>`<button class="tog" ${ok?'':'disabled'} data-mfn="${reg(()=>done(v))}">${label}</button>`;
-      const acts = c.kind==='thief' ? b(`Draw ${c.draw} from the Hospital`,{card:c.id,how:'mats'})
-        : [b('Materials',{card:c.id,how:'mats'}), c.exp?b(`+${c.exp} exp${c.expH?' (−1 hum)':''}`,{card:c.id,how:'exp'}):'', c.hum?b(`+${c.hum} humanity`,{card:c.id,how:'hum'}):'', un?b('Unethical Experiment',{card:c.id,how:'exp',unethical:true}):''].join('');
-      return cardHTML(c,{acts:`<div class="gc-acts">${acts}</div>`}); }).join('')}</div>`, buttons:canCancel===false?[]:[{label:'Cancel', value:null}], locked:canCancel===false});
+      const b=(label,v,primary)=>`<button class="btn ${primary?'primary':''} sm" ${ok?'':'disabled'} data-mfn="${reg(()=>done(v))}">${label}</button>`;
+      const acts = c.kind==='thief' ? b(`Draw ${c.draw} from the Hospital`,{card:c.id,how:'mats'},true)
+        : [b('Materials',{card:c.id,how:'mats'},true), c.exp?b(`+${c.exp} expertise${c.expH?' (−1 humanity)':''}`,{card:c.id,how:'exp'}):'', c.hum?b(`+${c.hum} humanity`,{card:c.id,how:'hum'}):'', un?b('Unethical Experiment',{card:c.id,how:'exp',unethical:true}):''].join('');
+      return cardHTML(c,{acts:`<div class="gc-acts col">${acts}</div>`}); }).join('')}</div>`, buttons:canCancel===false?[]:[{label:'Cancel', value:null}], locked:canCancel===false});
 }
 async function marketModal(p, canCancel){
   const o={jars:0, ice:false, sellBone:0, sellPres:0, pickle:false};
@@ -325,23 +325,29 @@ function cadaverCardHTML(c, extra, hc){
 }
 // Scoundrel picture: the generated portrait for its template (art/scoundrels/scoundrel-NN.png), else the seeded SVG face.
 // Place illustration: the generated scene (art/locations/location-<id>.png or lab-<id>.png) if present, else the SVG drawing.
+// Place popup header: the scene flush to the modal's top and sides, the place name large in white over it.
+function placeHero(id, name, lab){ return `<div class="phero">${placeArt(id, lab)}<span class="phname">${esc(name)}</span></div>`; }
 function placeArt(id, lab){ const src=IMG[(lab?'lab-':'location-')+id]; return src ? `<img src="${src}" alt="">` : (ART[id]||''); }
 // Scoundrel card in the physical game's layout: full-bleed portrait, cost and humanity marks top left, a title band across the
 // middle with the name and a line of flavour, a benefit row (expertise, humanity, materials), and the stage and counts strip at the foot.
 // Hospital Thieves draw from the Hospital instead, so they get a text panel where the strip would be.
+// Icon images (art/icons/icon-*.png, transparent) with emoji fallback.
+function icon(name, fallback, cls){ const src=IMG['icon-'+name]; return src ? `<img class="ico ${cls||''}" src="${src}" alt="${fallback}">` : `<span class="ico ${cls||''}">${fallback}</span>`; }
+function coins(n){ return Array.from({length:n},()=>icon('coin','🪙')).join(''); }
+function hearts(n, broken){ return Array.from({length:n},()=>icon(broken?'heart-broken':'heart', broken?'💔':'❤️')).join(''); }
 function scoundrelCardHTML(c, extra, cost, hc){
   const n=t=>{ const m=(c.mats||[]).find(x=>x[0]===t); return m?m[2]:0; };
   const st=(c.mats||[]).find(x=>x[0]!=='bone'); const stage=st?ROMAN[st[1]-1]:'';
-  const marks=`<span class="cm coin" title="${cost} francs">${cost}f</span>${hc?`<span class="cm heart" title="−${hc} humanity">−${hc}</span>`:''}`;
-  const ben=[ c.exp?`<span class="ci" title="or +${c.exp} expertise${c.expH?', −1 humanity':''}">+${c.exp} <i>exp</i>${c.expH?'<small>−1 hum</small>':''}</span>`:'',
-              c.hum?`<span class="ci" title="or +${c.hum} humanity">+${c.hum} <i>hum</i></span>`:'',
+  const marks=`<span class="cm coins" title="${cost} francs">${coins(cost)}</span>${hc?`<span class="cm hearts" title="−${hc} humanity">${hearts(hc,true)}</span>`:''}`;
+  const ben=[ c.exp?`<span class="ci" title="or +${c.exp} expertise${c.expH?', −1 humanity':''}">+${c.exp} <i>exp</i>${c.expH?hearts(1,true):''}</span>`:'',
+              c.hum?`<span class="ci" title="or +${c.hum} humanity">+${c.hum} ${hearts(1)}</span>`:'',
               (c.mats&&c.mats.length)?`<span class="ci" title="or the materials below">mats</span>`:'' ].join('');
   const foot = c.kind==='thief'
     ? `<div class="cstrip text">Draw ${c.draw} from the Hospital stack<br><small>(or the deck, if the stack is empty)</small></div>`
     : `<div class="cstrip"><span class="cs stage">${stage||'✕'}</span>${[['muscle',n('muscle')],['organ',n('organ')],['blood',n('blood')],['animal',n('animal')],['bone',n('bone')]].filter(([t])=>t!=='animal'||n('animal')).slice(0,4).map(([t,v])=>`<span class="cs ${t} ${v?'':'z'}">${v}</span>`).join('')}</div>`;
   return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="ccard sc"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt="">
       <div class="cmarks">${marks}</div>
-      <div class="cband"><span class="cn">${esc(c.name)}</span>${c.who?`<span class="cq">${esc(c.who)}</span>`:''}</div>
+      <span class="ck">Scoundrel</span><span class="cn">${esc(c.name)}</span>
       ${c.kind==='thief'?'':`<div class="cicons">${ben}</div>`}${foot}</div>${extra.acts||''}</div>`;
 }
 function scoundrelArt(c){ const k=c.tpl==null?null:`scoundrel-${String(c.tpl+1).padStart(2,'0')}`; const src=k&&IMG[k]; return src ? `<img src="${src}" alt="">` : portrait(c.seed||7,'docks',true); }
@@ -401,6 +407,9 @@ function miniArt(c){ if(c.kind==='cadaver') return cadaverArt(c); if(SC_WHO[c.ki
 function miniCard(c){
   if(c.kind==='cadaver' && c.art && IMG[c.art]){ const n=t=>{ const m=c.mats.find(x=>x[0]===t); return m?m[2]:0; };
     return `<div class="mcard cad" title="${esc(c.name)}"><span class="mart"><img src="${IMG[c.art]}" alt=""></span><span class="mstrip"><span class="stage">${c.stage?ROMAN[c.stage-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span></div>`; }
+  if(SC_WHO[c.kind] && c.tpl!=null && IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]){ const n=t=>{ const m=(c.mats||[]).find(x=>x[0]===t); return m?m[2]:0; }; const st=(c.mats||[]).find(x=>x[0]!=='bone');
+    const strip = c.kind==='thief' ? `<span class="mstrip one">Draw ${c.draw}</span>` : `<span class="mstrip"><span class="stage">${st?ROMAN[st[1]-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span>`;
+    return `<div class="mcard cad" title="${esc(c.name)}: ${scCost(c)}f"><span class="mart"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt=""></span>${strip}</div>`; }
   const framed = hasFrame() && c.kind==='research';
   return `<div class="mcard ${framed?'framed':''}"><span class="mart">${miniArt(c)}</span><span class="mname">${esc(c.name)}</span></div>`; }
 function miniBack(name,left){ return IMG['card-tall-back'] ? `<div class="mcard back"><span class="plate">${esc(name)}</span><span class="mcount">${left}</span></div>` : `<div class="mcard back plain"><span class="mname">${esc(name)} deck</span><span class="mcount">${left}</span></div>`; }
@@ -438,7 +447,7 @@ function spaceGain(key, kind){
     case 'academy.lecture': return `${S.ev==='hardtimes'?'':'+1f · '}+${1+(sci?1:0)} reputation${sci?'':' (scientist: +2)'}${S.ev==='grant'?' · +2f':''}`;
     case 'academy.donate': return 'Pay 1 to 3f · +1 reputation per franc';
     case 'market.trade': return 'Jar 2f · ice 1f · sell 2 bone 1f · 3 preserved 2f';
-    case 'docks.hire': return 'Pay a scoundrel below';
+    case 'docks.hire': return '';
     case 'alley.murder': return '+4 muscle, 4 organ, 3 blood (I), 2 bone · −3 humanity · +1 police';
     case 'church.atone': return sci?'1 humanity card below · +1 humanity':'1 humanity card below (scientist: +1 humanity)';
     case 'first.first': return 'Become first player · can’t be bumped';
@@ -459,17 +468,27 @@ function occupantLine(key, can){ const o=S.occ[key]; if(!o) return ''; const b=c
 async function placeModal(id){
   const L=LOC[id], p=S.players[0], mine=isMyTurn(), closed=!!S.closed[id];
   const opts=L.spaces.map(sp=>{ const key=L.id+'.'+sp.k, can=humanCan(key), kind=kindFor(0,key)||p.sel, who=occupantLine(key,can);
-    return {label:`${esc(sp.n)}${sp.sci?'<small class="scitag">scientist</small>':''}`, sub:`${spaceGain(key,kind)}${who?'<br>'+who:''}`, value:key, disabled:!can}; });
+    const gain=spaceGain(key,kind); return {label:`${esc(sp.n)}${sp.sci?'<small class="scitag">scientist</small>':''}`, sub:`${gain}${who?(gain?'<br>':'')+who:''}`, value:key, disabled:!can}; });
   let cards='';
+  if(id==='docks'){ const key='docks.hire', can=humanCan(key); let picked=null;
+    const html=(reg,done)=>`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}
+      <div class="sub">Hire one of the scoundrels</div><div class="gcards">${S.docks.map(c=>{ const ok=can && scCost(c)<=p.coin && scAllowed(c); const un=c.kind==='cut' && p.hand.some(h=>h.id==='unethical') && charged(p)>0;
+        const b=(label,v,primary)=>`<button class="btn ${primary?'primary':''} sm" ${ok?'':'disabled'} data-mfn="${reg(()=>{ picked=v; done(key); })}">${label}</button>`;
+        const acts = c.kind==='thief' ? b(`Draw ${c.draw} from the Hospital`,{card:c.id,how:'mats'},true)
+          : [b('Materials',{card:c.id,how:'mats'},true), c.exp?b(`+${c.exp} expertise${c.expH?' (−1 humanity)':''}`,{card:c.id,how:'exp'}):'', c.hum?b(`+${c.hum} humanity`,{card:c.id,how:'hum'}):'', un?b('Unethical Experiment',{card:c.id,how:'exp',unethical:true}):''].join('');
+        return cardHTML(c,{acts:`<div class="gc-acts col">${acts}</div>`}); }).join('')}</div>`;
+    const k=await ask({title:'', hero:true, wide:true, html, buttons:[{label:'Close', value:null}]});
+    if(k && picked){ dockPick=picked; await clickSpace(k); dockPick=null; }
+    return; }
   if(id==='cemetery'||id==='morgue') cards=deckHTML(L.name, S.decks[id].length, CADAVERS[id].length);
   else { const rows=faceUp(id); if(ROW_LABEL[id]) cards=`<div class="sub">${ROW_LABEL[id]}</div>${rows.length?`<div class="gcards">${rows.map(c=>cardHTML(c)).join('')}</div>`:'<p class="flavor">None left today.</p>'}`; }
-  const key=await ask({title:esc(L.name), wide:true, html:`<p class="flavor">${esc(L.place)}</p><div class="placeart">${placeArt(id)}</div><p>${L.text}</p>${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${cards}`,
+  const key=await ask({title:'', hero:true, wide:true, html:`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${cards}`,
     options:opts, buttons:[{label:'Close', value:null}]});
   if(key) await clickSpace(key);
 }
 async function labPlaceModal(id){
   const L=LABSPOT[id], key='lab.'+id, p=S.players[0], can=humanCan(key), kind=kindFor(0,key)||p.sel;
-  const k=await ask({title:esc(L.name), html:`<p class="flavor">Your laboratory</p><div class="placeart">${placeArt(id,true)}</div><p>${esc(L.text)}</p>${L.sci?'<p class="flavor">Scientist only.</p>':''}${p.labUsed[id]?'<p class="flavor">Already used today.</p>':''}`,
+  const k=await ask({title:'', hero:true, html:`${placeHero(id, L.name, true)}${L.sci?'<p class="flavor">Scientist only.</p>':''}${p.labUsed[id]?'<p class="flavor">Already used today.</p>':''}`,
     options:[{label:'Use it', sub:spaceGain(key,kind), value:key, disabled:!can}], buttons:[{label:'Close', value:null}]});
   if(k) await clickSpace(k);
 }

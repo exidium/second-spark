@@ -978,3 +978,24 @@ Redraw the attached aerial view of Paris in 1819 at night as detailed dithered p
 ```
 The back of a playing card for a gothic 1819 Paris game: a dark oak wood panel with visible grain, bound by a riveted iron frame with ornate corner brackets, a large empty rectangular brass nameplate with four screws just below the centre, completely blank, left clear for text to be added later, and a small brass Leyden jar emblem sitting directly on top of that nameplate, almost touching it, with a short thread of electric-blue lightning rising from the jar; the upper half of the panel is plain wood. Detailed dithered pixel art: visible checkerboard dithering on the wood and metal, hard-edged pixels, no anti-aliasing, no smooth gradients. About 32 colours: soot black, dark oak browns, iron grey, tarnished brass, candle gold, one electric blue. Flat, symmetrical, seen straight on, fills the whole canvas edge to edge. Canvas 64 by 96 pixels, portrait. Do not include: text, letters, numbers, words, engraved writing, logos, watermark, a second border outside the frame, characters, scenery, cartoon style, bright saturated colours, white background.
 ```
+
+## Icons (3) · cost and humanity marks on cards
+
+### icon-coin → `icon-coin.png`
+
+```
+A single plain old gold coin seen face on, worn tarnished brass with a simple embossed fleur-de-lis in the centre and a beaded rim, no face, no portrait, no lettering, candle-gold highlights, the coin itself bright and warm against the black. Detailed dithered pixel art game icon: visible checkerboard dithering, hard-edged pixels, no anti-aliasing, no gradients. Muted gothic palette, about 16 colours, a thin dark outline. The icon alone, centred, large, on a flat pure black background (RGB 0,0,0) with nothing else, no shadow on the ground, no frame. Canvas 64 by 64 pixels, square. Do not include: text, letters, numbers, border, card, background scenery, multiple objects, blur.
+```
+
+### icon-heart → `icon-heart.png`
+
+```
+A whole anatomical human heart, dark oxblood red with purple veins and a pale sinew at the top, glossy wet highlight. Detailed dithered pixel art game icon: visible checkerboard dithering, hard-edged pixels, no anti-aliasing, no gradients. Muted gothic palette, about 16 colours, a thin dark outline. The icon alone, centred, large, on a flat pure black background (RGB 0,0,0) with nothing else, no shadow on the ground, no frame. Canvas 64 by 64 pixels, square. Do not include: text, letters, numbers, border, card, background scenery, multiple objects, blur.
+```
+
+### icon-heart-broken → `icon-heart-broken.png`
+
+```
+A human heart torn in two, the halves pulled apart with a ragged dark split between them, dark oxblood red with purple veins. Detailed dithered pixel art game icon: visible checkerboard dithering, hard-edged pixels, no anti-aliasing, no gradients. Muted gothic palette, about 16 colours, a thin dark outline. The icon alone, centred, large, on a flat pure black background (RGB 0,0,0) with nothing else, no shadow on the ground, no frame. Canvas 64 by 64 pixels, square. Do not include: text, letters, numbers, border, card, background scenery, multiple objects, blur.
+```
+
