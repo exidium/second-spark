@@ -319,6 +319,8 @@ function cadaverCardHTML(c, extra, hc){
       <div class="cstrip"><span class="cs stage">${c.stage?ROMAN[c.stage-1]:'✕'}</span>${cells}</div></div>${extra.acts||''}</div>`;
 }
 // Scoundrel picture: the generated portrait for its template (art/scoundrels/scoundrel-NN.png), else the seeded SVG face.
+// Place illustration: the generated scene (art/locations/location-<id>.png or lab-<id>.png) if present, else the SVG drawing.
+function placeArt(id, lab){ const src=IMG[(lab?'lab-':'location-')+id]; return src ? `<img src="${src}" alt="">` : (ART[id]||''); }
 function scoundrelArt(c){ const k=c.tpl==null?null:`scoundrel-${String(c.tpl+1).padStart(2,'0')}`; const src=k&&IMG[k]; return src ? `<img src="${src}" alt="">` : portrait(c.seed||7,'docks',true); }
 function cadaverArt(c){ const src=c.art&&IMG[c.art]; return src ? `<img src="${src}" alt="">` : portrait(c.seed, c.src, false); }
 
@@ -438,13 +440,13 @@ async function placeModal(id){
   let cards='';
   if(id==='cemetery'||id==='morgue') cards=deckHTML(L.name, S.decks[id].length, CADAVERS[id].length);
   else { const rows=faceUp(id); if(ROW_LABEL[id]) cards=`<div class="sub">${ROW_LABEL[id]}</div>${rows.length?`<div class="gcards">${rows.map(c=>cardHTML(c)).join('')}</div>`:'<p class="flavor">None left today.</p>'}`; }
-  const key=await ask({title:esc(L.name), wide:true, html:`<p class="flavor">${esc(L.place)}</p><div class="placeart">${ART[id]||''}</div><p>${L.text}</p>${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${cards}`,
+  const key=await ask({title:esc(L.name), wide:true, html:`<p class="flavor">${esc(L.place)}</p><div class="placeart">${placeArt(id)}</div><p>${L.text}</p>${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${cards}`,
     options:opts, buttons:[{label:'Close', value:null}]});
   if(key) await clickSpace(key);
 }
 async function labPlaceModal(id){
   const L=LABSPOT[id], key='lab.'+id, p=S.players[0], can=humanCan(key), kind=kindFor(0,key)||p.sel;
-  const k=await ask({title:esc(L.name), html:`<p class="flavor">Your laboratory</p><div class="placeart">${ART[id]||''}</div><p>${esc(L.text)}</p>${L.sci?'<p class="flavor">Scientist only.</p>':''}${p.labUsed[id]?'<p class="flavor">Already used today.</p>':''}`,
+  const k=await ask({title:esc(L.name), html:`<p class="flavor">Your laboratory</p><div class="placeart">${placeArt(id,true)}</div><p>${esc(L.text)}</p>${L.sci?'<p class="flavor">Scientist only.</p>':''}${p.labUsed[id]?'<p class="flavor">Already used today.</p>':''}`,
     options:[{label:'Use it', sub:spaceGain(key,kind), value:key, disabled:!can}], buttons:[{label:'Close', value:null}]});
   if(k) await clickSpace(k);
 }

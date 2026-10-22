@@ -503,6 +503,8 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .rivalmini .rstats b{color:var(--parch);font-variant-numeric:tabular-nums}
 .placeart{background:var(--paper);color:var(--paper-ink);border-radius:4px;overflow:hidden;margin:6px 0;max-width:320px}
 .placeart svg{display:block;width:100%;height:auto}
+.placeart img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
+.placeart:has(img){max-width:100%;background:#0e0b0c}
 .scitag{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);margin-left:6px;font-family:var(--f-body)}
 .closedline{color:var(--crim);font-family:var(--f-display)}
 .btn.pulse{animation:btnpulse 1.6s ease-in-out infinite}
