@@ -250,3 +250,6 @@ Nineteen 4:3 scenes in the dithered style, one moment each, blue kept to lightni
 
 **D77. Six event scenes redone with tighter subjects.** (Bruno: "event 03 has a floating hand. event 05 is all weird and wrong. event 9 artwork is out of style. event 15 is weird. redo it. event 16 - weird, it's not clear what this is. Same with event 18.")
 Hard Times is now a padlocked bakery door with a woman on the step; Patrols at the Graves two gendarmes with a lantern among tombstones under lightning; Student Parade students with torches passing the Academy's columns; The Captain's Wrath the captain's face as his pistol butt shatters the jar; Opening Night the theatre front with couples on the steps and a carriage; Storm from the Sea the quay with a pitching barge and lightning over the bridge. Each subject now names whole figures, a vantage and one focal point; all six passed first time with the ward as reference. Earlier versions in `art/source/events/v2/`.
+
+**D78. Student Riots redone as a barricade scene.** (Bruno: "event 11 is weird, redo.")
+Three students with torches and a flag on a barricade of carts, barrels and paving stones, seen from street level. Same prompt rule as D77: whole figures, a vantage, one focal point.
