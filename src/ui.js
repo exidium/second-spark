@@ -272,9 +272,12 @@ function cardHTML(c, extra){
   }
   return '';
 }
+// Event scene: art/events/event-NN.png by position in EVENTS, else the SVG drawing of a related place.
+function eventArt(e){ const k=EVENTS.indexOf(e); const src=k>=0&&IMG[`event-${String(k+1).padStart(2,'0')}`]; if(src) return `<img src="${src}" alt="">`;
+  return e.exec?ART.square:e.storm?ICONART.jar:ART[{graves:'cemetery',fire:'academy',plague:'slaughter',riots:'alley',purge:'hospital',odeon:'odeon',meat:'slaughter',cholera:'hospital',corrupt:'hospital'}[e.id]||'church']; }
 function eventCardHTML(e){
   return `<div class="gcard" style="width:260px"><span class="gc-kind">Event · days ${e.r[0]} to ${e.r[1]}${e.storm?' · lightning':''}${e.exec?' · execution':''}</span><span class="gc-title">${esc(e.name)}</span>
-    <div class="gc-art">${e.exec?ART.square:e.storm?ICONART.jar:ART[{graves:'cemetery',fire:'academy',plague:'slaughter',riots:'alley',purge:'hospital',odeon:'odeon',meat:'slaughter',cholera:'hospital',corrupt:'hospital'}[e.id]||'church']}</div>
+    <div class="gc-art">${eventArt(e)}</div>
     <div class="gc-body">${esc(e.text)}${e.storm?'<div><b>Lightning:</b> every Leyden jar is charged.</div>':''}${e.exec?'<div><b>Execution:</b> bodies go on display at the Public Square.</div>':''}</div></div>`;
 }
 function encounterCardHTML(e){
