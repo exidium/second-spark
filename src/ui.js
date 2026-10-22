@@ -255,7 +255,7 @@ function cardHTML(c, extra){
     const opts=[]; if(c.exp) opts.push(`+${c.exp} expertise${c.expH?' (−1 humanity)':''}`); if(c.hum) opts.push(`+${c.hum} humanity`);
     const cost=S?scCost(c):c.cost, hc=S?scHcost(c):c.hcost;
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Scoundrel · ${cost}f${hc?` · −${hc} humanity`:''}</span><span class="gc-title">${esc(c.name)}</span>
-      <div class="gc-art">${portrait(c.seed||7,'docks',true)}</div>
+      <div class="gc-art">${scoundrelArt(c)}</div>
       <div class="gc-body"><i>${esc(c.who||'')}</i>${c.kind==='thief'?`<div>Draw ${c.draw} cadaver${c.draw>1?'s':''} from the Hospital stack</div>`:`<div class="gc-row">${matsHTML(c.mats||[])}</div>${opts.length?`<div>or ${opts.join(' or ')}</div>`:''}`}</div>${extra.acts||''}</div>`;
   }
   if(c.kind==='research'){
@@ -297,7 +297,7 @@ function catalogHTML(){
     <div class="sub">Morgue cadavers (14)</div><div class="gcards">${cad('morgue')}</div>
     <div class="sub">Hospital cadavers (14)</div><div class="gcards">${cad('hospital')}</div>
     <div class="sub">Public Square cadavers (10)</div><div class="gcards">${cad('square')}</div>
-    <div class="sub">Scoundrels (16)</div><div class="gcards">${SCOUNDRELS.map((t,k)=>cardHTML({kind:'scoundrel',...t,who:SC_WHO[t.kind][0],seed:k*131+7})).join('')}</div>
+    <div class="sub">Scoundrels (16)</div><div class="gcards">${SCOUNDRELS.map((t,k)=>cardHTML({kind:'scoundrel',tpl:k,...t,who:SC_WHO[t.kind][0],seed:k*131+7})).join('')}</div>
     <div class="sub">Research (16)</div><div class="gcards">${RESEARCH.map(t=>cardHTML({kind:'research',...t})).join('')}</div>
     <div class="sub">Humanity (16)</div><div class="gcards">${HUMANITY.map(t=>cardHTML({kind:'humanity',...t})).join('')}</div>
     <div class="sub">Events (19)</div><div class="gcards">${EVENTS.map(eventCardHTML).join('')}</div>
@@ -318,6 +318,8 @@ function cadaverCardHTML(c, extra, hc){
       <div class="cicons">${icons}</div>
       <div class="cstrip"><span class="cs stage">${c.stage?ROMAN[c.stage-1]:'✕'}</span>${cells}</div></div>${extra.acts||''}</div>`;
 }
+// Scoundrel picture: the generated portrait for its template (art/scoundrels/scoundrel-NN.png), else the seeded SVG face.
+function scoundrelArt(c){ const k=c.tpl==null?null:`scoundrel-${String(c.tpl+1).padStart(2,'0')}`; const src=k&&IMG[k]; return src ? `<img src="${src}" alt="">` : portrait(c.seed||7,'docks',true); }
 function cadaverArt(c){ const src=c.art&&IMG[c.art]; return src ? `<img src="${src}" alt="">` : portrait(c.seed, c.src, false); }
 
 /* =========================================================
@@ -369,7 +371,7 @@ function visibleLocs(){ return LOCS.filter(l=>!l.event || (l.event==='odeon'&&S.
 function faceUp(id){ return id==='hospital'?S.hosp : id==='academy'?S.researchRow : id==='church'?S.humanityRow : id==='docks'?S.docks : id==='square'?S.square : []; }
 function researchIcon(c){ return ICONART[c.id==='demo'||c.id==='electro'?'jar':c.id==='healing'||c.id==='transfusion'?'flask':c.id==='tutor'||c.id==='guest'?'coin':'book']; }
 function slotDot(key){ const o=S.occ[key]; if(!o) return '<i class="slot"></i>'; return `<i class="slot on ${o.kind==='scientist'?'sci':''}" style="background:${S.players[o.p].color}"></i>`; }
-function miniArt(c){ if(c.kind==='cadaver') return cadaverArt(c); if(SC_WHO[c.kind]) return portrait(c.seed||7,'docks',true); if(c.kind==='research') return researchIcon(c); if(c.kind==='humanity') return ICONART.candle; return ''; }
+function miniArt(c){ if(c.kind==='cadaver') return cadaverArt(c); if(SC_WHO[c.kind]) return scoundrelArt(c); if(c.kind==='research') return researchIcon(c); if(c.kind==='humanity') return ICONART.candle; return ''; }
 // Mini card on the board: art and name only. The place popup shows the same card at full size.
 function miniCard(c){
   if(c.kind==='cadaver' && c.art && IMG[c.art]){ const n=t=>{ const m=c.mats.find(x=>x[0]===t); return m?m[2]:0; };
