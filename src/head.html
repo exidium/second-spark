@@ -402,6 +402,29 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .ccard .cs.muscle{background:#8a4b2b}.ccard .cs.organ{background:#7a5a96}.ccard .cs.blood{background:#c03b3b}.ccard .cs.bone{background:#ece6d6;color:#2b2320;text-shadow:none}
 .ccard .cs.z{opacity:.35}
 .gcard-wrap.sel .ccard{outline:3px solid var(--spark);outline-offset:1px}
+/* event cards: landscape, scene on top, text panel below */
+.ecard{width:360px;max-width:100%;border-radius:7px;overflow:hidden;border:2px solid #2a2320;box-shadow:0 8px 22px rgba(0,0,0,.55);background:var(--paper);color:var(--paper-ink);display:flex;flex-direction:column}
+.ecard .eart{position:relative;aspect-ratio:4/3;background:#0e0b0c}
+.ecard .eart img,.ecard .eart svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.ecard .eart svg{padding:12%;box-sizing:border-box;background:var(--paper2)}
+.ecard .ek{position:absolute;top:6px;left:8px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--parch);text-shadow:0 1px 3px #000;opacity:.85}
+.ecard .en{position:absolute;left:8px;right:8px;bottom:8px;font-family:var(--f-display);font-size:18px;line-height:1.1;color:var(--parch);text-shadow:0 1px 3px #000,0 0 8px #000}
+.ecard .emarks{position:absolute;top:6px;right:8px;display:flex;gap:4px}
+.ecard .em{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:10px;background:rgba(14,11,12,.78);color:var(--parch);border:1px solid rgba(236,224,198,.35)}
+.ecard .em.storm{color:#9fd0ff;border-color:#9fd0ff}.ecard .em.exec{color:#f0a79f;border-color:#d6675f}
+.ecard .ebody{font-size:12.5px;line-height:1.35;padding:8px 10px 9px;display:flex;flex-direction:column;gap:4px}
+/* scoundrel cards: same frame as cadavers, plus marks top left and a title band across the middle */
+.ccard.sc .cmarks{position:absolute;top:6px;left:6px;display:flex;flex-direction:column;gap:3px}
+.ccard .cm{font-family:var(--f-display);font-size:12px;padding:1px 6px;border-radius:10px;text-shadow:0 1px 2px #000;border:1px solid rgba(0,0,0,.6)}
+.ccard .cm.coin{background:#b8923a;color:#1a1408;text-shadow:none}
+.ccard .cm.heart{background:#5a1f1f;color:#f0a79f}
+.ccard .cband{position:absolute;left:0;right:0;top:46%;background:rgba(236,224,198,.88);color:#2b2320;padding:4px 8px;text-align:center;border-top:1px solid rgba(0,0,0,.4);border-bottom:1px solid rgba(0,0,0,.4);transform:rotate(-2deg) scale(1.04)}
+.ccard .cband .cn{position:static;display:block;font-family:var(--f-display);font-size:15px;color:#2b2320;text-shadow:none;line-height:1.1}
+.ccard .cband .cq{display:block;font-family:var(--f-flavor);font-style:italic;font-size:10.5px;color:#4a3a2e;line-height:1.1;margin-top:1px}
+.ccard .ci small{display:block;font-size:8px;letter-spacing:.04em;text-transform:uppercase;opacity:.8}
+.ccard .cstrip.text{display:block;text-align:center;font-size:11px;line-height:1.25;color:var(--parch);padding:6px 6px}
+.ccard .cstrip.text small{font-size:9.5px;color:var(--parch-dim)}
+.ccard .cs.animal{background:#e38b2c}
 /* mini cards on the board follow the same shape: portrait with a thin numbers strip */
 .mcard.cad{background:#0e0b0c;border:1px solid #2a2320}
 .mcard.cad .mart{flex:1}

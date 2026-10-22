@@ -253,3 +253,9 @@ Hard Times is now a padlocked bakery door with a woman on the step; Patrols at t
 
 **D78. Student Riots redone as a barricade scene.** (Bruno: "event 11 is weird, redo.")
 Three students with torches and a flag on a barricade of carts, barrels and paving stones, seen from street level. Same prompt rule as D77: whole figures, a vantage, one focal point.
+
+**D79. Scoundrel cards follow the physical game's layout, built on the cadaver card.** (Bruno, with a photo of the original scoundrel sheet: "make the scoundrel cards similar to the cadaver cards. look how they work and are layouted.")
+A scoundrel card is the same 3:4 full-bleed portrait as a cadaver, with the franc cost and any humanity cost as marks top left, a slanted parchment band across the middle with the name and the flavour line, a benefit row (expertise, humanity, materials) above the foot, and the stage and material counts strip at the foot. Hospital Thieves have no materials, so their foot is a text panel ("Draw N from the Hospital stack") like the original. The seeded SVG fallback keeps the paper card.
+
+**D80. Event cards are landscape.** (Bruno: "the cards for events are great... but let's make them horizontal this time.")
+The event card is 360px wide with the 4:3 scene across the top, the day range top left, the lightning and execution marks top right, the name over the bottom of the scene, and the text in a parchment panel below. Used in the Day modal, the Today popup and the catalog.

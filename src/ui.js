@@ -254,6 +254,7 @@ function cardHTML(c, extra){
   if(SC_WHO[c.kind]){
     const opts=[]; if(c.exp) opts.push(`+${c.exp} expertise${c.expH?' (−1 humanity)':''}`); if(c.hum) opts.push(`+${c.hum} humanity`);
     const cost=S?scCost(c):c.cost, hc=S?scHcost(c):c.hcost;
+    if(c.tpl!=null && IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]) return scoundrelCardHTML(c, extra, cost, hc);
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Scoundrel · ${cost}f${hc?` · −${hc} humanity`:''}</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${scoundrelArt(c)}</div>
       <div class="gc-body"><i>${esc(c.who||'')}</i>${c.kind==='thief'?`<div>Draw ${c.draw} cadaver${c.draw>1?'s':''} from the Hospital stack</div>`:`<div class="gc-row">${matsHTML(c.mats||[])}</div>${opts.length?`<div>or ${opts.join(' or ')}</div>`:''}`}</div>${extra.acts||''}</div>`;
@@ -275,10 +276,11 @@ function cardHTML(c, extra){
 // Event scene: art/events/event-NN.png by position in EVENTS, else the SVG drawing of a related place.
 function eventArt(e){ const k=EVENTS.indexOf(e); const src=k>=0&&IMG[`event-${String(k+1).padStart(2,'0')}`]; if(src) return `<img src="${src}" alt="">`;
   return e.exec?ART.square:e.storm?ICONART.jar:ART[{graves:'cemetery',fire:'academy',plague:'slaughter',riots:'alley',purge:'hospital',odeon:'odeon',meat:'slaughter',cholera:'hospital',corrupt:'hospital'}[e.id]||'church']; }
+// Event card: landscape, the 4:3 scene across the top, the name over it, the text and the lightning or execution marks in a panel below.
 function eventCardHTML(e){
-  return `<div class="gcard" style="width:260px"><span class="gc-kind">Event · days ${e.r[0]} to ${e.r[1]}${e.storm?' · lightning':''}${e.exec?' · execution':''}</span><span class="gc-title">${esc(e.name)}</span>
-    <div class="gc-art">${eventArt(e)}</div>
-    <div class="gc-body">${esc(e.text)}${e.storm?'<div><b>Lightning:</b> every Leyden jar is charged.</div>':''}${e.exec?'<div><b>Execution:</b> bodies go on display at the Public Square.</div>':''}</div></div>`;
+  const marks=`${e.storm?'<span class="em storm" title="Lightning: every Leyden jar is charged">⚡ lightning</span>':''}${e.exec?'<span class="em exec" title="Execution: bodies go on display at the Public Square">☠ execution</span>':''}`;
+  return `<div class="ecard"><div class="eart">${eventArt(e)}<span class="ek">Event · days ${e.r[0]} to ${e.r[1]}</span><span class="en">${esc(e.name)}</span>${marks?`<div class="emarks">${marks}</div>`:''}</div>
+    <div class="ebody">${esc(e.text)}${e.storm?'<div><b>Lightning:</b> every Leyden jar is charged.</div>':''}${e.exec?'<div><b>Execution:</b> bodies go on display at the Public Square.</div>':''}</div></div>`;
 }
 function encounterCardHTML(e){
   const who = e.who==='captain'?'Captain Walton':e.who==='woman'?'A stranger':'The Creature';
@@ -324,6 +326,24 @@ function cadaverCardHTML(c, extra, hc){
 // Scoundrel picture: the generated portrait for its template (art/scoundrels/scoundrel-NN.png), else the seeded SVG face.
 // Place illustration: the generated scene (art/locations/location-<id>.png or lab-<id>.png) if present, else the SVG drawing.
 function placeArt(id, lab){ const src=IMG[(lab?'lab-':'location-')+id]; return src ? `<img src="${src}" alt="">` : (ART[id]||''); }
+// Scoundrel card in the physical game's layout: full-bleed portrait, cost and humanity marks top left, a title band across the
+// middle with the name and a line of flavour, a benefit row (expertise, humanity, materials), and the stage and counts strip at the foot.
+// Hospital Thieves draw from the Hospital instead, so they get a text panel where the strip would be.
+function scoundrelCardHTML(c, extra, cost, hc){
+  const n=t=>{ const m=(c.mats||[]).find(x=>x[0]===t); return m?m[2]:0; };
+  const st=(c.mats||[]).find(x=>x[0]!=='bone'); const stage=st?ROMAN[st[1]-1]:'';
+  const marks=`<span class="cm coin" title="${cost} francs">${cost}f</span>${hc?`<span class="cm heart" title="−${hc} humanity">−${hc}</span>`:''}`;
+  const ben=[ c.exp?`<span class="ci" title="or +${c.exp} expertise${c.expH?', −1 humanity':''}">+${c.exp} <i>exp</i>${c.expH?'<small>−1 hum</small>':''}</span>`:'',
+              c.hum?`<span class="ci" title="or +${c.hum} humanity">+${c.hum} <i>hum</i></span>`:'',
+              (c.mats&&c.mats.length)?`<span class="ci" title="or the materials below">mats</span>`:'' ].join('');
+  const foot = c.kind==='thief'
+    ? `<div class="cstrip text">Draw ${c.draw} from the Hospital stack<br><small>(or the deck, if the stack is empty)</small></div>`
+    : `<div class="cstrip"><span class="cs stage">${stage||'✕'}</span>${[['muscle',n('muscle')],['organ',n('organ')],['blood',n('blood')],['animal',n('animal')],['bone',n('bone')]].filter(([t])=>t!=='animal'||n('animal')).slice(0,4).map(([t,v])=>`<span class="cs ${t} ${v?'':'z'}">${v}</span>`).join('')}</div>`;
+  return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="ccard sc"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt="">
+      <div class="cmarks">${marks}</div>
+      <div class="cband"><span class="cn">${esc(c.name)}</span>${c.who?`<span class="cq">${esc(c.who)}</span>`:''}</div>
+      ${c.kind==='thief'?'':`<div class="cicons">${ben}</div>`}${foot}</div>${extra.acts||''}</div>`;
+}
 function scoundrelArt(c){ const k=c.tpl==null?null:`scoundrel-${String(c.tpl+1).padStart(2,'0')}`; const src=k&&IMG[k]; return src ? `<img src="${src}" alt="">` : portrait(c.seed||7,'docks',true); }
 function cadaverArt(c){ const src=c.art&&IMG[c.art]; return src ? `<img src="${src}" alt="">` : portrait(c.seed, c.src, false); }
 
