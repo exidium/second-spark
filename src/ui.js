@@ -348,7 +348,7 @@ function scoundrelCardHTML(c, extra, cost, hc){
   return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="ccard sc"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt="">
       <div class="cmarks">${marks}</div>
       <span class="ck">Scoundrel</span><span class="cn">${esc(c.name)}</span>
-      ${c.kind==='thief'?'':`<div class="cicons">${ben}</div>`}${foot}</div>${extra.acts||''}</div>`;
+      ${(c.kind==='thief'||extra.acts)?'':`<div class="cicons">${ben}</div>`}${foot}</div>${extra.acts||''}</div>`;
 }
 function scoundrelArt(c){ const k=c.tpl==null?null:`scoundrel-${String(c.tpl+1).padStart(2,'0')}`; const src=k&&IMG[k]; return src ? `<img src="${src}" alt="">` : portrait(c.seed||7,'docks',true); }
 function cadaverArt(c){ const src=c.art&&IMG[c.art]; return src ? `<img src="${src}" alt="">` : portrait(c.seed, c.src, false); }

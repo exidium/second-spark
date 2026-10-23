@@ -268,3 +268,6 @@ The generated icons were anatomical hearts, and the coin's pale backdrop would n
 
 **D83. Icons redrawn on a 48-pixel grid.** (Bruno: "The resolution of the coin seems bad...")
 The 14-pixel coin doubled every pixel at 28px and the emblem turned to mush. The coin and both hearts are now drawn at 48px: the coin has a dark rim, a lit upper-left and shaded lower-right, and a bold serif F for francs instead of the fleur-de-lis that read as a trident; the hearts are the emoji silhouette with a highlight, the broken one split by a jagged transparent crack.
+
+**D84. Docks popup: no sideways scroll, no duplicate benefit row, marks lower under the name.** (Bruno: "No horizontal slider. On top of the image there's 2 blocks with +2 exp and materials. Those are redundant. Remove them. Give more space between the name of the card and the coins+heart")
+Hero popups clip horizontally (the flush scene's negative margins had produced a 2px scrollbar). The benefit row on a scoundrel card is shown only when the card has no action buttons (catalog, board mini); in the Docks popup the buttons say the same thing. The coin and heart marks sit 44px from the top, clear of the name.
