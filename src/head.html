@@ -97,7 +97,11 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .res span{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .tracks{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
 .track{display:grid;grid-template-columns:92px minmax(0,1fr) 28px;align-items:center;gap:8px;font-size:12.5px}
-.track .lab{letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--muted)}
+.track .lab{letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.ico.si{width:16px;height:16px;filter:none}
+.res span{display:flex;align-items:center;justify-content:center;gap:4px}
+.rivalmini .rstats span>span:first-child{display:inline-flex;align-items:center;gap:4px}
+.rivalmini .rstats .ico.si{width:13px;height:13px}
 .bar{display:grid;grid-template-columns:repeat(var(--n,10),1fr);gap:2px}
 .bar i{height:10px;border-radius:1px;background:var(--line);display:block}
 .bar.h i.on{background:var(--blood)}
@@ -426,8 +430,8 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .ecard .ebody{font-size:12.5px;line-height:1.35;padding:8px 10px 9px;display:flex;flex-direction:column;gap:4px}
 /* frosted text cards (research): parchment face with the title, text and gain icons, a dark dice strip below */
 .fcard{width:190px;display:flex;flex-direction:column;border-radius:7px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.55);border:2px solid #2a2320}
-.fface{aspect-ratio:3/4;background:var(--card-research) center/100% 100% no-repeat,#d9dee3;color:#2b2a36;padding:9% 11% 8%;display:flex;flex-direction:column;align-items:center;text-align:center;box-sizing:border-box}
-.fface .ft{font-family:var(--f-display);font-size:17px;line-height:1.05;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.fface{aspect-ratio:3/4;background:var(--card-research) center/100% 100% no-repeat,#d9dee3;color:#2b2a36;padding:12% 16% 11%;display:flex;flex-direction:column;align-items:center;text-align:center;box-sizing:border-box}
+.fface .ft{font-family:var(--f-display);font-size:16px;line-height:1.05;text-shadow:0 1px 0 rgba(255,255,255,.6)}
 .fface .fk{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#4a4a5a;margin:4px 0 6px;padding:0 10px;position:relative;display:flex;align-items:center;gap:8px}
 .fface .fk::before,.fface .fk::after{content:'';flex:1;min-width:18px;height:1px;background:#4a4a5a}
 .fface .fx{font-size:11px;line-height:1.3;margin:0;flex:1;display:flex;align-items:center}

@@ -381,9 +381,9 @@ function bodyLine(p){ return `<div class="bodyline">${SLOT_ORDER.map(([s,n])=>{ 
   return `<span class="bl ${c}" title="${n}: ${({none:'not started',muscle:'muscle',skin:'skin (complete)',alive:'alive'})[c]}${t&&t.dmg?', damaged':''}">${n}${t&&t.dmg?'⚡':''}</span>`; }).join('<span class="bls">–</span>')}</div>`; }
 function statBars(p, small){
   return `<div class="tracks ${small?'small':''}">
-      <div class="track"><span class="lab">Humanity</span>${humBar(p.hum)}<span class="num">${p.hum>0?'+':''}${p.hum}</span></div>
-      <div class="track"><span class="lab">Expertise</span>${bar(Math.min(p.exp,30),30,'e',{marks:[3,8,10,14,20,27], tips:EXP_TIPS})}<span class="num">${p.exp}</span></div>
-      <div class="track"><span class="lab">Reputation</span>${bar(Math.min(p.rep,30),30,'r',{marks:[7,15,23], tips:REP_TIPS})}<span class="num">${p.rep}</span></div>
+      <div class="track"><span class="lab">${icon(p.hum<0?'heart-broken':'heart','❤️','si')}Humanity</span>${humBar(p.hum)}<span class="num">${p.hum>0?'+':''}${p.hum}</span></div>
+      <div class="track"><span class="lab">${icon('expertise','🧠','si')}Expertise</span>${bar(Math.min(p.exp,30),30,'e',{marks:[3,8,10,14,20,27], tips:EXP_TIPS})}<span class="num">${p.exp}</span></div>
+      <div class="track"><span class="lab">${icon('reputation','🎖️','si')}Reputation</span>${bar(Math.min(p.rep,30),30,'r',{marks:[7,15,23], tips:REP_TIPS})}<span class="num">${p.rep}</span></div>
     </div>`;
 }
 function humBar(h){ return `<div class="bar hd" style="--n:20">${Array.from({length:20},(_,k)=>{ const v=k-10; const on = h<0 ? (v>=h&&v<0) : (v>=0&&v<h); return `<i class="${on?'on '+(h<0?'neg':'pos'):''}" ${k===10?'style="box-shadow:-2px 0 0 var(--parch-dim)"':''}></i>`; }).join('')}</div>`; }
@@ -655,7 +655,7 @@ function rivalsRow(){
   return S.players.slice(1).map((p,k)=>{ const C=CHARACTERS.find(c=>c.id===p.char);
     return `<button class="rivalmini" data-act="rival" data-i="${k+1}" style="--pc:${p.color}" aria-label="See ${esc(p.name)}’s laboratory">${charArt(p.char,'avatar')}<span class="rname"><b title="${esc(p.name)}">${esc(p.name)}</b><small>${C?esc(C.role):''}</small></span>
       <span class="rcounts"><span><b>${onTable(p).length-completeCount(p)}</b>Muscle</span><span><b>${completeCount(p)-aliveCount(p)}</b>Skin</span><span><b>${aliveCount(p)}</b>Alive</span></span>
-      <span class="rstats"><span>Humanity<b>${p.hum>0?'+':''}${p.hum}</b></span><span>Expertise<b>${p.exp}</b></span><span>Reputation<b>${p.rep}</b></span></span></button>`; }).join('');
+      <span class="rstats"><span>${icon(p.hum<0?'heart-broken':'heart','❤️','si')}Humanity<b>${p.hum>0?'+':''}${p.hum}</b></span><span>${icon('expertise','🧠','si')}Expertise<b>${p.exp}</b></span><span>${icon('reputation','🎖️','si')}Reputation<b>${p.rep}</b></span></span></button>`; }).join('');
 }
 function sideColumn(){
   const p=S.players[0], ch=charged(p), lab=S.phase==='lab';
@@ -664,7 +664,7 @@ function sideColumn(){
     <section class="panel" aria-label="Your laboratory">
       <div class="labsum-grid"><button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory"><span class="eyebrow">Operating table</span>${tableSVG(p,'me')}<span class="eyebrow openhint">Open lab</span></button><div class="decaybox"><span class="eyebrow">Decomposition track</span>${decayHTML(p,true)}</div></div>
       ${bodyLine(p)}
-      <div class="res four"><div><b>${p.coin}</b><span>Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>Jars</span></div><div><b>${p.ice}</b><span>Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>Police</span></div></div>
+      <div class="res four"><div><b>${p.coin}</b><span>${icon('coin','🪙','si')}Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>Jars</span></div><div><b>${p.ice}</b><span>Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>${icon('police','⭐','si')}Police</span></div></div>
     </section>
     <section class="panel">${statBars(p)}<div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory: build, throw, preserve':'Laboratory'}</button><button class="btn" data-act="hand">Cards <b class="count">${p.hand.length}</b></button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div></section>
     <section class="panel" aria-label="Rival scientists"><div class="sub" style="margin:0 0 8px">Rivals</div><div class="rivalrow">${rivalsRow()}</div></section>
