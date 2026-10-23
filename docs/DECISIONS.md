@@ -283,3 +283,6 @@ Each meeple is a flat single-colour silhouette drawn on a 14x20 pixel grid and r
 
 **D88. Scientist meeples are drawn 1.5x the height of assistants.** (Bruno: "Make the scientist meeple bigger (1.5x) than assistant. That way we can ID it easier.")
 `meeple()` scales a scientist by 1.5 wherever it is drawn; board slots give scientists the taller box and align the row to the baseline.
+
+**D89. Slaughterhouse options side by side without explanations; the Market trades from its place popup.** (Bruno: "remove subtitles from animal buttons... Make buttons in the same line." and "market... offer the options right on the first screen. No need for the 'Buy and sell'")
+The two animal options sit on one row with only the material line under each (plus the Glut of Meat bonus and the occupant when relevant). The Market place popup shows the trade steppers and the running "francs after" total directly, with a Trade button that places the meeple and applies the trades through `prePick`; the standalone market modal remains for the Burning the Candle re-use. Options can be flagged `row:true` to share a line.

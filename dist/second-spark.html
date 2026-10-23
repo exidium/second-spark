@@ -160,6 +160,9 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .modal p{margin:.4em 0}
 .modal .actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:14px}
 .opts{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.opts:has(.opt.row){flex-direction:row;flex-wrap:wrap}
+.opt.row{flex:1 1 220px;justify-content:center;text-align:center}
+.opt.row>span:first-child{display:flex;flex-direction:column;align-items:center}
 .opt{text-align:left;border:1px solid var(--line2);background:var(--panel2);border-radius:4px;padding:10px 12px;display:flex;justify-content:space-between;gap:10px;align-items:center}
 .opt:hover:not(:disabled){border-color:var(--spark)}
 .opt:disabled{opacity:.45;cursor:not-allowed}
@@ -1902,7 +1905,7 @@ function renderModal(){
   if(!modal){ root.innerHTML=''; return; }
   modalFns=[]; const reg=fn=>{ modalFns.push(fn); return modalFns.length-1; };
   const html = typeof modal.html==='function' ? modal.html(reg) : (modal.html||'');
-  const opts=(modal.options||[]).map(o=>o.heading?`<div class="eyebrow" style="margin-top:6px">${o.heading}</div>`:`<button class="opt" ${o.disabled?'disabled':''} data-mfn="${reg(o.fn)}"><span><span class="ot">${o.label}</span>${o.sub?`<small>${o.sub}</small>`:''}</span><span class="num">${o.right||''}</span></button>`).join('');
+  const opts=(modal.options||[]).map(o=>o.heading?`<div class="eyebrow" style="margin-top:6px">${o.heading}</div>`:`<button class="opt ${o.row?'row':''}" ${o.disabled?'disabled':''} data-mfn="${reg(o.fn)}"><span><span class="ot">${o.label}</span>${o.sub?`<small>${o.sub}</small>`:''}</span><span class="num">${o.right||''}</span></button>`).join('');
   const btns=(modal.buttons||[]).map(b=>`<button class="btn ${b.primary?'primary':''}" ${b.disabled?'disabled':''} data-mfn="${reg(b.fn)}">${b.label}</button>`).join('');
   root.innerHTML=`<div class="scrim" data-scrim="1"><div class="modal ${modal.wide?'wide':''} ${modal.xwide?'xwide':''} ${modal.hero?'hero':''}" role="dialog" aria-modal="true" aria-label="${esc(String(modal.title).replace(/<[^>]+>/g,''))}">
     ${modal.title?`<h2>${modal.title}</h2>`:''}${html}${opts?`<div class="opts">${opts}</div>`:''}<div class="actions">${btns}</div></div></div>`;
@@ -2051,7 +2054,7 @@ async function humanPre(i,key,kind,noCancel){
         ...alt.map(c=>({label:`Play ${esc(c.name)}`, sub:esc(c.text)+' '+gainTxt(c.gain), value:{card:c.id}}))], buttons:cancel});
     }
     case 'academy.donate': return await ask({title:'Donate', html:'<p>1 reputation per franc, up to 3.</p>', options:[1,2,3].map(n=>({label:`Donate ${n}f`, value:{n}, disabled:p.coin<n})), buttons:cancel});
-    case 'market.trade': return await marketModal(p, cancel.length>0);
+    case 'market.trade': if(prePick) return prePick; return await marketModal(p, cancel.length>0);
     case 'docks.hire': { if(prePick) return prePick; const c=await chooseScoundrel(p, S.docks, 'Three scoundrels lean on the bollards.', !noCancel); return c; }
     case 'alley.murder': {
       const un=p.hand.some(h=>h.id==='unethical') && charged(p)>0;
@@ -2080,24 +2083,28 @@ async function chooseScoundrel(p, row, intro, canCancel){
         : [b('Materials',{card:c.id,how:'mats'},true), c.exp?b(`+${c.exp} expertise${c.expH?' (−1 humanity)':''}`,{card:c.id,how:'exp'}):'', c.hum?b(`+${c.hum} humanity`,{card:c.id,how:'hum'}):'', un?b('Unethical Experiment',{card:c.id,how:'exp',unethical:true}):''].join('');
       return cardHTML(c,{acts:`<div class="gc-acts col">${acts}</div>`}); }).join('')}</div>`, buttons:canCancel===false?[]:[{label:'Cancel', value:null}], locked:canCancel===false});
 }
-async function marketModal(p, canCancel){
-  const o={jars:0, ice:false, sellBone:0, sellPres:0, pickle:false};
+// Market trades: steppers for each trade and a running "francs after" total. Shared by the place popup and the second-use path.
+function marketState(){ return {jars:0, ice:false, sellBone:0, sellPres:0, pickle:false}; }
+function marketBody(p, o, reg){
   const hasPickle=p.hand.some(h=>h.id==='preserve');
   const jarCost=k=> S.ev==='hardtimes' ? Math.ceil(k/2)*2 : 2*k;
   const cash=()=>p.coin + o.sellBone + o.sellPres*(2+(o.pickle?1:0)) - jarCost(o.jars) - (o.ice?1:0);
-  return await ask({title:'Market', html:(reg,done)=>{
-    const rerender=()=>renderModal();
-    const step=(k,d,max)=>reg(()=>{ o[k]=clamp(o[k]+d,0,max); if(cash()<0) o[k]-=d; rerender(); });
-    const row=(label,sub,k,max)=>`<div class="opt" style="cursor:default"><span><span class="ot">${label}</span><small>${sub}</small></span>
-      <span style="display:flex;gap:6px;align-items:center"><button class="btn" style="padding:2px 10px" data-mfn="${step(k,-1,max)}">−</button><b class="num">${o[k]}</b><button class="btn" style="padding:2px 10px" data-mfn="${step(k,1,max)}">+</button></span></div>`;
-    return `<p class="flavor">Les Halles. Do as many trades as you like.</p><div class="opts">
-      ${row('Sell 2 bone for 1f',`You have ${p.bone} bone.`,'sellBone',Math.floor(p.bone/2))}
-      ${row(`Sell 3 preserved flesh for ${2+(o.pickle?1:0)}f`,`You have ${p.preserved} preserved. Preserve flesh in your lab at night.`,'sellPres',Math.floor(p.preserved/3))}
-      ${row(`Buy a Leyden jar (2f)`,`${S.ev==='hardtimes'?'Hard Times: buy 1, get 1 free. ':''}You have ${p.jars.length} of 4. New jars are empty unless lightning is in the air.`,'jars',4-p.jars.length)}
-      <div class="opt" style="cursor:default"><span><span class="ot">Buy an ice block (1f)</span><small>Stops decay for the next 2 dawns.${p.ice?` You have ${p.ice} left.`:''}</small></span><button class="tog" style="color:var(--parch);border-color:var(--line2)" data-mfn="${reg(()=>{ o.ice=!o.ice; if(cash()<0) o.ice=false; rerender(); })}">${o.ice?'Buying':'Buy'}</button></div>
-      ${hasPickle?`<label class="opt" style="cursor:pointer"><span><span class="ot">Play Pickling Jars</span><small>+1f per preserved sale.</small></span><input type="checkbox" ${o.pickle?'checked':''} data-mfn="${reg(()=>{ o.pickle=!o.pickle; rerender(); })}"></label>`:''}
-      </div><p class="num" style="text-align:right;margin-top:10px">Francs after: <b>${cash()}f</b></p>
-      <div class="actions"><button class="btn" data-mfn="${reg(()=>done(canCancel?null:{}))}">${canCancel?'Cancel':'Skip'}</button><button class="btn primary" data-mfn="${reg(()=>done({...o}))}">Trade</button></div>`; }, locked:!canCancel});
+  const rerender=()=>renderModal();
+  const step=(k,d,max)=>reg(()=>{ o[k]=clamp(o[k]+d,0,max); if(cash()<0) o[k]-=d; rerender(); });
+  const row=(label,sub,k,max)=>`<div class="opt" style="cursor:default"><span><span class="ot">${label}</span><small>${sub}</small></span>
+    <span style="display:flex;gap:6px;align-items:center"><button class="btn" style="padding:2px 10px" data-mfn="${step(k,-1,max)}">−</button><b class="num">${o[k]}</b><button class="btn" style="padding:2px 10px" data-mfn="${step(k,1,max)}">+</button></span></div>`;
+  return `<div class="opts">
+    ${row('Sell 2 bone for 1f',`You have ${p.bone} bone.`,'sellBone',Math.floor(p.bone/2))}
+    ${row(`Sell 3 preserved flesh for ${2+(o.pickle?1:0)}f`,`You have ${p.preserved} preserved. Preserve flesh in your lab at night.`,'sellPres',Math.floor(p.preserved/3))}
+    ${row(`Buy a Leyden jar (2f)`,`${S.ev==='hardtimes'?'Hard Times: buy 1, get 1 free. ':''}You have ${p.jars.length} of 4. New jars are empty unless lightning is in the air.`,'jars',4-p.jars.length)}
+    <div class="opt" style="cursor:default"><span><span class="ot">Buy an ice block (1f)</span><small>Stops decay for the next 2 dawns.${p.ice?` You have ${p.ice} left.`:''}</small></span><button class="tog" style="color:var(--parch);border-color:var(--line2)" data-mfn="${reg(()=>{ o.ice=!o.ice; if(cash()<0) o.ice=false; rerender(); })}">${o.ice?'Buying':'Buy'}</button></div>
+    ${hasPickle?`<label class="opt" style="cursor:pointer"><span><span class="ot">Play Pickling Jars</span><small>+1f per preserved sale.</small></span><input type="checkbox" ${o.pickle?'checked':''} data-mfn="${reg(()=>{ o.pickle=!o.pickle; rerender(); })}"></label>`:''}
+    </div><p class="num" style="text-align:right;margin-top:10px">Francs after: <b>${cash()}f</b></p>`;
+}
+async function marketModal(p, canCancel){
+  const o=marketState();
+  return await ask({title:'Market', html:(reg,done)=>`<p class="flavor">Les Halles. Do as many trades as you like.</p>${marketBody(p,o,reg)}
+      <div class="actions"><button class="btn" data-mfn="${reg(()=>done(canCancel?null:{}))}">${canCancel?'Cancel':'Skip'}</button><button class="btn primary" data-mfn="${reg(()=>done({...o}))}">Trade</button></div>`, locked:!canCancel});
 }
 async function cadaverModal(p, cards, o){
   if(S.fast) return aiCadaverPicks(p,cards,o);
@@ -2364,8 +2371,8 @@ async function placeModal(id){
   let opts=L.spaces.map(sp=>{ const key=L.id+'.'+sp.k, can=humanCan(key), kind=kindFor(0,key)||p.sel, who=occupantLine(key,can);
     const gain=spaceGain(key,kind); return {label:`${esc(sp.n)}${sp.sci?'<small class="scitag">scientist</small>':''}`, sub:`${gain}${who?(gain?'<br>':'')+who:''}`, value:key, disabled:!can}; });
   if(id==='slaughter'){ const key='slaughter.take', can=humanCan(key), who=occupantLine(key,can), extra=S.ev==='meat'?' Glut of Meat: +2 animal and +1f.':'';
-    opts=[{label:`Take 4 animal at stage II ${cube('animal',4,2)}`, sub:`Animal stands in for muscle, organ or blood. 1 VP less per part built with it, 2 less with 3 or more.${extra}${who?'<br>'+who:''}`, value:{key, pre:{opt:'four'}}, disabled:!can},
-          {label:`Take 3 animal at stage I ${cube('animal',3,1)}`, sub:`Fresher, so it keeps its value one dawn longer.${extra}`, value:{key, pre:{opt:'three'}}, disabled:!can}]; }
+    opts=[{label:`Take 4 animal at stage II ${cube('animal',4,2)}`, sub:`${extra.trim()}${who?(extra?'<br>':'')+who:''}`, value:{key, pre:{opt:'four'}}, disabled:!can, row:true},
+          {label:`Take 3 animal at stage I ${cube('animal',3,1)}`, sub:extra.trim(), value:{key, pre:{opt:'three'}}, disabled:!can, row:true}]; }
   let cards='';
   if(id==='docks'){ const key='docks.hire', can=humanCan(key); let picked=null;
     const html=(reg,done)=>`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}
@@ -2376,6 +2383,13 @@ async function placeModal(id){
         return cardHTML(c,{acts:`<div class="gc-acts col">${acts}</div>`}); }).join('')}</div>`;
     const k=await ask({title:'', hero:true, wide:true, html, buttons:[{label:'Close', value:null}]});
     if(k && picked){ prePick=picked; await clickSpace(k); prePick=null; }
+    return; }
+  if(id==='market'){ const key='market.trade', can=humanCan(key), who=occupantLine(key,can); const o=marketState(); let go=false;
+    const html=(reg,done)=>`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${who?`<p class="flavor">${who}</p>`:''}
+      <div class="sub">Do as many trades as you like</div>${marketBody(p,o,reg)}
+      <div class="actions"><button class="btn" data-mfn="${reg(()=>done(null))}">Close</button><button class="btn primary" ${can?'':'disabled'} data-mfn="${reg(()=>{ go=true; done(key); })}">Trade</button></div>`;
+    const k=await ask({title:'', hero:true, wide:true, html, locked:true});
+    if(k && go){ prePick={...o}; await clickSpace(k); prePick=null; }
     return; }
   if(id==='cemetery'||id==='morgue') cards=deckHTML(L.name, S.decks[id].length, CADAVERS[id].length);
   else { const rows=faceUp(id); if(ROW_LABEL[id]) cards=`<div class="sub">${ROW_LABEL[id]}</div>${rows.length?`<div class="gcards">${rows.map(c=>cardHTML(c)).join('')}</div>`:'<p class="flavor">None left today.</p>'}`; }
