@@ -265,3 +265,6 @@ Three pixel icons were generated (coin with a fleur-de-lis, whole heart, broken 
 
 **D82. Icons are hand-set pixel art, not generated.** (Bruno: "not a literal heart. the symbolic one. Also, make them bigger... the coin has white background. Where's the transparency?")
 The generated icons were anatomical hearts, and the coin's pale backdrop would not key out. The three icons (coin with a fleur-de-lis, symbolic heart, broken heart with a jagged crack) are now drawn pixel by pixel in `tools`-free Python with a true alpha channel (`art/icons/`, 4x nearest-neighbour from a 14 to 16 pixel grid). On the scoundrel card they show at 28px, 18px in the benefit row. Generated attempts kept in `art/source/icons/generated/`.
+
+**D83. Icons redrawn on a 48-pixel grid.** (Bruno: "The resolution of the coin seems bad...")
+The 14-pixel coin doubled every pixel at 28px and the emblem turned to mush. The coin and both hearts are now drawn at 48px: the coin has a dark rim, a lit upper-left and shaded lower-right, and a bold serif F for francs instead of the fleur-de-lis that read as a trident; the hearts are the emoji silhouette with a highlight, the broken one split by a jagged transparent crack.
