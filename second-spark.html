@@ -98,7 +98,11 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .res span{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .tracks{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
 .track{display:grid;grid-template-columns:92px minmax(0,1fr) 28px;align-items:center;gap:8px;font-size:12.5px}
-.track .lab{letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--muted)}
+.track .lab{letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.ico.si{width:16px;height:16px;filter:none}
+.res span{display:flex;align-items:center;justify-content:center;gap:4px}
+.rivalmini .rstats span>span:first-child{display:inline-flex;align-items:center;gap:4px}
+.rivalmini .rstats .ico.si{width:13px;height:13px}
 .bar{display:grid;grid-template-columns:repeat(var(--n,10),1fr);gap:2px}
 .bar i{height:10px;border-radius:1px;background:var(--line);display:block}
 .bar.h i.on{background:var(--blood)}
@@ -427,8 +431,8 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .ecard .ebody{font-size:12.5px;line-height:1.35;padding:8px 10px 9px;display:flex;flex-direction:column;gap:4px}
 /* frosted text cards (research): parchment face with the title, text and gain icons, a dark dice strip below */
 .fcard{width:190px;display:flex;flex-direction:column;border-radius:7px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.55);border:2px solid #2a2320}
-.fface{aspect-ratio:3/4;background:var(--card-research) center/100% 100% no-repeat,#d9dee3;color:#2b2a36;padding:9% 11% 8%;display:flex;flex-direction:column;align-items:center;text-align:center;box-sizing:border-box}
-.fface .ft{font-family:var(--f-display);font-size:17px;line-height:1.05;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.fface{aspect-ratio:3/4;background:var(--card-research) center/100% 100% no-repeat,#d9dee3;color:#2b2a36;padding:12% 16% 11%;display:flex;flex-direction:column;align-items:center;text-align:center;box-sizing:border-box}
+.fface .ft{font-family:var(--f-display);font-size:16px;line-height:1.05;text-shadow:0 1px 0 rgba(255,255,255,.6)}
 .fface .fk{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#4a4a5a;margin:4px 0 6px;padding:0 10px;position:relative;display:flex;align-items:center;gap:8px}
 .fface .fk::before,.fface .fk::after{content:'';flex:1;min-width:18px;height:1px;background:#4a4a5a}
 .fface .fx{font-size:11px;line-height:1.3;margin:0;flex:1;display:flex;align-items:center}
@@ -2301,9 +2305,9 @@ function bodyLine(p){ return `<div class="bodyline">${SLOT_ORDER.map(([s,n])=>{ 
   return `<span class="bl ${c}" title="${n}: ${({none:'not started',muscle:'muscle',skin:'skin (complete)',alive:'alive'})[c]}${t&&t.dmg?', damaged':''}">${n}${t&&t.dmg?'⚡':''}</span>`; }).join('<span class="bls">–</span>')}</div>`; }
 function statBars(p, small){
   return `<div class="tracks ${small?'small':''}">
-      <div class="track"><span class="lab">Humanity</span>${humBar(p.hum)}<span class="num">${p.hum>0?'+':''}${p.hum}</span></div>
-      <div class="track"><span class="lab">Expertise</span>${bar(Math.min(p.exp,30),30,'e',{marks:[3,8,10,14,20,27], tips:EXP_TIPS})}<span class="num">${p.exp}</span></div>
-      <div class="track"><span class="lab">Reputation</span>${bar(Math.min(p.rep,30),30,'r',{marks:[7,15,23], tips:REP_TIPS})}<span class="num">${p.rep}</span></div>
+      <div class="track"><span class="lab">${icon(p.hum<0?'heart-broken':'heart','❤️','si')}Humanity</span>${humBar(p.hum)}<span class="num">${p.hum>0?'+':''}${p.hum}</span></div>
+      <div class="track"><span class="lab">${icon('expertise','🧠','si')}Expertise</span>${bar(Math.min(p.exp,30),30,'e',{marks:[3,8,10,14,20,27], tips:EXP_TIPS})}<span class="num">${p.exp}</span></div>
+      <div class="track"><span class="lab">${icon('reputation','🎖️','si')}Reputation</span>${bar(Math.min(p.rep,30),30,'r',{marks:[7,15,23], tips:REP_TIPS})}<span class="num">${p.rep}</span></div>
     </div>`;
 }
 function humBar(h){ return `<div class="bar hd" style="--n:20">${Array.from({length:20},(_,k)=>{ const v=k-10; const on = h<0 ? (v>=h&&v<0) : (v>=0&&v<h); return `<i class="${on?'on '+(h<0?'neg':'pos'):''}" ${k===10?'style="box-shadow:-2px 0 0 var(--parch-dim)"':''}></i>`; }).join('')}</div>`; }
@@ -2575,7 +2579,7 @@ function rivalsRow(){
   return S.players.slice(1).map((p,k)=>{ const C=CHARACTERS.find(c=>c.id===p.char);
     return `<button class="rivalmini" data-act="rival" data-i="${k+1}" style="--pc:${p.color}" aria-label="See ${esc(p.name)}’s laboratory">${charArt(p.char,'avatar')}<span class="rname"><b title="${esc(p.name)}">${esc(p.name)}</b><small>${C?esc(C.role):''}</small></span>
       <span class="rcounts"><span><b>${onTable(p).length-completeCount(p)}</b>Muscle</span><span><b>${completeCount(p)-aliveCount(p)}</b>Skin</span><span><b>${aliveCount(p)}</b>Alive</span></span>
-      <span class="rstats"><span>Humanity<b>${p.hum>0?'+':''}${p.hum}</b></span><span>Expertise<b>${p.exp}</b></span><span>Reputation<b>${p.rep}</b></span></span></button>`; }).join('');
+      <span class="rstats"><span>${icon(p.hum<0?'heart-broken':'heart','❤️','si')}Humanity<b>${p.hum>0?'+':''}${p.hum}</b></span><span>${icon('expertise','🧠','si')}Expertise<b>${p.exp}</b></span><span>${icon('reputation','🎖️','si')}Reputation<b>${p.rep}</b></span></span></button>`; }).join('');
 }
 function sideColumn(){
   const p=S.players[0], ch=charged(p), lab=S.phase==='lab';
@@ -2584,7 +2588,7 @@ function sideColumn(){
     <section class="panel" aria-label="Your laboratory">
       <div class="labsum-grid"><button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory"><span class="eyebrow">Operating table</span>${tableSVG(p,'me')}<span class="eyebrow openhint">Open lab</span></button><div class="decaybox"><span class="eyebrow">Decomposition track</span>${decayHTML(p,true)}</div></div>
       ${bodyLine(p)}
-      <div class="res four"><div><b>${p.coin}</b><span>Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>Jars</span></div><div><b>${p.ice}</b><span>Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>Police</span></div></div>
+      <div class="res four"><div><b>${p.coin}</b><span>${icon('coin','🪙','si')}Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>Jars</span></div><div><b>${p.ice}</b><span>Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>${icon('police','⭐','si')}Police</span></div></div>
     </section>
     <section class="panel">${statBars(p)}<div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory: build, throw, preserve':'Laboratory'}</button><button class="btn" data-act="hand">Cards <b class="count">${p.hand.length}</b></button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div></section>
     <section class="panel" aria-label="Rival scientists"><div class="sub" style="margin:0 0 8px">Rivals</div><div class="rivalrow">${rivalsRow()}</div></section>
