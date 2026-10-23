@@ -186,7 +186,7 @@ const LOCS = [
    text:'Murder for fresh materials. Costs 3 humanity and earns a police marker.', yields:'Stage I muscle 4, organ 4, blood 3, bone 2'},
   {id:'church', name:'Saint-Roch', place:'Rue Saint-Honoré', spaces:[{k:'atone', n:'Atone'}],
    text:'Take a humanity card. A scientist also gains 1 humanity.', yields:'Humanity cards'},
-  {id:'first', name:'First Player', place:'Parvis Notre-Dame', spaces:[{k:'first', n:'Take the lead', nobump:1}],
+  {id:'first', name:'First Player', place:'Parvis Notre-Dame', spaces:[{k:'first', n:'Become first player for the next day', nobump:1}],
    text:'Become first player. Can’t be bumped. When everyone has finished, you may move this meeple to another space and use it.', yields:''},
   {id:'odeon', name:'Théâtre de l’Odéon', place:'Rive gauche', event:'odeon', spaces:[{k:'show', n:'Be seen (+2 rep)', freebump:1}],
    text:'Opening night. +2 reputation. Each player may go once; bumping here is free and sends the meeple home.', yields:''},

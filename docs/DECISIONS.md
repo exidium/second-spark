@@ -298,3 +298,5 @@ A `fr(n)` helper gives "1 franc" or "N francs"; every literal and template in da
 
 **D93. Cemetery, Morgue and Dark Alley popups simplified.** (Bruno: "Remove the deck image and cemetery deck, 14 of 14... On the button, write 'Dig up to 3 cadavers'. Remove the subtitle." "Morgue, same thing: 'Buy up to 2 cadavers', put franc icon here, remove subtitle." "Dark alley: make icons for each of the gain." "police icon: just make a police sheriff badge.")
 The deck back and count are gone from both popups; each has one option whose label carries the draw count (plus 1 under Cholera), the Morgue's with a coin icon, and only the occupant line beneath when someone is there. The Dark Alley option shows its gain as a row of material cubes, a broken heart with 3, and a six-point sheriff-star police icon with 1 (`icon-police`, hand-drawn).
+
+**D94. First Player option reads "Become first player for the next day", sub-line "(can't be bumped)".** (Bruno.)

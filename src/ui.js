@@ -478,7 +478,7 @@ function spaceGain(key, kind){
     case 'docks.hire': return '';
     case 'alley.murder': return '+4 muscle, 4 organ, 3 blood (I), 2 bone · −3 humanity · +1 police';
     case 'church.atone': return sci?'1 humanity card below · +1 humanity':'1 humanity card below (scientist: +1 humanity)';
-    case 'first.first': return 'Become first player · can’t be bumped';
+    case 'first.first': return '(can’t be bumped)';
     case 'odeon.show': return '+2 reputation';
     case 'lab.practice': return '+1 expertise';
     case 'lab.blood': return '+3 blood (I)';
