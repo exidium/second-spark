@@ -383,8 +383,9 @@ const MEEPLE_GRID = {
     '...########...','..##########..','.############.','.############.','.############.','.############.','.############.','.############.','..##########..','..............','..............','..............'],
 };
 const MEEPLE_PATH = Object.fromEntries(Object.entries(MEEPLE_GRID).map(([k,rows])=>[k, rows.map((r,y)=>[...r].map((ch,x)=>ch==='#'?`M${x} ${y}h1v1h-1z`:'').join('')).join('')]));
+// size is the assistant's height; a scientist is drawn 1.5x taller so the two tell apart at a glance.
 function meeple(kind,color,size){
-  size=size||18; const d=MEEPLE_PATH[kind]||MEEPLE_PATH.assistant;
+  size=(size||18)*(kind==='scientist'?1.5:1); const d=MEEPLE_PATH[kind]||MEEPLE_PATH.assistant;
   return `<svg width="${size*.7}" height="${size}" viewBox="0 0 14 20" aria-hidden="true" shape-rendering="crispEdges"><path d="${d}" fill="${color}"/></svg>`;
 }
 function tableSVG(p,key){

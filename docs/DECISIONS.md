@@ -280,3 +280,6 @@ Fifteen 4:3 scenes. The Creature (towering, stitched brow and wrists, yellowish 
 
 **D87. Designed meeples: two mono-colour silhouettes, scientist and assistant.** (Bruno: "I also want to design meeples for the game... Maybe they have to be 2D. Make them mono color." and "differentiate scientist meeple from assistant meeple.")
 Each meeple is a flat single-colour silhouette drawn on a 14x20 pixel grid and rendered as one SVG path of unit squares, so it stays crisp at any size and takes the player's colour as its fill. The scientist wears a top hat, has narrow shoulders and split coat tails; the assistant wears a flat cap with a brim and has round shoulders and a solid apron-shaped body. They replace the coloured dots on the board's place slots and the lab strip, and the same drawing serves the send buttons, bump track and rival rows. A first freehand attempt read as blobs and was replaced by the grid version.
+
+**D88. Scientist meeples are drawn 1.5x the height of assistants.** (Bruno: "Make the scientist meeple bigger (1.5x) than assistant. That way we can ID it easier.")
+`meeple()` scales a scientist by 1.5 wherever it is drawn; board slots give scientists the taller box and align the row to the baseline.
