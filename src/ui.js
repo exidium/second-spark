@@ -267,14 +267,14 @@ function cardHTML(c, extra){
   if(c.kind==='research'){
     const art=ICONART[c.id==='demo'||c.id==='electro'?'jar':c.id==='healing'||c.id==='transfusion'?'flask':c.id==='tutor'||c.id==='guest'?'coin':'book'];
     const body=`${esc(c.text)}${gainTxt(c.gain)?`<div><b>${gainTxt(c.gain)}</b></div>`:''}<div style="border-top:1px solid rgba(59,45,34,.3);padding-top:4px">Or after a throw: <b>${MIT_N[c.mit]}</b></div>`;
-    if(IMG['card-research-bg']) return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="fcard"><div class="fface"><span class="ft">${esc(c.name)}</span><span class="fk">Research</span><p class="fx">${esc(c.text)}</p><div class="fg">${gainIconsHTML(c.gain)}</div></div>${diceStripHTML(c.mit)}</div>${extra.acts||''}</div>`;
+    if(IMG['card-research-bg']) return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="fcard"><div class="fface"><span class="femblem">${icon('book','📖')}</span><span class="ft">${esc(c.name)}</span><span class="fk">Research</span><p class="fx">${esc(c.text)}</p><div class="fg">${gainIconsHTML(c.gain)}</div></div>${diceStripHTML(c.mit)}</div>${extra.acts||''}</div>`;
     if(hasFrame()) return framedHTML({sel:extra.sel, kind:'Research', title:esc(c.name), art, body, mark:'', acts:extra.acts});
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Research</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${art}</div>
       <div class="gc-body">${body}</div>${extra.acts||''}</div>`;
   }
   if(c.kind==='humanity'){
-    if(IMG['card-humanity-bg']) return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="fcard hum"><div class="fface"><span class="ft">${esc(c.name)}</span><span class="fk">Humanity</span><p class="fx">${esc(c.text)}</p><div class="fg">${gainIconsHTML(c.gain)}</div></div></div>${extra.acts||''}</div>`;
+    if(IMG['card-humanity-bg']) return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="fcard hum"><div class="fface"><span class="femblem">${icon('cross','✝️')}</span><span class="ft">${esc(c.name)}</span><span class="fk">Humanity</span><p class="fx">${esc(c.text)}</p><div class="fg">${gainIconsHTML(c.gain)}</div></div></div>${extra.acts||''}</div>`;
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Humanity</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${ICONART.candle}</div><div class="gc-body">${esc(c.text)}${gainTxt(c.gain)?`<div><b>${gainTxt(c.gain)}</b></div>`:''}</div>${extra.acts||''}</div>`;
   }

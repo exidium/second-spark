@@ -315,3 +315,6 @@ Both faces are generated as pale, low-contrast pixel engravings (12 colours aske
 
 **D99. Card faces faded further.** (Bruno: "I like both. Make them even more faded out")
 Contrast at 62% and brightness at 107% before the pixel snap; the darkest pixel on either face is now about 225 of 255, so the desk and altar read as a ghost behind the text.
+
+**D100. Research and humanity cards: plain parchment with a pixel emblem at the top, a book and a cross.** (Bruno: "let's try something different. Make a pixel art book on the top center of the card for research, a cross for church.")
+The faces are plain hand-made parchment (a speckled 96x128 grid with a faint edge vignette; the humanity one a touch greener), and each card carries a 44px emblem above its name: an open book with a red ribbon for research, a bevelled stone cross for humanity, both drawn on the 48px icon grid (`icon-book`, `icon-cross`). The faded desk and altar scenes (D98, D99) are kept in `art/source/frames/` and in the prompt sheet.
