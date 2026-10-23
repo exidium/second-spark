@@ -312,3 +312,6 @@ The Saint-Roch popup shows the three humanity cards on the tinted pixel face wit
 
 **D98. Research and humanity faces are faded scenes: a scholar's desk and a church altar.** (Bruno: "Do a completely art for research AND church. Research should be kind of a faded out desk and books... the church... an altar with cross. Really faded, low contrast, so we can write text on top of it.")
 Both faces are generated as pale, low-contrast pixel engravings (12 colours asked, 16 kept) and snapped to the 96x128 grid: an open book, a stack of books, quill and candlestick on a desk for research; a stone altar with a tall cross, two candles and an arched window for humanity. An extra fade pass in the pipeline washed them to white and was removed; the generator's own contrast is what ships. Card text is darker and medium weight to sit on the scenes. The frosted faces are kept in `art/source/frames/v3/`.
+
+**D99. Card faces faded further.** (Bruno: "I like both. Make them even more faded out")
+Contrast at 62% and brightness at 107% before the pixel snap; the darkest pixel on either face is now about 225 of 255, so the desk and altar read as a ghost behind the text.
