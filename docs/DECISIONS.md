@@ -306,3 +306,6 @@ The frosted face was regenerated with a chunky-pixel prompt (big pixels, coarse 
 
 **D96. Image URLs carry a content hash so browsers never show a stale file.** (Bruno saw the old card face after the new one was deployed: "The background of the card still isn't pixel art.")
 The new face was on the server, but the file name had not changed and GitHub Pages serves images with a 10-minute cache, so his browser showed its cached copy. `build.py` now appends `?v=<8-char md5>` to every image path in `IMG`; a changed image gets a new URL and is refetched, an unchanged one stays cached.
+
+**D97. Saint-Roch: take the humanity card from the popup.** (Bruno: "Now do you for humanity, the church")
+The Saint-Roch popup shows the three humanity cards on the tinted pixel face with a Take button on each; the heading reads "Take a humanity card" with a +1 heart when the meeple sent is a scientist. Taking a card places the meeple and resolves through `prePick`; the separate Atone option is gone.

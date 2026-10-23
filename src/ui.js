@@ -176,6 +176,7 @@ async function humanPre(i,key,kind,noCancel){
         options:[{label:'Do it', value:{}}, ...(un?[{label:'Unethical Experiment instead', sub:'Spend 1 charged jar: +5 expertise, −1 humanity, no materials.', value:{unethical:true}}]:[])], buttons:cancel});
     }
     case 'church.atone': {
+      if(prePick) return prePick;
       if(!S.humanityRow.length) return {};
       return await ask({title:'Saint-Roch', wide:true, html:(reg,done)=>`<p class="flavor">Choose a humanity card.${kind==='scientist'?' Your scientist also gains 1 humanity.':' (A scientist would also gain 1 humanity.)'}</p>
         <div class="gcards">${S.humanityRow.map(c=>cardHTML(c,{acts:`<div class="gc-acts"><button class="tog" data-mfn="${reg(()=>done({card:c.id}))}">Take this</button></div>`})).join('')}</div>`, buttons:cancel});
@@ -497,6 +498,13 @@ async function placeModal(id){
   const L=LOC[id], p=S.players[0], mine=isMyTurn(), closed=!!S.closed[id];
   let opts=L.spaces.map(sp=>{ const key=L.id+'.'+sp.k, can=humanCan(key), kind=kindFor(0,key)||p.sel, who=occupantLine(key,can);
     const gain=spaceGain(key,kind); return {label:`${esc(sp.n)}${sp.sci?'<small class="scitag">scientist</small>':''}`, sub:`${gain}${who?(gain?'<br>':'')+who:''}`, value:key, disabled:!can}; });
+  if(id==='church'){ const key='church.atone', can=humanCan(key), kind=kindFor(0,key)||p.sel, who=occupantLine(key,can); let picked=null;
+    const html=(reg,done)=>`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${who?`<p class="flavor">${who}</p>`:''}
+      <div class="sub">Take a humanity card${kind==='scientist'?' <span class="gi"><b>+1</b>'+icon('heart','❤️')+'</span>':''}</div>
+      <div class="gcards">${S.humanityRow.map(c=>cardHTML(c,{acts:`<div class="gc-acts col"><button class="btn primary sm" ${can?'':'disabled'} data-mfn="${reg(()=>{ picked={card:c.id}; done(key); })}">Take this</button></div>`})).join('')||'<p class="flavor">None left today.</p>'}</div>`;
+    const k=await ask({title:'', hero:true, wide:true, html, buttons:[{label:'Close', value:null}]});
+    if(k && picked){ prePick=picked; await clickSpace(k); prePick=null; }
+    return; }
   if(id==='cemetery'||id==='morgue'){ const key=id==='cemetery'?'cemetery.dig':'morgue.buy', can=humanCan(key), who=occupantLine(key,can);
     const n=(id==='cemetery'?3:2)+(S.ev==='cholera'?1:0);
     opts=[{label: id==='cemetery' ? `Dig up to ${n} cadavers` : `Buy up to ${n} cadavers <span class="optcost">${coins(1)}</span>`, sub: who, value:key, disabled:!can}]; }
