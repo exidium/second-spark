@@ -321,3 +321,6 @@ The faces are plain hand-made parchment (a speckled 96x128 grid with a faint edg
 
 **D101. A pixel line-art border on the research and humanity faces.** (Bruno: "Add a border to both of these cards. Again, pixel art. Make it like a line art, in pixel art, a card decoration")
 Drawn on the 96x128 parchment grid in one ink colour (warm brown for research, grey-green for humanity): a double rule two and five pixels in from the edge, tick marks between the rules every eight pixels, a small diamond ornament in each corner, and a short flourish centred on the top and bottom rails. Card padding moved inside the border.
+
+**D102. Border ink lightened.** (Bruno: "make the details you just did lighter.")
+The border, ticks, corner diamonds and flourishes are drawn in an ink about halfway between the previous brown or green and the parchment, so they decorate without competing with the text.
