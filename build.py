@@ -4,7 +4,7 @@
 Writes dist/second-spark.html and copies every image under art/ (except art/source/) to dist/art/<set>/.
 The page refers to images by relative path, so dist/ must be served or opened as a folder.
 --embed inlines the images as data URIs instead (one self-contained file, several MB)."""
-import base64, json, mimetypes, shutil, sys
+import base64, hashlib, json, mimetypes, shutil, sys
 from pathlib import Path
 root = Path(__file__).parent
 src = root / 'src'
@@ -24,7 +24,8 @@ for f in files:
     else:
         (out_dir / 'art' / rel.parent).mkdir(parents=True, exist_ok=True)
         shutil.copy2(f, out_dir / 'art' / rel)
-        imgs[f.stem] = f'art/{rel.as_posix()}'
+        # a short content hash in the query string, so browsers refetch an image when it changes and keep it otherwise
+        imgs[f.stem] = f'art/{rel.as_posix()}?v={hashlib.md5(f.read_bytes()).hexdigest()[:8]}'
 # IMG maps a file stem (e.g. character-surgeon, hospital-03, bg-wall) to a URL the page can use.
 js = '// Images from art/ (file stem -> url). Empty when none.\nconst IMG = ' + json.dumps(imgs) + ';\n'
 js += '\n'.join((src / f).read_text(encoding='utf-8') for f in ['data.js', 'art.js', 'engine.js', 'ui.js'])
