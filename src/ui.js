@@ -266,6 +266,8 @@ function cardHTML(c, extra){
   if(c.kind==='research'){
     const art=ICONART[c.id==='demo'||c.id==='electro'?'jar':c.id==='healing'||c.id==='transfusion'?'flask':c.id==='tutor'||c.id==='guest'?'coin':'book'];
     const body=`${esc(c.text)}${gainTxt(c.gain)?`<div><b>${gainTxt(c.gain)}</b></div>`:''}<div style="border-top:1px solid rgba(59,45,34,.3);padding-top:4px">Or after a throw: <b>${MIT_N[c.mit]}</b></div>`;
+    const k=RESEARCH.findIndex(r=>r.id===c.id);
+    if(k>=0 && IMG[`research-${String(k+1).padStart(2,'0')}`]) return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="ecard rcard"><div class="eart">${researchArt(c)}<span class="ek">Research</span><span class="en">${esc(c.name)}</span></div><div class="ebody">${body}</div></div>${extra.acts||''}</div>`;
     if(hasFrame()) return framedHTML({sel:extra.sel, kind:'Research', title:esc(c.name), art, body, mark:'', acts:extra.acts});
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Research</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${art}</div>
@@ -415,9 +417,11 @@ function tableSVG(p,key){
 function visibleLocs(){ return LOCS.filter(l=>!l.event || (l.event==='odeon'&&S.odeonOpen)); }
 // ---------- The board: Bruno's painted Paris with places, meeple slots and card slots overlaid ----------
 function faceUp(id){ return id==='hospital'?S.hosp : id==='academy'?S.researchRow : id==='church'?S.humanityRow : id==='docks'?S.docks : id==='square'?S.square : []; }
+// Research scene: art/research/research-NN.png by the card's position in RESEARCH, else the small SVG icon.
+function researchArt(c){ const k=RESEARCH.findIndex(r=>r.id===c.id); const src=k>=0&&IMG[`research-${String(k+1).padStart(2,'0')}`]; return src ? `<img src="${src}" alt="">` : researchIcon(c); }
 function researchIcon(c){ return ICONART[c.id==='demo'||c.id==='electro'?'jar':c.id==='healing'||c.id==='transfusion'?'flask':c.id==='tutor'||c.id==='guest'?'coin':'book']; }
 function slotDot(key){ const o=S.occ[key]; if(!o) return '<i class="slot"></i>'; return `<i class="slot on ${o.kind==='scientist'?'sci':''}">${meeple(o.kind,S.players[o.p].color,16)}</i>`; }
-function miniArt(c){ if(c.kind==='cadaver') return cadaverArt(c); if(SC_WHO[c.kind]) return scoundrelArt(c); if(c.kind==='research') return researchIcon(c); if(c.kind==='humanity') return ICONART.candle; return ''; }
+function miniArt(c){ if(c.kind==='cadaver') return cadaverArt(c); if(SC_WHO[c.kind]) return scoundrelArt(c); if(c.kind==='research') return researchArt(c); if(c.kind==='humanity') return ICONART.candle; return ''; }
 // Mini card on the board: art and name only. The place popup shows the same card at full size.
 function miniCard(c){
   if(c.kind==='cadaver' && c.art && IMG[c.art]){ const n=t=>{ const m=c.mats.find(x=>x[0]===t); return m?m[2]:0; };
@@ -590,7 +594,8 @@ function handHTML(p){
       burial:'Use it: offered at the Public Square.', animal:'Use it: offered when you lecture.', human:'Use it: offered when you lecture.', trap:'Use it: offered when the Creature visits you.', mercy:'Use it: offered when an execution is announced.',
       midnight:'Use it: press Play during your turn in the city phase.', publish:'Use it: press Play during your turn, while your scientist is still at home.'};
     const how = WHERE[c.id] || (c.when==='any'||c.when==='aid'||c.when==='target' ? 'Use it: press Play.' : '');
-    return `<div class="hcard"><span><span class="eyebrow">${c.kind}</span><br><b>${esc(c.name)}</b><br><span style="color:var(--parch-dim)">${esc(c.text)} ${gainTxt(c.gain)?'<b>'+gainTxt(c.gain)+'</b>':''}</span>${c.mit?`<br><span style="font-size:12px;color:var(--spark)">Or spend it after throwing the switch: ${MIT_N[c.mit]}</span>`:''}${how?`<br><span style="font-size:12px;color:var(--muted)">${how}</span>`:''}</span>${can?`<button class="animate" data-act="play" data-id="${c.id}">Play</button>`:''}</div>`; }).join('');
+    const thumb = c.kind==='research' ? `<span class="hthumb">${researchArt(c)}</span>` : '';
+    return `<div class="hcard">${thumb}<span><span class="eyebrow">${c.kind}</span><br><b>${esc(c.name)}</b><br><span style="color:var(--parch-dim)">${esc(c.text)} ${gainTxt(c.gain)?'<b>'+gainTxt(c.gain)+'</b>':''}</span>${c.mit?`<br><span style="font-size:12px;color:var(--spark)">Or spend it after throwing the switch: ${MIT_N[c.mit]}</span>`:''}${how?`<br><span style="font-size:12px;color:var(--muted)">${how}</span>`:''}</span>${can?`<button class="animate" data-act="play" data-id="${c.id}">Play</button>`:''}</div>`; }).join('');
 }
 // ---------- Laboratory popup (night actions) ----------
 function switchBoxHTML(p){
