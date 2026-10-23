@@ -982,7 +982,13 @@ The back of a playing card for a gothic 1819 Paris game: a dark oak wood panel w
 ### Research card background → `card-research-bg.png`
 
 ```
-The blank front of a playing card in chunky retro pixel art: pale frosted parchment, icy blue-grey and bone white, with big visible pixels and coarse checkerboard dithering making the frost, a few blocky ice-crystal shapes near the edges only, a simple one-pixel-wide dark inner border, and a small blocky ornament in each corner no larger than a tenth of the card. The middle two thirds of the card is completely plain and empty, nothing drawn there at all. Seen flat and straight on, filling the whole canvas edge to edge. Pixel art, 16 colours, hard edges, no anti-aliasing, no smooth shading, no fine detail, like a 1990s computer game card. Canvas 72 by 96 pixels, portrait 3:4. Do not include: text, letters, numbers, words, pictures, objects, figures, fine filigree, thin lines, a second border, cartoon style, bright saturated colours, pure white background.
+The blank front of a playing card showing a scholar's desk seen from the front: an open book, a stack of two books, a quill in an inkpot and a candlestick, all drawn faded and pale. Washed out and very low contrast, like an old faded engraving printed on pale parchment: pale bone-white and light grey-brown tones only, no dark areas, no strong lines, everything soft and ghostly so that black text written on top of it stays easy to read. Chunky retro pixel art with big visible pixels and coarse dithering, 12 colours, hard edges, no anti-aliasing, no fine detail. Seen flat and straight on, filling the whole canvas edge to edge. Canvas 72 by 96 pixels, portrait 3:4. Do not include: text, letters, numbers, words, figures, people, a border, a frame, dark shadows, strong contrast, bright colours, cartoon style.
+```
+
+### Humanity card background → `card-humanity-bg.png`
+
+```
+The blank front of a playing card showing a church altar seen from the front: a plain stone altar with a tall cross standing on it, two candles, an arched window behind, all drawn faded and pale. Washed out and very low contrast, like an old faded engraving printed on pale parchment: pale bone-white and light grey-brown tones only, no dark areas, no strong lines, everything soft and ghostly so that black text written on top of it stays easy to read. Chunky retro pixel art with big visible pixels and coarse dithering, 12 colours, hard edges, no anti-aliasing, no fine detail. Seen flat and straight on, filling the whole canvas edge to edge. Canvas 72 by 96 pixels, portrait 3:4. Do not include: text, letters, numbers, words, figures, people, a border, a frame, dark shadows, strong contrast, bright colours, cartoon style.
 ```
 
 ## Icons (3) · cost and humanity marks on cards

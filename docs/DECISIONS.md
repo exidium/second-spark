@@ -309,3 +309,6 @@ The new face was on the server, but the file name had not changed and GitHub Pag
 
 **D97. Saint-Roch: take the humanity card from the popup.** (Bruno: "Now do you for humanity, the church")
 The Saint-Roch popup shows the three humanity cards on the tinted pixel face with a Take button on each; the heading reads "Take a humanity card" with a +1 heart when the meeple sent is a scientist. Taking a card places the meeple and resolves through `prePick`; the separate Atone option is gone.
+
+**D98. Research and humanity faces are faded scenes: a scholar's desk and a church altar.** (Bruno: "Do a completely art for research AND church. Research should be kind of a faded out desk and books... the church... an altar with cross. Really faded, low contrast, so we can write text on top of it.")
+Both faces are generated as pale, low-contrast pixel engravings (12 colours asked, 16 kept) and snapped to the 96x128 grid: an open book, a stack of books, quill and candlestick on a desk for research; a stone altar with a tall cross, two candles and an arched window for humanity. An extra fade pass in the pipeline washed them to white and was removed; the generator's own contrast is what ships. Card text is darker and medium weight to sit on the scenes. The frosted faces are kept in `art/source/frames/v3/`.
