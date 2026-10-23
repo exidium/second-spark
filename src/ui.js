@@ -72,7 +72,7 @@ document.addEventListener('scroll', ()=>{ tip.hidden=true; }, true);
 /* =========================================================
    HUMAN INPUT
    ========================================================= */
-let busy=false, humanBlocked=null, dockPick=null; const uiOpts={steady:false, surgeon:false};
+let busy=false, humanBlocked=null, prePick=null; const uiOpts={steady:false, surgeon:false};
 function isMyTurn(){ return S && S.phase==='day' && S.cur===0 && !!humanResolve && !busy; }
 function humanCan(key){ if(!isMyTurn()) return false; const sp=SPACE[key]; if(sp && humanBlocked===sp.loc) return false; return canPlace(0,key); }
 
@@ -141,7 +141,7 @@ async function humanPre(i,key,kind,noCancel){
       return await ask({title:'Public Square', wide:true, html:(reg,done)=>`<p class="flavor">The crowd has gone home. 1f buys one body.</p>
         <div class="gcards">${S.square.map(c=>cardHTML(c,{acts:`<div class="gc-acts"><button class="tog" data-mfn="${reg(()=>done({card:c.id}))}">Buy this one</button>${bury?`<button class="tog" data-mfn="${reg(()=>done({card:c.id, bury:true}))}">Bury it (A Decent Burial)</button>`:''}</div>`})).join('')}</div>`, buttons:cancel});
     }
-    case 'slaughter.take': return await ask({title:'Slaughterhouse', html:'<p class="flavor">Animal stands in for muscle, organ or (at stage I or II) blood. Each part built with it scores 1 VP less, 2 less if you use 3 or more.</p>', options:[
+    case 'slaughter.take': if(prePick) return prePick; return await ask({title:'Slaughterhouse', html:'<p class="flavor">Animal stands in for muscle, organ or (at stage I or II) blood. Each part built with it scores 1 VP less, 2 less if you use 3 or more.</p>', options:[
       {label:`4 animal at stage II ${cube('animal',4,2)}`, value:{opt:'four'}},{label:`3 animal at stage I ${cube('animal',3,1)}`, value:{opt:'three'}}], buttons:cancel});
     case 'hospital.retrieve': {
       const lim=hospLimits(p); const max=Math.min(S.hosp.length, lim.free+lim.paid);
@@ -169,7 +169,7 @@ async function humanPre(i,key,kind,noCancel){
     }
     case 'academy.donate': return await ask({title:'Donate', html:'<p>1 reputation per franc, up to 3.</p>', options:[1,2,3].map(n=>({label:`Donate ${n}f`, value:{n}, disabled:p.coin<n})), buttons:cancel});
     case 'market.trade': return await marketModal(p, cancel.length>0);
-    case 'docks.hire': { if(dockPick) return dockPick; const c=await chooseScoundrel(p, S.docks, 'Three scoundrels lean on the bollards.', !noCancel); return c; }
+    case 'docks.hire': { if(prePick) return prePick; const c=await chooseScoundrel(p, S.docks, 'Three scoundrels lean on the bollards.', !noCancel); return c; }
     case 'alley.murder': {
       const un=p.hand.some(h=>h.id==='unethical') && charged(p)>0;
       return await ask({title:'Dark Alley', html:`<p>Murder someone for ${matsHTML([['muscle',1,4],['organ',1,4],['blood',1,3],['bone',0,2]])}</p><p class="flavor">Costs 3 humanity and earns a police marker. At 2 markers the Dark Alley is closed to you until you pay 3f.</p>`,
@@ -467,8 +467,11 @@ function occupantLine(key, can){ const o=S.occ[key]; if(!o) return ''; const b=c
 // Place popup: what the place does, one option per action space with its exact gain and cost, and the cards there at full size.
 async function placeModal(id){
   const L=LOC[id], p=S.players[0], mine=isMyTurn(), closed=!!S.closed[id];
-  const opts=L.spaces.map(sp=>{ const key=L.id+'.'+sp.k, can=humanCan(key), kind=kindFor(0,key)||p.sel, who=occupantLine(key,can);
+  let opts=L.spaces.map(sp=>{ const key=L.id+'.'+sp.k, can=humanCan(key), kind=kindFor(0,key)||p.sel, who=occupantLine(key,can);
     const gain=spaceGain(key,kind); return {label:`${esc(sp.n)}${sp.sci?'<small class="scitag">scientist</small>':''}`, sub:`${gain}${who?(gain?'<br>':'')+who:''}`, value:key, disabled:!can}; });
+  if(id==='slaughter'){ const key='slaughter.take', can=humanCan(key), who=occupantLine(key,can), extra=S.ev==='meat'?' Glut of Meat: +2 animal and +1f.':'';
+    opts=[{label:`Take 4 animal at stage II ${cube('animal',4,2)}`, sub:`Animal stands in for muscle, organ or blood. 1 VP less per part built with it, 2 less with 3 or more.${extra}${who?'<br>'+who:''}`, value:{key, pre:{opt:'four'}}, disabled:!can},
+          {label:`Take 3 animal at stage I ${cube('animal',3,1)}`, sub:`Fresher, so it keeps its value one dawn longer.${extra}`, value:{key, pre:{opt:'three'}}, disabled:!can}]; }
   let cards='';
   if(id==='docks'){ const key='docks.hire', can=humanCan(key); let picked=null;
     const html=(reg,done)=>`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}
@@ -478,13 +481,14 @@ async function placeModal(id){
           : [b('Materials',{card:c.id,how:'mats'},true), c.exp?b(`+${c.exp} expertise${c.expH?' (−1 humanity)':''}`,{card:c.id,how:'exp'}):'', c.hum?b(`+${c.hum} humanity`,{card:c.id,how:'hum'}):'', un?b('Unethical Experiment',{card:c.id,how:'exp',unethical:true}):''].join('');
         return cardHTML(c,{acts:`<div class="gc-acts col">${acts}</div>`}); }).join('')}</div>`;
     const k=await ask({title:'', hero:true, wide:true, html, buttons:[{label:'Close', value:null}]});
-    if(k && picked){ dockPick=picked; await clickSpace(k); dockPick=null; }
+    if(k && picked){ prePick=picked; await clickSpace(k); prePick=null; }
     return; }
   if(id==='cemetery'||id==='morgue') cards=deckHTML(L.name, S.decks[id].length, CADAVERS[id].length);
   else { const rows=faceUp(id); if(ROW_LABEL[id]) cards=`<div class="sub">${ROW_LABEL[id]}</div>${rows.length?`<div class="gcards">${rows.map(c=>cardHTML(c)).join('')}</div>`:'<p class="flavor">None left today.</p>'}`; }
   const key=await ask({title:'', hero:true, wide:true, html:`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${cards}`,
     options:opts, buttons:[{label:'Close', value:null}]});
-  if(key) await clickSpace(key);
+  if(key && key.pre){ prePick=key.pre; await clickSpace(key.key); prePick=null; }
+  else if(key) await clickSpace(key);
 }
 async function labPlaceModal(id){
   const L=LABSPOT[id], key='lab.'+id, p=S.players[0], can=humanCan(key), kind=kindFor(0,key)||p.sel;

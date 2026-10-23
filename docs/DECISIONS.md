@@ -271,3 +271,6 @@ The 14-pixel coin doubled every pixel at 28px and the emblem turned to mush. The
 
 **D84. Docks popup: no sideways scroll, no duplicate benefit row, marks lower under the name.** (Bruno: "No horizontal slider. On top of the image there's 2 blocks with +2 exp and materials. Those are redundant. Remove them. Give more space between the name of the card and the coins+heart")
 Hero popups clip horizontally (the flush scene's negative margins had produced a 2px scrollbar). The benefit row on a scoundrel card is shown only when the card has no action buttons (catalog, board mini); in the Docks popup the buttons say the same thing. The coin and heart marks sit 44px from the top, clear of the name.
+
+**D85. The Slaughterhouse popup offers its two choices directly.** (Bruno: "don't give me the button and then another screen to select what animal parts I want. Just give me the two buttons right on the first screen.")
+The place popup's options are "Take 4 animal at stage II" and "Take 3 animal at stage I", each with its cost note and the occupant line; choosing one places the meeple and resolves at once. The Docks pre-pick became a general `prePick` that `humanPre` honours for any space, so other places with a single follow-up question can get the same treatment.
