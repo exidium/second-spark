@@ -476,8 +476,9 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .pname{font-family:var(--f-display);font-size:clamp(9px,1.25cqw,14px);color:var(--parch);white-space:nowrap;line-height:1.1}
 .pslots{display:flex;gap:.35cqw}
 .slot{width:clamp(7px,1.1cqw,13px);height:clamp(7px,1.1cqw,13px);border-radius:50%;border:1px dashed var(--parch-dim);display:block;background:transparent;box-sizing:border-box}
-.slot.on{border:1.5px solid rgba(0,0,0,.7)}
-.slot.on.sci{transform:scale(1.25);box-shadow:inset 0 -0.35cqw 0 rgba(0,0,0,.55)}
+.slot.on{border:0;border-radius:0;background:transparent;width:auto;height:clamp(12px,1.9cqw,22px);display:flex;align-items:flex-end;filter:drop-shadow(0 1px 1px #000)}
+.slot.on svg{height:100%;width:auto}
+.slot.on.sci{height:clamp(14px,2.2cqw,26px)}
 .slots{display:flex;gap:.4cqw;align-items:flex-start}
 .mcard{position:relative;width:clamp(28px,4.6cqw,54px);aspect-ratio:3/4;background:var(--paper);border:1px solid #6b5640;border-radius:3px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 6px rgba(0,0,0,.6);color:var(--paper-ink);box-sizing:border-box}
 .mcard.framed{background:var(--card-front) center/100% 100% no-repeat;border:0;padding:11% 10% 13%}

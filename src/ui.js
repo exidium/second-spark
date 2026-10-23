@@ -372,11 +372,20 @@ function statBars(p, small){
     </div>`;
 }
 function humBar(h){ return `<div class="bar hd" style="--n:20">${Array.from({length:20},(_,k)=>{ const v=k-10; const on = h<0 ? (v>=h&&v<0) : (v>=0&&v<h); return `<i class="${on?'on '+(h<0?'neg':'pos'):''}" ${k===10?'style="box-shadow:-2px 0 0 var(--parch-dim)"':''}></i>`; }).join('')}</div>`; }
+// Meeples: flat single-colour silhouettes drawn on a 14x20 pixel grid (one path of unit squares, so they stay crisp at any size).
+// Scientist: top hat, narrow shoulders, split coat tails. Assistant: flat cap with a brim, round shoulders, solid apron. Colour is the player's.
+const MEEPLE_GRID = {
+  scientist: [
+    '....######....','....######....','....######....','..##########..','.....####.....','....######....','....######....','.....####.....',
+    '...########...','..##########..','..##########..','..##########..','..##########..','..##########..','..####..####..','..####..####..','..####..####..','..............','..............','..............'],
+  assistant: [
+    '..............','..............','....######....','...#########..','.....####.....','....######....','....######....','.....####.....',
+    '...########...','..##########..','.############.','.############.','.############.','.############.','.############.','.############.','..##########..','..............','..............','..............'],
+};
+const MEEPLE_PATH = Object.fromEntries(Object.entries(MEEPLE_GRID).map(([k,rows])=>[k, rows.map((r,y)=>[...r].map((ch,x)=>ch==='#'?`M${x} ${y}h1v1h-1z`:'').join('')).join('')]));
 function meeple(kind,color,size){
-  size=size||18;
-  return kind==='scientist'
-    ? `<svg width="${size}" height="${size*1.25}" viewBox="0 0 20 25" aria-hidden="true"><path d="M6 1h8v5h3v2H3V6h3z" fill="${color}"/><circle cx="10" cy="11" r="3.6" fill="${color}"/><path d="M3 25q0-10 7-10t7 10z" fill="${color}"/><path d="M6 6h8" stroke="rgba(0,0,0,.45)" stroke-width="1.2"/></svg>`
-    : `<svg width="${size*.8}" height="${size}" viewBox="0 0 16 20" aria-hidden="true"><circle cx="8" cy="5" r="3.6" fill="${color}"/><path d="M2 20q0-10 6-10t6 10z" fill="${color}"/></svg>`;
+  size=size||18; const d=MEEPLE_PATH[kind]||MEEPLE_PATH.assistant;
+  return `<svg width="${size*.7}" height="${size}" viewBox="0 0 14 20" aria-hidden="true" shape-rendering="crispEdges"><path d="${d}" fill="${color}"/></svg>`;
 }
 function tableSVG(p,key){
   key=key||0;
@@ -402,7 +411,7 @@ function visibleLocs(){ return LOCS.filter(l=>!l.event || (l.event==='odeon'&&S.
 // ---------- The board: Bruno's painted Paris with places, meeple slots and card slots overlaid ----------
 function faceUp(id){ return id==='hospital'?S.hosp : id==='academy'?S.researchRow : id==='church'?S.humanityRow : id==='docks'?S.docks : id==='square'?S.square : []; }
 function researchIcon(c){ return ICONART[c.id==='demo'||c.id==='electro'?'jar':c.id==='healing'||c.id==='transfusion'?'flask':c.id==='tutor'||c.id==='guest'?'coin':'book']; }
-function slotDot(key){ const o=S.occ[key]; if(!o) return '<i class="slot"></i>'; return `<i class="slot on ${o.kind==='scientist'?'sci':''}" style="background:${S.players[o.p].color}"></i>`; }
+function slotDot(key){ const o=S.occ[key]; if(!o) return '<i class="slot"></i>'; return `<i class="slot on ${o.kind==='scientist'?'sci':''}">${meeple(o.kind,S.players[o.p].color,16)}</i>`; }
 function miniArt(c){ if(c.kind==='cadaver') return cadaverArt(c); if(SC_WHO[c.kind]) return scoundrelArt(c); if(c.kind==='research') return researchIcon(c); if(c.kind==='humanity') return ICONART.candle; return ''; }
 // Mini card on the board: art and name only. The place popup shows the same card at full size.
 function miniCard(c){
@@ -430,7 +439,7 @@ function boardHTML(){
       <div class="pchip"><span class="pname">${esc(l.name)}</span><span class="pslots">${keys.map(slotDot).join('')}</span></div>${slotsHTML(l)}</div>`;
   }).join('');
   const lab = `<div class="labstrip" style="left:${LAB_STRIP.x}%;top:${LAB_STRIP.y}%"><span class="pname">Your laboratory</span><div class="labplaces">${LABSPOTS.map(L=>{ const key='lab.'+L.id, used=p.labUsed[L.id], can=humanCan(key);
-    return `<div class="place lab ${can?'can':''}" data-tip="${key}" data-act="labplace" data-id="${L.id}" tabindex="0" role="button" aria-label="${esc(L.name)}"><div class="pchip"><span class="pname">${esc(L.name)}</span><span class="pslots">${used?`<i class="slot on ${used==='scientist'?'sci':''}" style="background:${p.color}"></i>`:'<i class="slot"></i>'}</span></div></div>`; }).join('')}</div></div>`;
+    return `<div class="place lab ${can?'can':''}" data-tip="${key}" data-act="labplace" data-id="${L.id}" tabindex="0" role="button" aria-label="${esc(L.name)}"><div class="pchip"><span class="pname">${esc(L.name)}</span><span class="pslots">${used?`<i class="slot on ${used==='scientist'?'sci':''}">${meeple(used,p.color,16)}</i>`:'<i class="slot"></i>'}</span></div></div>`; }).join('')}</div></div>`;
   return `<div class="board" aria-label="Paris, 1819">${places}${lab}${whoSendHTML()}</div>`;
 }
 function spaceGain(key, kind){

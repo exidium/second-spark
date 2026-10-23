@@ -402,7 +402,7 @@ Balance target and result (30+ AI games): games end on Days 10 to 12, roughly a 
 - Material colours: muscle `#8a4b2b`, organ `#7a5a96`, blood `#c03b3b`, bone `#ece6d6`, animal `#e38b2c`.
 - Body part state colours: **muscle bold red** (`#b23a2b`/`#e0533f`), **skin bold yellow** (`#e0b22e`/`#f0c419`), **alive blue** (`#9fd0ff`, glow). Damage: yellow lightning `#ffd36a`.
 - Player colours: you `#9fd0ff`, Pell `#d6675f`, Varnier `#74b393`, Quill `#cda65c`.
-- Meeple icons: scientist (top hat), assistant (plain).
+- Meeples: flat single-colour pixel silhouettes in the player's colour; the scientist has a top hat and split coat tails, the assistant a flat cap and a solid apron body. Shown on the board slots, the lab strip, the send buttons and the rival rows.
 - Responsive to 400px width: the board scrolls inside its own box, the page never scrolls sideways; respects reduced motion.
 
 ### 12.2 Layout (the board)
@@ -411,7 +411,7 @@ Desktop (1100px and wider): the page uses the full browser width; the right colu
 **Left column**
 - Top row: the logo, the 4 bonus objectives (claimed ones show the claimant's colour) and the Captain Walton track (12 steps, skull at the end) at the right end.
 - Toolbar on top of the board: "Day N · phase · first player" and "Today: card name" (click it to see the full event or encounter card). No bump track on the page; bump costs appear in the place popup.
-- **The board**: Bruno's painted Paris (`art/ui/board.jpg`, 16:9). Each place is a chip with its name and one meeple slot per action space (dashed when free, filled with the occupant's colour, larger with a dark base for a scientist). Places you can use pulse blue; closed places are struck through and dimmed. Positions are percentages in `BOARD_POS` (data.js). **Tooltips only on the places.**
+- **The board**: Bruno's painted Paris (`art/ui/board.jpg`, 16:9). Each place is a chip with its name and one meeple slot per action space (dashed when free, the occupant's meeple silhouette in their colour when taken). Places you can use pulse blue; closed places are struck through and dimmed. Positions are percentages in `BOARD_POS` (data.js). **Tooltips only on the places.**
 - Beside each place, its cards at mini size (portrait and numbers strip for cadavers, art and name for the rest): the face-down deck with the count left for Cemetery and Morgue; the face-up rows for Hospital (2 bodies), Academy (3 research), Saint-Roch (3 humanity), Docks (3 scoundrels), Public Square (bodies after an execution, else an empty slot).
 - "Your laboratory" strip on the lower edge: Practice, Give Blood, Repair, Charge Jars as small places with your own meeple once used.
 - "Who do you send?" box bottom-left: Scientist and Assistant buttons stacked, with counts, on your turn; otherwise who is choosing, or the phase.
