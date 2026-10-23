@@ -167,6 +167,14 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .opt:hover:not(:disabled){border-color:var(--spark)}
 .opt:disabled{opacity:.45;cursor:not-allowed}
 .opt .ot{font-family:var(--f-display);font-size:17px}
+.opt .optcost{display:inline-flex;align-items:center;margin-left:8px;vertical-align:middle}
+.opt .gainrow{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin-top:4px;font-size:14px;color:var(--parch)}
+.opt .gainrow .mat{margin:0;font-size:14px}
+.opt .gainrow .cube{width:14px;height:14px}
+.opt .gainrow .gi{color:var(--parch);font-size:17px}
+.opt .gainrow .gi.neg b::before{content:'−'}
+.opt .gainrow .gi .ico{width:24px;height:24px;filter:drop-shadow(0 1px 2px #000)}
+.opt .optcost .ico{width:22px;height:22px}
 .opt small{display:block;color:var(--parch-dim);font-size:12.5px}
 .dice{display:flex;gap:10px;justify-content:center;margin:14px 0 6px}
 .dice svg{width:52px;height:52px}
@@ -417,6 +425,21 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .ecard .em{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:10px;background:rgba(14,11,12,.78);color:var(--parch);border:1px solid rgba(236,224,198,.35)}
 .ecard .em.storm{color:#9fd0ff;border-color:#9fd0ff}.ecard .em.exec{color:#f0a79f;border-color:#d6675f}
 .ecard .ebody{font-size:12.5px;line-height:1.35;padding:8px 10px 9px;display:flex;flex-direction:column;gap:4px}
+/* frosted text cards (research): parchment face with the title, text and gain icons, a dark dice strip below */
+.fcard{width:190px;display:flex;flex-direction:column;border-radius:7px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.55);border:2px solid #2a2320}
+.fface{aspect-ratio:3/4;background:var(--card-research) center/100% 100% no-repeat,#d9dee3;color:#2b2a36;padding:9% 11% 8%;display:flex;flex-direction:column;align-items:center;text-align:center;box-sizing:border-box}
+.fface .ft{font-family:var(--f-display);font-size:17px;line-height:1.05;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.fface .fk{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#4a4a5a;margin:4px 0 6px;padding:0 10px;position:relative;display:flex;align-items:center;gap:8px}
+.fface .fk::before,.fface .fk::after{content:'';flex:1;min-width:18px;height:1px;background:#4a4a5a}
+.fface .fx{font-size:11px;line-height:1.3;margin:0;flex:1;display:flex;align-items:center}
+.fface .fg{display:flex;gap:10px;justify-content:center;align-items:center;min-height:30px}
+.gi{display:inline-flex;align-items:center;gap:2px;font-family:var(--f-display);font-size:19px;color:#2b2a36}
+.gi .ico{width:26px;height:26px;filter:none}
+.rdice{background:#1a1416;border-top:2px solid #3b2d22;color:var(--parch);font-size:11px;line-height:1.25;padding:5px 8px;display:flex;align-items:center;gap:8px;min-height:38px}
+.rdie{flex:none;width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,.6)}
+.rdie.gray{background:#4a4550}.rdie.blue{background:#2f5f8f}.rdie svg{width:16px;height:16px}
+.fcard.hum .fface{background:var(--card-humanity) center/100% 100% no-repeat,#dcdad2;color:#2e2a28}
+.fcard.hum .fface .ft{color:#2e2a28}
 /* research cards: the event frame at card width; thumbnails in the hand list */
 .ecard.rcard{width:280px}
 .ecard.rcard .ebody{font-size:12px}
@@ -592,7 +615,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 (() => {
 "use strict";
 // Images from art/ (file stem -> url). Empty when none.
-const IMG = {"cemetery-01": "art/cadavers/cemetery-01.png", "cemetery-02": "art/cadavers/cemetery-02.png", "cemetery-03": "art/cadavers/cemetery-03.png", "cemetery-04": "art/cadavers/cemetery-04.png", "cemetery-05": "art/cadavers/cemetery-05.png", "cemetery-06": "art/cadavers/cemetery-06.png", "cemetery-07": "art/cadavers/cemetery-07.png", "cemetery-08": "art/cadavers/cemetery-08.png", "cemetery-09": "art/cadavers/cemetery-09.png", "cemetery-10": "art/cadavers/cemetery-10.png", "cemetery-11": "art/cadavers/cemetery-11.png", "cemetery-12": "art/cadavers/cemetery-12.png", "cemetery-13": "art/cadavers/cemetery-13.png", "cemetery-14": "art/cadavers/cemetery-14.png", "hospital-01": "art/cadavers/hospital-01.png", "hospital-02": "art/cadavers/hospital-02.png", "hospital-03": "art/cadavers/hospital-03.png", "hospital-04": "art/cadavers/hospital-04.png", "hospital-05": "art/cadavers/hospital-05.png", "hospital-06": "art/cadavers/hospital-06.png", "hospital-07": "art/cadavers/hospital-07.png", "hospital-08": "art/cadavers/hospital-08.png", "hospital-09": "art/cadavers/hospital-09.png", "hospital-10": "art/cadavers/hospital-10.png", "hospital-11": "art/cadavers/hospital-11.png", "hospital-12": "art/cadavers/hospital-12.png", "hospital-13": "art/cadavers/hospital-13.png", "hospital-14": "art/cadavers/hospital-14.png", "morgue-01": "art/cadavers/morgue-01.png", "morgue-02": "art/cadavers/morgue-02.png", "morgue-03": "art/cadavers/morgue-03.png", "morgue-04": "art/cadavers/morgue-04.png", "morgue-05": "art/cadavers/morgue-05.png", "morgue-06": "art/cadavers/morgue-06.png", "morgue-07": "art/cadavers/morgue-07.png", "morgue-08": "art/cadavers/morgue-08.png", "morgue-09": "art/cadavers/morgue-09.png", "morgue-10": "art/cadavers/morgue-10.png", "morgue-11": "art/cadavers/morgue-11.png", "morgue-12": "art/cadavers/morgue-12.png", "morgue-13": "art/cadavers/morgue-13.png", "morgue-14": "art/cadavers/morgue-14.png", "square-01": "art/cadavers/square-01.png", "square-02": "art/cadavers/square-02.png", "square-03": "art/cadavers/square-03.png", "square-04": "art/cadavers/square-04.png", "square-05": "art/cadavers/square-05.png", "square-06": "art/cadavers/square-06.png", "square-07": "art/cadavers/square-07.png", "square-08": "art/cadavers/square-08.png", "square-09": "art/cadavers/square-09.png", "square-10": "art/cadavers/square-10.png", "character-charlatan": "art/characters/character-charlatan.png", "character-heiress": "art/characters/character-heiress.png", "character-human": "art/characters/character-human.png", "character-psycho": "art/characters/character-psycho.png", "character-surgeon": "art/characters/character-surgeon.png", "character-zoo": "art/characters/character-zoo.png", "encounter-01": "art/encounters/encounter-01.png", "encounter-02": "art/encounters/encounter-02.png", "encounter-03": "art/encounters/encounter-03.png", "encounter-04": "art/encounters/encounter-04.png", "encounter-05": "art/encounters/encounter-05.png", "encounter-06": "art/encounters/encounter-06.png", "encounter-07": "art/encounters/encounter-07.png", "encounter-08": "art/encounters/encounter-08.png", "encounter-09": "art/encounters/encounter-09.png", "encounter-10": "art/encounters/encounter-10.png", "encounter-11": "art/encounters/encounter-11.png", "encounter-12": "art/encounters/encounter-12.png", "encounter-13": "art/encounters/encounter-13.png", "encounter-14": "art/encounters/encounter-14.png", "encounter-15": "art/encounters/encounter-15.png", "event-01": "art/events/event-01.png", "event-02": "art/events/event-02.png", "event-03": "art/events/event-03.png", "event-04": "art/events/event-04.png", "event-05": "art/events/event-05.png", "event-06": "art/events/event-06.png", "event-07": "art/events/event-07.png", "event-08": "art/events/event-08.png", "event-09": "art/events/event-09.png", "event-10": "art/events/event-10.png", "event-11": "art/events/event-11.png", "event-12": "art/events/event-12.png", "event-13": "art/events/event-13.png", "event-14": "art/events/event-14.png", "event-15": "art/events/event-15.png", "event-16": "art/events/event-16.png", "event-17": "art/events/event-17.png", "event-18": "art/events/event-18.png", "event-19": "art/events/event-19.png", "card-tall-back": "art/frames/card-tall-back.png", "card-tall-front": "art/frames/card-tall-front.webp", "icon-coin": "art/icons/icon-coin.png", "icon-heart-broken": "art/icons/icon-heart-broken.png", "icon-heart": "art/icons/icon-heart.png", "lab-blood": "art/locations/lab-blood.png", "lab-charge": "art/locations/lab-charge.png", "lab-practice": "art/locations/lab-practice.png", "lab-repair": "art/locations/lab-repair.png", "location-academy": "art/locations/location-academy.png", "location-alley": "art/locations/location-alley.png", "location-cemetery": "art/locations/location-cemetery.png", "location-church": "art/locations/location-church.png", "location-docks": "art/locations/location-docks.png", "location-first": "art/locations/location-first.png", "location-hospital": "art/locations/location-hospital.png", "location-market": "art/locations/location-market.png", "location-morgue": "art/locations/location-morgue.png", "location-odeon": "art/locations/location-odeon.png", "location-slaughter": "art/locations/location-slaughter.png", "location-square": "art/locations/location-square.png", "research-01": "art/research/research-01.png", "research-02": "art/research/research-02.png", "research-03": "art/research/research-03.png", "research-04": "art/research/research-04.png", "research-05": "art/research/research-05.png", "research-06": "art/research/research-06.png", "research-07": "art/research/research-07.png", "research-08": "art/research/research-08.png", "research-09": "art/research/research-09.png", "research-10": "art/research/research-10.png", "research-11": "art/research/research-11.png", "research-12": "art/research/research-12.png", "research-13": "art/research/research-13.png", "research-14": "art/research/research-14.png", "research-15": "art/research/research-15.png", "research-16": "art/research/research-16.png", "scoundrel-01": "art/scoundrels/scoundrel-01.png", "scoundrel-02": "art/scoundrels/scoundrel-02.png", "scoundrel-03": "art/scoundrels/scoundrel-03.png", "scoundrel-04": "art/scoundrels/scoundrel-04.png", "scoundrel-05": "art/scoundrels/scoundrel-05.png", "scoundrel-06": "art/scoundrels/scoundrel-06.png", "scoundrel-07": "art/scoundrels/scoundrel-07.png", "scoundrel-08": "art/scoundrels/scoundrel-08.png", "scoundrel-09": "art/scoundrels/scoundrel-09.png", "scoundrel-10": "art/scoundrels/scoundrel-10.png", "scoundrel-11": "art/scoundrels/scoundrel-11.png", "scoundrel-12": "art/scoundrels/scoundrel-12.png", "scoundrel-13": "art/scoundrels/scoundrel-13.png", "scoundrel-14": "art/scoundrels/scoundrel-14.png", "scoundrel-15": "art/scoundrels/scoundrel-15.png", "scoundrel-16": "art/scoundrels/scoundrel-16.png", "bg-wall": "art/ui/bg-wall.jpg", "board": "art/ui/board.jpg", "title": "art/ui/title.webp"};
+const IMG = {"cemetery-01": "art/cadavers/cemetery-01.png", "cemetery-02": "art/cadavers/cemetery-02.png", "cemetery-03": "art/cadavers/cemetery-03.png", "cemetery-04": "art/cadavers/cemetery-04.png", "cemetery-05": "art/cadavers/cemetery-05.png", "cemetery-06": "art/cadavers/cemetery-06.png", "cemetery-07": "art/cadavers/cemetery-07.png", "cemetery-08": "art/cadavers/cemetery-08.png", "cemetery-09": "art/cadavers/cemetery-09.png", "cemetery-10": "art/cadavers/cemetery-10.png", "cemetery-11": "art/cadavers/cemetery-11.png", "cemetery-12": "art/cadavers/cemetery-12.png", "cemetery-13": "art/cadavers/cemetery-13.png", "cemetery-14": "art/cadavers/cemetery-14.png", "hospital-01": "art/cadavers/hospital-01.png", "hospital-02": "art/cadavers/hospital-02.png", "hospital-03": "art/cadavers/hospital-03.png", "hospital-04": "art/cadavers/hospital-04.png", "hospital-05": "art/cadavers/hospital-05.png", "hospital-06": "art/cadavers/hospital-06.png", "hospital-07": "art/cadavers/hospital-07.png", "hospital-08": "art/cadavers/hospital-08.png", "hospital-09": "art/cadavers/hospital-09.png", "hospital-10": "art/cadavers/hospital-10.png", "hospital-11": "art/cadavers/hospital-11.png", "hospital-12": "art/cadavers/hospital-12.png", "hospital-13": "art/cadavers/hospital-13.png", "hospital-14": "art/cadavers/hospital-14.png", "morgue-01": "art/cadavers/morgue-01.png", "morgue-02": "art/cadavers/morgue-02.png", "morgue-03": "art/cadavers/morgue-03.png", "morgue-04": "art/cadavers/morgue-04.png", "morgue-05": "art/cadavers/morgue-05.png", "morgue-06": "art/cadavers/morgue-06.png", "morgue-07": "art/cadavers/morgue-07.png", "morgue-08": "art/cadavers/morgue-08.png", "morgue-09": "art/cadavers/morgue-09.png", "morgue-10": "art/cadavers/morgue-10.png", "morgue-11": "art/cadavers/morgue-11.png", "morgue-12": "art/cadavers/morgue-12.png", "morgue-13": "art/cadavers/morgue-13.png", "morgue-14": "art/cadavers/morgue-14.png", "square-01": "art/cadavers/square-01.png", "square-02": "art/cadavers/square-02.png", "square-03": "art/cadavers/square-03.png", "square-04": "art/cadavers/square-04.png", "square-05": "art/cadavers/square-05.png", "square-06": "art/cadavers/square-06.png", "square-07": "art/cadavers/square-07.png", "square-08": "art/cadavers/square-08.png", "square-09": "art/cadavers/square-09.png", "square-10": "art/cadavers/square-10.png", "character-charlatan": "art/characters/character-charlatan.png", "character-heiress": "art/characters/character-heiress.png", "character-human": "art/characters/character-human.png", "character-psycho": "art/characters/character-psycho.png", "character-surgeon": "art/characters/character-surgeon.png", "character-zoo": "art/characters/character-zoo.png", "encounter-01": "art/encounters/encounter-01.png", "encounter-02": "art/encounters/encounter-02.png", "encounter-03": "art/encounters/encounter-03.png", "encounter-04": "art/encounters/encounter-04.png", "encounter-05": "art/encounters/encounter-05.png", "encounter-06": "art/encounters/encounter-06.png", "encounter-07": "art/encounters/encounter-07.png", "encounter-08": "art/encounters/encounter-08.png", "encounter-09": "art/encounters/encounter-09.png", "encounter-10": "art/encounters/encounter-10.png", "encounter-11": "art/encounters/encounter-11.png", "encounter-12": "art/encounters/encounter-12.png", "encounter-13": "art/encounters/encounter-13.png", "encounter-14": "art/encounters/encounter-14.png", "encounter-15": "art/encounters/encounter-15.png", "event-01": "art/events/event-01.png", "event-02": "art/events/event-02.png", "event-03": "art/events/event-03.png", "event-04": "art/events/event-04.png", "event-05": "art/events/event-05.png", "event-06": "art/events/event-06.png", "event-07": "art/events/event-07.png", "event-08": "art/events/event-08.png", "event-09": "art/events/event-09.png", "event-10": "art/events/event-10.png", "event-11": "art/events/event-11.png", "event-12": "art/events/event-12.png", "event-13": "art/events/event-13.png", "event-14": "art/events/event-14.png", "event-15": "art/events/event-15.png", "event-16": "art/events/event-16.png", "event-17": "art/events/event-17.png", "event-18": "art/events/event-18.png", "event-19": "art/events/event-19.png", "card-humanity-bg": "art/frames/card-humanity-bg.png", "card-research-bg": "art/frames/card-research-bg.png", "card-tall-back": "art/frames/card-tall-back.png", "card-tall-front": "art/frames/card-tall-front.webp", "humanity-07": "art/humanity/humanity-07.png", "humanity-10": "art/humanity/humanity-10.png", "humanity-16": "art/humanity/humanity-16.png", "icon-coin": "art/icons/icon-coin.png", "icon-expertise": "art/icons/icon-expertise.png", "icon-heart-broken": "art/icons/icon-heart-broken.png", "icon-heart": "art/icons/icon-heart.png", "icon-police": "art/icons/icon-police.png", "icon-reputation": "art/icons/icon-reputation.png", "lab-blood": "art/locations/lab-blood.png", "lab-charge": "art/locations/lab-charge.png", "lab-practice": "art/locations/lab-practice.png", "lab-repair": "art/locations/lab-repair.png", "location-academy": "art/locations/location-academy.png", "location-alley": "art/locations/location-alley.png", "location-cemetery": "art/locations/location-cemetery.png", "location-church": "art/locations/location-church.png", "location-docks": "art/locations/location-docks.png", "location-first": "art/locations/location-first.png", "location-hospital": "art/locations/location-hospital.png", "location-market": "art/locations/location-market.png", "location-morgue": "art/locations/location-morgue.png", "location-odeon": "art/locations/location-odeon.png", "location-slaughter": "art/locations/location-slaughter.png", "location-square": "art/locations/location-square.png", "research-01": "art/research/research-01.png", "research-02": "art/research/research-02.png", "research-03": "art/research/research-03.png", "research-04": "art/research/research-04.png", "research-05": "art/research/research-05.png", "research-06": "art/research/research-06.png", "research-07": "art/research/research-07.png", "research-08": "art/research/research-08.png", "research-09": "art/research/research-09.png", "research-10": "art/research/research-10.png", "research-11": "art/research/research-11.png", "research-12": "art/research/research-12.png", "research-13": "art/research/research-13.png", "research-14": "art/research/research-14.png", "research-15": "art/research/research-15.png", "research-16": "art/research/research-16.png", "scoundrel-01": "art/scoundrels/scoundrel-01.png", "scoundrel-02": "art/scoundrels/scoundrel-02.png", "scoundrel-03": "art/scoundrels/scoundrel-03.png", "scoundrel-04": "art/scoundrels/scoundrel-04.png", "scoundrel-05": "art/scoundrels/scoundrel-05.png", "scoundrel-06": "art/scoundrels/scoundrel-06.png", "scoundrel-07": "art/scoundrels/scoundrel-07.png", "scoundrel-08": "art/scoundrels/scoundrel-08.png", "scoundrel-09": "art/scoundrels/scoundrel-09.png", "scoundrel-10": "art/scoundrels/scoundrel-10.png", "scoundrel-11": "art/scoundrels/scoundrel-11.png", "scoundrel-12": "art/scoundrels/scoundrel-12.png", "scoundrel-13": "art/scoundrels/scoundrel-13.png", "scoundrel-14": "art/scoundrels/scoundrel-14.png", "scoundrel-15": "art/scoundrels/scoundrel-15.png", "scoundrel-16": "art/scoundrels/scoundrel-16.png", "bg-wall": "art/ui/bg-wall.jpg", "board": "art/ui/board.jpg", "title": "art/ui/title.webp"};
 /* =========================================================
    CARD DATA
    Numbers and effects follow the physical game's cards (read from the
@@ -662,7 +685,7 @@ const SC_WHO = {thief:['a porter with a sack','a nurse who asks no questions','a
 const RESEARCH = [
   {id:'counter', name:'Countermeasures', when:'react', text:'Cancels a rival’s humanity card aimed at you (used automatically).', gain:{coin:2}, mit:'ignoreDmg'},
   {id:'unethical', name:'Unethical Experiment', when:'alley', text:'At the Dark Alley or hiring a Cutthroat: spend 1 charged jar and skip the normal benefit.', gain:{exp:5, hum:-1}, mit:'rerollAny'},
-  {id:'preserve', name:'Pickling Jars', when:'market', text:'At the Market: +1f for every sale of preserved flesh.', gain:{}, mit:'ignoreHeart'},
+  {id:'preserve', name:'Pickling Jars', when:'market', text:'At the Market: +1 franc for every sale of preserved flesh.', gain:{}, mit:'ignoreHeart'},
   {id:'steady', name:'Steady Hands', when:'build', text:'When building a part: need 1 fewer of each material.', gain:{exp:2}, mit:'rerollDmg'},
   {id:'tutor', name:'Private Pupil', when:'any', text:'Take on a wealthy pupil.', gain:{rep:2, coin:3}, mit:'ignoreDmg'},
   {id:'guest', name:'Guest Lecturer', when:'lecture', text:'When lecturing: gain this as well.', gain:{rep:2, coin:2}, mit:'rerollAny'},
@@ -682,12 +705,12 @@ const MIT_N = {ignoreDmg:'Ignore all bolts', rerollAny:'Re-roll any dice', ignor
 
 // Humanity cards. gain: what you receive when you play it.
 const HUMANITY = [
-  {id:'aid1', name:'Whisper to the Captain', when:'aid', text:'Pay 1f: the Captain moves 1 step closer to the end. Not from Day 11. One aid card per day.', cost:1, gain:{hum:2}, aid:1},
-  {id:'aid2', name:'Fund the Captain', when:'aid', text:'Pay 2f: the Captain moves 1 step closer to the end. Not from Day 11. One aid card per day.', cost:2, gain:{hum:3}, aid:1},
+  {id:'aid1', name:'Whisper to the Captain', when:'aid', text:'Pay 1 franc: the Captain moves 1 step closer to the end. Not from Day 11. One aid card per day.', cost:1, gain:{hum:2}, aid:1},
+  {id:'aid2', name:'Fund the Captain', when:'aid', text:'Pay 2 francs: the Captain moves 1 step closer to the end. Not from Day 11. One aid card per day.', cost:2, gain:{hum:3}, aid:1},
   {id:'aid0', name:'Tell the Captain Everything', when:'aid', text:'The Captain moves 1 step closer to the end. Not from Day 11. One aid card per day.', cost:0, gain:{hum:1}, aid:1},
   {id:'influence', name:'Petition the Prefect', when:'any', text:'All cadavers waiting at the Hospital are given a burial.', gain:{hum:1}, effect:'clearHosp'},
   {id:'trap', name:'A Trap of Your Own', when:'react', text:'When the Creature visits you, spend 1 charged jar to send him away.', gain:{hum:3}},
-  {id:'mercy', name:'Royal Pardon', when:'react', text:'When an execution is announced, pay 2f to stop it.', gain:{hum:2, rep:2}},
+  {id:'mercy', name:'Royal Pardon', when:'react', text:'When an execution is announced, pay 2 francs to stop it.', gain:{hum:2, rep:2}},
   {id:'burial', name:'A Decent Burial', when:'square', text:'When buying a body at the Public Square, bury it instead.', gain:{hum:3, rep:2}},
   {id:'graveguard', name:'Night at the Graves', when:'any', text:'The Cemetery and hiring Body Snatchers are closed for the rest of today.', gain:{hum:1}, close:['cemetery','snatch']},
   {id:'moral', name:'Shame the Morgue', when:'any', text:'The Morgue is closed for the rest of today.', gain:{hum:1}, close:['morgue']},
@@ -702,20 +725,20 @@ const HUMANITY = [
 
 // Events: round range, icons (storm charges every jar; exec puts bodies at the Public Square)
 const EVENTS = [
-  {id:'corrupt', name:'A Porter for Hire', r:[1,5], text:'At the Hospital, pay 1f to take one more cadaver than your reputation allows.'},
-  {id:'meat', name:'Glut of Meat', r:[1,5], storm:1, text:'The Slaughterhouse gives 2 extra animal and 1f.'},
+  {id:'corrupt', name:'A Porter for Hire', r:[1,5], text:'At the Hospital, pay 1 franc to take one more cadaver than your reputation allows.'},
+  {id:'meat', name:'Glut of Meat', r:[1,5], storm:1, text:'The Slaughterhouse gives 2 extra animal and 1 franc.'},
   {id:'hardtimes', name:'Hard Times', r:[1,5], text:'No work at the Hospital. Lectures pay reputation only. Leyden jars: buy 1, get 1 free.'},
   {id:'enemy', name:'An Anonymous Letter', r:[1,5], text:'Anyone with humanity above 0 may take a humanity card. The kindest scientist hears a confession.'},
-  {id:'graves', name:'Patrols at the Graves', r:[1,4], storm:1, text:'The Cemetery is closed. Every scoundrel costs 1f more.'},
-  {id:'fire', name:'Fire at the Academy', r:[1,4], exec:1, text:'The Academy is closed. Once today, anyone may pay 2f to gain 2 reputation for the rebuilding.'},
-  {id:'plague', name:'Cattle Plague', r:[1,5], text:'The Slaughterhouse is closed. Dog Catchers cost 1f more.'},
-  {id:'cholera', name:'Cholera', r:[1,7], storm:1, text:'Hospital shifts pay 2f more. The Cemetery and Morgue draw 1 extra card.'},
+  {id:'graves', name:'Patrols at the Graves', r:[1,4], storm:1, text:'The Cemetery is closed. Every scoundrel costs 1 franc more.'},
+  {id:'fire', name:'Fire at the Academy', r:[1,4], exec:1, text:'The Academy is closed. Once today, anyone may pay 2 francs to gain 2 reputation for the rebuilding.'},
+  {id:'plague', name:'Cattle Plague', r:[1,5], text:'The Slaughterhouse is closed. Dog Catchers cost 1 franc more.'},
+  {id:'cholera', name:'Cholera', r:[1,7], storm:1, text:'Hospital shifts pay 2 francs more. The Cemetery and Morgue draw 1 extra card.'},
   {id:'parade', name:'Student Parade', r:[1,4], text:'Only scientists may go to the Academy.'},
-  {id:'bourbon', name:'Loyalty Pledges', r:[1,5], exec:1, text:'Everyone pays 1f to gain 1 reputation, or loses 1 reputation.'},
+  {id:'bourbon', name:'Loyalty Pledges', r:[1,5], exec:1, text:'Everyone pays 1 franc to gain 1 reputation, or loses 1 reputation.'},
   {id:'riots', name:'Student Riots', r:[1,7], exec:1, text:'The Dark Alley and the Docks are closed.'},
   {id:'darkres', name:'A Dead Man’s Notes', r:[1,7], storm:1, text:'Anyone may lose 1 humanity to gain 2 expertise.'},
   {id:'toussaint', name:'All Saints’ Day', r:[1,6], text:'Cemetery, Morgue, Hospital cadavers, Hospital Thieves and Body Snatchers all cost 1 extra humanity.'},
-  {id:'grant', name:'A Widow’s Bequest', r:[1,5], exec:1, text:'Research and lectures at the Academy pay 2f extra.'},
+  {id:'grant', name:'A Widow’s Bequest', r:[1,5], exec:1, text:'Research and lectures at the Academy pay 2 francs extra.'},
   {id:'betrayal', name:'The Captain’s Wrath', r:[7,12], exec:1, text:'Anyone with humanity below 3 loses 1 Leyden jar.'},
   {id:'odeon', name:'Opening Night at the Odéon', r:[5,12], text:'The theatre is a new location today: +2 reputation. Each player may go once. Anyone there can be bumped for free and goes home.'},
   {id:'willing', name:'The Flesh Is Willing', r:[7,12], exec:1, text:'Every throw of the switch may re-roll up to 2 dice for free.'},
@@ -748,7 +771,7 @@ const CHARACTERS = [
   {id:'psycho', name:'Lucien Vautrin', role:'Psychopath', text:'Your humanity never moves from 0. Each time you get a second police marker, lose 1 reputation.'},
   {id:'human', name:'Amara Okafor', role:'Humanitarian', text:'Start with humanity 2. Gain 1 VP for each humanity you would gain while at 10.'},
   {id:'zoo', name:'Sir Bartholomew Pike', role:'Zoologist', text:'Once per day: roll 1 extra gray die when you throw the switch, or charge 1 jar.'},
-  {id:'heiress', name:'Lucrezia Fontana', role:'Heiress', text:'Start of each day: +1f if you have 2 or less. Research cards that give expertise give 1 more.'},
+  {id:'heiress', name:'Lucrezia Fontana', role:'Heiress', text:'Start of each day: +1 franc if you have 2 or less. Research cards that give expertise give 1 more.'},
   {id:'charlatan', name:'Count Achille Duval', role:'Charlatan', text:'Start with reputation 3. Gain 1 reputation each time you are bumped at the Academy.'},
   {id:'surgeon', name:'Dr Hélène Marchand', role:'Surgeon', text:'Start with expertise 2. Once per night, build a part with 1 less material of your choice.'},
 ];
@@ -761,10 +784,10 @@ const OBJECTIVES = [
 const LOCS = [
   {id:'cemetery', name:'Cemetery', place:'Père Lachaise', spaces:[{k:'dig', n:'Dig up cadavers'}],
    text:'Draw 3 cadavers. Resolve any you like for materials or expertise.', yields:'Stage III to IV muscle and organs, bone'},
-  {id:'square', name:'Public Square', place:'Place de Grève', spaces:[{k:'buy', n:'Buy a body (1f)'}],
-   text:'Pay 1f for one of the executed bodies on display. Only after an execution.', yields:'Stage I, the freshest you can get'},
-  {id:'morgue', name:'Morgue', place:'Quai du Marché-Neuf', spaces:[{k:'buy', n:'Buy cadavers (1f)'}],
-   text:'Pay 1f, draw 2 unclaimed cadavers, resolve any.', yields:'Stage II to III materials'},
+  {id:'square', name:'Public Square', place:'Place de Grève', spaces:[{k:'buy', n:'Buy a body (1 franc)'}],
+   text:'Pay 1 franc for one of the executed bodies on display. Only after an execution.', yields:'Stage I, the freshest you can get'},
+  {id:'morgue', name:'Morgue', place:'Quai du Marché-Neuf', spaces:[{k:'buy', n:'Buy cadavers (1 franc)'}],
+   text:'Pay 1 franc, draw 2 unclaimed cadavers, resolve any.', yields:'Stage II to III materials'},
   {id:'slaughter', name:'Slaughterhouse', place:'Montmartre', spaces:[{k:'take', n:'Animal parts'}],
    text:'Take 4 animal at stage II, or 3 at stage I.', yields:'Animal stands in for most materials, for a little less VP'},
   {id:'hospital', name:'Hospital', place:'Hôpital de la Charité',
@@ -931,6 +954,8 @@ const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=rnd(i+1);
 const clamp = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const sum = a => a.reduce((x,y)=>x+y,0);
+// Francs are always written out: "1 franc", "3 francs". Player-facing text never uses the "f" abbreviation.
+const fr = n => `${n} franc${n===1?'':'s'}`;
 let S=null, modal=null, gameToken=0;
 const sleep = ms => new Promise(r=>setTimeout(r, (S&&S.fast)?0:ms));
 function uid(){ return S.uid++; }
@@ -1007,7 +1032,7 @@ function applyGain(p,g,src){
   if(g.coin) p.coin+=g.coin;
   if(g.hum) setHum(p,g.hum);
 }
-function gainTxt(g){ const t=[]; if(g.exp) t.push(`${g.exp>0?'+':''}${g.exp} expertise`); if(g.rep) t.push(`+${g.rep} reputation`); if(g.coin) t.push(`+${g.coin}f`); if(g.hum) t.push(`${g.hum>0?'+':''}${g.hum} humanity`); return t.join(', '); }
+function gainTxt(g){ const t=[]; if(g.exp) t.push(`${g.exp>0?'+':''}${g.exp} expertise`); if(g.rep) t.push(`+${g.rep} reputation`); if(g.coin) t.push(`+${fr(g.coin)}`); if(g.hum) t.push(`${g.hum>0?'+':''}${g.hum} humanity`); return t.join(', '); }
 function addCard(p,c){ if(!c) return; const same=p.hand.filter(h=>h.kind===c.kind); if(same.length>=3){ p.hand.splice(p.hand.indexOf(same[0]),1); } p.hand.push(c); }
 function addPolice(p){ p.police=Math.min(2,p.police+1); if(p.police===2 && hasChar(p,'psycho')) setRep(p,-1); }
 
@@ -1102,11 +1127,11 @@ async function eventPhase(){
     if(e.id==='odeon') S.odeonOpen=true;
     if(e.id==='betrayal') S.players.forEach(p=>{ if(p.hum<3 && p.jars.length){ p.jars.pop(); log(`${B(p)} loses a Leyden jar.`); } });
     await showEventCard(e);
-    if(e.id==='bourbon') for(const [i,p] of S.players.entries()){ const pay = p.coin>=1 && (p.ai ? true : await askYN('Loyalty Pledge','Pay 1f to gain 1 reputation? If not, you lose 1 reputation.','Pay 1f','Refuse'));
+    if(e.id==='bourbon') for(const [i,p] of S.players.entries()){ const pay = p.coin>=1 && (p.ai ? true : await askYN('Loyalty Pledge','Pay 1 franc to gain 1 reputation? If not, you lose 1 reputation.','Pay 1 franc','Refuse'));
       if(pay){ p.coin--; setRep(p,1); } else setRep(p,-1); }
     if(e.id==='darkres') for(const [i,p] of S.players.entries()){ const take = p.ai ? (aiNeeds(p).expGap>0 && p.hum>-6) : await askYN('A Dead Man’s Notes','Lose 1 humanity to gain 2 expertise?','Read them','Burn them');
       if(take){ setHum(p,-1); setExp(p,2); log(`${B(p)} reads the dead man’s notes.`); } }
-    if(e.id==='fire') for(const [i,p] of S.players.entries()){ if(p.coin<2) continue; const pay = p.ai ? (p.coin>=4 && Math.random()<.6) : await askYN('Fire at the Academy','Pay 2f toward the rebuilding to gain 2 reputation?','Pay 2f','Not now');
+    if(e.id==='fire') for(const [i,p] of S.players.entries()){ if(p.coin<2) continue; const pay = p.ai ? (p.coin>=4 && Math.random()<.6) : await askYN('Fire at the Academy','Pay 2 francs toward the rebuilding to gain 2 reputation?','Pay 2 francs','Not now');
       if(pay){ p.coin-=2; setRep(p,2); log(`${B(p)} pays for the rebuilding.`); } }
     if(e.id==='fire'){ const t=await fpChooseTarget('Who receives the Captain’s plea?', S.players.map((_,k)=>k), 'any'); if(t!=null) await outcomeC2(t); }
     if(e.id==='enemy'){ for(const [i,p] of S.players.entries()){ if(p.hum>0){ const take = p.ai ? true : await askYN('An Anonymous Letter','Take a humanity card?','Take one','No'); if(take){ addCard(p,drawHumanity()); } } }
@@ -1129,7 +1154,7 @@ async function execution(){
   // Royal Pardon can stop it
   for(const [i,p] of S.players.entries()){
     const c=p.hand.find(h=>h.id==='mercy'); if(!c || p.coin<2) continue;
-    const use = p.ai ? (p.hum<3 && p.coin>=4) : await askYN('Royal Pardon','An execution is announced. Pay 2f and play your Royal Pardon to stop it? (+2 humanity, +2 reputation)','Stop it','Let it happen');
+    const use = p.ai ? (p.hum<3 && p.coin>=4) : await askYN('Royal Pardon','An execution is announced. Pay 2 francs and play your Royal Pardon to stop it? (+2 humanity, +2 reputation)','Stop it','Let it happen');
     if(use){ p.coin-=2; p.hand=p.hand.filter(h=>h!==c); applyGain(p,c.gain); log(`${B(p)} wins a royal pardon. The execution is cancelled.`); return; }
   }
   const k=S.players.length>2?2:1; for(let j=0;j<k;j++) S.square.push(drawCadaver('square'));
@@ -1233,14 +1258,14 @@ const OUT = {
   B8: async i=>{ const p=S.players[i]; addCard(p,drawResearch()); addCard(p,drawResearch()); return {msg:'He leaves a sheaf of parchment. Draw 2 research cards.'}; },
   A10: async i=>{ const p=S.players[i]; takeFirst(i); let at='';
     if(p.left.scientist){ p.left.scientist--; if(!S.occ['docks.hire']) S.occ['docks.hire']={p:i, kind:'scientist'}; at=' Your scientist spends the day at the Docks.'; }
-    addCard(p,drawHumanity()); setHum(p,1); p.coin+=2; return {msg:`You meet the Captain by the river. You become first player, take a humanity card, +1 humanity and +2f.${at}`}; },
+    addCard(p,drawHumanity()); setHum(p,1); p.coin+=2; return {msg:`You meet the Captain by the river. You become first player, take a humanity card, +1 humanity and +2 francs.${at}`}; },
   B10: async i=>{ const p=S.players[i]; S.captain=Math.max(0,S.captain-1); setHum(p,-1); return {msg:'You burn the note. The Captain loses your trail: he moves back 1 step. −1 humanity.'}; },
   A12: async i=>{ const p=S.players[i]; let c;
     const opts=[{label:`2 muscle, 1 organ, 1 blood`, value:[2,1,1]},{label:`1 muscle, 2 organ, 1 blood`, value:[1,2,1]},{label:`2 muscle, 2 blood`, value:[2,0,2]},{label:`2 muscle, 2 organ`, value:[2,2,0]}];
     if(p.ai){ const sh=aiNeeds(p).short; c = sh.B? [2,0,2] : sh.O ? [1,2,1] : [2,1,1]; } else c=await ask({title:'A blood-soaked bag', html:'<p>Gain 4 human materials at stage I. Choose:</p>', options:opts, locked:true});
     gainMats(p,[['muscle',1,c[0]],['organ',1,c[1]],['blood',1,c[2]]]); setHum(p,-2); return {msg:'You come back hours later, clutching a heavy, dripping bag. +4 materials at stage I, −2 humanity.'}; },
   A14: async i=>{ const p=S.players[i]; let n=2; for(let st=3;st>=0&&n>0;st--) for(const t of ['organ','muscle']){ const k=Math.min(n,p.mats[t][st]); p.mats[t][st]-=k; n-=k; } p.coin+=3;
-    return {msg:'You stitch him with your own supplies. He drops a sack of coins. −2 flesh from your track, +3f.'}; },
+    return {msg:'You stitch him with your own supplies. He drops a sack of coins. −2 flesh from your track, +3 francs.'}; },
   B14: async i=>{ const p=S.players[i]; if(p.left.assistant) p.left.assistant--; else if(p.left.scientist) p.left.scientist--; if(S.captain<11) S.captain++;
     return {msg:'You find one of your assistants dead in your bed. You lose 1 meeple today, and the Captain moves 1 step closer.'}; },
   A16: async i=>{ const p=S.players[i]; gainMats(p,[['muscle',2,1],['organ',2,1],['blood',2,1],['bone',0,1]]); setHum(p,-2); return {msg:'The bag holds your old mentor. +1 muscle, organ, blood at stage II and 1 bone. −2 humanity.'}; },
@@ -1253,7 +1278,7 @@ const OUT = {
     for(const kind of ['scientist','assistant']){ if(p.left[kind] && !S.occ['church.atone']){ S.occ['church.atone']={p:i, kind}; p.left[kind]--; const c=S.humanityRow[0]; if(c) takeRowCard(p,S.humanityRow,c.id); if(kind==='scientist') setHum(p,1); at=` Your ${kind} goes to Saint-Roch.`; break; } }
     return {msg:`You agree to help. You become first player and cannot lose humanity today.${at}`}; },
   B20: async i=>{ const p=S.players[i]; const d=setHum(p,-2); if(!d) S.players.forEach((q,k)=>{ if(k!==i) setHum(q,1); }); return {msg: d? 'You refuse. −2 humanity.' : 'You refuse, but you have no humanity left to lose. Everyone else gains 1 humanity.'}; },
-  A22: async i=>{ S.players[i].coin+=3; return {msg:'He leaves a few coins on the bench. +3f.'}; },
+  A22: async i=>{ S.players[i].coin+=3; return {msg:'He leaves a few coins on the bench. +3 francs.'}; },
   B22: async i=>{ const r=downgradeOne(S.players[i]); return {msg:`He strikes your work in a fury: ${r}.`}; },
   // Location encounters (ctx says what the visit was)
   A24: async (i)=>{ const p=S.players[i]; if(p.coin>=1) p.coin--; else setRep(p,-1);
@@ -1262,9 +1287,9 @@ const OUT = {
       if(c) await hireScoundrel(i, c.card, c.how, all); }
     S.decks.sc=shuffle(SCOUNDRELS.map((r,k)=>k)); S.docks=[drawScoundrel(),drawScoundrel(),drawScoundrel()];
     return {skip:true, msg:'She takes a coin and leads you to the right man.'}; },
-  B24: async i=>{ const p=S.players[i]; p.coin=Math.max(0,p.coin-2); return {skip:true, msg:'Her friends knock you down and empty your purse. −2f, and no business today.'}; },
+  B24: async i=>{ const p=S.players[i]; p.coin=Math.max(0,p.coin-2); return {skip:true, msg:'Her friends knock you down and empty your purse. −2 francs, and no business today.'}; },
   A26: async i=>{ setHum(S.players[i],-1); return {extra:2, msg:'You load a trolley with the dead. 2 extra cadavers this time, −1 humanity.'}; },
-  B26: async i=>{ const p=S.players[i]; setHum(p,3); p.coin+=1; return {skip:true, msg:'You roll up your sleeves and save who you can. +3 humanity, +1f.'}; },
+  B26: async i=>{ const p=S.players[i]; setHum(p,3); p.coin+=1; return {skip:true, msg:'You roll up your sleeves and save who you can. +3 humanity, +1 franc.'}; },
   A28: async i=>{ setHum(S.players[i],2); return {skip:true, msg:'You listen to the Captain’s tale of Victor. +2 humanity, but no research today.'}; },
   B28: async i=>{ const p=S.players[i]; setHum(p,-1); addCard(p,drawResearch()); return {skip:true, msg:'You gather your papers and leave. −1 humanity, draw 1 research card.'}; },
   A29: async i=>({fresh:true, msg:'In the grave lie three bodies, alarmingly fresh. Bones-only cards are redrawn and every body counts as stage I. Resolving any costs 1 humanity in total.'}),
@@ -1347,7 +1372,7 @@ async function placeAndResolve(i, key, kind, pre){
   const b=bumpInfo(i,key);
   if(b && b.bump){ const o=S.occ[key], owner=S.players[o.p];
     if(b.free){ owner.left[o.kind]++; log(`${B(p)} bumps ${esc(owner.name)} from the theatre. Their meeple goes home.`); }
-    else { S.bump.push(o); if(b.cost){ p.coin-=b.cost; owner.coin+=b.cost; } log(`${B(p)} bumps ${esc(owner.name)} from ${esc(LOC[SPACE[key].loc].name)}${b.cost?` and pays them ${b.cost}f`:''}.`);
+    else { S.bump.push(o); if(b.cost){ p.coin-=b.cost; owner.coin+=b.cost; } log(`${B(p)} bumps ${esc(owner.name)} from ${esc(LOC[SPACE[key].loc].name)}${b.cost?` and pays them ${fr(b.cost)}`:''}.`);
       if(SPACE[key].loc==='academy' && hasChar(owner,'charlatan') && o.p!==i) setRep(owner,1); }
   }
   S.occ[key]={p:i, kind}; p.left[kind]--;
@@ -1385,7 +1410,7 @@ async function resolveSpace(i,key,kind,pre,mod){
       const three = pre.opt==='three';
       if(three) addMat(p,'animal',1,3); else addMat(p,'animal',2,4);
       if(S.ev==='meat'){ addMat(p,'animal',three?1:2,2); p.coin+=1; }
-      log(`${B(p)} takes ${three?'3 animal at stage I':'4 animal at stage II'} from the Slaughterhouse${S.ev==='meat'?', plus 2 more and 1f':''}.`);
+      log(`${B(p)} takes ${three?'3 animal at stage I':'4 animal at stage II'} from the Slaughterhouse${S.ev==='meat'?', plus 2 more and 1 franc':''}.`);
       break; }
     case 'hospital.retrieve': {
       const lim=hospLimits(p); let want=(pre.cards&&pre.cards.length)?pre.cards.length:Math.max(1,lim.free);
@@ -1397,7 +1422,7 @@ async function resolveSpace(i,key,kind,pre,mod){
       const cards=[...chosen]; for(let k=0;k<(mod.extra||0);k++) cards.push(drawCadaver('hospital'));
       await resolveCadavers(i,cards,{title:'Hospital', intro:'The porter wheels out the dead.', extraH:S.ev==='toussaint'?1:0});
       break; }
-    case 'hospital.work': { const g=(p.exp>=13?4:p.exp>=7?3:2)+(S.ev==='cholera'?2:0); p.coin+=g; log(`${B(p)} works a shift at the Hospital: +${g}f.`); break; }
+    case 'hospital.work': { const g=(p.exp>=13?4:p.exp>=7?3:2)+(S.ev==='cholera'?2:0); p.coin+=g; log(`${B(p)} works a shift at the Hospital: +${fr(g)}.`); break; }
     case 'hospital.volunteer': { setHum(p,1); setRep(p,2); log(`${B(p)} volunteers on the wards: +1 humanity, +2 reputation.`); break; }
     case 'academy.adv': { setExp(p,1); takeRowCard(p,S.researchRow,pre.card); if(S.ev==='grant') p.coin+=2; log(`${B(p)} does advanced research: +1 expertise and a research card.`); break; }
     case 'academy.research': { takeRowCard(p,S.researchRow,pre.card); if(S.ev==='grant') p.coin+=2; log(`${B(p)} takes a research card.`); break; }
@@ -1407,7 +1432,7 @@ async function resolveSpace(i,key,kind,pre,mod){
       const r=1+(sci?1:0); if(S.ev!=='hardtimes') p.coin+=1; setRep(p,r); if(S.ev==='grant') p.coin+=2;
       if(pre.card){ const c=p.hand.find(h=>h.id==='guest'&&h.id===pre.card); if(c){ p.hand=p.hand.filter(h=>h!==c); applyGain(p,c.gain,'research'); } }
       log(`${B(p)} lectures at the Academy: +${r} reputation.`); break; }
-    case 'academy.donate': { const n=clamp(pre.n||1,1,Math.min(3,p.coin)); p.coin-=n; setRep(p,n); log(`${B(p)} donates ${n}f: +${n} reputation.`); break; }
+    case 'academy.donate': { const n=clamp(pre.n||1,1,Math.min(3,p.coin)); p.coin-=n; setRep(p,n); log(`${B(p)} donates ${fr(n)}: +${n} reputation.`); break; }
     case 'market.trade': await doMarket(i,pre); break;
     case 'docks.hire': await hireScoundrel(i, pre.card, pre.how, S.docks, pre.unethical); break;
     case 'alley.murder': {
@@ -2022,7 +2047,7 @@ async function clickSpace(key){
   try{
     if(kind!==p.sel) toast(`Sending your ${kind}: your ${p.sel} can’t go there.`);
     const b=bumpInfo(0,key);
-    if(b && b.bump){ const o=S.occ[key]; const ok=await ask({title:'Bump?', html:`<p>${esc(S.players[o.p].name)}’s ${o.kind} is already there. Bump them${b.free?' for free (they go home)':b.cost?` and pay them <b>${b.cost}f</b>`:' (free, it’s your own)'}? Their meeple ${b.free?'returns to them':'goes to the bump track and is out for the day'}.</p>`, buttons:[{label:'Cancel', value:false},{label:'Bump', primary:true, value:true}]}); if(!ok) return; }
+    if(b && b.bump){ const o=S.occ[key]; const ok=await ask({title:'Bump?', html:`<p>${esc(S.players[o.p].name)}’s ${o.kind} is already there. Bump them${b.free?' for free (they go home)':b.cost?` and pay them <b>${fr(b.cost)}</b>`:' (free, it’s your own)'}? Their meeple ${b.free?'returns to them':'goes to the bump track and is out for the day'}.</p>`, buttons:[{label:'Cancel', value:false},{label:'Bump', primary:true, value:true}]}); if(!ok) return; }
     const pre=await humanPre(0,key,kind); if(pre===null) return;
     await placeAndResolve(0,key,kind,pre);
     save(); humanBlocked=null; busy=false; endHumanTurn();
@@ -2033,7 +2058,7 @@ async function humanPre(i,key,kind,noCancel){
   switch(key){
     case 'square.buy': {
       const bury=p.hand.some(h=>h.id==='burial');
-      return await ask({title:'Public Square', wide:true, html:(reg,done)=>`<p class="flavor">The crowd has gone home. 1f buys one body.</p>
+      return await ask({title:'Public Square', wide:true, html:(reg,done)=>`<p class="flavor">The crowd has gone home. 1 franc buys one body.</p>
         <div class="gcards">${S.square.map(c=>cardHTML(c,{acts:`<div class="gc-acts"><button class="tog" data-mfn="${reg(()=>done({card:c.id}))}">Buy this one</button>${bury?`<button class="tog" data-mfn="${reg(()=>done({card:c.id, bury:true}))}">Bury it (A Decent Burial)</button>`:''}</div>`})).join('')}</div>`, buttons:cancel});
     }
     case 'slaughter.take': if(prePick) return prePick; return await ask({title:'Slaughterhouse', html:'<p class="flavor">Animal stands in for muscle, organ or (at stage I or II) blood. Each part built with it scores 1 VP less, 2 less if you use 3 or more.</p>', options:[
@@ -2044,10 +2069,10 @@ async function humanPre(i,key,kind,noCancel){
       const cost=()=>Math.max(0,chosen.length-lim.free);
       return await ask({title:'Hospital', wide:true, html:(reg,done)=>{
         const rr=()=>renderModal();
-        return `<p class="flavor">The porter lifts the sheets. ${lim.free?'Your reputation lets you take 1 for free.':'Your reputation is below 7: bribing the porter costs 1f.'}${lim.paid?` You may take ${lim.paid} more for 1f each${p.rep>=15?' (reputation 15)':''}${S.ev==='corrupt'?' (A Porter for Hire)':''}.`:''}</p>
+        return `<p class="flavor">The porter lifts the sheets. ${lim.free?'Your reputation lets you take 1 for free.':'Your reputation is below 7: bribing the porter costs 1 franc.'}${lim.paid?` You may take ${lim.paid} more for 1 franc each${p.rep>=15?' (reputation 15)':''}${S.ev==='corrupt'?' (A Porter for Hire)':''}.`:''}</p>
         <div class="gcards">${S.hosp.map(c=>{ const on=chosen.includes(c.id); const can=on || (chosen.length<max && p.coin>=Math.max(0,chosen.length+1-lim.free));
-          return cardHTML(c,{sel:on, acts:`<div class="gc-acts"><button class="tog ${on?'on':''}" ${can?'':'disabled'} data-mfn="${reg(()=>{ if(on) chosen.splice(chosen.indexOf(c.id),1); else chosen.push(c.id); rr(); })}">${on?'Taking':'Take'}${!on && chosen.length+1>lim.free?' (1f)':''}</button></div>`}); }).join('')}</div>
-        <p class="num" style="text-align:right">Cost: <b>${cost()}f</b></p>
+          return cardHTML(c,{sel:on, acts:`<div class="gc-acts"><button class="tog ${on?'on':''}" ${can?'':'disabled'} data-mfn="${reg(()=>{ if(on) chosen.splice(chosen.indexOf(c.id),1); else chosen.push(c.id); rr(); })}">${on?'Taking':'Take'}${!on && chosen.length+1>lim.free?' (1 franc)':''}</button></div>`}); }).join('')}</div>
+        <p class="num" style="text-align:right">Cost: <b>${fr(cost())}</b></p>
         <div class="actions">${noCancel?'':`<button class="btn" data-mfn="${reg(()=>done(null))}">Cancel</button>`}<button class="btn primary" ${chosen.length?'':'disabled'} data-mfn="${reg(()=>done({cards:[...chosen]}))}">Retrieve ${chosen.length}</button></div>`; }, locked:true});
     }
     case 'academy.adv': case 'academy.research': {
@@ -2059,15 +2084,15 @@ async function humanPre(i,key,kind,noCancel){
       const alt=p.hand.filter(h=>['guest','animal','human'].includes(h.id));
       const r=1+(kind==='scientist'?1:0);
       if(!alt.length) return {};
-      return await ask({title:'Lecture', html:'', options:[{label:'Lecture as usual', sub:`+${S.ev==='hardtimes'?0:1}f and +${r} reputation.`, value:{}},
+      return await ask({title:'Lecture', html:'', options:[{label:'Lecture as usual', sub:`+${fr(S.ev==='hardtimes'?0:1)} and +${r} reputation.`, value:{}},
         ...alt.map(c=>({label:`Play ${esc(c.name)}`, sub:esc(c.text)+' '+gainTxt(c.gain), value:{card:c.id}}))], buttons:cancel});
     }
-    case 'academy.donate': return await ask({title:'Donate', html:'<p>1 reputation per franc, up to 3.</p>', options:[1,2,3].map(n=>({label:`Donate ${n}f`, value:{n}, disabled:p.coin<n})), buttons:cancel});
+    case 'academy.donate': return await ask({title:'Donate', html:'<p>1 reputation per franc, up to 3.</p>', options:[1,2,3].map(n=>({label:`Donate ${fr(n)}`, value:{n}, disabled:p.coin<n})), buttons:cancel});
     case 'market.trade': if(prePick) return prePick; return await marketModal(p, cancel.length>0);
     case 'docks.hire': { if(prePick) return prePick; const c=await chooseScoundrel(p, S.docks, 'Three scoundrels lean on the bollards.', !noCancel); return c; }
     case 'alley.murder': {
       const un=p.hand.some(h=>h.id==='unethical') && charged(p)>0;
-      return await ask({title:'Dark Alley', html:`<p>Murder someone for ${matsHTML([['muscle',1,4],['organ',1,4],['blood',1,3],['bone',0,2]])}</p><p class="flavor">Costs 3 humanity and earns a police marker. At 2 markers the Dark Alley is closed to you until you pay 3f.</p>`,
+      return await ask({title:'Dark Alley', html:`<p>Murder someone for ${matsHTML([['muscle',1,4],['organ',1,4],['blood',1,3],['bone',0,2]])}</p><p class="flavor">Costs 3 humanity and earns a police marker. At 2 markers the Dark Alley is closed to you until you pay 3 francs.</p>`,
         options:[{label:'Do it', value:{}}, ...(un?[{label:'Unethical Experiment instead', sub:'Spend 1 charged jar: +5 expertise, −1 humanity, no materials.', value:{unethical:true}}]:[])], buttons:cancel});
     }
     case 'church.atone': {
@@ -2077,7 +2102,7 @@ async function humanPre(i,key,kind,noCancel){
     }
     case 'lab.blood': {
       if(!p.hand.some(h=>h.id==='transfusion')) return {};
-      return await ask({title:'Give Blood', html:'', options:[{label:'Give blood', sub:'3 blood at stage I.', value:{}},{label:'Play Transfusion instead', sub:'+3 expertise, +1 reputation, +1f.', value:{transfusion:true}}], buttons:cancel});
+      return await ask({title:'Give Blood', html:'', options:[{label:'Give blood', sub:'3 blood at stage I.', value:{}},{label:'Play Transfusion instead', sub:'+3 expertise, +1 reputation, +1 franc.', value:{transfusion:true}}], buttons:cancel});
     }
     case 'cemetery.dig': case 'morgue.buy': case 'hospital.work': case 'hospital.volunteer': case 'first.first': case 'odeon.show':
     case 'lab.practice': case 'lab.repair': case 'lab.charge': return {};
@@ -2103,12 +2128,12 @@ function marketBody(p, o, reg){
   const row=(label,sub,k,max)=>`<div class="opt" style="cursor:default"><span><span class="ot">${label}</span><small>${sub}</small></span>
     <span style="display:flex;gap:6px;align-items:center"><button class="btn" style="padding:2px 10px" data-mfn="${step(k,-1,max)}">−</button><b class="num">${o[k]}</b><button class="btn" style="padding:2px 10px" data-mfn="${step(k,1,max)}">+</button></span></div>`;
   return `<div class="opts">
-    ${row('Sell 2 bone for 1f',`You have ${p.bone} bone.`,'sellBone',Math.floor(p.bone/2))}
-    ${row(`Sell 3 preserved flesh for ${2+(o.pickle?1:0)}f`,`You have ${p.preserved} preserved. Preserve flesh in your lab at night.`,'sellPres',Math.floor(p.preserved/3))}
-    ${row(`Buy a Leyden jar (2f)`,`${S.ev==='hardtimes'?'Hard Times: buy 1, get 1 free. ':''}You have ${p.jars.length} of 4. New jars are empty unless lightning is in the air.`,'jars',4-p.jars.length)}
-    <div class="opt" style="cursor:default"><span><span class="ot">Buy an ice block (1f)</span><small>Stops decay for the next 2 dawns.${p.ice?` You have ${p.ice} left.`:''}</small></span><button class="tog" style="color:var(--parch);border-color:var(--line2)" data-mfn="${reg(()=>{ o.ice=!o.ice; if(cash()<0) o.ice=false; rerender(); })}">${o.ice?'Buying':'Buy'}</button></div>
-    ${hasPickle?`<label class="opt" style="cursor:pointer"><span><span class="ot">Play Pickling Jars</span><small>+1f per preserved sale.</small></span><input type="checkbox" ${o.pickle?'checked':''} data-mfn="${reg(()=>{ o.pickle=!o.pickle; rerender(); })}"></label>`:''}
-    </div><p class="num" style="text-align:right;margin-top:10px">Francs after: <b>${cash()}f</b></p>`;
+    ${row('Sell 2 bone for 1 franc',`You have ${p.bone} bone.`,'sellBone',Math.floor(p.bone/2))}
+    ${row(`Sell 3 preserved flesh for ${fr(2+(o.pickle?1:0))}`,`You have ${p.preserved} preserved. Preserve flesh in your lab at night.`,'sellPres',Math.floor(p.preserved/3))}
+    ${row(`Buy a Leyden jar (2 francs)`,`${S.ev==='hardtimes'?'Hard Times: buy 1, get 1 free. ':''}You have ${p.jars.length} of 4. New jars are empty unless lightning is in the air.`,'jars',4-p.jars.length)}
+    <div class="opt" style="cursor:default"><span><span class="ot">Buy an ice block (1 franc)</span><small>Stops decay for the next 2 dawns.${p.ice?` You have ${p.ice} left.`:''}</small></span><button class="tog" style="color:var(--parch);border-color:var(--line2)" data-mfn="${reg(()=>{ o.ice=!o.ice; if(cash()<0) o.ice=false; rerender(); })}">${o.ice?'Buying':'Buy'}</button></div>
+    ${hasPickle?`<label class="opt" style="cursor:pointer"><span><span class="ot">Play Pickling Jars</span><small>+1 franc per preserved sale.</small></span><input type="checkbox" ${o.pickle?'checked':''} data-mfn="${reg(()=>{ o.pickle=!o.pickle; rerender(); })}"></label>`:''}
+    </div><p class="num" style="text-align:right;margin-top:10px">Francs after: <b>${fr(cash())}</b></p>`;
 }
 async function marketModal(p, canCancel){
   const o=marketState();
@@ -2143,7 +2168,7 @@ function cardHTML(c, extra){
   extra=extra||{};
   if(c.kind==='cadaver'){
     const hc=(extra.noCost?0:c.hcost+(extra.extraH||0));
-    const body=`<div class="gc-row">${matsHTML(c.mats)}</div>${c.exp?`<div>or <b>+${c.exp} expertise</b></div>`:'<div>Bones only, no expertise</div>'}${hc?`<div class="gc-cost">−${hc} humanity to resolve</div>`:''}${c.cost?`<div class="gc-cost">+${c.cost}f to buy</div>`:''}`;
+    const body=`<div class="gc-row">${matsHTML(c.mats)}</div>${c.exp?`<div>or <b>+${c.exp} expertise</b></div>`:'<div>Bones only, no expertise</div>'}${hc?`<div class="gc-cost">−${hc} humanity to resolve</div>`:''}${c.cost?`<div class="gc-cost">+${fr(c.cost)} to buy</div>`:''}`;
     if(c.art && IMG[c.art]) return cadaverCardHTML(c, extra, hc);
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">${esc(LOC[c.src].name)} · stage ${c.stage?ROMAN[c.stage-1]:'bones'}</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${cadaverArt(c)}</div>
@@ -2154,21 +2179,21 @@ function cardHTML(c, extra){
     const opts=[]; if(c.exp) opts.push(`+${c.exp} expertise${c.expH?' (−1 humanity)':''}`); if(c.hum) opts.push(`+${c.hum} humanity`);
     const cost=S?scCost(c):c.cost, hc=S?scHcost(c):c.hcost;
     if(c.tpl!=null && IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]) return scoundrelCardHTML(c, extra, cost, hc);
-    return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Scoundrel · ${cost}f${hc?` · −${hc} humanity`:''}</span><span class="gc-title">${esc(c.name)}</span>
+    return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Scoundrel · ${fr(cost)}${hc?` · −${hc} humanity`:''}</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${scoundrelArt(c)}</div>
       <div class="gc-body"><i>${esc(c.who||'')}</i>${c.kind==='thief'?`<div>Draw ${c.draw} cadaver${c.draw>1?'s':''} from the Hospital stack</div>`:`<div class="gc-row">${matsHTML(c.mats||[])}</div>${opts.length?`<div>or ${opts.join(' or ')}</div>`:''}`}</div>${extra.acts||''}</div>`;
   }
   if(c.kind==='research'){
     const art=ICONART[c.id==='demo'||c.id==='electro'?'jar':c.id==='healing'||c.id==='transfusion'?'flask':c.id==='tutor'||c.id==='guest'?'coin':'book'];
     const body=`${esc(c.text)}${gainTxt(c.gain)?`<div><b>${gainTxt(c.gain)}</b></div>`:''}<div style="border-top:1px solid rgba(59,45,34,.3);padding-top:4px">Or after a throw: <b>${MIT_N[c.mit]}</b></div>`;
-    const k=RESEARCH.findIndex(r=>r.id===c.id);
-    if(k>=0 && IMG[`research-${String(k+1).padStart(2,'0')}`]) return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="ecard rcard"><div class="eart">${researchArt(c)}<span class="ek">Research</span><span class="en">${esc(c.name)}</span></div><div class="ebody">${body}</div></div>${extra.acts||''}</div>`;
+    if(IMG['card-research-bg']) return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="fcard"><div class="fface"><span class="ft">${esc(c.name)}</span><span class="fk">Research</span><p class="fx">${esc(c.text)}</p><div class="fg">${gainIconsHTML(c.gain)}</div></div>${diceStripHTML(c.mit)}</div>${extra.acts||''}</div>`;
     if(hasFrame()) return framedHTML({sel:extra.sel, kind:'Research', title:esc(c.name), art, body, mark:'', acts:extra.acts});
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Research</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${art}</div>
       <div class="gc-body">${body}</div>${extra.acts||''}</div>`;
   }
   if(c.kind==='humanity'){
+    if(IMG['card-humanity-bg']) return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="fcard hum"><div class="fface"><span class="ft">${esc(c.name)}</span><span class="fk">Humanity</span><p class="fx">${esc(c.text)}</p><div class="fg">${gainIconsHTML(c.gain)}</div></div></div>${extra.acts||''}</div>`;
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Humanity</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${ICONART.candle}</div><div class="gc-body">${esc(c.text)}${gainTxt(c.gain)?`<div><b>${gainTxt(c.gain)}</b></div>`:''}</div>${extra.acts||''}</div>`;
   }
@@ -2219,7 +2244,7 @@ function cadaverFromRowStatic(src,row,k){ const [st,m,exp,hc,name,cost]=row; con
 function cadaverCardHTML(c, extra, hc){
   const n=t=>{ const m=c.mats.find(x=>x[0]===t); return m?m[2]:0; };
   const cells=[['muscle',n('muscle')],['organ',n('organ')],['blood',n('blood')],['bone',n('bone')]].map(([t,v])=>`<span class="cs ${t} ${v?'':'z'}" title="${v} ${t}">${v}</span>`).join('');
-  const icons=`${c.exp?`<span class="ci" title="or +${c.exp} expertise">+${c.exp} <i>exp</i></span>`:'<span class="ci dim">bones</span>'}${hc?`<span class="ci cost" title="−${hc} humanity to resolve">−${hc} <i>hum</i></span>`:''}${c.cost?`<span class="ci cost">+${c.cost}f</span>`:''}`;
+  const icons=`${c.exp?`<span class="ci" title="or +${c.exp} expertise">+${c.exp} <i>exp</i></span>`:'<span class="ci dim">bones</span>'}${hc?`<span class="ci cost" title="−${hc} humanity to resolve">−${hc} <i>hum</i></span>`:''}${c.cost?`<span class="ci cost">+${fr(c.cost)}</span>`:''}`;
   return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="ccard" title="${esc(c.name)}"><img src="${IMG[c.art]}" alt="">
       <span class="ck">${esc(LOC[c.src].name)}</span><span class="cn">${esc(c.name)}</span>
       <div class="cicons">${icons}</div>
@@ -2235,6 +2260,15 @@ function placeArt(id, lab){ const src=IMG[(lab?'lab-':'location-')+id]; return s
 // Hospital Thieves draw from the Hospital instead, so they get a text panel where the strip would be.
 // Icon images (art/icons/icon-*.png, transparent) with emoji fallback.
 function icon(name, fallback, cls){ const src=IMG['icon-'+name]; return src ? `<img class="ico ${cls||''}" src="${src}" alt="${fallback}">` : `<span class="ico ${cls||''}">${fallback}</span>`; }
+// Gain row on research and humanity cards: a number beside the matching icon (expertise brain, reputation medal, coin, heart).
+function gainIconsHTML(g){ g=g||{}; const parts=[];
+  if(g.exp) parts.push(`<span class="gi"><b>${g.exp}</b>${icon('expertise','🧠')}</span>`);
+  if(g.rep) parts.push(`<span class="gi"><b>${g.rep}</b>${icon('reputation','🎖️')}</span>`);
+  if(g.coin) parts.push(`<span class="gi"><b>${g.coin}</b>${icon('coin','🪙')}</span>`);
+  if(g.hum) parts.push(`<span class="gi"><b>${Math.abs(g.hum)}</b>${g.hum>0?icon('heart','❤️'):icon('heart-broken','💔')}</span>`);
+  return parts.join(''); }
+// Dice strip under a research card: a gray or blue die with the eye face, and what the card does to the dice.
+function diceStripHTML(mit){ const blue=mit==='rerollBlue'; return `<div class="rdice"><span class="rdie ${blue?'blue':'gray'}">${DIEICON.alive}</span><span>${MIT_N[mit]}</span></div>`; }
 function coins(n){ return Array.from({length:n},()=>icon('coin','🪙')).join(''); }
 function hearts(n, broken){ return Array.from({length:n},()=>icon(broken?'heart-broken':'heart', broken?'💔':'❤️')).join(''); }
 function scoundrelCardHTML(c, extra, cost, hc){
@@ -2261,7 +2295,7 @@ function cadaverArt(c){ const src=c.art&&IMG[c.art]; return src ? `<img src="${s
 function bar(filled,n,cls,opts){ opts=opts||{}; return `<div class="bar ${cls}" style="--n:${n}">${Array.from({length:n},(_,k)=>{ const mk=opts.marks&&opts.marks.includes(k+1); const t=mk&&opts.tips?opts.tips[k+1]:'';
   return `<i class="${k<filled?'on':''} ${mk?'mk':''}" ${t?`data-tipt="${esc(t)}" aria-label="${esc(t.replace(/<[^>]+>/g,''))}"`:''}></i>`; }).join('')}</div>`; }
 const EXP_TIPS={3:'<b>Expertise 3</b>You can build arms.',8:'<b>Expertise 8</b>You can build the torso.',10:'<b>Expertise 10</b>One of your shock dice becomes a blue die (more eyes, fewer bolts).',14:'<b>Expertise 14</b>You can build the head.',20:'<b>Expertise 20</b>Two of your shock dice become blue.',27:'<b>Expertise 27</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
-const REP_TIPS={7:'<b>Reputation 7</b>The Hospital lets you retrieve a cadaver for free. You hire a 3rd assistant.',15:'<b>Reputation 15</b>An assistant is promoted to a 2nd scientist. At the Hospital you may take a 2nd cadaver for 1f.',23:'<b>Reputation 23</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
+const REP_TIPS={7:'<b>Reputation 7</b>The Hospital lets you retrieve a cadaver for free. You hire a 3rd assistant.',15:'<b>Reputation 15</b>An assistant is promoted to a 2nd scientist. At the Hospital you may take a 2nd cadaver for 1 franc.',23:'<b>Reputation 23</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
 const SLOT_ORDER=[['legR','R Leg'],['legL','L Leg'],['armR','R Arm'],['armL','L Arm'],['torso','Torso'],['head','Head']];
 function bodyLine(p){ return `<div class="bodyline">${SLOT_ORDER.map(([s,n])=>{ const t=p.table[s]; const c=!t?'none':t.alive?'alive':t.side==='skin'?'skin':'muscle';
   return `<span class="bl ${c}" title="${n}: ${({none:'not started',muscle:'muscle',skin:'skin (complete)',alive:'alive'})[c]}${t&&t.dmg?', damaged':''}">${n}${t&&t.dmg?'⚡':''}</span>`; }).join('<span class="bls">–</span>')}</div>`; }
@@ -2323,7 +2357,7 @@ function miniCard(c){
     return `<div class="mcard cad" title="${esc(c.name)}"><span class="mart"><img src="${IMG[c.art]}" alt=""></span><span class="mstrip"><span class="stage">${c.stage?ROMAN[c.stage-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span></div>`; }
   if(SC_WHO[c.kind] && c.tpl!=null && IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]){ const n=t=>{ const m=(c.mats||[]).find(x=>x[0]===t); return m?m[2]:0; }; const st=(c.mats||[]).find(x=>x[0]!=='bone');
     const strip = c.kind==='thief' ? `<span class="mstrip one">Draw ${c.draw}</span>` : `<span class="mstrip"><span class="stage">${st?ROMAN[st[1]-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span>`;
-    return `<div class="mcard cad" title="${esc(c.name)}: ${scCost(c)}f"><span class="mart"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt=""></span>${strip}</div>`; }
+    return `<div class="mcard cad" title="${esc(c.name)}: ${fr(scCost(c))}"><span class="mart"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt=""></span>${strip}</div>`; }
   const framed = hasFrame() && c.kind==='research';
   return `<div class="mcard ${framed?'framed':''}"><span class="mart">${miniArt(c)}</span><span class="mname">${esc(c.name)}</span></div>`; }
 function miniBack(name,left){ return IMG['card-tall-back'] ? `<div class="mcard back"><span class="plate">${esc(name)}</span><span class="mcount">${left}</span></div>` : `<div class="mcard back plain"><span class="mname">${esc(name)} deck</span><span class="mcount">${left}</span></div>`; }
@@ -2350,17 +2384,17 @@ function spaceGain(key, kind){
   const p=S.players[0]; const sci=kind==='scientist';
   switch(key){
     case 'cemetery.dig': return `Free · draw ${3+(S.ev==='cholera'?1:0)} hidden cadavers · some cost 1 humanity`;
-    case 'square.buy': return '1f · one body shown below';
-    case 'morgue.buy': return `1f · draw ${2+(S.ev==='cholera'?1:0)+(S.ev==='flood'?1:0)} hidden cadavers · some cost 1 humanity`;
-    case 'slaughter.take': return `+4 animal (II) or +3 animal (I)${S.ev==='meat'?' · +2 animal, +1f':''}`;
-    case 'hospital.retrieve': { const l=hospLimits(p); return l.free?`Free · take 1 body below${l.paid?` (+${l.paid} more at 1f each)`:''}`:(S.ev==='corrupt'?'1f bribe · take 1 body below':'Needs reputation 7'); }
-    case 'hospital.work': return S.ev==='hardtimes'?'Closed today':`+${(p.exp>=13?4:p.exp>=7?3:2)+(S.ev==='cholera'?2:0)}f`;
+    case 'square.buy': return '1 franc · one body shown below';
+    case 'morgue.buy': return `1 franc · draw ${2+(S.ev==='cholera'?1:0)+(S.ev==='flood'?1:0)} hidden cadavers · some cost 1 humanity`;
+    case 'slaughter.take': return `+4 animal (II) or +3 animal (I)${S.ev==='meat'?' · +2 animal, +1 franc':''}`;
+    case 'hospital.retrieve': { const l=hospLimits(p); return l.free?`Free · take 1 body below${l.paid?` (+${l.paid} more at 1 franc each)`:''}`:(S.ev==='corrupt'?'1 franc bribe · take 1 body below':'Needs reputation 7'); }
+    case 'hospital.work': return S.ev==='hardtimes'?'Closed today':`+${fr((p.exp>=13?4:p.exp>=7?3:2)+(S.ev==='cholera'?2:0))}`;
     case 'hospital.volunteer': return '+1 humanity · +2 reputation';
-    case 'academy.adv': return `+1 expertise · 1 research card below${S.ev==='grant'?' · +2f':''}`;
-    case 'academy.research': return `1 research card below${S.ev==='grant'?' · +2f':''}`;
-    case 'academy.lecture': return `${S.ev==='hardtimes'?'':'+1f · '}+${1+(sci?1:0)} reputation${sci?'':' (scientist: +2)'}${S.ev==='grant'?' · +2f':''}`;
-    case 'academy.donate': return 'Pay 1 to 3f · +1 reputation per franc';
-    case 'market.trade': return 'Jar 2f · ice 1f · sell 2 bone 1f · 3 preserved 2f';
+    case 'academy.adv': return `+1 expertise · 1 research card below${S.ev==='grant'?' · +2 francs':''}`;
+    case 'academy.research': return `1 research card below${S.ev==='grant'?' · +2 francs':''}`;
+    case 'academy.lecture': return `${S.ev==='hardtimes'?'':'+1 franc · '}+${1+(sci?1:0)} reputation${sci?'':' (scientist: +2)'}${S.ev==='grant'?' · +2 francs':''}`;
+    case 'academy.donate': return 'Pay 1 to 3 francs · +1 reputation per franc';
+    case 'market.trade': return 'Jar 2 francs · ice 1 franc · sell 2 bone 1 franc · 3 preserved 2 francs';
     case 'docks.hire': return '';
     case 'alley.murder': return '+4 muscle, 4 organ, 3 blood (I), 2 bone · −3 humanity · +1 police';
     case 'church.atone': return sci?'1 humanity card below · +1 humanity':'1 humanity card below (scientist: +1 humanity)';
@@ -2377,13 +2411,19 @@ function spaceGain(key, kind){
 function deckHTML(name, left, total){ if(!IMG['card-tall-back']) return `<p>${esc(name)} deck: ${left} of ${total} cards left.</p>`; return `<div class="deckrow"><div class="cardback" role="img" aria-label="${esc(name)} deck"><span class="plate">${esc(name)}</span></div><div class="deckinfo"><b>${esc(name)} deck</b><span>${left} of ${total} cards left</span></div></div>`; }
 const ROW_LABEL = {hospital:'Bodies waiting today', academy:'Research on offer', church:'Humanity cards on offer', docks:'Scoundrels for hire', square:'Bodies on display'};
 function occupantLine(key, can){ const o=S.occ[key]; if(!o) return ''; const b=can?bumpInfo(0,key):null;
-  return `${meeple(o.kind,S.players[o.p].color,12)} ${esc(S.players[o.p].name)}’s ${o.kind}${can&&b?(b.free?' · bump free':b.cost?` · bump ${b.cost}f`:' · bump'):''}`; }
+  return `${meeple(o.kind,S.players[o.p].color,12)} ${esc(S.players[o.p].name)}’s ${o.kind}${can&&b?(b.free?' · bump free':b.cost?` · bump ${fr(b.cost)}`:' · bump'):''}`; }
 // Place popup: what the place does, one option per action space with its exact gain and cost, and the cards there at full size.
 async function placeModal(id){
   const L=LOC[id], p=S.players[0], mine=isMyTurn(), closed=!!S.closed[id];
   let opts=L.spaces.map(sp=>{ const key=L.id+'.'+sp.k, can=humanCan(key), kind=kindFor(0,key)||p.sel, who=occupantLine(key,can);
     const gain=spaceGain(key,kind); return {label:`${esc(sp.n)}${sp.sci?'<small class="scitag">scientist</small>':''}`, sub:`${gain}${who?(gain?'<br>':'')+who:''}`, value:key, disabled:!can}; });
-  if(id==='slaughter'){ const key='slaughter.take', can=humanCan(key), who=occupantLine(key,can), extra=S.ev==='meat'?' Glut of Meat: +2 animal and +1f.':'';
+  if(id==='cemetery'||id==='morgue'){ const key=id==='cemetery'?'cemetery.dig':'morgue.buy', can=humanCan(key), who=occupantLine(key,can);
+    const n=(id==='cemetery'?3:2)+(S.ev==='cholera'?1:0);
+    opts=[{label: id==='cemetery' ? `Dig up to ${n} cadavers` : `Buy up to ${n} cadavers <span class="optcost">${coins(1)}</span>`, sub: who, value:key, disabled:!can}]; }
+  if(id==='alley'){ const key='alley.murder', can=humanCan(key), who=occupantLine(key,can);
+    const row=`<span class="gainrow">${cube('muscle',4,1)}${cube('organ',4,1)}${cube('blood',3,1)}${cube('bone',2,0)}<span class="gi neg"><b>3</b>${icon('heart-broken','💔')}</span><span class="gi neg"><b>1</b>${icon('police','👮')}</span></span>`;
+    opts=[{label:`Murder<small class="scitag">scientist</small>`, sub:`${row}${who?'<br>'+who:''}`, value:key, disabled:!can}]; }
+  if(id==='slaughter'){ const key='slaughter.take', can=humanCan(key), who=occupantLine(key,can), extra=S.ev==='meat'?' Glut of Meat: +2 animal and +1 franc.':'';
     opts=[{label:`Take 4 animal at stage II ${cube('animal',4,2)}`, sub:`${extra.trim()}${who?(extra?'<br>':'')+who:''}`, value:{key, pre:{opt:'four'}}, disabled:!can, row:true},
           {label:`Take 3 animal at stage I ${cube('animal',3,1)}`, sub:extra.trim(), value:{key, pre:{opt:'three'}}, disabled:!can, row:true}]; }
   let cards='';
@@ -2404,7 +2444,7 @@ async function placeModal(id){
     const k=await ask({title:'', hero:true, wide:true, html, locked:true});
     if(k && go){ prePick={...o}; await clickSpace(k); prePick=null; }
     return; }
-  if(id==='cemetery'||id==='morgue') cards=deckHTML(L.name, S.decks[id].length, CADAVERS[id].length);
+  if(id==='cemetery'||id==='morgue') cards='';
   else { const rows=faceUp(id); if(ROW_LABEL[id]) cards=`<div class="sub">${ROW_LABEL[id]}</div>${rows.length?`<div class="gcards">${rows.map(c=>cardHTML(c)).join('')}</div>`:'<p class="flavor">None left today.</p>'}`; }
   const key=await ask({title:'', hero:true, wide:true, html:`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${cards}`,
     options:opts, buttons:[{label:'Close', value:null}]});
@@ -2520,7 +2560,7 @@ function characterModal(){
   const p=S.players[0], C=CHARACTERS.find(c=>c.id===p.char);
   openModal({kind:'character', live:true, title:esc(p.name), wide:true, html:()=>`<div style="display:flex;gap:14px;align-items:flex-start">${charArt(p.char,'avatar lg')}<div><b style="font-family:var(--f-display);font-size:18px">${esc(C.name)}</b>, ${esc(C.role.toLowerCase())}.<br><span style="color:var(--parch-dim)">${esc(C.text)}</span>
       ${hasChar(p,'zoo')&&!p.zooUsed&&p.jars.some(j=>!j)&&S.phase!=='end'?`<div style="margin-top:6px"><button class="chip" data-act="zoo">Charge 1 jar with the eel</button></div>`:''}
-      ${p.police?`<p class="hint" style="margin:8px 0 0">You have <b>${p.police} police marker${p.police>1?'s':''}</b> from the Dark Alley. ${p.police>=2?'The Dark Alley is closed to you. ':''}<button class="chip" data-act="police" ${p.coin>=3?'':'disabled'}>Pay 3f to clear them</button></p>`:''}</div></div>
+      ${p.police?`<p class="hint" style="margin:8px 0 0">You have <b>${p.police} police marker${p.police>1?'s':''}</b> from the Dark Alley. ${p.police>=2?'The Dark Alley is closed to you. ':''}<button class="chip" data-act="police" ${p.coin>=3?'':'disabled'}>Pay 3 francs to clear them</button></p>`:''}</div></div>
     <div class="res four" style="margin-top:12px"><div><b>${p.vp}</b><span>VP built</span></div><div><b>${aliveCount(p)}<small>/6</small></b><span>Alive</span></div><div><b>${p.left.scientist}</b><span>Scientists home</span></div><div><b>${p.left.assistant}</b><span>Assistants home</span></div></div>
     <div class="sub">Cards in hand <span style="font-size:12px;color:var(--muted)">(up to 3 of each kind)</span></div><div class="hand">${handHTML(p)}</div>`,
     buttons:[{label:'Close',primary:true,fn:closeModal}]});
@@ -2582,7 +2622,7 @@ function rulesHTML(){
   <h3>Building and the switch</h3><ul><li>Each part is built in two steps: <b>start</b> it as muscle, then <b>add skin</b>. Each step needs expertise and materials, gives VP (fresher is better) and +1 expertise.</li>
     <li><b>Throw the switch</b> once a night with 1 to 3 charged jars, 2 dice each. Eye: a complete part comes alive. Bolt: damage (2 on one part downgrades it). Broken heart: −1 humanity.</li>
     <li>After rolling, research cards can be spent to ignore or re-roll dice.</li></ul>
-  <h3>Police</h3><p>Each murder in the Dark Alley gives a police marker. At 2, the Dark Alley is closed to you. Pay 3f any time to clear them.</p>
+  <h3>Police</h3><p>Each murder in the Dark Alley gives a police marker. At 2, the Dark Alley is closed to you. Pay 3 francs any time to clear them.</p>
   <h3>Final score</h3><ul><li>VP from building, plus alive parts (head 6, torso 5, arms and legs 3 each).</li>
     <li>10 VP per bonus objective claimed.</li><li>Half your highest reputation, a third of your highest expertise, and your humanity (plus or minus).</li>
     <li>If the Captain ends the game, the kindest scientist (highest positive humanity) gains 5 VP.</li></ul>`;
@@ -2662,6 +2702,8 @@ if(IMG['bg-wall']) document.documentElement.style.setProperty('--bg-tile', `url(
 if(IMG['card-tall-front']) document.documentElement.style.setProperty('--card-front', `url("${IMG['card-tall-front']}")`);
 if(IMG['card-tall-back']) document.documentElement.style.setProperty('--card-back', `url("${IMG['card-tall-back']}")`);
 if(IMG['board']) document.documentElement.style.setProperty('--board', `url("${IMG['board']}")`);
+if(IMG['card-research-bg']) document.documentElement.style.setProperty('--card-research', `url("${IMG['card-research-bg']}")`);
+if(IMG['card-humanity-bg']) document.documentElement.style.setProperty('--card-humanity', `url("${IMG['card-humanity-bg']}")`);
 try{ window.claude?.hot?.snapshot?.(()=>({S})); }catch(e){}
 window.__spark={ get S(){return S}, set S(v){S=v;}, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});

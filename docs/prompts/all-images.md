@@ -979,6 +979,12 @@ Redraw the attached aerial view of Paris in 1819 at night as detailed dithered p
 The back of a playing card for a gothic 1819 Paris game: a dark oak wood panel with visible grain, bound by a riveted iron frame with ornate corner brackets, a large empty rectangular brass nameplate with four screws just below the centre, completely blank, left clear for text to be added later, and a small brass Leyden jar emblem sitting directly on top of that nameplate, almost touching it, with a short thread of electric-blue lightning rising from the jar; the upper half of the panel is plain wood. Detailed dithered pixel art: visible checkerboard dithering on the wood and metal, hard-edged pixels, no anti-aliasing, no smooth gradients. About 32 colours: soot black, dark oak browns, iron grey, tarnished brass, candle gold, one electric blue. Flat, symmetrical, seen straight on, fills the whole canvas edge to edge. Canvas 64 by 96 pixels, portrait. Do not include: text, letters, numbers, words, engraved writing, logos, watermark, a second border outside the frame, characters, scenery, cartoon style, bright saturated colours, white background.
 ```
 
+### Research card background → `card-research-bg.png`
+
+```
+The blank front of a playing card: pale frosted parchment, icy blue-grey and bone white, with faint frost crystals and feathery ice patterns across it, darker ornamental filigree flourishes in the four corners and a thin inner border, slightly stained and worn at the edges, completely empty in the middle with no text or picture, seen flat and straight on, filling the whole canvas edge to edge. Detailed dithered pixel art: visible checkerboard dithering in the frost, hard-edged pixels, no anti-aliasing, no gradients, about 24 colours. Canvas 72 by 96 pixels, portrait 3:4. Do not include: text, letters, numbers, words, pictures, objects, figures, a second border outside the card, cartoon style, bright saturated colours, pure white background.
+```
+
 ## Icons (3) · cost and humanity marks on cards
 
 ### icon-coin → `icon-coin.png`

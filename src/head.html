@@ -166,6 +166,14 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .opt:hover:not(:disabled){border-color:var(--spark)}
 .opt:disabled{opacity:.45;cursor:not-allowed}
 .opt .ot{font-family:var(--f-display);font-size:17px}
+.opt .optcost{display:inline-flex;align-items:center;margin-left:8px;vertical-align:middle}
+.opt .gainrow{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin-top:4px;font-size:14px;color:var(--parch)}
+.opt .gainrow .mat{margin:0;font-size:14px}
+.opt .gainrow .cube{width:14px;height:14px}
+.opt .gainrow .gi{color:var(--parch);font-size:17px}
+.opt .gainrow .gi.neg b::before{content:'−'}
+.opt .gainrow .gi .ico{width:24px;height:24px;filter:drop-shadow(0 1px 2px #000)}
+.opt .optcost .ico{width:22px;height:22px}
 .opt small{display:block;color:var(--parch-dim);font-size:12.5px}
 .dice{display:flex;gap:10px;justify-content:center;margin:14px 0 6px}
 .dice svg{width:52px;height:52px}
@@ -416,6 +424,21 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .ecard .em{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:10px;background:rgba(14,11,12,.78);color:var(--parch);border:1px solid rgba(236,224,198,.35)}
 .ecard .em.storm{color:#9fd0ff;border-color:#9fd0ff}.ecard .em.exec{color:#f0a79f;border-color:#d6675f}
 .ecard .ebody{font-size:12.5px;line-height:1.35;padding:8px 10px 9px;display:flex;flex-direction:column;gap:4px}
+/* frosted text cards (research): parchment face with the title, text and gain icons, a dark dice strip below */
+.fcard{width:190px;display:flex;flex-direction:column;border-radius:7px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.55);border:2px solid #2a2320}
+.fface{aspect-ratio:3/4;background:var(--card-research) center/100% 100% no-repeat,#d9dee3;color:#2b2a36;padding:9% 11% 8%;display:flex;flex-direction:column;align-items:center;text-align:center;box-sizing:border-box}
+.fface .ft{font-family:var(--f-display);font-size:17px;line-height:1.05;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.fface .fk{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:#4a4a5a;margin:4px 0 6px;padding:0 10px;position:relative;display:flex;align-items:center;gap:8px}
+.fface .fk::before,.fface .fk::after{content:'';flex:1;min-width:18px;height:1px;background:#4a4a5a}
+.fface .fx{font-size:11px;line-height:1.3;margin:0;flex:1;display:flex;align-items:center}
+.fface .fg{display:flex;gap:10px;justify-content:center;align-items:center;min-height:30px}
+.gi{display:inline-flex;align-items:center;gap:2px;font-family:var(--f-display);font-size:19px;color:#2b2a36}
+.gi .ico{width:26px;height:26px;filter:none}
+.rdice{background:#1a1416;border-top:2px solid #3b2d22;color:var(--parch);font-size:11px;line-height:1.25;padding:5px 8px;display:flex;align-items:center;gap:8px;min-height:38px}
+.rdie{flex:none;width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,.6)}
+.rdie.gray{background:#4a4550}.rdie.blue{background:#2f5f8f}.rdie svg{width:16px;height:16px}
+.fcard.hum .fface{background:var(--card-humanity) center/100% 100% no-repeat,#dcdad2;color:#2e2a28}
+.fcard.hum .fface .ft{color:#2e2a28}
 /* research cards: the event frame at card width; thumbnails in the hand list */
 .ecard.rcard{width:280px}
 .ecard.rcard .ebody{font-size:12px}

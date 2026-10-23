@@ -127,7 +127,7 @@ async function clickSpace(key){
   try{
     if(kind!==p.sel) toast(`Sending your ${kind}: your ${p.sel} can’t go there.`);
     const b=bumpInfo(0,key);
-    if(b && b.bump){ const o=S.occ[key]; const ok=await ask({title:'Bump?', html:`<p>${esc(S.players[o.p].name)}’s ${o.kind} is already there. Bump them${b.free?' for free (they go home)':b.cost?` and pay them <b>${b.cost}f</b>`:' (free, it’s your own)'}? Their meeple ${b.free?'returns to them':'goes to the bump track and is out for the day'}.</p>`, buttons:[{label:'Cancel', value:false},{label:'Bump', primary:true, value:true}]}); if(!ok) return; }
+    if(b && b.bump){ const o=S.occ[key]; const ok=await ask({title:'Bump?', html:`<p>${esc(S.players[o.p].name)}’s ${o.kind} is already there. Bump them${b.free?' for free (they go home)':b.cost?` and pay them <b>${fr(b.cost)}</b>`:' (free, it’s your own)'}? Their meeple ${b.free?'returns to them':'goes to the bump track and is out for the day'}.</p>`, buttons:[{label:'Cancel', value:false},{label:'Bump', primary:true, value:true}]}); if(!ok) return; }
     const pre=await humanPre(0,key,kind); if(pre===null) return;
     await placeAndResolve(0,key,kind,pre);
     save(); humanBlocked=null; busy=false; endHumanTurn();
@@ -138,7 +138,7 @@ async function humanPre(i,key,kind,noCancel){
   switch(key){
     case 'square.buy': {
       const bury=p.hand.some(h=>h.id==='burial');
-      return await ask({title:'Public Square', wide:true, html:(reg,done)=>`<p class="flavor">The crowd has gone home. 1f buys one body.</p>
+      return await ask({title:'Public Square', wide:true, html:(reg,done)=>`<p class="flavor">The crowd has gone home. 1 franc buys one body.</p>
         <div class="gcards">${S.square.map(c=>cardHTML(c,{acts:`<div class="gc-acts"><button class="tog" data-mfn="${reg(()=>done({card:c.id}))}">Buy this one</button>${bury?`<button class="tog" data-mfn="${reg(()=>done({card:c.id, bury:true}))}">Bury it (A Decent Burial)</button>`:''}</div>`})).join('')}</div>`, buttons:cancel});
     }
     case 'slaughter.take': if(prePick) return prePick; return await ask({title:'Slaughterhouse', html:'<p class="flavor">Animal stands in for muscle, organ or (at stage I or II) blood. Each part built with it scores 1 VP less, 2 less if you use 3 or more.</p>', options:[
@@ -149,10 +149,10 @@ async function humanPre(i,key,kind,noCancel){
       const cost=()=>Math.max(0,chosen.length-lim.free);
       return await ask({title:'Hospital', wide:true, html:(reg,done)=>{
         const rr=()=>renderModal();
-        return `<p class="flavor">The porter lifts the sheets. ${lim.free?'Your reputation lets you take 1 for free.':'Your reputation is below 7: bribing the porter costs 1f.'}${lim.paid?` You may take ${lim.paid} more for 1f each${p.rep>=15?' (reputation 15)':''}${S.ev==='corrupt'?' (A Porter for Hire)':''}.`:''}</p>
+        return `<p class="flavor">The porter lifts the sheets. ${lim.free?'Your reputation lets you take 1 for free.':'Your reputation is below 7: bribing the porter costs 1 franc.'}${lim.paid?` You may take ${lim.paid} more for 1 franc each${p.rep>=15?' (reputation 15)':''}${S.ev==='corrupt'?' (A Porter for Hire)':''}.`:''}</p>
         <div class="gcards">${S.hosp.map(c=>{ const on=chosen.includes(c.id); const can=on || (chosen.length<max && p.coin>=Math.max(0,chosen.length+1-lim.free));
-          return cardHTML(c,{sel:on, acts:`<div class="gc-acts"><button class="tog ${on?'on':''}" ${can?'':'disabled'} data-mfn="${reg(()=>{ if(on) chosen.splice(chosen.indexOf(c.id),1); else chosen.push(c.id); rr(); })}">${on?'Taking':'Take'}${!on && chosen.length+1>lim.free?' (1f)':''}</button></div>`}); }).join('')}</div>
-        <p class="num" style="text-align:right">Cost: <b>${cost()}f</b></p>
+          return cardHTML(c,{sel:on, acts:`<div class="gc-acts"><button class="tog ${on?'on':''}" ${can?'':'disabled'} data-mfn="${reg(()=>{ if(on) chosen.splice(chosen.indexOf(c.id),1); else chosen.push(c.id); rr(); })}">${on?'Taking':'Take'}${!on && chosen.length+1>lim.free?' (1 franc)':''}</button></div>`}); }).join('')}</div>
+        <p class="num" style="text-align:right">Cost: <b>${fr(cost())}</b></p>
         <div class="actions">${noCancel?'':`<button class="btn" data-mfn="${reg(()=>done(null))}">Cancel</button>`}<button class="btn primary" ${chosen.length?'':'disabled'} data-mfn="${reg(()=>done({cards:[...chosen]}))}">Retrieve ${chosen.length}</button></div>`; }, locked:true});
     }
     case 'academy.adv': case 'academy.research': {
@@ -164,15 +164,15 @@ async function humanPre(i,key,kind,noCancel){
       const alt=p.hand.filter(h=>['guest','animal','human'].includes(h.id));
       const r=1+(kind==='scientist'?1:0);
       if(!alt.length) return {};
-      return await ask({title:'Lecture', html:'', options:[{label:'Lecture as usual', sub:`+${S.ev==='hardtimes'?0:1}f and +${r} reputation.`, value:{}},
+      return await ask({title:'Lecture', html:'', options:[{label:'Lecture as usual', sub:`+${fr(S.ev==='hardtimes'?0:1)} and +${r} reputation.`, value:{}},
         ...alt.map(c=>({label:`Play ${esc(c.name)}`, sub:esc(c.text)+' '+gainTxt(c.gain), value:{card:c.id}}))], buttons:cancel});
     }
-    case 'academy.donate': return await ask({title:'Donate', html:'<p>1 reputation per franc, up to 3.</p>', options:[1,2,3].map(n=>({label:`Donate ${n}f`, value:{n}, disabled:p.coin<n})), buttons:cancel});
+    case 'academy.donate': return await ask({title:'Donate', html:'<p>1 reputation per franc, up to 3.</p>', options:[1,2,3].map(n=>({label:`Donate ${fr(n)}`, value:{n}, disabled:p.coin<n})), buttons:cancel});
     case 'market.trade': if(prePick) return prePick; return await marketModal(p, cancel.length>0);
     case 'docks.hire': { if(prePick) return prePick; const c=await chooseScoundrel(p, S.docks, 'Three scoundrels lean on the bollards.', !noCancel); return c; }
     case 'alley.murder': {
       const un=p.hand.some(h=>h.id==='unethical') && charged(p)>0;
-      return await ask({title:'Dark Alley', html:`<p>Murder someone for ${matsHTML([['muscle',1,4],['organ',1,4],['blood',1,3],['bone',0,2]])}</p><p class="flavor">Costs 3 humanity and earns a police marker. At 2 markers the Dark Alley is closed to you until you pay 3f.</p>`,
+      return await ask({title:'Dark Alley', html:`<p>Murder someone for ${matsHTML([['muscle',1,4],['organ',1,4],['blood',1,3],['bone',0,2]])}</p><p class="flavor">Costs 3 humanity and earns a police marker. At 2 markers the Dark Alley is closed to you until you pay 3 francs.</p>`,
         options:[{label:'Do it', value:{}}, ...(un?[{label:'Unethical Experiment instead', sub:'Spend 1 charged jar: +5 expertise, −1 humanity, no materials.', value:{unethical:true}}]:[])], buttons:cancel});
     }
     case 'church.atone': {
@@ -182,7 +182,7 @@ async function humanPre(i,key,kind,noCancel){
     }
     case 'lab.blood': {
       if(!p.hand.some(h=>h.id==='transfusion')) return {};
-      return await ask({title:'Give Blood', html:'', options:[{label:'Give blood', sub:'3 blood at stage I.', value:{}},{label:'Play Transfusion instead', sub:'+3 expertise, +1 reputation, +1f.', value:{transfusion:true}}], buttons:cancel});
+      return await ask({title:'Give Blood', html:'', options:[{label:'Give blood', sub:'3 blood at stage I.', value:{}},{label:'Play Transfusion instead', sub:'+3 expertise, +1 reputation, +1 franc.', value:{transfusion:true}}], buttons:cancel});
     }
     case 'cemetery.dig': case 'morgue.buy': case 'hospital.work': case 'hospital.volunteer': case 'first.first': case 'odeon.show':
     case 'lab.practice': case 'lab.repair': case 'lab.charge': return {};
@@ -208,12 +208,12 @@ function marketBody(p, o, reg){
   const row=(label,sub,k,max)=>`<div class="opt" style="cursor:default"><span><span class="ot">${label}</span><small>${sub}</small></span>
     <span style="display:flex;gap:6px;align-items:center"><button class="btn" style="padding:2px 10px" data-mfn="${step(k,-1,max)}">−</button><b class="num">${o[k]}</b><button class="btn" style="padding:2px 10px" data-mfn="${step(k,1,max)}">+</button></span></div>`;
   return `<div class="opts">
-    ${row('Sell 2 bone for 1f',`You have ${p.bone} bone.`,'sellBone',Math.floor(p.bone/2))}
-    ${row(`Sell 3 preserved flesh for ${2+(o.pickle?1:0)}f`,`You have ${p.preserved} preserved. Preserve flesh in your lab at night.`,'sellPres',Math.floor(p.preserved/3))}
-    ${row(`Buy a Leyden jar (2f)`,`${S.ev==='hardtimes'?'Hard Times: buy 1, get 1 free. ':''}You have ${p.jars.length} of 4. New jars are empty unless lightning is in the air.`,'jars',4-p.jars.length)}
-    <div class="opt" style="cursor:default"><span><span class="ot">Buy an ice block (1f)</span><small>Stops decay for the next 2 dawns.${p.ice?` You have ${p.ice} left.`:''}</small></span><button class="tog" style="color:var(--parch);border-color:var(--line2)" data-mfn="${reg(()=>{ o.ice=!o.ice; if(cash()<0) o.ice=false; rerender(); })}">${o.ice?'Buying':'Buy'}</button></div>
-    ${hasPickle?`<label class="opt" style="cursor:pointer"><span><span class="ot">Play Pickling Jars</span><small>+1f per preserved sale.</small></span><input type="checkbox" ${o.pickle?'checked':''} data-mfn="${reg(()=>{ o.pickle=!o.pickle; rerender(); })}"></label>`:''}
-    </div><p class="num" style="text-align:right;margin-top:10px">Francs after: <b>${cash()}f</b></p>`;
+    ${row('Sell 2 bone for 1 franc',`You have ${p.bone} bone.`,'sellBone',Math.floor(p.bone/2))}
+    ${row(`Sell 3 preserved flesh for ${fr(2+(o.pickle?1:0))}`,`You have ${p.preserved} preserved. Preserve flesh in your lab at night.`,'sellPres',Math.floor(p.preserved/3))}
+    ${row(`Buy a Leyden jar (2 francs)`,`${S.ev==='hardtimes'?'Hard Times: buy 1, get 1 free. ':''}You have ${p.jars.length} of 4. New jars are empty unless lightning is in the air.`,'jars',4-p.jars.length)}
+    <div class="opt" style="cursor:default"><span><span class="ot">Buy an ice block (1 franc)</span><small>Stops decay for the next 2 dawns.${p.ice?` You have ${p.ice} left.`:''}</small></span><button class="tog" style="color:var(--parch);border-color:var(--line2)" data-mfn="${reg(()=>{ o.ice=!o.ice; if(cash()<0) o.ice=false; rerender(); })}">${o.ice?'Buying':'Buy'}</button></div>
+    ${hasPickle?`<label class="opt" style="cursor:pointer"><span><span class="ot">Play Pickling Jars</span><small>+1 franc per preserved sale.</small></span><input type="checkbox" ${o.pickle?'checked':''} data-mfn="${reg(()=>{ o.pickle=!o.pickle; rerender(); })}"></label>`:''}
+    </div><p class="num" style="text-align:right;margin-top:10px">Francs after: <b>${fr(cash())}</b></p>`;
 }
 async function marketModal(p, canCancel){
   const o=marketState();
@@ -248,7 +248,7 @@ function cardHTML(c, extra){
   extra=extra||{};
   if(c.kind==='cadaver'){
     const hc=(extra.noCost?0:c.hcost+(extra.extraH||0));
-    const body=`<div class="gc-row">${matsHTML(c.mats)}</div>${c.exp?`<div>or <b>+${c.exp} expertise</b></div>`:'<div>Bones only, no expertise</div>'}${hc?`<div class="gc-cost">−${hc} humanity to resolve</div>`:''}${c.cost?`<div class="gc-cost">+${c.cost}f to buy</div>`:''}`;
+    const body=`<div class="gc-row">${matsHTML(c.mats)}</div>${c.exp?`<div>or <b>+${c.exp} expertise</b></div>`:'<div>Bones only, no expertise</div>'}${hc?`<div class="gc-cost">−${hc} humanity to resolve</div>`:''}${c.cost?`<div class="gc-cost">+${fr(c.cost)} to buy</div>`:''}`;
     if(c.art && IMG[c.art]) return cadaverCardHTML(c, extra, hc);
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">${esc(LOC[c.src].name)} · stage ${c.stage?ROMAN[c.stage-1]:'bones'}</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${cadaverArt(c)}</div>
@@ -259,21 +259,21 @@ function cardHTML(c, extra){
     const opts=[]; if(c.exp) opts.push(`+${c.exp} expertise${c.expH?' (−1 humanity)':''}`); if(c.hum) opts.push(`+${c.hum} humanity`);
     const cost=S?scCost(c):c.cost, hc=S?scHcost(c):c.hcost;
     if(c.tpl!=null && IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]) return scoundrelCardHTML(c, extra, cost, hc);
-    return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Scoundrel · ${cost}f${hc?` · −${hc} humanity`:''}</span><span class="gc-title">${esc(c.name)}</span>
+    return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Scoundrel · ${fr(cost)}${hc?` · −${hc} humanity`:''}</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${scoundrelArt(c)}</div>
       <div class="gc-body"><i>${esc(c.who||'')}</i>${c.kind==='thief'?`<div>Draw ${c.draw} cadaver${c.draw>1?'s':''} from the Hospital stack</div>`:`<div class="gc-row">${matsHTML(c.mats||[])}</div>${opts.length?`<div>or ${opts.join(' or ')}</div>`:''}`}</div>${extra.acts||''}</div>`;
   }
   if(c.kind==='research'){
     const art=ICONART[c.id==='demo'||c.id==='electro'?'jar':c.id==='healing'||c.id==='transfusion'?'flask':c.id==='tutor'||c.id==='guest'?'coin':'book'];
     const body=`${esc(c.text)}${gainTxt(c.gain)?`<div><b>${gainTxt(c.gain)}</b></div>`:''}<div style="border-top:1px solid rgba(59,45,34,.3);padding-top:4px">Or after a throw: <b>${MIT_N[c.mit]}</b></div>`;
-    const k=RESEARCH.findIndex(r=>r.id===c.id);
-    if(k>=0 && IMG[`research-${String(k+1).padStart(2,'0')}`]) return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="ecard rcard"><div class="eart">${researchArt(c)}<span class="ek">Research</span><span class="en">${esc(c.name)}</span></div><div class="ebody">${body}</div></div>${extra.acts||''}</div>`;
+    if(IMG['card-research-bg']) return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="fcard"><div class="fface"><span class="ft">${esc(c.name)}</span><span class="fk">Research</span><p class="fx">${esc(c.text)}</p><div class="fg">${gainIconsHTML(c.gain)}</div></div>${diceStripHTML(c.mit)}</div>${extra.acts||''}</div>`;
     if(hasFrame()) return framedHTML({sel:extra.sel, kind:'Research', title:esc(c.name), art, body, mark:'', acts:extra.acts});
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Research</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${art}</div>
       <div class="gc-body">${body}</div>${extra.acts||''}</div>`;
   }
   if(c.kind==='humanity'){
+    if(IMG['card-humanity-bg']) return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="fcard hum"><div class="fface"><span class="ft">${esc(c.name)}</span><span class="fk">Humanity</span><p class="fx">${esc(c.text)}</p><div class="fg">${gainIconsHTML(c.gain)}</div></div></div>${extra.acts||''}</div>`;
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Humanity</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${ICONART.candle}</div><div class="gc-body">${esc(c.text)}${gainTxt(c.gain)?`<div><b>${gainTxt(c.gain)}</b></div>`:''}</div>${extra.acts||''}</div>`;
   }
@@ -324,7 +324,7 @@ function cadaverFromRowStatic(src,row,k){ const [st,m,exp,hc,name,cost]=row; con
 function cadaverCardHTML(c, extra, hc){
   const n=t=>{ const m=c.mats.find(x=>x[0]===t); return m?m[2]:0; };
   const cells=[['muscle',n('muscle')],['organ',n('organ')],['blood',n('blood')],['bone',n('bone')]].map(([t,v])=>`<span class="cs ${t} ${v?'':'z'}" title="${v} ${t}">${v}</span>`).join('');
-  const icons=`${c.exp?`<span class="ci" title="or +${c.exp} expertise">+${c.exp} <i>exp</i></span>`:'<span class="ci dim">bones</span>'}${hc?`<span class="ci cost" title="−${hc} humanity to resolve">−${hc} <i>hum</i></span>`:''}${c.cost?`<span class="ci cost">+${c.cost}f</span>`:''}`;
+  const icons=`${c.exp?`<span class="ci" title="or +${c.exp} expertise">+${c.exp} <i>exp</i></span>`:'<span class="ci dim">bones</span>'}${hc?`<span class="ci cost" title="−${hc} humanity to resolve">−${hc} <i>hum</i></span>`:''}${c.cost?`<span class="ci cost">+${fr(c.cost)}</span>`:''}`;
   return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="ccard" title="${esc(c.name)}"><img src="${IMG[c.art]}" alt="">
       <span class="ck">${esc(LOC[c.src].name)}</span><span class="cn">${esc(c.name)}</span>
       <div class="cicons">${icons}</div>
@@ -340,6 +340,15 @@ function placeArt(id, lab){ const src=IMG[(lab?'lab-':'location-')+id]; return s
 // Hospital Thieves draw from the Hospital instead, so they get a text panel where the strip would be.
 // Icon images (art/icons/icon-*.png, transparent) with emoji fallback.
 function icon(name, fallback, cls){ const src=IMG['icon-'+name]; return src ? `<img class="ico ${cls||''}" src="${src}" alt="${fallback}">` : `<span class="ico ${cls||''}">${fallback}</span>`; }
+// Gain row on research and humanity cards: a number beside the matching icon (expertise brain, reputation medal, coin, heart).
+function gainIconsHTML(g){ g=g||{}; const parts=[];
+  if(g.exp) parts.push(`<span class="gi"><b>${g.exp}</b>${icon('expertise','🧠')}</span>`);
+  if(g.rep) parts.push(`<span class="gi"><b>${g.rep}</b>${icon('reputation','🎖️')}</span>`);
+  if(g.coin) parts.push(`<span class="gi"><b>${g.coin}</b>${icon('coin','🪙')}</span>`);
+  if(g.hum) parts.push(`<span class="gi"><b>${Math.abs(g.hum)}</b>${g.hum>0?icon('heart','❤️'):icon('heart-broken','💔')}</span>`);
+  return parts.join(''); }
+// Dice strip under a research card: a gray or blue die with the eye face, and what the card does to the dice.
+function diceStripHTML(mit){ const blue=mit==='rerollBlue'; return `<div class="rdice"><span class="rdie ${blue?'blue':'gray'}">${DIEICON.alive}</span><span>${MIT_N[mit]}</span></div>`; }
 function coins(n){ return Array.from({length:n},()=>icon('coin','🪙')).join(''); }
 function hearts(n, broken){ return Array.from({length:n},()=>icon(broken?'heart-broken':'heart', broken?'💔':'❤️')).join(''); }
 function scoundrelCardHTML(c, extra, cost, hc){
@@ -366,7 +375,7 @@ function cadaverArt(c){ const src=c.art&&IMG[c.art]; return src ? `<img src="${s
 function bar(filled,n,cls,opts){ opts=opts||{}; return `<div class="bar ${cls}" style="--n:${n}">${Array.from({length:n},(_,k)=>{ const mk=opts.marks&&opts.marks.includes(k+1); const t=mk&&opts.tips?opts.tips[k+1]:'';
   return `<i class="${k<filled?'on':''} ${mk?'mk':''}" ${t?`data-tipt="${esc(t)}" aria-label="${esc(t.replace(/<[^>]+>/g,''))}"`:''}></i>`; }).join('')}</div>`; }
 const EXP_TIPS={3:'<b>Expertise 3</b>You can build arms.',8:'<b>Expertise 8</b>You can build the torso.',10:'<b>Expertise 10</b>One of your shock dice becomes a blue die (more eyes, fewer bolts).',14:'<b>Expertise 14</b>You can build the head.',20:'<b>Expertise 20</b>Two of your shock dice become blue.',27:'<b>Expertise 27</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
-const REP_TIPS={7:'<b>Reputation 7</b>The Hospital lets you retrieve a cadaver for free. You hire a 3rd assistant.',15:'<b>Reputation 15</b>An assistant is promoted to a 2nd scientist. At the Hospital you may take a 2nd cadaver for 1f.',23:'<b>Reputation 23</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
+const REP_TIPS={7:'<b>Reputation 7</b>The Hospital lets you retrieve a cadaver for free. You hire a 3rd assistant.',15:'<b>Reputation 15</b>An assistant is promoted to a 2nd scientist. At the Hospital you may take a 2nd cadaver for 1 franc.',23:'<b>Reputation 23</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
 const SLOT_ORDER=[['legR','R Leg'],['legL','L Leg'],['armR','R Arm'],['armL','L Arm'],['torso','Torso'],['head','Head']];
 function bodyLine(p){ return `<div class="bodyline">${SLOT_ORDER.map(([s,n])=>{ const t=p.table[s]; const c=!t?'none':t.alive?'alive':t.side==='skin'?'skin':'muscle';
   return `<span class="bl ${c}" title="${n}: ${({none:'not started',muscle:'muscle',skin:'skin (complete)',alive:'alive'})[c]}${t&&t.dmg?', damaged':''}">${n}${t&&t.dmg?'⚡':''}</span>`; }).join('<span class="bls">–</span>')}</div>`; }
@@ -428,7 +437,7 @@ function miniCard(c){
     return `<div class="mcard cad" title="${esc(c.name)}"><span class="mart"><img src="${IMG[c.art]}" alt=""></span><span class="mstrip"><span class="stage">${c.stage?ROMAN[c.stage-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span></div>`; }
   if(SC_WHO[c.kind] && c.tpl!=null && IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]){ const n=t=>{ const m=(c.mats||[]).find(x=>x[0]===t); return m?m[2]:0; }; const st=(c.mats||[]).find(x=>x[0]!=='bone');
     const strip = c.kind==='thief' ? `<span class="mstrip one">Draw ${c.draw}</span>` : `<span class="mstrip"><span class="stage">${st?ROMAN[st[1]-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span>`;
-    return `<div class="mcard cad" title="${esc(c.name)}: ${scCost(c)}f"><span class="mart"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt=""></span>${strip}</div>`; }
+    return `<div class="mcard cad" title="${esc(c.name)}: ${fr(scCost(c))}"><span class="mart"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt=""></span>${strip}</div>`; }
   const framed = hasFrame() && c.kind==='research';
   return `<div class="mcard ${framed?'framed':''}"><span class="mart">${miniArt(c)}</span><span class="mname">${esc(c.name)}</span></div>`; }
 function miniBack(name,left){ return IMG['card-tall-back'] ? `<div class="mcard back"><span class="plate">${esc(name)}</span><span class="mcount">${left}</span></div>` : `<div class="mcard back plain"><span class="mname">${esc(name)} deck</span><span class="mcount">${left}</span></div>`; }
@@ -455,17 +464,17 @@ function spaceGain(key, kind){
   const p=S.players[0]; const sci=kind==='scientist';
   switch(key){
     case 'cemetery.dig': return `Free · draw ${3+(S.ev==='cholera'?1:0)} hidden cadavers · some cost 1 humanity`;
-    case 'square.buy': return '1f · one body shown below';
-    case 'morgue.buy': return `1f · draw ${2+(S.ev==='cholera'?1:0)+(S.ev==='flood'?1:0)} hidden cadavers · some cost 1 humanity`;
-    case 'slaughter.take': return `+4 animal (II) or +3 animal (I)${S.ev==='meat'?' · +2 animal, +1f':''}`;
-    case 'hospital.retrieve': { const l=hospLimits(p); return l.free?`Free · take 1 body below${l.paid?` (+${l.paid} more at 1f each)`:''}`:(S.ev==='corrupt'?'1f bribe · take 1 body below':'Needs reputation 7'); }
-    case 'hospital.work': return S.ev==='hardtimes'?'Closed today':`+${(p.exp>=13?4:p.exp>=7?3:2)+(S.ev==='cholera'?2:0)}f`;
+    case 'square.buy': return '1 franc · one body shown below';
+    case 'morgue.buy': return `1 franc · draw ${2+(S.ev==='cholera'?1:0)+(S.ev==='flood'?1:0)} hidden cadavers · some cost 1 humanity`;
+    case 'slaughter.take': return `+4 animal (II) or +3 animal (I)${S.ev==='meat'?' · +2 animal, +1 franc':''}`;
+    case 'hospital.retrieve': { const l=hospLimits(p); return l.free?`Free · take 1 body below${l.paid?` (+${l.paid} more at 1 franc each)`:''}`:(S.ev==='corrupt'?'1 franc bribe · take 1 body below':'Needs reputation 7'); }
+    case 'hospital.work': return S.ev==='hardtimes'?'Closed today':`+${fr((p.exp>=13?4:p.exp>=7?3:2)+(S.ev==='cholera'?2:0))}`;
     case 'hospital.volunteer': return '+1 humanity · +2 reputation';
-    case 'academy.adv': return `+1 expertise · 1 research card below${S.ev==='grant'?' · +2f':''}`;
-    case 'academy.research': return `1 research card below${S.ev==='grant'?' · +2f':''}`;
-    case 'academy.lecture': return `${S.ev==='hardtimes'?'':'+1f · '}+${1+(sci?1:0)} reputation${sci?'':' (scientist: +2)'}${S.ev==='grant'?' · +2f':''}`;
-    case 'academy.donate': return 'Pay 1 to 3f · +1 reputation per franc';
-    case 'market.trade': return 'Jar 2f · ice 1f · sell 2 bone 1f · 3 preserved 2f';
+    case 'academy.adv': return `+1 expertise · 1 research card below${S.ev==='grant'?' · +2 francs':''}`;
+    case 'academy.research': return `1 research card below${S.ev==='grant'?' · +2 francs':''}`;
+    case 'academy.lecture': return `${S.ev==='hardtimes'?'':'+1 franc · '}+${1+(sci?1:0)} reputation${sci?'':' (scientist: +2)'}${S.ev==='grant'?' · +2 francs':''}`;
+    case 'academy.donate': return 'Pay 1 to 3 francs · +1 reputation per franc';
+    case 'market.trade': return 'Jar 2 francs · ice 1 franc · sell 2 bone 1 franc · 3 preserved 2 francs';
     case 'docks.hire': return '';
     case 'alley.murder': return '+4 muscle, 4 organ, 3 blood (I), 2 bone · −3 humanity · +1 police';
     case 'church.atone': return sci?'1 humanity card below · +1 humanity':'1 humanity card below (scientist: +1 humanity)';
@@ -482,13 +491,19 @@ function spaceGain(key, kind){
 function deckHTML(name, left, total){ if(!IMG['card-tall-back']) return `<p>${esc(name)} deck: ${left} of ${total} cards left.</p>`; return `<div class="deckrow"><div class="cardback" role="img" aria-label="${esc(name)} deck"><span class="plate">${esc(name)}</span></div><div class="deckinfo"><b>${esc(name)} deck</b><span>${left} of ${total} cards left</span></div></div>`; }
 const ROW_LABEL = {hospital:'Bodies waiting today', academy:'Research on offer', church:'Humanity cards on offer', docks:'Scoundrels for hire', square:'Bodies on display'};
 function occupantLine(key, can){ const o=S.occ[key]; if(!o) return ''; const b=can?bumpInfo(0,key):null;
-  return `${meeple(o.kind,S.players[o.p].color,12)} ${esc(S.players[o.p].name)}’s ${o.kind}${can&&b?(b.free?' · bump free':b.cost?` · bump ${b.cost}f`:' · bump'):''}`; }
+  return `${meeple(o.kind,S.players[o.p].color,12)} ${esc(S.players[o.p].name)}’s ${o.kind}${can&&b?(b.free?' · bump free':b.cost?` · bump ${fr(b.cost)}`:' · bump'):''}`; }
 // Place popup: what the place does, one option per action space with its exact gain and cost, and the cards there at full size.
 async function placeModal(id){
   const L=LOC[id], p=S.players[0], mine=isMyTurn(), closed=!!S.closed[id];
   let opts=L.spaces.map(sp=>{ const key=L.id+'.'+sp.k, can=humanCan(key), kind=kindFor(0,key)||p.sel, who=occupantLine(key,can);
     const gain=spaceGain(key,kind); return {label:`${esc(sp.n)}${sp.sci?'<small class="scitag">scientist</small>':''}`, sub:`${gain}${who?(gain?'<br>':'')+who:''}`, value:key, disabled:!can}; });
-  if(id==='slaughter'){ const key='slaughter.take', can=humanCan(key), who=occupantLine(key,can), extra=S.ev==='meat'?' Glut of Meat: +2 animal and +1f.':'';
+  if(id==='cemetery'||id==='morgue'){ const key=id==='cemetery'?'cemetery.dig':'morgue.buy', can=humanCan(key), who=occupantLine(key,can);
+    const n=(id==='cemetery'?3:2)+(S.ev==='cholera'?1:0);
+    opts=[{label: id==='cemetery' ? `Dig up to ${n} cadavers` : `Buy up to ${n} cadavers <span class="optcost">${coins(1)}</span>`, sub: who, value:key, disabled:!can}]; }
+  if(id==='alley'){ const key='alley.murder', can=humanCan(key), who=occupantLine(key,can);
+    const row=`<span class="gainrow">${cube('muscle',4,1)}${cube('organ',4,1)}${cube('blood',3,1)}${cube('bone',2,0)}<span class="gi neg"><b>3</b>${icon('heart-broken','💔')}</span><span class="gi neg"><b>1</b>${icon('police','👮')}</span></span>`;
+    opts=[{label:`Murder<small class="scitag">scientist</small>`, sub:`${row}${who?'<br>'+who:''}`, value:key, disabled:!can}]; }
+  if(id==='slaughter'){ const key='slaughter.take', can=humanCan(key), who=occupantLine(key,can), extra=S.ev==='meat'?' Glut of Meat: +2 animal and +1 franc.':'';
     opts=[{label:`Take 4 animal at stage II ${cube('animal',4,2)}`, sub:`${extra.trim()}${who?(extra?'<br>':'')+who:''}`, value:{key, pre:{opt:'four'}}, disabled:!can, row:true},
           {label:`Take 3 animal at stage I ${cube('animal',3,1)}`, sub:extra.trim(), value:{key, pre:{opt:'three'}}, disabled:!can, row:true}]; }
   let cards='';
@@ -509,7 +524,7 @@ async function placeModal(id){
     const k=await ask({title:'', hero:true, wide:true, html, locked:true});
     if(k && go){ prePick={...o}; await clickSpace(k); prePick=null; }
     return; }
-  if(id==='cemetery'||id==='morgue') cards=deckHTML(L.name, S.decks[id].length, CADAVERS[id].length);
+  if(id==='cemetery'||id==='morgue') cards='';
   else { const rows=faceUp(id); if(ROW_LABEL[id]) cards=`<div class="sub">${ROW_LABEL[id]}</div>${rows.length?`<div class="gcards">${rows.map(c=>cardHTML(c)).join('')}</div>`:'<p class="flavor">None left today.</p>'}`; }
   const key=await ask({title:'', hero:true, wide:true, html:`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${cards}`,
     options:opts, buttons:[{label:'Close', value:null}]});
@@ -625,7 +640,7 @@ function characterModal(){
   const p=S.players[0], C=CHARACTERS.find(c=>c.id===p.char);
   openModal({kind:'character', live:true, title:esc(p.name), wide:true, html:()=>`<div style="display:flex;gap:14px;align-items:flex-start">${charArt(p.char,'avatar lg')}<div><b style="font-family:var(--f-display);font-size:18px">${esc(C.name)}</b>, ${esc(C.role.toLowerCase())}.<br><span style="color:var(--parch-dim)">${esc(C.text)}</span>
       ${hasChar(p,'zoo')&&!p.zooUsed&&p.jars.some(j=>!j)&&S.phase!=='end'?`<div style="margin-top:6px"><button class="chip" data-act="zoo">Charge 1 jar with the eel</button></div>`:''}
-      ${p.police?`<p class="hint" style="margin:8px 0 0">You have <b>${p.police} police marker${p.police>1?'s':''}</b> from the Dark Alley. ${p.police>=2?'The Dark Alley is closed to you. ':''}<button class="chip" data-act="police" ${p.coin>=3?'':'disabled'}>Pay 3f to clear them</button></p>`:''}</div></div>
+      ${p.police?`<p class="hint" style="margin:8px 0 0">You have <b>${p.police} police marker${p.police>1?'s':''}</b> from the Dark Alley. ${p.police>=2?'The Dark Alley is closed to you. ':''}<button class="chip" data-act="police" ${p.coin>=3?'':'disabled'}>Pay 3 francs to clear them</button></p>`:''}</div></div>
     <div class="res four" style="margin-top:12px"><div><b>${p.vp}</b><span>VP built</span></div><div><b>${aliveCount(p)}<small>/6</small></b><span>Alive</span></div><div><b>${p.left.scientist}</b><span>Scientists home</span></div><div><b>${p.left.assistant}</b><span>Assistants home</span></div></div>
     <div class="sub">Cards in hand <span style="font-size:12px;color:var(--muted)">(up to 3 of each kind)</span></div><div class="hand">${handHTML(p)}</div>`,
     buttons:[{label:'Close',primary:true,fn:closeModal}]});
@@ -687,7 +702,7 @@ function rulesHTML(){
   <h3>Building and the switch</h3><ul><li>Each part is built in two steps: <b>start</b> it as muscle, then <b>add skin</b>. Each step needs expertise and materials, gives VP (fresher is better) and +1 expertise.</li>
     <li><b>Throw the switch</b> once a night with 1 to 3 charged jars, 2 dice each. Eye: a complete part comes alive. Bolt: damage (2 on one part downgrades it). Broken heart: −1 humanity.</li>
     <li>After rolling, research cards can be spent to ignore or re-roll dice.</li></ul>
-  <h3>Police</h3><p>Each murder in the Dark Alley gives a police marker. At 2, the Dark Alley is closed to you. Pay 3f any time to clear them.</p>
+  <h3>Police</h3><p>Each murder in the Dark Alley gives a police marker. At 2, the Dark Alley is closed to you. Pay 3 francs any time to clear them.</p>
   <h3>Final score</h3><ul><li>VP from building, plus alive parts (head 6, torso 5, arms and legs 3 each).</li>
     <li>10 VP per bonus objective claimed.</li><li>Half your highest reputation, a third of your highest expertise, and your humanity (plus or minus).</li>
     <li>If the Captain ends the game, the kindest scientist (highest positive humanity) gains 5 VP.</li></ul>`;
@@ -767,6 +782,8 @@ if(IMG['bg-wall']) document.documentElement.style.setProperty('--bg-tile', `url(
 if(IMG['card-tall-front']) document.documentElement.style.setProperty('--card-front', `url("${IMG['card-tall-front']}")`);
 if(IMG['card-tall-back']) document.documentElement.style.setProperty('--card-back', `url("${IMG['card-tall-back']}")`);
 if(IMG['board']) document.documentElement.style.setProperty('--board', `url("${IMG['board']}")`);
+if(IMG['card-research-bg']) document.documentElement.style.setProperty('--card-research', `url("${IMG['card-research-bg']}")`);
+if(IMG['card-humanity-bg']) document.documentElement.style.setProperty('--card-humanity', `url("${IMG['card-humanity-bg']}")`);
 try{ window.claude?.hot?.snapshot?.(()=>({S})); }catch(e){}
 window.__spark={ get S(){return S}, set S(v){S=v;}, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});

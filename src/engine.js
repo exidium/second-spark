@@ -7,6 +7,8 @@ const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=rnd(i+1);
 const clamp = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const sum = a => a.reduce((x,y)=>x+y,0);
+// Francs are always written out: "1 franc", "3 francs". Player-facing text never uses the "f" abbreviation.
+const fr = n => `${n} franc${n===1?'':'s'}`;
 let S=null, modal=null, gameToken=0;
 const sleep = ms => new Promise(r=>setTimeout(r, (S&&S.fast)?0:ms));
 function uid(){ return S.uid++; }
@@ -83,7 +85,7 @@ function applyGain(p,g,src){
   if(g.coin) p.coin+=g.coin;
   if(g.hum) setHum(p,g.hum);
 }
-function gainTxt(g){ const t=[]; if(g.exp) t.push(`${g.exp>0?'+':''}${g.exp} expertise`); if(g.rep) t.push(`+${g.rep} reputation`); if(g.coin) t.push(`+${g.coin}f`); if(g.hum) t.push(`${g.hum>0?'+':''}${g.hum} humanity`); return t.join(', '); }
+function gainTxt(g){ const t=[]; if(g.exp) t.push(`${g.exp>0?'+':''}${g.exp} expertise`); if(g.rep) t.push(`+${g.rep} reputation`); if(g.coin) t.push(`+${fr(g.coin)}`); if(g.hum) t.push(`${g.hum>0?'+':''}${g.hum} humanity`); return t.join(', '); }
 function addCard(p,c){ if(!c) return; const same=p.hand.filter(h=>h.kind===c.kind); if(same.length>=3){ p.hand.splice(p.hand.indexOf(same[0]),1); } p.hand.push(c); }
 function addPolice(p){ p.police=Math.min(2,p.police+1); if(p.police===2 && hasChar(p,'psycho')) setRep(p,-1); }
 
@@ -178,11 +180,11 @@ async function eventPhase(){
     if(e.id==='odeon') S.odeonOpen=true;
     if(e.id==='betrayal') S.players.forEach(p=>{ if(p.hum<3 && p.jars.length){ p.jars.pop(); log(`${B(p)} loses a Leyden jar.`); } });
     await showEventCard(e);
-    if(e.id==='bourbon') for(const [i,p] of S.players.entries()){ const pay = p.coin>=1 && (p.ai ? true : await askYN('Loyalty Pledge','Pay 1f to gain 1 reputation? If not, you lose 1 reputation.','Pay 1f','Refuse'));
+    if(e.id==='bourbon') for(const [i,p] of S.players.entries()){ const pay = p.coin>=1 && (p.ai ? true : await askYN('Loyalty Pledge','Pay 1 franc to gain 1 reputation? If not, you lose 1 reputation.','Pay 1 franc','Refuse'));
       if(pay){ p.coin--; setRep(p,1); } else setRep(p,-1); }
     if(e.id==='darkres') for(const [i,p] of S.players.entries()){ const take = p.ai ? (aiNeeds(p).expGap>0 && p.hum>-6) : await askYN('A Dead Man’s Notes','Lose 1 humanity to gain 2 expertise?','Read them','Burn them');
       if(take){ setHum(p,-1); setExp(p,2); log(`${B(p)} reads the dead man’s notes.`); } }
-    if(e.id==='fire') for(const [i,p] of S.players.entries()){ if(p.coin<2) continue; const pay = p.ai ? (p.coin>=4 && Math.random()<.6) : await askYN('Fire at the Academy','Pay 2f toward the rebuilding to gain 2 reputation?','Pay 2f','Not now');
+    if(e.id==='fire') for(const [i,p] of S.players.entries()){ if(p.coin<2) continue; const pay = p.ai ? (p.coin>=4 && Math.random()<.6) : await askYN('Fire at the Academy','Pay 2 francs toward the rebuilding to gain 2 reputation?','Pay 2 francs','Not now');
       if(pay){ p.coin-=2; setRep(p,2); log(`${B(p)} pays for the rebuilding.`); } }
     if(e.id==='fire'){ const t=await fpChooseTarget('Who receives the Captain’s plea?', S.players.map((_,k)=>k), 'any'); if(t!=null) await outcomeC2(t); }
     if(e.id==='enemy'){ for(const [i,p] of S.players.entries()){ if(p.hum>0){ const take = p.ai ? true : await askYN('An Anonymous Letter','Take a humanity card?','Take one','No'); if(take){ addCard(p,drawHumanity()); } } }
@@ -205,7 +207,7 @@ async function execution(){
   // Royal Pardon can stop it
   for(const [i,p] of S.players.entries()){
     const c=p.hand.find(h=>h.id==='mercy'); if(!c || p.coin<2) continue;
-    const use = p.ai ? (p.hum<3 && p.coin>=4) : await askYN('Royal Pardon','An execution is announced. Pay 2f and play your Royal Pardon to stop it? (+2 humanity, +2 reputation)','Stop it','Let it happen');
+    const use = p.ai ? (p.hum<3 && p.coin>=4) : await askYN('Royal Pardon','An execution is announced. Pay 2 francs and play your Royal Pardon to stop it? (+2 humanity, +2 reputation)','Stop it','Let it happen');
     if(use){ p.coin-=2; p.hand=p.hand.filter(h=>h!==c); applyGain(p,c.gain); log(`${B(p)} wins a royal pardon. The execution is cancelled.`); return; }
   }
   const k=S.players.length>2?2:1; for(let j=0;j<k;j++) S.square.push(drawCadaver('square'));
@@ -309,14 +311,14 @@ const OUT = {
   B8: async i=>{ const p=S.players[i]; addCard(p,drawResearch()); addCard(p,drawResearch()); return {msg:'He leaves a sheaf of parchment. Draw 2 research cards.'}; },
   A10: async i=>{ const p=S.players[i]; takeFirst(i); let at='';
     if(p.left.scientist){ p.left.scientist--; if(!S.occ['docks.hire']) S.occ['docks.hire']={p:i, kind:'scientist'}; at=' Your scientist spends the day at the Docks.'; }
-    addCard(p,drawHumanity()); setHum(p,1); p.coin+=2; return {msg:`You meet the Captain by the river. You become first player, take a humanity card, +1 humanity and +2f.${at}`}; },
+    addCard(p,drawHumanity()); setHum(p,1); p.coin+=2; return {msg:`You meet the Captain by the river. You become first player, take a humanity card, +1 humanity and +2 francs.${at}`}; },
   B10: async i=>{ const p=S.players[i]; S.captain=Math.max(0,S.captain-1); setHum(p,-1); return {msg:'You burn the note. The Captain loses your trail: he moves back 1 step. −1 humanity.'}; },
   A12: async i=>{ const p=S.players[i]; let c;
     const opts=[{label:`2 muscle, 1 organ, 1 blood`, value:[2,1,1]},{label:`1 muscle, 2 organ, 1 blood`, value:[1,2,1]},{label:`2 muscle, 2 blood`, value:[2,0,2]},{label:`2 muscle, 2 organ`, value:[2,2,0]}];
     if(p.ai){ const sh=aiNeeds(p).short; c = sh.B? [2,0,2] : sh.O ? [1,2,1] : [2,1,1]; } else c=await ask({title:'A blood-soaked bag', html:'<p>Gain 4 human materials at stage I. Choose:</p>', options:opts, locked:true});
     gainMats(p,[['muscle',1,c[0]],['organ',1,c[1]],['blood',1,c[2]]]); setHum(p,-2); return {msg:'You come back hours later, clutching a heavy, dripping bag. +4 materials at stage I, −2 humanity.'}; },
   A14: async i=>{ const p=S.players[i]; let n=2; for(let st=3;st>=0&&n>0;st--) for(const t of ['organ','muscle']){ const k=Math.min(n,p.mats[t][st]); p.mats[t][st]-=k; n-=k; } p.coin+=3;
-    return {msg:'You stitch him with your own supplies. He drops a sack of coins. −2 flesh from your track, +3f.'}; },
+    return {msg:'You stitch him with your own supplies. He drops a sack of coins. −2 flesh from your track, +3 francs.'}; },
   B14: async i=>{ const p=S.players[i]; if(p.left.assistant) p.left.assistant--; else if(p.left.scientist) p.left.scientist--; if(S.captain<11) S.captain++;
     return {msg:'You find one of your assistants dead in your bed. You lose 1 meeple today, and the Captain moves 1 step closer.'}; },
   A16: async i=>{ const p=S.players[i]; gainMats(p,[['muscle',2,1],['organ',2,1],['blood',2,1],['bone',0,1]]); setHum(p,-2); return {msg:'The bag holds your old mentor. +1 muscle, organ, blood at stage II and 1 bone. −2 humanity.'}; },
@@ -329,7 +331,7 @@ const OUT = {
     for(const kind of ['scientist','assistant']){ if(p.left[kind] && !S.occ['church.atone']){ S.occ['church.atone']={p:i, kind}; p.left[kind]--; const c=S.humanityRow[0]; if(c) takeRowCard(p,S.humanityRow,c.id); if(kind==='scientist') setHum(p,1); at=` Your ${kind} goes to Saint-Roch.`; break; } }
     return {msg:`You agree to help. You become first player and cannot lose humanity today.${at}`}; },
   B20: async i=>{ const p=S.players[i]; const d=setHum(p,-2); if(!d) S.players.forEach((q,k)=>{ if(k!==i) setHum(q,1); }); return {msg: d? 'You refuse. −2 humanity.' : 'You refuse, but you have no humanity left to lose. Everyone else gains 1 humanity.'}; },
-  A22: async i=>{ S.players[i].coin+=3; return {msg:'He leaves a few coins on the bench. +3f.'}; },
+  A22: async i=>{ S.players[i].coin+=3; return {msg:'He leaves a few coins on the bench. +3 francs.'}; },
   B22: async i=>{ const r=downgradeOne(S.players[i]); return {msg:`He strikes your work in a fury: ${r}.`}; },
   // Location encounters (ctx says what the visit was)
   A24: async (i)=>{ const p=S.players[i]; if(p.coin>=1) p.coin--; else setRep(p,-1);
@@ -338,9 +340,9 @@ const OUT = {
       if(c) await hireScoundrel(i, c.card, c.how, all); }
     S.decks.sc=shuffle(SCOUNDRELS.map((r,k)=>k)); S.docks=[drawScoundrel(),drawScoundrel(),drawScoundrel()];
     return {skip:true, msg:'She takes a coin and leads you to the right man.'}; },
-  B24: async i=>{ const p=S.players[i]; p.coin=Math.max(0,p.coin-2); return {skip:true, msg:'Her friends knock you down and empty your purse. −2f, and no business today.'}; },
+  B24: async i=>{ const p=S.players[i]; p.coin=Math.max(0,p.coin-2); return {skip:true, msg:'Her friends knock you down and empty your purse. −2 francs, and no business today.'}; },
   A26: async i=>{ setHum(S.players[i],-1); return {extra:2, msg:'You load a trolley with the dead. 2 extra cadavers this time, −1 humanity.'}; },
-  B26: async i=>{ const p=S.players[i]; setHum(p,3); p.coin+=1; return {skip:true, msg:'You roll up your sleeves and save who you can. +3 humanity, +1f.'}; },
+  B26: async i=>{ const p=S.players[i]; setHum(p,3); p.coin+=1; return {skip:true, msg:'You roll up your sleeves and save who you can. +3 humanity, +1 franc.'}; },
   A28: async i=>{ setHum(S.players[i],2); return {skip:true, msg:'You listen to the Captain’s tale of Victor. +2 humanity, but no research today.'}; },
   B28: async i=>{ const p=S.players[i]; setHum(p,-1); addCard(p,drawResearch()); return {skip:true, msg:'You gather your papers and leave. −1 humanity, draw 1 research card.'}; },
   A29: async i=>({fresh:true, msg:'In the grave lie three bodies, alarmingly fresh. Bones-only cards are redrawn and every body counts as stage I. Resolving any costs 1 humanity in total.'}),
@@ -423,7 +425,7 @@ async function placeAndResolve(i, key, kind, pre){
   const b=bumpInfo(i,key);
   if(b && b.bump){ const o=S.occ[key], owner=S.players[o.p];
     if(b.free){ owner.left[o.kind]++; log(`${B(p)} bumps ${esc(owner.name)} from the theatre. Their meeple goes home.`); }
-    else { S.bump.push(o); if(b.cost){ p.coin-=b.cost; owner.coin+=b.cost; } log(`${B(p)} bumps ${esc(owner.name)} from ${esc(LOC[SPACE[key].loc].name)}${b.cost?` and pays them ${b.cost}f`:''}.`);
+    else { S.bump.push(o); if(b.cost){ p.coin-=b.cost; owner.coin+=b.cost; } log(`${B(p)} bumps ${esc(owner.name)} from ${esc(LOC[SPACE[key].loc].name)}${b.cost?` and pays them ${fr(b.cost)}`:''}.`);
       if(SPACE[key].loc==='academy' && hasChar(owner,'charlatan') && o.p!==i) setRep(owner,1); }
   }
   S.occ[key]={p:i, kind}; p.left[kind]--;
@@ -461,7 +463,7 @@ async function resolveSpace(i,key,kind,pre,mod){
       const three = pre.opt==='three';
       if(three) addMat(p,'animal',1,3); else addMat(p,'animal',2,4);
       if(S.ev==='meat'){ addMat(p,'animal',three?1:2,2); p.coin+=1; }
-      log(`${B(p)} takes ${three?'3 animal at stage I':'4 animal at stage II'} from the Slaughterhouse${S.ev==='meat'?', plus 2 more and 1f':''}.`);
+      log(`${B(p)} takes ${three?'3 animal at stage I':'4 animal at stage II'} from the Slaughterhouse${S.ev==='meat'?', plus 2 more and 1 franc':''}.`);
       break; }
     case 'hospital.retrieve': {
       const lim=hospLimits(p); let want=(pre.cards&&pre.cards.length)?pre.cards.length:Math.max(1,lim.free);
@@ -473,7 +475,7 @@ async function resolveSpace(i,key,kind,pre,mod){
       const cards=[...chosen]; for(let k=0;k<(mod.extra||0);k++) cards.push(drawCadaver('hospital'));
       await resolveCadavers(i,cards,{title:'Hospital', intro:'The porter wheels out the dead.', extraH:S.ev==='toussaint'?1:0});
       break; }
-    case 'hospital.work': { const g=(p.exp>=13?4:p.exp>=7?3:2)+(S.ev==='cholera'?2:0); p.coin+=g; log(`${B(p)} works a shift at the Hospital: +${g}f.`); break; }
+    case 'hospital.work': { const g=(p.exp>=13?4:p.exp>=7?3:2)+(S.ev==='cholera'?2:0); p.coin+=g; log(`${B(p)} works a shift at the Hospital: +${fr(g)}.`); break; }
     case 'hospital.volunteer': { setHum(p,1); setRep(p,2); log(`${B(p)} volunteers on the wards: +1 humanity, +2 reputation.`); break; }
     case 'academy.adv': { setExp(p,1); takeRowCard(p,S.researchRow,pre.card); if(S.ev==='grant') p.coin+=2; log(`${B(p)} does advanced research: +1 expertise and a research card.`); break; }
     case 'academy.research': { takeRowCard(p,S.researchRow,pre.card); if(S.ev==='grant') p.coin+=2; log(`${B(p)} takes a research card.`); break; }
@@ -483,7 +485,7 @@ async function resolveSpace(i,key,kind,pre,mod){
       const r=1+(sci?1:0); if(S.ev!=='hardtimes') p.coin+=1; setRep(p,r); if(S.ev==='grant') p.coin+=2;
       if(pre.card){ const c=p.hand.find(h=>h.id==='guest'&&h.id===pre.card); if(c){ p.hand=p.hand.filter(h=>h!==c); applyGain(p,c.gain,'research'); } }
       log(`${B(p)} lectures at the Academy: +${r} reputation.`); break; }
-    case 'academy.donate': { const n=clamp(pre.n||1,1,Math.min(3,p.coin)); p.coin-=n; setRep(p,n); log(`${B(p)} donates ${n}f: +${n} reputation.`); break; }
+    case 'academy.donate': { const n=clamp(pre.n||1,1,Math.min(3,p.coin)); p.coin-=n; setRep(p,n); log(`${B(p)} donates ${fr(n)}: +${n} reputation.`); break; }
     case 'market.trade': await doMarket(i,pre); break;
     case 'docks.hire': await hireScoundrel(i, pre.card, pre.how, S.docks, pre.unethical); break;
     case 'alley.murder': {
