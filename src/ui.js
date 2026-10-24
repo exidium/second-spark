@@ -334,7 +334,7 @@ function cadaverCardHTML(c, extra, hc){
 // Scoundrel picture: the generated portrait for its template (art/scoundrels/scoundrel-NN.png), else the seeded SVG face.
 // Place illustration: the generated scene (art/locations/location-<id>.png or lab-<id>.png) if present, else the SVG drawing.
 // Place popup header: the scene flush to the modal's top and sides, the place name large in white over it.
-function placeHero(id, name, lab){ return `<div class="phero">${placeArt(id, lab)}<span class="phname">${esc(name)}</span></div>`; }
+function placeHero(id, name, lab, text){ return `<div class="phero">${placeArt(id, lab)}<span class="phname">${esc(name)}</span>${text?`<div class="scrap"><p>${text}</p></div>`:''}</div>`; }
 function placeArt(id, lab){ const src=IMG[(lab?'lab-':'location-')+id]; return src ? `<img src="${src}" alt="">` : (ART[id]||''); }
 // Scoundrel card in the physical game's layout: full-bleed portrait, cost and humanity marks top left, a title band across the
 // middle with the name and a line of flavour, a benefit row (expertise, humanity, materials), and the stage and counts strip at the foot.
@@ -454,11 +454,11 @@ function boardHTML(){
   const p=S.players[0];
   const places = visibleLocs().map(l=>{
     const keys=l.spaces.map(sp=>l.id+'.'+sp.k), can=keys.some(humanCan), closed=!!S.closed[l.id], b=BOARD_POS[l.id]||{x:50,y:50};
-    return `<div class="place ${can?'can':''} ${closed?'closed':''} cards-${b.cards||'none'}" style="left:${b.x}%;top:${b.y}%" data-tip="${l.id}" data-act="loc" data-id="${l.id}" tabindex="0" role="button" aria-label="${esc(l.name)}">
+    return `<div class="place ${can?'can':''} ${closed?'closed':''} cards-${b.cards||'none'}" style="left:${b.x}%;top:${b.y}%" data-act="loc" data-id="${l.id}" tabindex="0" role="button" aria-label="${esc(l.name)}">
       <div class="pchip"><span class="pname">${esc(l.name)}</span><span class="pslots">${keys.map(slotDot).join('')}</span></div>${slotsHTML(l)}</div>`;
   }).join('');
   const lab = `<div class="labstrip" style="left:${LAB_STRIP.x}%;top:${LAB_STRIP.y}%"><span class="pname">Your laboratory</span><div class="labplaces">${LABSPOTS.map(L=>{ const key='lab.'+L.id, used=p.labUsed[L.id], can=humanCan(key);
-    return `<div class="place lab ${can?'can':''}" data-tip="${key}" data-act="labplace" data-id="${L.id}" tabindex="0" role="button" aria-label="${esc(L.name)}"><div class="pchip"><span class="pname">${esc(L.name)}</span><span class="pslots">${used?`<i class="slot on ${used==='scientist'?'sci':''}">${meeple(used,p.color,16)}</i>`:'<i class="slot"></i>'}</span></div></div>`; }).join('')}</div></div>`;
+    return `<div class="place lab ${can?'can':''}" data-act="labplace" data-id="${L.id}" tabindex="0" role="button" aria-label="${esc(L.name)}"><div class="pchip"><span class="pname">${esc(L.name)}</span><span class="pslots">${used?`<i class="slot on ${used==='scientist'?'sci':''}">${meeple(used,p.color,16)}</i>`:'<i class="slot"></i>'}</span></div></div>`; }).join('')}</div></div>`;
   return `<div class="board" aria-label="Paris, 1819">${places}${lab}${whoSendHTML()}</div>`;
 }
 // Small gain tokens for option rows: a number with an icon, a material cube, or a short text.
@@ -509,7 +509,7 @@ async function placeModal(id){
   let opts=L.spaces.map(sp=>{ const key=L.id+'.'+sp.k, can=humanCan(key), kind=kindFor(0,key)||p.sel, who=occupantLine(key,can);
     const gain=spaceGain(key,kind); return {label:`${esc(sp.n)}${sp.sci?'<small class="scitag">scientist</small>':''}`, sub:`${gain}${who?(gain?'<br>':'')+who:''}`, value:key, disabled:!can, lead:occupantLead(key)}; });
   if(id==='church'){ const key='church.atone', can=humanCan(key), kind=kindFor(0,key)||p.sel, who=occupantLine(key,can); let picked=null;
-    const html=(reg,done)=>`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${who?`<p class="flavor">${who}</p>`:''}
+    const html=(reg,done)=>`${placeHero(id, L.name, false, L.text)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${who?`<p class="flavor">${who}</p>`:''}
       <div class="sub">Take a humanity card${kind==='scientist'?' <span class="gi"><b>+1</b>'+icon('heart','❤️')+'</span>':''}</div>
       <div class="gcards">${S.humanityRow.map(c=>cardHTML(c,{acts:`<div class="gc-acts col"><button class="btn primary sm" ${can?'':'disabled'} data-mfn="${reg(()=>{ picked={card:c.id}; done(key); })}">Take this</button></div>`})).join('')||'<p class="flavor">None left today.</p>'}</div>`;
     const k=await ask({title:'', hero:true, wide:true, html, buttons:[{label:'Close', value:null}]});
@@ -523,7 +523,7 @@ async function placeModal(id){
           {label:`Take 3 animal at stage I ${cube('animal',3,1)}`, sub:extra.trim(), value:{key, pre:{opt:'three'}}, disabled:!can, lead:occupantLead(key)}]; }
   let cards='';
   if(id==='docks'){ const key='docks.hire', can=humanCan(key); let picked=null;
-    const html=(reg,done)=>`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}
+    const html=(reg,done)=>`${placeHero(id, L.name, false, L.text)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}
       <div class="sub">Hire one of the scoundrels</div><div class="gcards">${S.docks.map(c=>{ const ok=can && scCost(c)<=p.coin && scAllowed(c); const un=c.kind==='cut' && p.hand.some(h=>h.id==='unethical') && charged(p)>0;
         const b=(label,v,primary)=>`<button class="btn ${primary?'primary':''} sm" ${ok?'':'disabled'} data-mfn="${reg(()=>{ picked=v; done(key); })}">${label}</button>`;
         const acts = c.kind==='thief' ? b(`Draw ${c.draw} from the Hospital`,{card:c.id,how:'mats'},true)
@@ -533,7 +533,7 @@ async function placeModal(id){
     if(k && picked){ prePick=picked; await clickSpace(k); prePick=null; }
     return; }
   if(id==='market'){ const key='market.trade', can=humanCan(key), who=occupantLine(key,can); const o=marketState(); let go=false;
-    const html=(reg,done)=>`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${who?`<p class="flavor">${who}</p>`:''}
+    const html=(reg,done)=>`${placeHero(id, L.name, false, L.text)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${who?`<p class="flavor">${who}</p>`:''}
       <div class="sub">Do as many trades as you like</div>${marketBody(p,o,reg)}
       <div class="actions"><button class="btn" data-mfn="${reg(()=>done(null))}">Close</button><button class="btn primary" ${can?'':'disabled'} data-mfn="${reg(()=>{ go=true; done(key); })}">Trade</button></div>`;
     const k=await ask({title:'', hero:true, wide:true, html, locked:true});
@@ -541,14 +541,14 @@ async function placeModal(id){
     return; }
   if(id==='cemetery'||id==='morgue') cards='';
   else { const rows=faceUp(id); if(ROW_LABEL[id]) cards=`<div class="sub">${ROW_LABEL[id]}</div>${rows.length?`<div class="gcards">${rows.map(c=>cardHTML(c)).join('')}</div>`:'<p class="flavor">None left today.</p>'}`; }
-  const key=await ask({title:'', hero:true, wide:true, html:`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${cards}`,
+  const key=await ask({title:'', hero:true, wide:true, html:`${placeHero(id, L.name, false, L.text)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${cards}`,
     options:opts, buttons:[{label:'Close', value:null}]});
   if(key && key.pre){ prePick=key.pre; await clickSpace(key.key); prePick=null; }
   else if(key) await clickSpace(key);
 }
 async function labPlaceModal(id){
   const L=LABSPOT[id], key='lab.'+id, p=S.players[0], can=humanCan(key), kind=kindFor(0,key)||p.sel;
-  const k=await ask({title:'', hero:true, html:`${placeHero(id, L.name, true)}${L.sci?'<p class="flavor">Scientist only.</p>':''}${p.labUsed[id]?'<p class="flavor">Already used today.</p>':''}`,
+  const k=await ask({title:'', hero:true, html:`${placeHero(id, L.name, true, esc(L.text))}${L.sci?'<p class="flavor">Scientist only.</p>':''}${p.labUsed[id]?'<p class="flavor">Already used today.</p>':''}`,
     options:[{label:'Use it', sub:spaceGain(key,kind), value:key, disabled:!can, lead: slotsLead(p.labUsed[id]?{p:0,kind:p.labUsed[id]}:null)}], buttons:[{label:'Close', value:null}]});
   if(k) await clickSpace(k);
 }
@@ -798,6 +798,7 @@ if(IMG['card-tall-front']) document.documentElement.style.setProperty('--card-fr
 if(IMG['card-tall-back']) document.documentElement.style.setProperty('--card-back', `url("${IMG['card-tall-back']}")`);
 if(IMG['board']) document.documentElement.style.setProperty('--board', `url("${IMG['board']}")`);
 if(IMG['card-research-bg']) document.documentElement.style.setProperty('--card-research', `url("${IMG['card-research-bg']}")`);
+if(IMG['scrap']) document.documentElement.style.setProperty('--scrap', `url("${IMG['scrap']}")`);
 if(IMG['card-humanity-bg']) document.documentElement.style.setProperty('--card-humanity', `url("${IMG['card-humanity-bg']}")`);
 try{ window.claude?.hot?.snapshot?.(()=>({S})); }catch(e){}
 window.__spark={ get S(){return S}, set S(v){S=v;}, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
