@@ -677,8 +677,7 @@ function sideColumn(){
   return `<aside class="sidecol">
     <div class="sidebtns"><button class="btn" data-act="character">Your character</button><button class="btn" data-act="rules">Help</button><button class="btn" data-act="newgame">New game</button></div>
     <section class="panel" aria-label="Your laboratory">
-      <div class="labsum-grid"><button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory"><span class="eyebrow">Operating table</span>${tableSVG(p,'me')}<span class="eyebrow openhint">Open lab</span></button><div class="decaybox"><span class="eyebrow">Decomposition track</span>${decayHTML(p,true)}</div></div>
-      ${bodyLine(p)}
+      <div class="labsum-grid"><button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory"><span class="eyebrow">Operating table</span>${tableSVG(p,'me')}</button><div class="decaybox"><span class="eyebrow">Decomposition track</span>${decayHTML(p,true)}</div></div>
       <div class="res four"><div><b>${p.coin}</b><span>${icon('coin','🪙','si')}Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>${icon('jar','🏺','si')}Jars</span></div><div><b>${p.ice}</b><span>${icon('ice','🧊','si')}Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>${icon('police','⭐','si')}Police</span></div></div>
     </section>
     <section class="panel">${statBars(p)}<div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory: build, throw, preserve':'Laboratory'}</button><button class="btn" data-act="hand">Cards <b class="count">${p.hand.length}</b></button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div></section>

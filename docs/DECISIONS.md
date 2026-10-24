@@ -342,3 +342,6 @@ Redrawn on a 2:1 grid so the border keeps its proportions, set to 50% of the sce
 
 **D108. Jar and ice icons.** (Bruno: "Can you create icons for the Jars and Ice?")
 Two more hand-drawn icons on the 24px grid at 2x (`art/icons/icon-jar.png`, `icon-ice.png`, true alpha): a Leyden jar with a brass cap, rod and ball, foil bands and a blue charge in the lower half (alive blue, as on the dice), and a pale blue ice slab with a lighter top, a darker side and a white crack. They appear beside the Jars and Ice counters, in the Charge jars gain row, in the Market's Buy a Leyden jar and Buy an ice block rows, on the throw buttons and on the Zoologist's eel chip. Inline icons inside option titles, buttons and chips are 20px.
+
+**D109. Side panel loses the Open lab hint and the body line; the chronicle no longer logs who read the dead man's notes.** (Bruno: "remove Open Lab, R Leg L Leg R Arm L Arm Torso Head. From chronicle, remove the dead man's note.")
+The operating table button in the side column keeps its eyebrow only; the row of six part names under it is gone (the table itself shows the parts). The A Dead Man's Notes event still asks each player and applies the trade, but writes nothing to the chronicle.

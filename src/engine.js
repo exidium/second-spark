@@ -183,7 +183,7 @@ async function eventPhase(){
     if(e.id==='bourbon') for(const [i,p] of S.players.entries()){ const pay = p.coin>=1 && (p.ai ? true : await askYN('Loyalty Pledge','Pay 1 franc to gain 1 reputation? If not, you lose 1 reputation.','Pay 1 franc','Refuse'));
       if(pay){ p.coin--; setRep(p,1); } else setRep(p,-1); }
     if(e.id==='darkres') for(const [i,p] of S.players.entries()){ const take = p.ai ? (aiNeeds(p).expGap>0 && p.hum>-6) : await askYN('A Dead Man’s Notes','Lose 1 humanity to gain 2 expertise?','Read them','Burn them');
-      if(take){ setHum(p,-1); setExp(p,2); log(`${B(p)} reads the dead man’s notes.`); } }
+      if(take){ setHum(p,-1); setExp(p,2); } }
     if(e.id==='fire') for(const [i,p] of S.players.entries()){ if(p.coin<2) continue; const pay = p.ai ? (p.coin>=4 && Math.random()<.6) : await askYN('Fire at the Academy','Pay 2 francs toward the rebuilding to gain 2 reputation?','Pay 2 francs','Not now');
       if(pay){ p.coin-=2; setRep(p,2); log(`${B(p)} pays for the rebuilding.`); } }
     if(e.id==='fire'){ const t=await fpChooseTarget('Who receives the Captain’s plea?', S.players.map((_,k)=>k), 'any'); if(t!=null) await outcomeC2(t); }

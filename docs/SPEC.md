@@ -419,7 +419,7 @@ Desktop (1100px and wider): the page uses the full browser width; the right colu
 
 **Right column**
 - Buttons: **Your character** (portrait, name, role, ability, Zoologist charge, police payoff, VP built, people at home, cards in hand with Play buttons) , **Help** (rules, plus an Every card button) and **New game**. The points table lives in the Laboratory popup.
-- Operating table (SVG figure with state colours and damage badges; click it to open the Laboratory popup) beside the squeezed decomposition track, the body line, and four counters: francs, jars charged/total, ice, police.
+- Operating table (SVG figure with state colours and damage badges; click it to open the Laboratory popup) beside the squeezed decomposition track, and four counters: francs, jars charged/total, ice, police.
 - Stat bars (humanity, expertise, reputation with the blue threshold squares and their tooltips), the **Laboratory** button (at night it pulses and an End the night button appears beside it) and a **Cards** button showing the number of cards in hand, which opens the hand with Play buttons.
 - Rivals: three compact cards (portrait, name on one line, role, Muscle/Skin/Alive counts, Humanity/Expertise/Reputation numbers). Click one to open their lab popup: a strip with portrait, character, counters and stat bars, then the same three read-only columns as your Laboratory popup (operating table, body parts, decomposition track with the points table).
 - Chronicle, newest first.
