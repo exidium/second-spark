@@ -19,7 +19,7 @@ function renderModal(){
   if(!modal){ root.innerHTML=''; return; }
   modalFns=[]; const reg=fn=>{ modalFns.push(fn); return modalFns.length-1; };
   const html = typeof modal.html==='function' ? modal.html(reg) : (modal.html||'');
-  const opts=(modal.options||[]).map(o=>o.heading?`<div class="eyebrow" style="margin-top:6px">${o.heading}</div>`:`<button class="opt ${o.row?'row':''}" ${o.disabled?'disabled':''} data-mfn="${reg(o.fn)}"><span><span class="ot">${o.label}</span>${o.sub?`<small>${o.sub}</small>`:''}</span><span class="num">${o.right||''}</span></button>`).join('');
+  const opts=(modal.options||[]).map(o=>o.heading?`<div class="eyebrow" style="margin-top:6px">${o.heading}</div>`:`<button class="opt ${o.row?'row':''} ${o.lead?'has-lead':''}" ${o.disabled?'disabled':''} data-mfn="${reg(o.fn)}">${o.lead||''}<span><span class="ot">${o.label}</span>${o.sub?`<small>${o.sub}</small>`:''}</span><span class="num">${o.right||''}</span></button>`).join('');
   const btns=(modal.buttons||[]).map(b=>`<button class="btn ${b.primary?'primary':''}" ${b.disabled?'disabled':''} data-mfn="${reg(b.fn)}">${b.label}</button>`).join('');
   root.innerHTML=`<div class="scrim" data-scrim="1"><div class="modal ${modal.wide?'wide':''} ${modal.xwide?'xwide':''} ${modal.hero?'hero':''}" role="dialog" aria-modal="true" aria-label="${esc(String(modal.title).replace(/<[^>]+>/g,''))}">
     ${modal.title?`<h2>${modal.title}</h2>`:''}${html}${opts?`<div class="opts">${opts}</div>`:''}<div class="actions">${btns}</div></div></div>`;
@@ -461,28 +461,31 @@ function boardHTML(){
     return `<div class="place lab ${can?'can':''}" data-tip="${key}" data-act="labplace" data-id="${L.id}" tabindex="0" role="button" aria-label="${esc(L.name)}"><div class="pchip"><span class="pname">${esc(L.name)}</span><span class="pslots">${used?`<i class="slot on ${used==='scientist'?'sci':''}">${meeple(used,p.color,16)}</i>`:'<i class="slot"></i>'}</span></div></div>`; }).join('')}</div></div>`;
   return `<div class="board" aria-label="Paris, 1819">${places}${lab}${whoSendHTML()}</div>`;
 }
+// Small gain tokens for option rows: a number with an icon, a material cube, or a short text.
+const gt = (n, name, fb) => `<span class="gi"><b>${n}</b>${icon(name, fb)}</span>`;
+const gtx = t => `<span class="gi txt">${t}</span>`;
+const grow = (...parts) => `<span class="gainrow">${parts.filter(Boolean).join('')}</span>`;
 function spaceGain(key, kind){
   const p=S.players[0]; const sci=kind==='scientist';
   switch(key){
-    case 'cemetery.dig': return `Free · draw ${3+(S.ev==='cholera'?1:0)} hidden cadavers · some cost 1 humanity`;
-    case 'square.buy': return '1 franc · one body shown below';
-    case 'morgue.buy': return `1 franc · draw ${2+(S.ev==='cholera'?1:0)+(S.ev==='flood'?1:0)} hidden cadavers · some cost 1 humanity`;
-    case 'slaughter.take': return `+4 animal (II) or +3 animal (I)${S.ev==='meat'?' · +2 animal, +1 franc':''}`;
-    case 'hospital.retrieve': { const l=hospLimits(p); return l.free?`Free · take 1 body below${l.paid?` (+${l.paid} more at 1 franc each)`:''}`:(S.ev==='corrupt'?'1 franc bribe · take 1 body below':'Needs reputation 7'); }
-    case 'hospital.work': return S.ev==='hardtimes'?'Closed today':`+${fr((p.exp>=13?4:p.exp>=7?3:2)+(S.ev==='cholera'?2:0))}`;
-    case 'hospital.volunteer': return '+1 humanity · +2 reputation';
-    case 'academy.adv': return `+1 expertise · 1 research card below${S.ev==='grant'?' · +2 francs':''}`;
-    case 'academy.research': return `1 research card below${S.ev==='grant'?' · +2 francs':''}`;
-    case 'academy.lecture': return `${S.ev==='hardtimes'?'':'+1 franc · '}+${1+(sci?1:0)} reputation${sci?'':' (scientist: +2)'}${S.ev==='grant'?' · +2 francs':''}`;
-    case 'academy.donate': return 'Pay 1 to 3 francs · +1 reputation per franc';
-    case 'market.trade': return 'Jar 2 francs · ice 1 franc · sell 2 bone 1 franc · 3 preserved 2 francs';
-    case 'docks.hire': return '';
-    case 'alley.murder': return '+4 muscle, 4 organ, 3 blood (I), 2 bone · −3 humanity · +1 police';
-    case 'church.atone': return sci?'1 humanity card below · +1 humanity':'1 humanity card below (scientist: +1 humanity)';
+    case 'cemetery.dig': case 'morgue.buy': case 'market.trade': case 'docks.hire': return '';
+    case 'square.buy': return grow(gt(1,'coin','🪙'), gtx('one body shown below'));
+    case 'slaughter.take': return grow(cube('animal',4,2), gtx('or'), cube('animal',3,1), S.ev==='meat' ? gtx('· plus')+cube('animal',2,0)+gt(1,'coin','🪙') : '');
+    case 'hospital.retrieve': { const l=hospLimits(p);
+      if(l.free) return grow(gtx('Free · take 1 body below'), l.paid ? gtx(`· up to ${l.paid} more at`)+gt(1,'coin','🪙')+gtx('each') : '');
+      return S.ev==='corrupt' ? grow(gt(1,'coin','🪙'), gtx('bribe · take 1 body below')) : grow(gtx('Needs'), gt(7,'reputation','🎖️')); }
+    case 'hospital.work': return S.ev==='hardtimes' ? 'Closed today' : grow(gt((p.exp>=13?4:p.exp>=7?3:2)+(S.ev==='cholera'?2:0),'coin','🪙'));
+    case 'hospital.volunteer': return grow(gt(1,'heart','❤️'), gt(2,'reputation','🎖️'));
+    case 'academy.adv': return grow(gt(1,'expertise','🧠'), gtx('· 1 research card below'), S.ev==='grant'?gt(2,'coin','🪙'):'');
+    case 'academy.research': return grow(gtx('1 research card below'), S.ev==='grant'?gt(2,'coin','🪙'):'');
+    case 'academy.lecture': return grow(S.ev==='hardtimes'?'':gt(1,'coin','🪙'), gt(1+(sci?1:0),'reputation','🎖️'), sci?'':gtx('(scientist: +2)'), S.ev==='grant'?gt(2,'coin','🪙'):'');
+    case 'academy.donate': return grow(gtx('Pay 1 to 3'), icon('coin','🪙'), gtx('· +1'), icon('reputation','🎖️'), gtx('per franc'));
+    case 'alley.murder': return grow(cube('muscle',4,1), cube('organ',4,1), cube('blood',3,1), cube('bone',2,0), `<span class="gi neg"><b>3</b>${icon('heart-broken','💔')}</span>`, `<span class="gi neg"><b>1</b>${icon('police','⭐')}</span>`);
+    case 'church.atone': return grow(gtx('1 humanity card below'), sci ? gt(1,'heart','❤️') : gtx('(scientist: +1 humanity)'));
     case 'first.first': return '(can’t be bumped)';
-    case 'odeon.show': return '+2 reputation';
-    case 'lab.practice': return '+1 expertise';
-    case 'lab.blood': return '+3 blood (I)';
+    case 'odeon.show': return grow(gt(2,'reputation','🎖️'));
+    case 'lab.practice': return grow(gt(1,'expertise','🧠'));
+    case 'lab.blood': return grow(cube('blood',3,1));
     case 'lab.repair': return 'Remove up to 3 damage';
     case 'lab.charge': return sci?'Charge 3 jars':'Charge 2 jars (scientist: 3)';
   }
@@ -492,12 +495,14 @@ function spaceGain(key, kind){
 function deckHTML(name, left, total){ if(!IMG['card-tall-back']) return `<p>${esc(name)} deck: ${left} of ${total} cards left.</p>`; return `<div class="deckrow"><div class="cardback" role="img" aria-label="${esc(name)} deck"><span class="plate">${esc(name)}</span></div><div class="deckinfo"><b>${esc(name)} deck</b><span>${left} of ${total} cards left</span></div></div>`; }
 const ROW_LABEL = {hospital:'Bodies waiting today', academy:'Research on offer', church:'Humanity cards on offer', docks:'Scoundrels for hire', square:'Bodies on display'};
 function occupantLine(key, can){ const o=S.occ[key]; if(!o) return ''; const b=can?bumpInfo(0,key):null;
-  return `${meeple(o.kind,S.players[o.p].color,12)} ${esc(S.players[o.p].name)}’s ${o.kind}${can&&b?(b.free?' · bump free':b.cost?` · bump ${fr(b.cost)}`:' · bump'):''}`; }
+  return `${esc(S.players[o.p].name)}’s ${o.kind}${can&&b?(b.free?' · bump free':b.cost?` · bump ${fr(b.cost)}`:' · bump'):''}`; }
+// The occupant's meeple, drawn large at the left of an option row.
+function occupantLead(key){ const o=S.occ[key]; return o ? `<span class="optlead">${meeple(o.kind,S.players[o.p].color,30)}</span>` : ''; }
 // Place popup: what the place does, one option per action space with its exact gain and cost, and the cards there at full size.
 async function placeModal(id){
   const L=LOC[id], p=S.players[0], mine=isMyTurn(), closed=!!S.closed[id];
   let opts=L.spaces.map(sp=>{ const key=L.id+'.'+sp.k, can=humanCan(key), kind=kindFor(0,key)||p.sel, who=occupantLine(key,can);
-    const gain=spaceGain(key,kind); return {label:`${esc(sp.n)}${sp.sci?'<small class="scitag">scientist</small>':''}`, sub:`${gain}${who?(gain?'<br>':'')+who:''}`, value:key, disabled:!can}; });
+    const gain=spaceGain(key,kind); return {label:`${esc(sp.n)}${sp.sci?'<small class="scitag">scientist</small>':''}`, sub:`${gain}${who?(gain?'<br>':'')+who:''}`, value:key, disabled:!can, lead:occupantLead(key)}; });
   if(id==='church'){ const key='church.atone', can=humanCan(key), kind=kindFor(0,key)||p.sel, who=occupantLine(key,can); let picked=null;
     const html=(reg,done)=>`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}${who?`<p class="flavor">${who}</p>`:''}
       <div class="sub">Take a humanity card${kind==='scientist'?' <span class="gi"><b>+1</b>'+icon('heart','❤️')+'</span>':''}</div>
@@ -507,12 +512,9 @@ async function placeModal(id){
     return; }
   if(id==='cemetery'||id==='morgue'){ const key=id==='cemetery'?'cemetery.dig':'morgue.buy', can=humanCan(key), who=occupantLine(key,can);
     const n=(id==='cemetery'?3:2)+(S.ev==='cholera'?1:0);
-    opts=[{label: id==='cemetery' ? `Dig up to ${n} cadavers` : `Buy up to ${n} cadavers <span class="optcost">${coins(1)}</span>`, sub: who, value:key, disabled:!can}]; }
-  if(id==='alley'){ const key='alley.murder', can=humanCan(key), who=occupantLine(key,can);
-    const row=`<span class="gainrow">${cube('muscle',4,1)}${cube('organ',4,1)}${cube('blood',3,1)}${cube('bone',2,0)}<span class="gi neg"><b>3</b>${icon('heart-broken','💔')}</span><span class="gi neg"><b>1</b>${icon('police','👮')}</span></span>`;
-    opts=[{label:`Murder<small class="scitag">scientist</small>`, sub:`${row}${who?'<br>'+who:''}`, value:key, disabled:!can}]; }
+    opts=[{label: id==='cemetery' ? `Dig up to ${n} cadavers` : `Buy up to ${n} cadavers <span class="optcost">${coins(1)}</span>`, sub: who, value:key, disabled:!can, lead:occupantLead(key)}]; }
   if(id==='slaughter'){ const key='slaughter.take', can=humanCan(key), who=occupantLine(key,can), extra=S.ev==='meat'?' Glut of Meat: +2 animal and +1 franc.':'';
-    opts=[{label:`Take 4 animal at stage II ${cube('animal',4,2)}`, sub:`${extra.trim()}${who?(extra?'<br>':'')+who:''}`, value:{key, pre:{opt:'four'}}, disabled:!can, row:true},
+    opts=[{label:`Take 4 animal at stage II ${cube('animal',4,2)}`, sub:`${extra.trim()}${who?(extra?'<br>':'')+who:''}`, value:{key, pre:{opt:'four'}}, disabled:!can, row:true, lead:occupantLead(key)},
           {label:`Take 3 animal at stage I ${cube('animal',3,1)}`, sub:extra.trim(), value:{key, pre:{opt:'three'}}, disabled:!can, row:true}]; }
   let cards='';
   if(id==='docks'){ const key='docks.hire', can=humanCan(key); let picked=null;
@@ -542,7 +544,7 @@ async function placeModal(id){
 async function labPlaceModal(id){
   const L=LABSPOT[id], key='lab.'+id, p=S.players[0], can=humanCan(key), kind=kindFor(0,key)||p.sel;
   const k=await ask({title:'', hero:true, html:`${placeHero(id, L.name, true)}${L.sci?'<p class="flavor">Scientist only.</p>':''}${p.labUsed[id]?'<p class="flavor">Already used today.</p>':''}`,
-    options:[{label:'Use it', sub:spaceGain(key,kind), value:key, disabled:!can}], buttons:[{label:'Close', value:null}]});
+    options:[{label:'Use it', sub:spaceGain(key,kind), value:key, disabled:!can, lead: p.labUsed[id]?`<span class="optlead">${meeple(p.labUsed[id],p.color,30)}</span>`:''}], buttons:[{label:'Close', value:null}]});
   if(k) await clickSpace(k);
 }
 function todayModal(){

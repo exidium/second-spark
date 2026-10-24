@@ -545,7 +545,7 @@ async function hireScoundrel(i, cardId, how, row, unethical){
   if(c.kind==='cut') p.lastDark=S.round;
   if(unethical && c.kind==='cut'){ const u=p.hand.find(h=>h.id==='unethical'); if(u && charged(p)){ dischargeOne(p); p.hand=p.hand.filter(h=>h!==u); applyGain(p,u.gain,'research'); log(`${B(p)} hires a Cutthroat for an unethical experiment.`); return; } }
   if(c.kind==='thief'){ const cards=[]; for(let k=0;k<c.draw;k++) cards.push(S.hosp.length?S.hosp.shift():drawCadaver('hospital'));
-    log(`${B(p)} hires a Hospital Thief.`); await resolveCadavers(i,cards,{title:'Hospital Thief', intro:'The thief wheels in a covered trolley.', extraH:0}); return; }
+    log(`${B(p)} hires a Hospital Thief, who steals ${cards.length} ${cards.length===1?'body':'bodies'} from the Hospital (no reputation needed).`); await resolveCadavers(i,cards,{title:'Hospital Thief', intro:'The thief wheels in a covered trolley.', extraH:0}); return; }
   if(how==='exp' && c.exp){ setExp(p,c.exp); if(c.expH) setHum(p,-c.expH); log(`${B(p)} hires a ${esc(c.name)}: +${c.exp} expertise.`); }
   else if(how==='hum' && c.hum){ setHum(p,c.hum); log(`${B(p)} hires a ${esc(c.name)} and lets the dogs go: +${c.hum} humanity.`); }
   else { gainMats(p,c.mats); log(`${B(p)} hires a ${esc(c.name)}: ${matsHTML(c.mats)}`); }
