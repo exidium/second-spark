@@ -19,7 +19,7 @@ function renderModal(){
   if(!modal){ root.innerHTML=''; return; }
   modalFns=[]; const reg=fn=>{ modalFns.push(fn); return modalFns.length-1; };
   const html = typeof modal.html==='function' ? modal.html(reg) : (modal.html||'');
-  const opts=(modal.options||[]).map(o=>o.heading?`<div class="eyebrow" style="margin-top:6px">${o.heading}</div>`:`<button class="opt ${o.row?'row':''} ${o.lead?'has-lead':''}" ${o.disabled?'disabled':''} data-mfn="${reg(o.fn)}">${o.lead||''}<span><span class="ot">${o.label}</span>${o.sub?`<small>${o.sub}</small>`:''}</span><span class="num">${o.right||''}</span></button>`).join('');
+  const opts=(modal.options||[]).map(o=>o.heading?`<div class="eyebrow" style="margin-top:6px">${o.heading}</div>`:`<button class="opt has-lead" ${o.disabled?'disabled':''} data-mfn="${reg(o.fn)}">${o.lead||'<span class="optlead two"></span>'}<span><span class="ot">${o.label}</span>${o.sub?`<small>${o.sub}</small>`:''}</span><span class="num">${o.right||''}</span></button>`).join('');
   const btns=(modal.buttons||[]).map(b=>`<button class="btn ${b.primary?'primary':''}" ${b.disabled?'disabled':''} data-mfn="${reg(b.fn)}">${b.label}</button>`).join('');
   root.innerHTML=`<div class="scrim" data-scrim="1"><div class="modal ${modal.wide?'wide':''} ${modal.xwide?'xwide':''} ${modal.hero?'hero':''}" role="dialog" aria-modal="true" aria-label="${esc(String(modal.title).replace(/<[^>]+>/g,''))}">
     ${modal.title?`<h2>${modal.title}</h2>`:''}${html}${opts?`<div class="opts">${opts}</div>`:''}<div class="actions">${btns}</div></div></div>`;
@@ -497,7 +497,12 @@ const ROW_LABEL = {hospital:'Bodies waiting today', academy:'Research on offer',
 function occupantLine(key, can){ const o=S.occ[key]; if(!o) return ''; const b=can?bumpInfo(0,key):null;
   return `${esc(S.players[o.p].name)}’s ${o.kind}${can&&b?(b.free?' · bump free':b.cost?` · bump ${fr(b.cost)}`:' · bump'):''}`; }
 // The occupant's meeple, drawn large at the left of an option row.
-function occupantLead(key){ const o=S.occ[key]; return o ? `<span class="optlead">${meeple(o.kind,S.players[o.p].color,30)}</span>` : ''; }
+// Two meeple slots at the left of every option, scientist then assistant, dotted when empty.
+// A space holds one meeple; the occupant fills the slot of its kind. A scientist-only space keeps both slots so every row lines up.
+function slotsLead(occ, mine){ const o=occ; const col=o?S.players[o.p].color:null;
+  const slot=k=>`<span class="mslot2 ${o&&o.kind===k?'on':''}">${o&&o.kind===k?meeple(k,col,22):meeple(k,'#ece0c6',22)}</span>`;
+  return `<span class="optlead two">${slot('scientist')}${slot('assistant')}</span>`; }
+function occupantLead(key){ return slotsLead(S.occ[key]); }
 // Place popup: what the place does, one option per action space with its exact gain and cost, and the cards there at full size.
 async function placeModal(id){
   const L=LOC[id], p=S.players[0], mine=isMyTurn(), closed=!!S.closed[id];
@@ -514,8 +519,8 @@ async function placeModal(id){
     const n=(id==='cemetery'?3:2)+(S.ev==='cholera'?1:0);
     opts=[{label: id==='cemetery' ? `Dig up to ${n} cadavers` : `Buy up to ${n} cadavers <span class="optcost">${coins(1)}</span>`, sub: who, value:key, disabled:!can, lead:occupantLead(key)}]; }
   if(id==='slaughter'){ const key='slaughter.take', can=humanCan(key), who=occupantLine(key,can), extra=S.ev==='meat'?' Glut of Meat: +2 animal and +1 franc.':'';
-    opts=[{label:`Take 4 animal at stage II ${cube('animal',4,2)}`, sub:`${extra.trim()}${who?(extra?'<br>':'')+who:''}`, value:{key, pre:{opt:'four'}}, disabled:!can, row:true, lead:occupantLead(key)},
-          {label:`Take 3 animal at stage I ${cube('animal',3,1)}`, sub:extra.trim(), value:{key, pre:{opt:'three'}}, disabled:!can, row:true}]; }
+    opts=[{label:`Take 4 animal at stage II ${cube('animal',4,2)}`, sub:`${extra.trim()}${who?(extra?'<br>':'')+who:''}`, value:{key, pre:{opt:'four'}}, disabled:!can, lead:occupantLead(key)},
+          {label:`Take 3 animal at stage I ${cube('animal',3,1)}`, sub:extra.trim(), value:{key, pre:{opt:'three'}}, disabled:!can, lead:occupantLead(key)}]; }
   let cards='';
   if(id==='docks'){ const key='docks.hire', can=humanCan(key); let picked=null;
     const html=(reg,done)=>`${placeHero(id, L.name)}${closed?'<p class="closedline">Closed today.</p>':''}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}
@@ -544,7 +549,7 @@ async function placeModal(id){
 async function labPlaceModal(id){
   const L=LABSPOT[id], key='lab.'+id, p=S.players[0], can=humanCan(key), kind=kindFor(0,key)||p.sel;
   const k=await ask({title:'', hero:true, html:`${placeHero(id, L.name, true)}${L.sci?'<p class="flavor">Scientist only.</p>':''}${p.labUsed[id]?'<p class="flavor">Already used today.</p>':''}`,
-    options:[{label:'Use it', sub:spaceGain(key,kind), value:key, disabled:!can, lead: p.labUsed[id]?`<span class="optlead">${meeple(p.labUsed[id],p.color,30)}</span>`:''}], buttons:[{label:'Close', value:null}]});
+    options:[{label:'Use it', sub:spaceGain(key,kind), value:key, disabled:!can, lead: slotsLead(p.labUsed[id]?{p:0,kind:p.labUsed[id]}:null)}], buttons:[{label:'Close', value:null}]});
   if(k) await clickSpace(k);
 }
 function todayModal(){
