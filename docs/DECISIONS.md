@@ -336,3 +336,6 @@ The board places and the four lab places no longer show a tooltip on mouse-over.
 
 **D106. The scrap is drawn like the research card face; text upright, regular and larger; wide popups fit three cards.** (Bruno: "The paper is too torn apart. Make it similar to the cards we had on research. Don't tilt the text. Don't make it italic. Increase font size." and "layout problem with academy. There should be 3 columns of cards, and it's being tossed below.")
 The scrap is redrawn on the research face's palette and grammar: speckled parchment, a double rule, ticks, corner marks and a centred flourish, straight edges. No tilt, body type instead of italic, 12 to 14px with fixed padding (percentage padding was measured against the popup and squeezed the text). The scrap is about 30% of the scene's width, 200px at least. Wide popups grow from 640 to 664px because the vertical scrollbar had been eating the few pixels three 190px cards need, which wrapped the third research or humanity card onto a second row.
+
+**D107. The scrap is half the scene's width.** (Bruno: "Make it wider. 50% of the location image width.")
+Redrawn on a 2:1 grid so the border keeps its proportions, set to 50% of the scene's width (240px at least on phones), type 13 to 15px.
