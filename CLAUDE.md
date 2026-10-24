@@ -1,4 +1,4 @@
-# The Second Spark
+# Second Spark
 
 A solo browser adaptation of *Abomination: The Heir of Frankenstein*: one human against 1 to 3 AI rivals, 1819 Paris, build a companion and bring her to life before Captain Walton finds the Creature.
 

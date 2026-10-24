@@ -1,4 +1,4 @@
-# The Second Spark
+# Second Spark
 
 A solo browser adaptation of *Abomination: The Heir of Frankenstein*: one human against 1 to 3 AI rivals in 1819 Paris. A personal fan project. Mechanics and numbers follow the physical game; names, wording and art are original.
 
