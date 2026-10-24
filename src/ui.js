@@ -211,8 +211,8 @@ function marketBody(p, o, reg){
   return `<div class="opts">
     ${row('Sell 2 bone for 1 franc',`You have ${p.bone} bone.`,'sellBone',Math.floor(p.bone/2))}
     ${row(`Sell 3 preserved flesh for ${fr(2+(o.pickle?1:0))}`,`You have ${p.preserved} preserved. Preserve flesh in your lab at night.`,'sellPres',Math.floor(p.preserved/3))}
-    ${row(`Buy a Leyden jar (2 francs)`,`${S.ev==='hardtimes'?'Hard Times: buy 1, get 1 free. ':''}You have ${p.jars.length} of 4. New jars are empty unless lightning is in the air.`,'jars',4-p.jars.length)}
-    <div class="opt" style="cursor:default"><span><span class="ot">Buy an ice block (1 franc)</span><small>Stops decay for the next 2 dawns.${p.ice?` You have ${p.ice} left.`:''}</small></span><button class="tog" style="color:var(--parch);border-color:var(--line2)" data-mfn="${reg(()=>{ o.ice=!o.ice; if(cash()<0) o.ice=false; rerender(); })}">${o.ice?'Buying':'Buy'}</button></div>
+    ${row(`Buy a Leyden jar ${icon('jar','🏺','si')} (2 francs)`,`${S.ev==='hardtimes'?'Hard Times: buy 1, get 1 free. ':''}You have ${p.jars.length} of 4. New jars are empty unless lightning is in the air.`,'jars',4-p.jars.length)}
+    <div class="opt" style="cursor:default"><span><span class="ot">Buy an ice block ${icon('ice','🧊','si')} (1 franc)</span><small>Stops decay for the next 2 dawns.${p.ice?` You have ${p.ice} left.`:''}</small></span><button class="tog" style="color:var(--parch);border-color:var(--line2)" data-mfn="${reg(()=>{ o.ice=!o.ice; if(cash()<0) o.ice=false; rerender(); })}">${o.ice?'Buying':'Buy'}</button></div>
     ${hasPickle?`<label class="opt" style="cursor:pointer"><span><span class="ot">Play Pickling Jars</span><small>+1 franc per preserved sale.</small></span><input type="checkbox" ${o.pickle?'checked':''} data-mfn="${reg(()=>{ o.pickle=!o.pickle; rerender(); })}"></label>`:''}
     </div><p class="num" style="text-align:right;margin-top:10px">Francs after: <b>${fr(cash())}</b></p>`;
 }
@@ -487,7 +487,7 @@ function spaceGain(key, kind){
     case 'lab.practice': return grow(gt(1,'expertise','🧠'));
     case 'lab.blood': return grow(cube('blood',3,1));
     case 'lab.repair': return 'Remove up to 3 damage';
-    case 'lab.charge': return sci?'Charge 3 jars':'Charge 2 jars (scientist: 3)';
+    case 'lab.charge': return grow(gtx('Charge'), gt(sci?3:2,'jar','🏺'), sci?'':gtx('(scientist: 3)'));
   }
   return '';
 }
@@ -633,7 +633,7 @@ function switchBoxHTML(p){
   return `<div class="switchbox"><div class="sub" style="margin:0">Throw the switch</div>
       <div style="font-size:13px;color:var(--parch-dim)">Each charged jar rolls 2 shock dice. ${blueDice(p)?`Your expertise makes ${blueDice(p)} of them blue.`:'Expertise 10 makes one of them blue.'}${p.sabotaged?' <span style="color:var(--crim)">Your wires are cut: you lose a die.</span>':''}${hasChar(p,'zoo')&&!p.zooUsed?' Zoologist: +1 gray die.':''}</div>
       ${p.thrown?'<div style="margin-top:6px;color:var(--muted)">Thrown for tonight.</div>':
-        `<div class="row">${[1,2,3].map(n=>`<button class="btn ${n===Math.min(3,ch)?'primary':''}" data-act="throw" data-n="${n}" ${canThrow(p)&&n<=ch?'':'disabled'}>${n} jar${n>1?'s':''}</button>`).join('')}</div>
+        `<div class="row">${[1,2,3].map(n=>`<button class="btn ${n===Math.min(3,ch)?'primary':''}" data-act="throw" data-n="${n}" ${canThrow(p)&&n<=ch?'':'disabled'}>${n} ${icon('jar','🏺','si')} jar${n>1?'s':''}</button>`).join('')}</div>
          ${!SLOT6.some(s=>p.table[s]&&p.table[s].side==='skin')?'<div style="font-size:12px;color:var(--muted);margin-top:4px">You need at least one complete (skinned) part.</div>':ch?'':'<div style="font-size:12px;color:var(--muted);margin-top:4px">No charged jars. Charge them in your lab during the day.</div>'}`}</div>`;
 }
 function labBody(){
@@ -654,7 +654,7 @@ function labModal(){ openModal({kind:'lab', live:true, title:'Your laboratory', 
 function characterModal(){
   const p=S.players[0], C=CHARACTERS.find(c=>c.id===p.char);
   openModal({kind:'character', live:true, title:esc(p.name), wide:true, html:()=>`<div style="display:flex;gap:14px;align-items:flex-start">${charArt(p.char,'avatar lg')}<div><b style="font-family:var(--f-display);font-size:18px">${esc(C.name)}</b>, ${esc(C.role.toLowerCase())}.<br><span style="color:var(--parch-dim)">${esc(C.text)}</span>
-      ${hasChar(p,'zoo')&&!p.zooUsed&&p.jars.some(j=>!j)&&S.phase!=='end'?`<div style="margin-top:6px"><button class="chip" data-act="zoo">Charge 1 jar with the eel</button></div>`:''}
+      ${hasChar(p,'zoo')&&!p.zooUsed&&p.jars.some(j=>!j)&&S.phase!=='end'?`<div style="margin-top:6px"><button class="chip" data-act="zoo">Charge 1 ${icon('jar','🏺','si')} jar with the eel</button></div>`:''}
       ${p.police?`<p class="hint" style="margin:8px 0 0">You have <b>${p.police} police marker${p.police>1?'s':''}</b> from the Dark Alley. ${p.police>=2?'The Dark Alley is closed to you. ':''}<button class="chip" data-act="police" ${p.coin>=3?'':'disabled'}>Pay 3 francs to clear them</button></p>`:''}</div></div>
     <div class="res four" style="margin-top:12px"><div><b>${p.vp}</b><span>VP built</span></div><div><b>${aliveCount(p)}<small>/6</small></b><span>Alive</span></div><div><b>${p.left.scientist}</b><span>Scientists home</span></div><div><b>${p.left.assistant}</b><span>Assistants home</span></div></div>
     <div class="sub">Cards in hand <span style="font-size:12px;color:var(--muted)">(up to 3 of each kind)</span></div><div class="hand">${handHTML(p)}</div>`,
@@ -679,7 +679,7 @@ function sideColumn(){
     <section class="panel" aria-label="Your laboratory">
       <div class="labsum-grid"><button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory"><span class="eyebrow">Operating table</span>${tableSVG(p,'me')}<span class="eyebrow openhint">Open lab</span></button><div class="decaybox"><span class="eyebrow">Decomposition track</span>${decayHTML(p,true)}</div></div>
       ${bodyLine(p)}
-      <div class="res four"><div><b>${p.coin}</b><span>${icon('coin','🪙','si')}Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>Jars</span></div><div><b>${p.ice}</b><span>Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>${icon('police','⭐','si')}Police</span></div></div>
+      <div class="res four"><div><b>${p.coin}</b><span>${icon('coin','🪙','si')}Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>${icon('jar','🏺','si')}Jars</span></div><div><b>${p.ice}</b><span>${icon('ice','🧊','si')}Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>${icon('police','⭐','si')}Police</span></div></div>
     </section>
     <section class="panel">${statBars(p)}<div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory: build, throw, preserve':'Laboratory'}</button><button class="btn" data-act="hand">Cards <b class="count">${p.hand.length}</b></button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div></section>
     <section class="panel" aria-label="Rival scientists"><div class="sub" style="margin:0 0 8px">Rivals</div><div class="rivalrow">${rivalsRow()}</div></section>
@@ -691,7 +691,7 @@ function rivalModal(i){
   const p=S.players[i]; const C=CHARACTERS.find(c=>c.id===p.char);
   openModal({kind:'rival', live:true, title:`${esc(p.name)}’s Laboratory`, wide:true, xwide:true, html:()=>`
     <div class="rivalhead" style="--pc:${p.color}">${charArt(p.char,'avatar lg')}<div class="rivalinfo"><b>${C?esc(C.name):''}</b>, ${C?esc(C.role.toLowerCase()):''}.<br><span style="color:var(--parch-dim)">${C?esc(C.text):''}</span>
-      <div class="res four" style="margin-top:8px"><div><b>${p.vp}</b><span>VP built</span></div><div><b>${p.coin}</b><span>Francs</span></div><div><b>${charged(p)}<small>/${p.jars.length}</small></b><span>Jars</span></div><div><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>Police</span></div></div>
+      <div class="res four" style="margin-top:8px"><div><b>${p.vp}</b><span>VP built</span></div><div><b>${p.coin}</b><span>Francs</span></div><div><b>${charged(p)}<small>/${p.jars.length}</small></b><span>${icon('jar','🏺','si')}Jars</span></div><div><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>Police</span></div></div>
       ${statBars(p)}
       <p style="font-size:13px;color:var(--parch-dim);margin:0">${p.hand.filter(h=>h.kind==='research').length} research and ${p.hand.filter(h=>h.kind==='humanity').length} humanity cards · Ice ${p.ice}${S.phase==='day'?` · at home: ${p.left.scientist} scientist, ${p.left.assistant} assistant${p.left.assistant!==1?'s':''}`:''}</p></div></div>
     <div class="lab3">

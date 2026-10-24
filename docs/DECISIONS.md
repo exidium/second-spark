@@ -339,3 +339,6 @@ The scrap is redrawn on the research face's palette and grammar: speckled parchm
 
 **D107. The scrap is half the scene's width.** (Bruno: "Make it wider. 50% of the location image width.")
 Redrawn on a 2:1 grid so the border keeps its proportions, set to 50% of the scene's width (240px at least on phones), type 13 to 15px.
+
+**D108. Jar and ice icons.** (Bruno: "Can you create icons for the Jars and Ice?")
+Two more hand-drawn icons on the 24px grid at 2x (`art/icons/icon-jar.png`, `icon-ice.png`, true alpha): a Leyden jar with a brass cap, rod and ball, foil bands and a blue charge in the lower half (alive blue, as on the dice), and a pale blue ice slab with a lighter top, a darker side and a white crack. They appear beside the Jars and Ice counters, in the Charge jars gain row, in the Market's Buy a Leyden jar and Buy an ice block rows, on the throw buttons and on the Zoologist's eel chip. Inline icons inside option titles, buttons and chips are 20px.
