@@ -20,14 +20,14 @@ Run both tests before calling a change done. A healthy build has no page errors,
 - `src/data.js`: every number and card. Change balance here first.
 - `src/art.js`: inline SVG art (locations, lab spaces, portraits, card icons, dice).
 - `src/engine.js`: state `S`, async phase loop (`loop()`), space effects (`resolveSpace`), cadaver resolution, building (`planBuild`, `build`), the switch (`startThrow`, `resolveThrow`), dawn, encounters (`OUT` outcomes), card play, AI (`aiChoose`, `aiSpaceOptions`, `aiLab`), scoring, save.
-- `src/ui.js`: promise modals (`ask`, `askYN`), map tooltip, human input (`clickSpace`, `humanPre`), all rendering (`render`, `labPanel`, `locCards`, `rivalsPanel`), title and end screens, boot.
+- `src/ui.js`: promise modals (`ask`, `askYN`), threshold tooltip, human input (`clickSpace`, `humanPre`), all rendering (`render`, `labPanel`, `locCards`, `rivalsPanel`), title and end screens, boot.
 
 All four JS files are concatenated into one IIFE by `build.py`, so they share scope. Order matters only for top-level `const`s used at load time.
 
 ## Conventions
 - **Player-facing text:** no em dashes (the build fails if one appears). Short, plain sentences. Every option shows its exact gain and cost.
 - **Yes/no questions** use Accept / Refuse with the effect written in the question. **Encounter choices** keep their story wording.
-- **Tooltips** only on the map pins and on the blue threshold squares of the expertise and reputation bars. Nowhere else.
+- **Tooltips** only on the blue threshold squares of the expertise and reputation bars. Nowhere else. A place explains itself on the scrap of paper inside its popup.
 - **Original names and art** for anything creative. Mechanics and numbers may match the physical game.
 - Keep the single dark visual identity and the colour meanings: muscle red, skin yellow, alive blue, damage yellow lightning.
 - State must stay JSON-serializable. If its shape changes, bump `SAVE_KEY` and `S.v` together.
