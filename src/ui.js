@@ -565,8 +565,8 @@ function captainTrack(){
 }
 function whoSendHTML(){
   const p=S.players[0];
-  if(S.phase==='day' && isMyTurn()) return `<div class="whosend you"><span class="eyebrow">Your move</span><strong>Who do you send?</strong>
-      <div class="row stack">${['scientist','assistant'].map(k=>`<button class="btn ${p.sel===k?'primary':''}" data-act="sel" data-k="${k}" ${p.left[k]?'':'disabled'} aria-pressed="${p.sel===k}">${meeple(k,p.sel===k?'#0e1520':p.color,13)} ${k==='scientist'?'Scientist':'Assistant'} <b>${p.left[k]}</b></button>`).join('')}</div><span class="hintline">Then click a place.</span></div>`;
+  if(S.phase==='day' && isMyTurn()) return `<div class="whosend you"><strong>Pick meeple then location</strong>
+      <div class="row stack">${['scientist','assistant'].map(k=>`<button class="btn ${p.sel===k?'primary':''}" data-act="sel" data-k="${k}" ${p.left[k]?'':'disabled'} aria-pressed="${p.sel===k}">${meeple(k,p.sel===k?'#0e1520':p.color,13)} ${k==='scientist'?'Scientist':'Assistant'} <b>${p.left[k]}</b></button>`).join('')}</div></div>`;
   if(S.phase==='day'){ const c=S.players[S.cur]; return `<div class="whosend"><span class="eyebrow">Day ${S.round}</span><strong><span class="dot" style="background:${c.color}"></span> ${esc(c.name)} is choosing…</strong><span class="hintline">${leftN(p)?`${p.left.scientist} scientist, ${p.left.assistant} assistant${p.left.assistant!==1?'s':''} at home.`:'All your people are out.'}</span></div>`; }
   if(S.phase==='lab') return `<div class="whosend you"><span class="eyebrow">Night ${S.round}</span><strong>Lab phase</strong><div class="row"><button class="btn primary" data-act="lab">Laboratory</button><button class="btn" data-act="endlab">End the night</button></div></div>`;
   return `<div class="whosend"><span class="eyebrow">${S.phase==='event'?'Event phase':S.phase==='firstmove'?'The first player moves':'Dawn'}</span><strong>The city stirs…</strong></div>`;
@@ -607,6 +607,11 @@ function anatomyHTML(p,ro){
     return `<div class="arow"><div class="atop"><span class="aname">${SLOT_N[s]}</span><span>${t&&t.dmg?`<span class="dmg">damaged · </span>`:''}${state}</span></div>${body}</div>`;
   }).join('');
 }
+function decayGridHTML(p){
+  const cell=(t,n,k)=>{ const rot=n&&(k===3||(t==='blood'&&k===1)); return `<b class="dg-cell ${n?'on '+t:''} ${rot?'rot':''}">${n||''}</b>`; };
+  const rows=MATS.map(t=>`<div class="dg-row"><span class="dg-name"><i class="cube ${t}"></i>${MAT_N[t]}</span>${p.mats[t].map((n,k)=>cell(t,n,k)).join('')}</div>`).join('');
+  return `<div class="decaygrid"><div class="dg-row dg-head"><span class="dg-name">Decomposition</span><b>I</b><b>II</b><b>III</b><b>IV</b></div>${rows}
+    <div class="dg-foot"><span><i class="cube bone"></i>Bone <b>${p.bone}</b></span><span>Preserved <b>${p.preserved}</b><small>/9</small></span>${p.ice?`<span class="ice">${icon('ice','🧊','si')}no decay for ${p.ice} dawn${p.ice>1?'s':''}</span>`:''}</div></div>`; }
 function decayHTML(p,ro){
   const lab=!ro&&S.phase==='lab';
   const rows=MATS.map(t=>`<tr><td><i class="cube ${t}"></i> ${MAT_N[t]}</td>${p.mats[t].map((n,k)=>`<td class="${n?'':'z'} ${(k===3||(t==='blood'&&k===1))&&n?'rot':''}">${n}</td>`).join('')}</tr>`).join('');
@@ -678,11 +683,13 @@ function sideColumn(){
   const p=S.players[0], ch=charged(p), lab=S.phase==='lab';
   return `<aside class="sidecol">
     <div class="sidebtns"><button class="btn" data-act="character">Your character</button><button class="btn" data-act="rules">Help</button><button class="btn" data-act="newgame">New game</button></div>
-    <section class="panel" aria-label="Your laboratory">
-      <div class="labsum-grid"><button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory"><span class="eyebrow">Operating table</span>${tableSVG(p,'me')}</button><div class="decaybox"><span class="eyebrow">Decomposition track</span>${decayHTML(p,true)}</div></div>
-      <div class="res four"><div><b>${p.coin}</b><span>${icon('coin','🪙','si')}Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>${icon('jar','🏺','si')}Jars</span></div><div><b>${p.ice}</b><span>${icon('ice','🧊','si')}Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>${icon('police','⭐','si')}Police</span></div></div>
-    </section>
     <section class="panel">${statBars(p)}<div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory: build, throw, preserve':'Laboratory'}</button><button class="btn" data-act="hand">Cards <b class="count">${p.hand.length}</b></button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div></section>
+    <section class="panel labsum" aria-label="Your laboratory">
+      <span class="eyebrow">Your laboratory</span>
+      <button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory">${tableSVG(p,'me')}</button>
+      <div class="res four"><div><b>${p.coin}</b><span>${icon('coin','🪙','si')}Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>${icon('jar','🏺','si')}Jars</span></div><div><b>${p.ice}</b><span>${icon('ice','🧊','si')}Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>${icon('police','⭐','si')}Police</span></div></div>
+      ${decayGridHTML(p)}
+    </section>
     ${logPanel()}
   </aside>`;
 }
@@ -764,7 +771,7 @@ function topRowHTML(){
 }
 function toolbarHTML(){
   const ph=({event:'Event phase',day:'City phase',firstmove:'City phase',lab:'Lab phase',dawn:'Dawn'})[S.phase]||'';
-  return `<div class="toolbar"><span class="eyebrow">Day ${S.round} · ${ph} · first player: ${esc(S.players[S.first].name)}</span><button class="todaybtn" data-act="today">Today: ${todayLabel()}</button></div>`;
+  return `<div class="toolbar"><span class="eyebrow">Day ${S.round} · ${ph} · first player: ${esc(S.players[S.first].name)}</span><button class="todaybtn" data-act="today">${icon('note','📜','si')}Today’s note: ${todayLabel()}</button></div>`;
 }
 function render(){
   const app=document.getElementById('app');

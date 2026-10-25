@@ -372,3 +372,12 @@ The book or cross fills 62% of the mini card's width (was 54%) and the name runs
 
 **D118. A bar under the map holds the meeple picker and the rivals; rival strips are horizontal.** (Bruno: "let's create a bar below the map. That bar should have the meeples and the rivals. Update rivals layout to be more horizontal.")
 The Who do you send box leaves its corner of the board and heads a bar directly under the map, in page type rather than board-relative sizes. The three rivals sit beside it as horizontal strips: portrait on the left with the player's colour as a left rule, then name and role on one line, the Muscle / Skin / Alive counts and the Humanity / Expertise / Reputation icons on the lines below. The side column keeps the table, counters, bars, buttons and the chronicle. Under 900px the bar stacks: picker, then one rival per row.
+
+**D119. The picker reads "Pick meeple then location".** (Bruno: "Kill 'your move' and change title to 'Pick meeple then location'.")
+The Your move eyebrow and the Then click a place hint are gone; the box is the title and the two meeple buttons.
+
+**D120. "Today's note" with a note icon; objective chips with more contrast and larger type.** (Bruno: "put a note icon on the left of 'Today: A Widow's Bequest'. Instead of today, say 'Today's note:'. The objectives... can you make them more apparent? More contrast? And the text can be a bit bigger.")
+A hand-drawn pixel note icon (`art/icons/icon-note.png`, folded corner, three ink lines) sits before "Today's note: <card>" in the toolbar. Objective chips go from 12.5px dim text on a faint outline to 14px parchment text on a light outline with a faint fill; a claimed one fills brass.
+
+**D121. Your laboratory sits between the stat bars and the chronicle, drawn tall and graphic.** (Bruno: "Move 'your laboratory' between play bars and the chronicle. Make it more graphical and more vertical like.")
+The side column reads: buttons, stat bars with Laboratory and Cards, then Your laboratory, then the chronicle. The panel stacks: the operating table figure large and centred (click it to open the lab), the four counters with their icons, and a decomposition grid where each material row holds four stage cells; a cell with material is a solid cube in that material's colour with the count inside, an empty cell is a dashed outline, a cell that rots at the next dawn has a red rim. Bone, preserved and ice are a short line beneath. The old numbers table stays in the Laboratory popup.

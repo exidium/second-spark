@@ -410,11 +410,11 @@ Desktop (1100px and wider): the page uses the full browser width; the right colu
 
 **Left column**
 - Top row: the logo, the 4 bonus objectives (claimed ones show the claimant's colour) and the Captain Walton track (12 steps, skull at the end) at the right end.
-- Toolbar on top of the board: "Day N · phase · first player" and "Today: card name" (click it to see the full event or encounter card). No bump track on the page; bump costs appear in the place popup.
+- Toolbar on top of the board: "Day N · phase · first player" and "Today's note: card name" with a note icon (click it to see the full event or encounter card). No bump track on the page; bump costs appear in the place popup.
 - **The board**: Bruno's painted Paris (`art/ui/board.jpg`, 16:9). Each place is a chip with its name and one meeple slot per action space (dashed when free, the occupant's meeple silhouette in their colour when taken). Places you can use pulse blue; closed places are struck through and dimmed. Positions are percentages in `BOARD_POS` (data.js). **No tooltips on the places**; the explanation lives in the popup (12.3).
 - Beside each place, its cards at mini size (portrait and numbers strip for cadavers, art and name for the rest): the face-down deck with the count left for Cemetery and Morgue; the face-up rows for Hospital (2 bodies), Academy (3 research), Saint-Roch (3 humanity), Docks (3 scoundrels), Public Square (bodies after an execution, else an empty slot).
 - "Your laboratory" strip on the lower edge: Practice, Give Blood, Repair, Charge Jars as small places with your own meeple once used.
-- Under the map, a bar: the "Who do you send?" box on the left (Scientist and Assistant buttons stacked, with counts, on your turn; otherwise who is choosing, or the phase), and the three rivals beside it as horizontal strips (portrait with the player colour as a left rule, name and role, Muscle/Skin/Alive counts, Humanity/Expertise/Reputation icons). Click a rival to open their lab popup. Under 900px the bar stacks.
+- Under the map, a bar: the "Pick meeple then location" box on the left (Scientist and Assistant buttons stacked, with counts, on your turn; otherwise who is choosing, or the phase), and the three rivals beside it as horizontal strips (portrait with the player colour as a left rule, name and role, Muscle/Skin/Alive counts, Humanity/Expertise/Reputation icons). Click a rival to open their lab popup. Under 900px the bar stacks.
 - Below 1100px the board scrolls sideways inside its own box (minimum 760px) so the page itself never overflows.
 
 **Right column**
