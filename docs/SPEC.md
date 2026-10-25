@@ -61,7 +61,7 @@ tools/pixelize.py    makes the game copies: 32 colours at 384px wide (--width) o
 
 ## 3. Setup
 
-- Title screen, everything centred: name field, rival count (1 to 3), "Light the lamps", then the **scientist cards** (6 characters plus a "Random scientist" card, random selected by default): landscape 2.35:1 like the physical cards, portrait left, parchment text panel with name, ability and role, three dotted home slots under each.
+- Title screen, everything centred: name field, rival count (1 to 3), "Light the lamps", then the **scientist cards** (6 characters plus a "Random scientist" card, random selected by default): landscape 2.35:1 like the physical cards, portrait left, parchment text panel with name, ability and role.
 - Rivals: Dr Ambrose Pell (ruthless), Mme Odile Varnier (careful), Prof Horace Quill (scholar). Each gets a random remaining character.
 - Each player starts with francs equal to the number of players, humanity 0, expertise 0, reputation 0, 1 empty Leyden jar, no materials.
 - Character start bonuses: Charlatan reputation 3, Humanitarian humanity 2, Surgeon expertise 2.

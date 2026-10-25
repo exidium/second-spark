@@ -363,3 +363,6 @@ The mini cards beside the Academy and Saint-Roch no longer show the small line d
 
 **D115. The title screen is centred and the scientist cards follow the physical game's layout.** (Bruno: "centralize everything here. Let's work on the description cards on the first page... I want you to do something similar, and same card proportion.")
 Tagline, logo, name and rivals fields, buttons and the picker are centred. Each scientist is a landscape card at 2.35:1 like the physical one: portrait on the left third, a parchment text panel (`art/frames/card-scientist-bg.png`, drawn in the research face's style at 1.6:1 so nothing stretches) with the name between short rules at the top, the ability text in the middle and the role in small capitals at the foot. Under the card a dark strip holds the three dotted home slots (scientist, two assistants) as on the physical card. Two columns on desktop, one under 760px. The random pick is the same card with a die for a portrait.
+
+**D116. No home slots under the scientist cards.** (Bruno: "let's remove the meeples from the cards. That never made too much sense.")
+The strip of three dotted meeple slots under each scientist card on the title screen is gone; the card ends at its parchment panel.
