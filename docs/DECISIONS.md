@@ -411,3 +411,12 @@ The floor of D128 moves from 12px to 11px: sizes that were 11 or 11.5px before t
 
 **D131. Counter icons beside the number; wider label column on the stat bars.** (Bruno: "Put the icons next to the number, text below. The reputation text is under the bars... can you put the bars a bit more to the right?")
 In every counter tile the icon sits left of the number and the label alone runs beneath. The stat bars' label column grows from 92 to 118px (72 to 100px in the compact variant) so Reputation and its icon no longer run under the bar.
+
+**D132. Operating table and decomposition grid side by side.** (Bruno: "Put the operating table and the decomposition table right next to each other. You can reduce the size of the operating table. Put the Laboratory button below the operating table.")
+The Your laboratory panel is two columns: the table at 112px wide with the Laboratory button (and End the night at night) stacked under it on the left, the decomposition grid on the right with 30px cells.
+
+**D133. Mini research and humanity cards show only their emblem; a taken card leaves a dotted slot.** (Bruno: "remove name of the card in miniature version, leave icon only. When I buy a card in the day, the column doesn't refill until next day. When I buy, leave it empty, with a dotted line or something.")
+The board's mini research and humanity cards are the parchment face with the book or cross, no name (the name is in the popup and on hover). The Academy, Saint-Roch and Docks rows always show three slots: a card taken during the day leaves a dashed outline until the dawn refill. The Decomposition label sits above its grid instead of in the header row.
+
+**D134. Scoundrel name left-aligned under the kind label.** (Bruno: "the name positioning is bugged. Fix this. All aligned to the left.")
+The name on a scoundrel card had inherited a centred alignment and sat on the Scoundrel label. It is left-aligned now and starts 22px down, clear of the label.

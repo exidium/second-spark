@@ -135,7 +135,7 @@ Each space holds one meeple. **Sci** = scientist only. Costs listed are in franc
 - **Public Square:** bodies only appear after an execution (1 body with 2 players, 2 with 3 or 4). Discarded at dawn.
 - **Cemetery and Morgue are hidden:** cards are only drawn when you use the space.
 
-All displays are shown as mini cards beside their place on the board (art and name; research and humanity cards show their parchment face with the book or cross icon) and at full size in the place popup.
+All displays are shown as mini cards beside their place on the board (art and name; research and humanity cards show only their parchment face with the book or cross icon; the Academy, Saint-Roch and Docks rows keep three slots, a dashed outline where a card was taken until the dawn refill) and at full size in the place popup.
 
 ### 5.4 Bumping
 - To use an occupied space, bump the meeple there. The bumped meeple goes to the **bump track** and is out for the day.
@@ -420,7 +420,7 @@ Desktop (1100px and wider): the page uses the full browser width; the right colu
 **Right column**
 - Buttons: **Your character** (portrait, name, role, ability, Zoologist charge, police payoff, VP built, people at home, cards in hand with Play buttons) , **Help** (rules, plus an Every card button) and **New game**. The points table lives in the Laboratory popup.
 - Stat bars (humanity, expertise, reputation with the blue threshold squares and their tooltips), then the counters: francs, jars charged/total, ice, police, and a **Cards** tile (card icon with a count badge) that opens the hand with Play buttons; hovering it lists the cards in hand with their text.
-- **Your laboratory**, tall and graphic: the operating table as pixel art, large and centred (the iron table under six part images in muscle, skin or alive state, ghosts for empty slots, damage badges; click it to open the Laboratory popup), the **Laboratory** button under it (at night it pulses and an End the night button appears beside it), and a decomposition grid: one row per material, four stage cells, a solid cube in the material's colour with the count where there is material, a dashed outline where there is none, a red rim on a cell that rots at the next dawn. Bone, preserved and ice on a line beneath.
+- **Your laboratory**, two columns: the operating table as pixel art on the left at 112px (the iron table under six part images in muscle, skin or alive state, ghosts for empty slots, damage badges; click it to open the Laboratory popup), the **Laboratory** button under it (at night it pulses and an End the night button appears under it), and on the right a decomposition grid: one row per material, four stage cells, a solid cube in the material's colour with the count where there is material, a dashed outline where there is none, a red rim on a cell that rots at the next dawn. Bone, preserved and ice on a line beneath.
 - Rival lab popup (from the strip under the map): a strip with portrait, character, counters and stat bars, then the same three read-only columns as your Laboratory popup (operating table, body parts, decomposition track with the points table).
 - Chronicle, newest first.
 

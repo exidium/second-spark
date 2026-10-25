@@ -481,7 +481,8 @@ i,em{font-style:normal}
 .ci .ico{width:18px;height:18px;margin-left:3px}
 .ccard .cm.coins,.ccard .cm.hearts{gap:2px}
 .ccard.sc .ck{left:7px}
-.ccard.sc .cn{position:absolute;top:16px;left:7px;right:7px;font-size:15px;color:#fff;text-shadow:0 1px 3px #000,0 0 8px #000}
+.ccard.sc .cn{position:absolute;top:22px;left:7px;right:7px;font-size:15px;color:#fff;text-align:left;text-shadow:0 1px 3px #000,0 0 8px #000}
+.ccard.sc .ck{text-align:left}
 .gc-acts.col{flex-direction:column;align-items:stretch;gap:4px}
 .btn.sm{padding:5px 10px;font-size:13px}
 .mcard.cad .mstrip.one{display:flex;justify-content:center;font-size:clamp(11px,.65cqw,11px);color:var(--parch);padding:1px}
@@ -545,9 +546,9 @@ i,em{font-style:normal}
 .slots{display:flex;gap:.4cqw;align-items:flex-start}
 .mcard{position:relative;width:clamp(52px,6.2cqw,70px);aspect-ratio:3/4;background:var(--paper);border:1px solid #6b5640;border-radius:3px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 6px rgba(0,0,0,.6);color:var(--paper-ink);box-sizing:border-box}
 .mcard.framed{background:var(--card-front) center/100% 100% no-repeat;border:0;padding:11% 10% 13%}
-.mcard.face{background:var(--card-research) center/100% 100% no-repeat,#ebe6da;border:0;padding:8% 6% 5%;color:#1f1b1a;justify-content:center;align-items:center;gap:2%}
+.mcard.face{background:var(--card-research) center/100% 100% no-repeat,#ebe6da;border:0;padding:8%;color:#1f1b1a;justify-content:center;align-items:center}
 .mcard.face.hum{background:var(--card-humanity) center/100% 100% no-repeat,#e9e3d4;color:#2e2a28}
-.mcard.face .memblem{display:block;width:62%;aspect-ratio:1;flex:none}
+.mcard.face .memblem{display:block;width:70%;aspect-ratio:1;flex:none}
 .mcard.face .memblem .ico{display:block;width:100%;height:100%;filter:none}
 .mcard.face .mname{padding:0;width:100%;font-size:clamp(11px,.85cqw,11px);line-height:1.1;overflow-wrap:anywhere;hyphens:auto;-webkit-line-clamp:2}
 .mcard .mart{display:block;width:100%;flex:1;min-height:0;overflow:hidden}
@@ -558,7 +559,7 @@ i,em{font-style:normal}
 .mcard.back.plain{background:#3a2a1c;color:var(--parch);justify-content:center}
 .mcard.back .plate{position:absolute;left:17%;right:17%;top:54%;height:19%;display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-size:clamp(11px,.6cqw,11px);text-transform:uppercase;color:#2a2217;letter-spacing:.02em}
 .mcard.back .mcount{position:absolute;right:4%;bottom:3%;font-size:clamp(11px,.8cqw,11px);color:var(--parch);background:rgba(0,0,0,.65);border-radius:3px;padding:0 3px;font-variant-numeric:tabular-nums}
-.mslot{width:clamp(28px,4.6cqw,54px);aspect-ratio:3/4;border:1px dashed rgba(236,224,198,.5);border-radius:3px;display:block;box-sizing:border-box}
+.mslot{width:clamp(52px,6.2cqw,70px);aspect-ratio:3/4;border:1px dashed rgba(236,224,198,.5);border-radius:3px;display:block;box-sizing:border-box}
 .labstrip{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:.4cqw;background:rgba(18,16,22,.72);border:1px solid var(--line2);border-radius:6px;padding:.6cqw 1cqw;z-index:2}
 .labstrip>.pname{color:var(--parch-dim);font-size:clamp(11px,1cqw,12px);letter-spacing:.08em;text-transform:uppercase}
 .labplaces{display:flex;gap:.8cqw}
@@ -580,9 +581,12 @@ i,em{font-style:normal}
 .labsum-grid{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;align-items:start}
 .labsum{display:flex;flex-direction:column;gap:10px;align-items:stretch}
 .labsum .eyebrow{text-align:center}
-.labsum .tablebtn{width:100%;display:flex;justify-content:center;background:radial-gradient(60% 70% at 50% 45%,rgba(159,208,255,.06),transparent 70%),var(--panel2);border:1px solid var(--line);border-radius:6px;padding:10px 0}
+.labsum .tablebtn{width:auto;display:flex;justify-content:center;background:radial-gradient(60% 70% at 50% 45%,rgba(159,208,255,.06),transparent 70%),var(--panel2);border:1px solid var(--line);border-radius:6px;padding:10px 0}
 .labsum .tablebtn svg{width:auto;height:230px;max-width:100%}
-.labsum .tablebtn .tablefig{width:170px}
+.labsum .tablebtn .tablefig{width:112px}
+.labsum-row{display:flex;gap:12px;align-items:flex-start}
+.labsum .lableft{flex:none;display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.labsum .labright{flex:1;min-width:0}
 .tablefig{position:relative;aspect-ratio:2/3;width:100%;max-width:230px;margin:0 auto;image-rendering:pixelated;border-radius:4px;overflow:hidden}
 .tablefig .bt{position:absolute;inset:0;width:100%;height:100%;display:block}
 .tablefig .body{position:absolute;left:4%;top:3%;width:92%;height:94%}
@@ -592,11 +596,12 @@ i,em{font-style:normal}
 .tablefig .bdmg{position:absolute;transform:translate(-50%,-50%);background:#17121a;border:1px solid #ffd36a;color:#ffd36a;border-radius:10px;font-size:11px;line-height:1.4;padding:0 5px;font-weight:700;white-space:nowrap;image-rendering:auto}
 .labsum .res.four{margin:0}
 .decaygrid{display:flex;flex-direction:column;gap:4px;font-size:12.5px}
-.dg-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(4,34px);gap:4px;align-items:center}
+.decaygrid>.eyebrow{text-align:left;margin-bottom:2px}
+.dg-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(4,30px);gap:4px;align-items:center}
 .dg-head{color:var(--muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
 .dg-head b{text-align:center;font-weight:400}
 .dg-name{display:flex;align-items:center;gap:6px;color:var(--parch-dim);min-width:0}
-.dg-cell{height:26px;border-radius:4px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;font-weight:600;font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 1px 1px #000}
+.dg-cell{height:24px;border-radius:4px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;font-weight:600;font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 1px 1px #000}
 .dg-cell.on{border-style:solid;border-color:rgba(0,0,0,.5);box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
 .dg-cell.muscle{background:#8a4b2b}.dg-cell.organ{background:#7a5a96}.dg-cell.blood{background:#c03b3b}.dg-cell.animal{background:#e38b2c}
 .dg-cell.rot{outline:2px solid var(--crim);outline-offset:-2px}
@@ -620,7 +625,8 @@ i,em{font-style:normal}
 .cardsbtn .ico{width:30px;height:30px;filter:drop-shadow(0 1px 2px #000)}
 .cardsbtn .count{position:absolute;top:-7px;right:-7px;background:var(--spark);color:#0e1520;border-radius:10px;min-width:20px;height:20px;padding:0 5px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
 .cardsbtn span{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.labsum .labbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.labsum .labbtns{display:flex;gap:6px;flex-direction:column;align-items:stretch}
+.labsum .labbtns .btn{padding:6px 8px;font-size:13px;white-space:nowrap}
 .rivalrow{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;min-width:0}
 @media (max-width:900px){.underbar{flex-direction:column}.whosend{flex:none}.rivalrow{grid-template-columns:1fr}}
 .rivalmini{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--pc);border-radius:4px;padding:8px 10px;display:flex;flex-direction:row;gap:10px;align-items:center;text-align:left;font:inherit;cursor:pointer;min-width:0;color:var(--parch)}
@@ -2440,7 +2446,7 @@ function miniCard(c){
     const strip = c.kind==='thief' ? `<span class="mstrip one">Draw ${c.draw}</span>` : `<span class="mstrip"><span class="stage">${st?ROMAN[st[1]-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span>`;
     return `<div class="mcard cad" title="${esc(c.name)}: ${fr(scCost(c))}"><span class="mart"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt=""></span>${strip}</div>`; }
   if((c.kind==='research' && IMG['card-research-bg']) || (c.kind==='humanity' && IMG['card-humanity-bg'])){ const hum=c.kind==='humanity';
-    return `<div class="mcard face ${hum?'hum':''}" title="${esc(c.name)}"><span class="memblem">${icon(hum?'cross':'book', hum?'✝':'📖')}</span><span class="mname">${esc(c.name)}</span></div>`; }
+    return `<div class="mcard face ${hum?'hum':''}" title="${esc(c.name)}"><span class="memblem">${icon(hum?'cross':'book', hum?'✝':'📖')}</span></div>`; }
   const framed = hasFrame() && c.kind==='research';
   return `<div class="mcard ${framed?'framed':''}"><span class="mart">${miniArt(c)}</span><span class="mname">${esc(c.name)}</span></div>`; }
 function miniBack(name,left){ return IMG['card-tall-back'] ? `<div class="mcard back"><span class="plate">${esc(name)}</span><span class="mcount">${left}</span></div>` : `<div class="mcard back plain"><span class="mname">${esc(name)} deck</span><span class="mcount">${left}</span></div>`; }
@@ -2449,7 +2455,8 @@ function slotsHTML(l){
   let inner='';
   if(l.id==='cemetery') inner=miniBack('Cemetery', S.decks.cemetery.length);
   else if(l.id==='morgue') inner=miniBack('Morgue', S.decks.morgue.length);
-  else { const rows=faceUp(l.id); inner = rows.length ? rows.slice(0,3).map(miniCard).join('') : '<i class="mslot"></i>'; }
+  else { const rows=faceUp(l.id).slice(0,3); const fixed=l.id==='academy'||l.id==='church'||l.id==='docks'; const pad=fixed ? Math.max(0,3-rows.length) : (rows.length?0:1);
+    inner = rows.map(miniCard).join('') + '<i class="mslot"></i>'.repeat(pad); }
   return `<div class="slots">${inner}</div>`;
 }
 function boardHTML(){
@@ -2610,7 +2617,7 @@ function anatomyHTML(p,ro){
 function decayGridHTML(p){
   const cell=(t,n,k)=>{ const rot=n&&(k===3||(t==='blood'&&k===1)); return `<b class="dg-cell ${n?'on '+t:''} ${rot?'rot':''}">${n||''}</b>`; };
   const rows=MATS.map(t=>`<div class="dg-row"><span class="dg-name"><i class="cube ${t}"></i>${MAT_N[t]}</span>${p.mats[t].map((n,k)=>cell(t,n,k)).join('')}</div>`).join('');
-  return `<div class="decaygrid"><div class="dg-row dg-head"><span class="dg-name">Decomposition</span><b>I</b><b>II</b><b>III</b><b>IV</b></div>${rows}
+  return `<div class="decaygrid"><span class="eyebrow">Decomposition</span><div class="dg-row dg-head"><span class="dg-name"></span><b>I</b><b>II</b><b>III</b><b>IV</b></div>${rows}
     <div class="dg-foot"><span><i class="cube bone"></i>Bone <b>${p.bone}</b></span><span>Preserved <b>${p.preserved}</b><small>/9</small></span>${p.ice?`<span class="ice">${icon('ice','🧊','si')}no decay for ${p.ice} dawn${p.ice>1?'s':''}</span>`:''}</div></div>`; }
 function decayHTML(p,ro){
   const lab=!ro&&S.phase==='lab';
@@ -2690,9 +2697,9 @@ function sideColumn(){
     </section>
     <section class="panel labsum" aria-label="Your laboratory">
       <span class="eyebrow">Your laboratory</span>
-      <button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory">${tableHTML(p,'me')}</button>
-      <div class="row labbtns"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory: build, throw, preserve':'Laboratory'}</button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div>
-      ${decayGridHTML(p)}
+      <div class="labsum-row"><div class="lableft"><button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory">${tableHTML(p,'me')}</button>
+        <div class="row labbtns"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory':'Laboratory'}</button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div></div>
+        <div class="labright">${decayGridHTML(p)}</div></div>
     </section>
     ${logPanel()}
   </aside>`;

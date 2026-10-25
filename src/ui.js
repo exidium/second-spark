@@ -445,7 +445,7 @@ function miniCard(c){
     const strip = c.kind==='thief' ? `<span class="mstrip one">Draw ${c.draw}</span>` : `<span class="mstrip"><span class="stage">${st?ROMAN[st[1]-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span>`;
     return `<div class="mcard cad" title="${esc(c.name)}: ${fr(scCost(c))}"><span class="mart"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt=""></span>${strip}</div>`; }
   if((c.kind==='research' && IMG['card-research-bg']) || (c.kind==='humanity' && IMG['card-humanity-bg'])){ const hum=c.kind==='humanity';
-    return `<div class="mcard face ${hum?'hum':''}" title="${esc(c.name)}"><span class="memblem">${icon(hum?'cross':'book', hum?'✝':'📖')}</span><span class="mname">${esc(c.name)}</span></div>`; }
+    return `<div class="mcard face ${hum?'hum':''}" title="${esc(c.name)}"><span class="memblem">${icon(hum?'cross':'book', hum?'✝':'📖')}</span></div>`; }
   const framed = hasFrame() && c.kind==='research';
   return `<div class="mcard ${framed?'framed':''}"><span class="mart">${miniArt(c)}</span><span class="mname">${esc(c.name)}</span></div>`; }
 function miniBack(name,left){ return IMG['card-tall-back'] ? `<div class="mcard back"><span class="plate">${esc(name)}</span><span class="mcount">${left}</span></div>` : `<div class="mcard back plain"><span class="mname">${esc(name)} deck</span><span class="mcount">${left}</span></div>`; }
@@ -454,7 +454,8 @@ function slotsHTML(l){
   let inner='';
   if(l.id==='cemetery') inner=miniBack('Cemetery', S.decks.cemetery.length);
   else if(l.id==='morgue') inner=miniBack('Morgue', S.decks.morgue.length);
-  else { const rows=faceUp(l.id); inner = rows.length ? rows.slice(0,3).map(miniCard).join('') : '<i class="mslot"></i>'; }
+  else { const rows=faceUp(l.id).slice(0,3); const fixed=l.id==='academy'||l.id==='church'||l.id==='docks'; const pad=fixed ? Math.max(0,3-rows.length) : (rows.length?0:1);
+    inner = rows.map(miniCard).join('') + '<i class="mslot"></i>'.repeat(pad); }
   return `<div class="slots">${inner}</div>`;
 }
 function boardHTML(){
@@ -615,7 +616,7 @@ function anatomyHTML(p,ro){
 function decayGridHTML(p){
   const cell=(t,n,k)=>{ const rot=n&&(k===3||(t==='blood'&&k===1)); return `<b class="dg-cell ${n?'on '+t:''} ${rot?'rot':''}">${n||''}</b>`; };
   const rows=MATS.map(t=>`<div class="dg-row"><span class="dg-name"><i class="cube ${t}"></i>${MAT_N[t]}</span>${p.mats[t].map((n,k)=>cell(t,n,k)).join('')}</div>`).join('');
-  return `<div class="decaygrid"><div class="dg-row dg-head"><span class="dg-name">Decomposition</span><b>I</b><b>II</b><b>III</b><b>IV</b></div>${rows}
+  return `<div class="decaygrid"><span class="eyebrow">Decomposition</span><div class="dg-row dg-head"><span class="dg-name"></span><b>I</b><b>II</b><b>III</b><b>IV</b></div>${rows}
     <div class="dg-foot"><span><i class="cube bone"></i>Bone <b>${p.bone}</b></span><span>Preserved <b>${p.preserved}</b><small>/9</small></span>${p.ice?`<span class="ice">${icon('ice','🧊','si')}no decay for ${p.ice} dawn${p.ice>1?'s':''}</span>`:''}</div></div>`; }
 function decayHTML(p,ro){
   const lab=!ro&&S.phase==='lab';
@@ -695,9 +696,9 @@ function sideColumn(){
     </section>
     <section class="panel labsum" aria-label="Your laboratory">
       <span class="eyebrow">Your laboratory</span>
-      <button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory">${tableHTML(p,'me')}</button>
-      <div class="row labbtns"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory: build, throw, preserve':'Laboratory'}</button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div>
-      ${decayGridHTML(p)}
+      <div class="labsum-row"><div class="lableft"><button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory">${tableHTML(p,'me')}</button>
+        <div class="row labbtns"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory':'Laboratory'}</button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div></div>
+        <div class="labright">${decayGridHTML(p)}</div></div>
     </section>
     ${logPanel()}
   </aside>`;
