@@ -135,7 +135,7 @@ Each space holds one meeple. **Sci** = scientist only. Costs listed are in franc
 - **Public Square:** bodies only appear after an execution (1 body with 2 players, 2 with 3 or 4). Discarded at dawn.
 - **Cemetery and Morgue are hidden:** cards are only drawn when you use the space.
 
-All displays are shown as mini cards beside their place on the board (art and name) and at full size in the place popup.
+All displays are shown as mini cards beside their place on the board (art and name; research and humanity cards show their parchment face with the book or cross icon) and at full size in the place popup.
 
 ### 5.4 Bumping
 - To use an occupied space, bump the meeple there. The bumped meeple goes to the **bump track** and is out for the day.

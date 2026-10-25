@@ -357,3 +357,6 @@ The painted seamless tile (kept in `art/source/ui/bg-wall-painted.jpg`) is reduc
 
 **D113. The logo is text in the display font.** (Bruno: "the alpha channel is sucking. Can you make it with a font only? The same we're using for titles and cards.")
 No logo image. "Second Spark" is set in Amarante, the face of every title and card name, parchment with Spark in the alive blue and its glow, a hard black drop under the letters. Title screen at up to 84px, header at 30px. The generated pixel logos stay in `art/source/ui/` for reference.
+
+**D114. Research and humanity mini cards use the card faces and the book or cross icon.** (Bruno: "the miniature for the research... just use the icon book. Same thing for church. Use our background in academy miniature. That looks awful. Same thing for church.")
+The mini cards beside the Academy and Saint-Roch no longer show the small line drawings on white. They sit on the research or humanity parchment face (the same image as the full cards) with the book or cross icon centred above the name.

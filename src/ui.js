@@ -439,6 +439,8 @@ function miniCard(c){
   if(SC_WHO[c.kind] && c.tpl!=null && IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]){ const n=t=>{ const m=(c.mats||[]).find(x=>x[0]===t); return m?m[2]:0; }; const st=(c.mats||[]).find(x=>x[0]!=='bone');
     const strip = c.kind==='thief' ? `<span class="mstrip one">Draw ${c.draw}</span>` : `<span class="mstrip"><span class="stage">${st?ROMAN[st[1]-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span>`;
     return `<div class="mcard cad" title="${esc(c.name)}: ${fr(scCost(c))}"><span class="mart"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt=""></span>${strip}</div>`; }
+  if((c.kind==='research' && IMG['card-research-bg']) || (c.kind==='humanity' && IMG['card-humanity-bg'])){ const hum=c.kind==='humanity';
+    return `<div class="mcard face ${hum?'hum':''}" title="${esc(c.name)}"><span class="memblem">${icon(hum?'cross':'book', hum?'✝':'📖')}</span><span class="mname">${esc(c.name)}</span></div>`; }
   const framed = hasFrame() && c.kind==='research';
   return `<div class="mcard ${framed?'framed':''}"><span class="mart">${miniArt(c)}</span><span class="mname">${esc(c.name)}</span></div>`; }
 function miniBack(name,left){ return IMG['card-tall-back'] ? `<div class="mcard back"><span class="plate">${esc(name)}</span><span class="mcount">${left}</span></div>` : `<div class="mcard back plain"><span class="mname">${esc(name)} deck</span><span class="mcount">${left}</span></div>`; }
