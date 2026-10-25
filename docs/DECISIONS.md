@@ -366,3 +366,6 @@ Tagline, logo, name and rivals fields, buttons and the picker are centred. Each 
 
 **D116. No home slots under the scientist cards.** (Bruno: "let's remove the meeples from the cards. That never made too much sense.")
 The strip of three dotted meeple slots under each scientist card on the title screen is gone; the card ends at its parchment panel.
+
+**D117. Bigger emblem and name on the research and humanity mini cards.** (Bruno: "make the miniature text and book icon bigger in academy. Same for Church.")
+The book or cross fills 62% of the mini card's width (was 54%) and the name runs at up to 9px (was 7px), with less padding around them.
