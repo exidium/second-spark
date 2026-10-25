@@ -25,7 +25,7 @@ Run both tests before calling a change done. A healthy build has no page errors,
 All four JS files are concatenated into one IIFE by `build.py`, so they share scope. Order matters only for top-level `const`s used at load time.
 
 ## Conventions
-- **Player-facing text:** no em dashes, no italics, and no font size below 12px (the build fails on an em dash or a smaller size). Short, plain sentences. Every option shows its exact gain and cost.
+- **Player-facing text:** no em dashes, no italics, and no font size below 11px (the build fails on an em dash or a smaller size). Short, plain sentences. Every option shows its exact gain and cost.
 - **Yes/no questions** use Accept / Refuse with the effect written in the question. **Encounter choices** keep their story wording.
 - **Tooltips** only on the blue threshold squares of the expertise and reputation bars and on the Cards tile (what is in your hand). Nowhere else. A place explains itself in the white line over its popup scene.
 - **Original names and art** for anything creative. Mechanics and numbers may match the physical game.

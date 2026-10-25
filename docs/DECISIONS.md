@@ -405,3 +405,6 @@ Every font size below 12px (164 declarations, from 4px strip digits on the board
 
 **D129. The Laboratory popup loses the cards-in-hand section and the body line.** (Bruno: "remove 'cards in hand'. remove R Leg L Leg R Arm L Arm Torso Head.")
 Cards are reached from the Cards tile; the table shows the parts. The Your character popup keeps its cards section.
+
+**D130. Minimum font size is 11px.** (Bruno: "miniature cards can be done in 11px font. The minimum fonts can be 11 again.")
+The floor of D128 moves from 12px to 11px: sizes that were 11 or 11.5px before the rule return, anything smaller stays at 11px, and the build guard checks for 11px. The mini cards on the board settle at 52 to 70px wide with 15px strip cells.
