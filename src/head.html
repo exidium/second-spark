@@ -400,7 +400,12 @@ i,em{font-style:normal}
 
 /* tall framed cards (engraved parchment front, wooden back) */
 .gcard-wrap{display:flex;flex-direction:column;gap:6px;width:190px}
-.gcard-wrap .gc-acts{padding:0;justify-content:center}
+.gcard-wrap .gc-acts{padding:0;justify-content:center;gap:8px;margin-top:6px}
+.gc-acts .tog{background:var(--panel2);border:1px solid var(--line2);color:var(--parch);border-radius:4px;padding:8px 14px;font-family:var(--f-display);font-size:14px;letter-spacing:.02em;display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.gc-acts .tog:hover{border-color:var(--parch-dim)}
+.gc-acts .tog.on{background:var(--spark);color:#0e1520;border-color:var(--spark)}
+.gc-acts .tog .ico.si{width:18px;height:18px}
+.gc-acts .tog:disabled{opacity:.45;cursor:not-allowed}
 .gcard.framed{width:190px;aspect-ratio:1744/2336;background:var(--card-front) center/100% 100% no-repeat;border:0;border-radius:6px;box-shadow:0 8px 22px rgba(0,0,0,.55);color:#2b2420;padding:13.5% 10.5% 17%;position:relative;overflow:hidden;gap:3px}
 .gcard-wrap.sel .gcard.framed{outline:3px solid var(--spark);outline-offset:1px}
 .gcard.framed .gc-kind{padding:0;font-size:11px;text-align:center;opacity:.75}
@@ -424,9 +429,10 @@ i,em{font-style:normal}
 .ccard{position:relative;width:190px;aspect-ratio:3/4;border-radius:7px;overflow:hidden;border:2px solid #2a2320;box-shadow:0 8px 22px rgba(0,0,0,.55);background:#0e0b0c;display:flex;flex-direction:column;justify-content:flex-end}
 .ccard>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
 .ccard .ck{position:absolute;top:5px;left:7px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--parch);text-shadow:0 1px 3px #000;opacity:.85}
-.ccard .cn{position:absolute;top:16px;left:7px;right:7px;font-family:var(--f-display);font-size:13px;color:var(--parch);text-shadow:0 1px 3px #000,0 0 6px #000;line-height:1.1}
+.ccard .cn{position:absolute;top:24px;left:7px;right:7px;font-family:var(--f-display);font-size:13px;color:var(--parch);text-shadow:0 1px 3px #000,0 0 6px #000;line-height:1.1}
 .ccard .cicons{position:relative;display:flex;gap:4px;justify-content:center;padding:0 6px 4px;font-size:11px;font-weight:600;color:var(--parch);text-shadow:0 1px 3px #000}
-.ccard .ci{background:rgba(14,11,12,.72);border:1px solid rgba(236,224,198,.3);border-radius:3px;padding:1px 6px}
+.ccard .ci{background:rgba(14,11,12,.72);border:1px solid rgba(236,224,198,.3);border-radius:3px;padding:2px 6px;display:inline-flex;align-items:center;gap:3px;font-size:13px}
+.ccard .ci .ico.si{width:16px;height:16px}
 .ccard .ci i{font-style:normal;font-weight:400;font-size:11px;letter-spacing:.06em;text-transform:uppercase;opacity:.8}
 .ccard .ci.dim{opacity:.6}.ccard .ci.cost{border-color:#d6675f;color:#f0a79f}
 .ccard .cstrip{position:relative;display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr 1fr;gap:3px;padding:4px;background:#1a1416;border-top:2px solid #3b2d22}
@@ -534,7 +540,8 @@ i,em{font-style:normal}
 .place.can .pchip{border-color:var(--spark);box-shadow:0 0 0 .25cqw var(--spark-glow),0 0 1.5cqw var(--spark-glow);animation:pulse2 1.6s ease-in-out infinite;cursor:pointer}
 .place.can:hover .pchip{background:rgba(159,208,255,.18)}
 @keyframes pulse2{50%{box-shadow:0 0 0 .25cqw transparent,0 0 .4cqw transparent}}
-.place.closed{opacity:.5}.place.closed .pname{text-decoration:line-through;text-decoration-color:#d04040;text-decoration-thickness:2px}
+.place.closed{cursor:default}.place.closed .pchip{position:relative;overflow:visible}
+.place.closed .pcross{position:absolute;inset:-2px -6px;pointer-events:none;opacity:.9;background:linear-gradient(to top right,transparent calc(50% - 1.2px),#d04040 calc(50% - 1.2px),#d04040 calc(50% + 1.2px),transparent calc(50% + 1.2px)),linear-gradient(to top left,transparent calc(50% - 1.2px),#d04040 calc(50% - 1.2px),#d04040 calc(50% + 1.2px),transparent calc(50% + 1.2px));filter:drop-shadow(0 1px 1px #000)}
 .pname{font-family:var(--f-display);font-size:clamp(11px,1.25cqw,14px);color:var(--parch);white-space:nowrap;line-height:1.1}
 .pslots{display:flex;gap:.35cqw}
 .slot{width:clamp(7px,1.1cqw,13px);height:clamp(7px,1.1cqw,13px);border-radius:50%;border:1px dashed var(--parch-dim);display:block;background:transparent;box-sizing:border-box}

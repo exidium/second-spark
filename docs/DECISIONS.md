@@ -432,3 +432,9 @@ Every player-facing Cemetery becomes Graveyard (place name, event and card texts
 
 **D138. Night buttons side by side under the laboratory panel; the night prompt lives only in the sidebar.** (Bruno: "when the night is over, lab phase, only display on side bar. Button should be next to laboratory, not under it.")
 The Laboratory button sits on its own row under the table and the decomposition grid; at night End the night joins it beside, not below. The night prompt that used to sit under the map is gone with the old picker box; the Your people panel says Night N.
+
+**D139. Cadaver resolution cards: room between kind and name, icons for the tags, real buttons, no stage lesson.** (Bruno: "The card title and subtitle are too close. Instead of +2 exp, use icon. The check boxes below are terrible: make them bigger, good contrast, breathing space. Remove the text 'Stage I is freshest...'. In the button +2 expertise, just put icon and number.")
+The name on a cadaver card starts 24px down, clear of the place label. The tags on the picture read +2 with the expertise icon, the humanity cost with the broken heart, the price with the coin. The choices under each card (Materials, +N with the expertise icon, Leave, research cards) are proper buttons: dark panel, parchment type at 14px, 8px apart, the chosen one filled blue. The sentence about stages is gone; only the flat cost and All Saints notes remain when they apply.
+
+**D140. A closed place is crossed out in red and shows nothing else.** (Bruno: "when a location isn't available, just cross with red and put tooltip 'Closed'. No need to reduce opacity. If the place is closed, don't show any cards and actions. If it's closed, you can't see anything and that's it.")
+A closed place keeps full colour; a red X covers its chip and hovering it says Closed. Its meeple slots, its card row and its popup are not shown while it is closed.

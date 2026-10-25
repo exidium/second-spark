@@ -231,8 +231,8 @@ async function cadaverModal(p, cards, o){
     <div class="gcards">${cards.map(c=>{ const pk=picks[c.id]; const extra=cardsFor(c);
       const t=(label,how,dis)=>`<button class="tog ${pk.how===how?'on':''}" ${dis?'disabled':''} data-mfn="${reg(()=>{ pk.how=how; rr(); })}">${label}</button>`;
       const rc=extra.map(h=>`<button class="tog ${pk.card===h.id?'on':''}" data-mfn="${reg(()=>{ pk.card = pk.card===h.id?null:h.id; if(pk.how==='leave') pk.how='mats'; rr(); })}">${esc(h.name)}</button>`).join('');
-      return cardHTML(c,{sel:pk.how!=='leave', acts:`<div class="gc-acts">${t('Materials','mats')}${c.exp?t(`+${c.exp} expertise`,'exp'):''}${o.single?'':t('Leave','leave')}${rc}</div>`, noCost:o.noCardCost, extraH:o.extraH}); }).join('')}</div>
-    <p style="font-size:12.5px;color:var(--muted);margin-top:10px">Stage I is freshest. Blood rots after stage II, stage IV rots at dawn.${o.flatCost?' Resolving any card costs 1 humanity in total.':''}${(o.extraH)?' All Saints’ Day: every resolved card costs 1 extra humanity.':''}</p>
+      return cardHTML(c,{sel:pk.how!=='leave', acts:`<div class="gc-acts">${t('Materials','mats')}${c.exp?t(`+${c.exp} ${icon('expertise','🧠','si')}`,'exp'):''}${o.single?'':t('Leave','leave')}${rc}</div>`, noCost:o.noCardCost, extraH:o.extraH}); }).join('')}</div>
+    ${o.flatCost||o.extraH?`<p style="font-size:12.5px;color:var(--muted);margin-top:10px">${o.flatCost?'Resolving any card costs 1 humanity in total. ':''}${o.extraH?'All Saints’ Day: every resolved card costs 1 extra humanity.':''}</p>`:''}
     <div class="actions"><button class="btn primary" data-mfn="${reg(()=>done(picks))}">Done</button></div>`; }});
 }
 
@@ -323,7 +323,7 @@ function cadaverFromRowStatic(src,row,k){ const [st,m,exp,hc,name,cost]=row; con
 function cadaverCardHTML(c, extra, hc){
   const n=t=>{ const m=c.mats.find(x=>x[0]===t); return m?m[2]:0; };
   const cells=[['muscle',n('muscle')],['organ',n('organ')],['blood',n('blood')],['bone',n('bone')]].map(([t,v])=>`<span class="cs ${t} ${v?'':'z'}" title="${v} ${t}">${v}</span>`).join('');
-  const icons=`${c.exp?`<span class="ci" title="or +${c.exp} expertise">+${c.exp} <span class="soft">exp</span></span>`:'<span class="ci dim">bones</span>'}${hc?`<span class="ci cost" title="−${hc} humanity to resolve">−${hc} <span class="soft">hum</span></span>`:''}${c.cost?`<span class="ci cost">+${fr(c.cost)}</span>`:''}`;
+  const icons=`${c.exp?`<span class="ci" title="or +${c.exp} expertise">+${c.exp}${icon('expertise','🧠','si')}</span>`:'<span class="ci dim">bones</span>'}${hc?`<span class="ci cost" title="−${hc} humanity to resolve">−${hc}${icon('heart-broken','💔','si')}</span>`:''}${c.cost?`<span class="ci cost" title="${fr(c.cost)} to buy">${c.cost}${icon('coin','🪙','si')}</span>`:''}`;
   return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="ccard" title="${esc(c.name)}"><img src="${IMG[c.art]}" alt="">
       <span class="ck">${esc(LOC[c.src].name)}</span><span class="cn">${esc(c.name)}</span>
       <div class="cicons">${icons}</div>
@@ -462,7 +462,8 @@ function boardHTML(){
   const p=S.players[0];
   const places = visibleLocs().map(l=>{
     const keys=l.spaces.map(sp=>l.id+'.'+sp.k), can=keys.some(humanCan), closed=!!S.closed[l.id], b=BOARD_POS[l.id]||{x:50,y:50};
-    return `<div class="place ${can?'can':''} ${closed?'closed':''} cards-${b.cards||'none'}" style="left:${b.x}%;top:${b.y}%" data-act="loc" data-id="${l.id}" tabindex="0" role="button" aria-label="${esc(l.name)}">
+    if(closed) return `<div class="place closed cards-none" style="left:${b.x}%;top:${b.y}%" data-id="${l.id}" title="Closed" aria-label="${esc(l.name)}, closed today"><div class="pchip"><span class="pname">${esc(l.name)}</span><span class="pcross" aria-hidden="true"></span></div></div>`;
+    return `<div class="place ${can?'can':''} cards-${b.cards||'none'}" style="left:${b.x}%;top:${b.y}%" data-act="loc" data-id="${l.id}" tabindex="0" role="button" aria-label="${esc(l.name)}">
       <div class="pchip"><span class="pname">${esc(l.name)}</span><span class="pslots">${keys.map(slotDot).join('')}</span></div>${slotsHTML(l)}</div>`;
   }).join('');
   const lab = `<div class="labstrip" style="left:${LAB_STRIP.x}%;top:${LAB_STRIP.y}%"><span class="pname">Your laboratory</span><div class="labplaces">${LABSPOTS.map(L=>{ const key='lab.'+L.id, used=p.labUsed[L.id], can=humanCan(key);
