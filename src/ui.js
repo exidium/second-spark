@@ -262,7 +262,7 @@ function cardHTML(c, extra){
     if(c.tpl!=null && IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]) return scoundrelCardHTML(c, extra, cost, hc);
     return `<div class="gcard ${extra.sel?'sel':''}"><span class="gc-kind">Scoundrel · ${fr(cost)}${hc?` · −${hc} humanity`:''}</span><span class="gc-title">${esc(c.name)}</span>
       <div class="gc-art">${scoundrelArt(c)}</div>
-      <div class="gc-body"><i>${esc(c.who||'')}</i>${c.kind==='thief'?`<div>Draw ${c.draw} cadaver${c.draw>1?'s':''} from the Hospital stack</div>`:`<div class="gc-row">${matsHTML(c.mats||[])}</div>${opts.length?`<div>or ${opts.join(' or ')}</div>`:''}`}</div>${extra.acts||''}</div>`;
+      <div class="gc-body"><span class="soft">${esc(c.who||'')}</span>${c.kind==='thief'?`<div>Draw ${c.draw} cadaver${c.draw>1?'s':''} from the Hospital stack</div>`:`<div class="gc-row">${matsHTML(c.mats||[])}</div>${opts.length?`<div>or ${opts.join(' or ')}</div>`:''}`}</div>${extra.acts||''}</div>`;
   }
   if(c.kind==='research'){
     const art=ICONART[c.id==='demo'||c.id==='electro'?'jar':c.id==='healing'||c.id==='transfusion'?'flask':c.id==='tutor'||c.id==='guest'?'coin':'book'];
@@ -295,7 +295,7 @@ function encounterCardHTML(e){
   const who = e.who==='captain'?'Captain Walton':e.who==='woman'?'A stranger':'The Creature';
   const trig = e.loc ? `Hidden. Triggers on the first rival to use ${esc(LOC[e.loc.split('.')[0]].name)}: ${esc(SPACE[e.loc].n)}.` : `Now. ${({maxExp:'The scientist with the most expertise',fewestComplete:'The scientist with the fewest complete parts',maxHum:'The scientist with the most humanity',fpOther:'Someone the first player chooses (not themselves)',fp:'Someone the first player chooses',fpWithPart:'Someone with a part on the table, chosen by the first player',lastDark:'Whoever last killed or hired a Cutthroat',mostHumCards:'Whoever holds the most humanity cards'})[e.target]}.`;
   return `<div class="ecard"><div class="eart">${encounterArt(e)}<span class="ek">Encounter · days ${e.r[0]} to ${e.r[1]}</span><span class="en">${who}</span></div>
-    <div class="ebody"><i>${esc(e.text)}</i><div>${trig}</div>${e.testText?`<div>Test: ${esc(e.testText)}.</div>`:''}${e.choice?`<div>Choice: ${esc(e.choice[0])} or ${esc(e.choice[1])}.</div>`:''}</div></div>`;
+    <div class="ebody"><span class="soft">${esc(e.text)}</span><div>${trig}</div>${e.testText?`<div>Test: ${esc(e.testText)}.</div>`:''}${e.choice?`<div>Choice: ${esc(e.choice[0])} or ${esc(e.choice[1])}.</div>`:''}</div></div>`;
 }
 // Character portrait: generated image if art/character-<id>.* was embedded at build time, else the SVG portrait.
 // Title logo: art/title.webp (gold lettering with a transparent ground), else the text heading.
@@ -325,7 +325,7 @@ function cadaverFromRowStatic(src,row,k){ const [st,m,exp,hc,name,cost]=row; con
 function cadaverCardHTML(c, extra, hc){
   const n=t=>{ const m=c.mats.find(x=>x[0]===t); return m?m[2]:0; };
   const cells=[['muscle',n('muscle')],['organ',n('organ')],['blood',n('blood')],['bone',n('bone')]].map(([t,v])=>`<span class="cs ${t} ${v?'':'z'}" title="${v} ${t}">${v}</span>`).join('');
-  const icons=`${c.exp?`<span class="ci" title="or +${c.exp} expertise">+${c.exp} <i>exp</i></span>`:'<span class="ci dim">bones</span>'}${hc?`<span class="ci cost" title="−${hc} humanity to resolve">−${hc} <i>hum</i></span>`:''}${c.cost?`<span class="ci cost">+${fr(c.cost)}</span>`:''}`;
+  const icons=`${c.exp?`<span class="ci" title="or +${c.exp} expertise">+${c.exp} <span class="soft">exp</span></span>`:'<span class="ci dim">bones</span>'}${hc?`<span class="ci cost" title="−${hc} humanity to resolve">−${hc} <span class="soft">hum</span></span>`:''}${c.cost?`<span class="ci cost">+${fr(c.cost)}</span>`:''}`;
   return `<div class="gcard-wrap ${extra.sel?'sel':''}"><div class="ccard" title="${esc(c.name)}"><img src="${IMG[c.art]}" alt="">
       <span class="ck">${esc(LOC[c.src].name)}</span><span class="cn">${esc(c.name)}</span>
       <div class="cicons">${icons}</div>
@@ -356,7 +356,7 @@ function scoundrelCardHTML(c, extra, cost, hc){
   const n=t=>{ const m=(c.mats||[]).find(x=>x[0]===t); return m?m[2]:0; };
   const st=(c.mats||[]).find(x=>x[0]!=='bone'); const stage=st?ROMAN[st[1]-1]:'';
   const marks=`<span class="cm coins" title="${cost} francs">${coins(cost)}</span>${hc?`<span class="cm hearts" title="−${hc} humanity">${hearts(hc,true)}</span>`:''}`;
-  const ben=[ c.exp?`<span class="ci" title="or +${c.exp} expertise${c.expH?', −1 humanity':''}">+${c.exp} <i>exp</i>${c.expH?hearts(1,true):''}</span>`:'',
+  const ben=[ c.exp?`<span class="ci" title="or +${c.exp} expertise${c.expH?', −1 humanity':''}">+${c.exp} <span class="soft">exp</span>${c.expH?hearts(1,true):''}</span>`:'',
               c.hum?`<span class="ci" title="or +${c.hum} humanity">+${c.hum} ${hearts(1)}</span>`:'',
               (c.mats&&c.mats.length)?`<span class="ci" title="or the materials below">mats</span>`:'' ].join('');
   const foot = c.kind==='thief'
@@ -374,7 +374,7 @@ function cadaverArt(c){ const src=c.art&&IMG[c.art]; return src ? `<img src="${s
    BOARD RENDERING
    ========================================================= */
 function bar(filled,n,cls,opts){ opts=opts||{}; return `<div class="bar ${cls}" style="--n:${n}">${Array.from({length:n},(_,k)=>{ const mk=opts.marks&&opts.marks.includes(k+1); const t=mk&&opts.tips?opts.tips[k+1]:'';
-  return `<i class="${k<filled?'on':''} ${mk?'mk':''}" ${t?`data-tipt="${esc(t)}" aria-label="${esc(t.replace(/<[^>]+>/g,''))}"`:''}></i>`; }).join('')}</div>`; }
+  return `<i class="${k<filled?'on':''} ${mk?'mk':''}" ${t?`data-tipt="${esc(t)}" aria-label="${esc(t.replace(/<[^>]+>/g,''))}"`:''}></span>`; }).join('')}</div>`; }
 const EXP_TIPS={3:'<b>Expertise 3</b>You can build arms.',8:'<b>Expertise 8</b>You can build the torso.',10:'<b>Expertise 10</b>One of your shock dice becomes a blue die (more eyes, fewer bolts).',14:'<b>Expertise 14</b>You can build the head.',20:'<b>Expertise 20</b>Two of your shock dice become blue.',27:'<b>Expertise 27</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
 const REP_TIPS={7:'<b>Reputation 7</b>The Hospital lets you retrieve a cadaver for free. You hire a 3rd assistant.',15:'<b>Reputation 15</b>An assistant is promoted to a 2nd scientist. At the Hospital you may take a 2nd cadaver for 1 franc.',23:'<b>Reputation 23</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
 const SLOT_ORDER=[['legR','R Leg'],['legL','L Leg'],['armR','R Arm'],['armL','L Arm'],['torso','Torso'],['head','Head']];
@@ -387,7 +387,7 @@ function statBars(p, small){
       <div class="track"><span class="lab">${icon('reputation','🎖️','si')}Reputation</span>${bar(Math.min(p.rep,30),30,'r',{marks:[7,15,23], tips:REP_TIPS})}<span class="num">${p.rep}</span></div>
     </div>`;
 }
-function humBar(h){ return `<div class="bar hd" style="--n:20">${Array.from({length:20},(_,k)=>{ const v=k-10; const on = h<0 ? (v>=h&&v<0) : (v>=0&&v<h); return `<i class="${on?'on '+(h<0?'neg':'pos'):''}" ${k===10?'style="box-shadow:-2px 0 0 var(--parch-dim)"':''}></i>`; }).join('')}</div>`; }
+function humBar(h){ return `<div class="bar hd" style="--n:20">${Array.from({length:20},(_,k)=>{ const v=k-10; const on = h<0 ? (v>=h&&v<0) : (v>=0&&v<h); return `<i class="${on?'on '+(h<0?'neg':'pos'):''}" ${k===10?'style="box-shadow:-2px 0 0 var(--parch-dim)"':''}></span>`; }).join('')}</div>`; }
 // Meeples: flat single-colour silhouettes drawn on a 14x20 pixel grid (one path of unit squares, so they stay crisp at any size).
 // Scientist: top hat, narrow shoulders, split coat tails. Assistant: flat cap with a brim, round shoulders, solid apron. Colour is the player's.
 const MEEPLE_GRID = {
@@ -430,7 +430,7 @@ function faceUp(id){ return id==='hospital'?S.hosp : id==='academy'?S.researchRo
 // Research scene: art/research/research-NN.png by the card's position in RESEARCH, else the small SVG icon.
 function researchArt(c){ const k=RESEARCH.findIndex(r=>r.id===c.id); const src=k>=0&&IMG[`research-${String(k+1).padStart(2,'0')}`]; return src ? `<img src="${src}" alt="">` : researchIcon(c); }
 function researchIcon(c){ return ICONART[c.id==='demo'||c.id==='electro'?'jar':c.id==='healing'||c.id==='transfusion'?'flask':c.id==='tutor'||c.id==='guest'?'coin':'book']; }
-function slotDot(key){ const o=S.occ[key]; if(!o) return '<i class="slot"></i>'; return `<i class="slot on ${o.kind==='scientist'?'sci':''}">${meeple(o.kind,S.players[o.p].color,16)}</i>`; }
+function slotDot(key){ const o=S.occ[key]; if(!o) return '<i class="slot"></span>'; return `<i class="slot on ${o.kind==='scientist'?'sci':''}">${meeple(o.kind,S.players[o.p].color,16)}</span>`; }
 function miniArt(c){ if(c.kind==='cadaver') return cadaverArt(c); if(SC_WHO[c.kind]) return scoundrelArt(c); if(c.kind==='research') return researchArt(c); if(c.kind==='humanity') return ICONART.candle; return ''; }
 // Mini card on the board: art and name only. The place popup shows the same card at full size.
 function miniCard(c){
@@ -449,7 +449,7 @@ function slotsHTML(l){
   let inner='';
   if(l.id==='cemetery') inner=miniBack('Cemetery', S.decks.cemetery.length);
   else if(l.id==='morgue') inner=miniBack('Morgue', S.decks.morgue.length);
-  else { const rows=faceUp(l.id); inner = rows.length ? rows.slice(0,3).map(miniCard).join('') : '<i class="mslot"></i>'; }
+  else { const rows=faceUp(l.id); inner = rows.length ? rows.slice(0,3).map(miniCard).join('') : '<i class="mslot"></span>'; }
   return `<div class="slots">${inner}</div>`;
 }
 function boardHTML(){
@@ -460,7 +460,7 @@ function boardHTML(){
       <div class="pchip"><span class="pname">${esc(l.name)}</span><span class="pslots">${keys.map(slotDot).join('')}</span></div>${slotsHTML(l)}</div>`;
   }).join('');
   const lab = `<div class="labstrip" style="left:${LAB_STRIP.x}%;top:${LAB_STRIP.y}%"><span class="pname">Your laboratory</span><div class="labplaces">${LABSPOTS.map(L=>{ const key='lab.'+L.id, used=p.labUsed[L.id], can=humanCan(key);
-    return `<div class="place lab ${can?'can':''}" data-act="labplace" data-id="${L.id}" tabindex="0" role="button" aria-label="${esc(L.name)}"><div class="pchip"><span class="pname">${esc(L.name)}</span><span class="pslots">${used?`<i class="slot on ${used==='scientist'?'sci':''}">${meeple(used,p.color,16)}</i>`:'<i class="slot"></i>'}</span></div></div>`; }).join('')}</div></div>`;
+    return `<div class="place lab ${can?'can':''}" data-act="labplace" data-id="${L.id}" tabindex="0" role="button" aria-label="${esc(L.name)}"><div class="pchip"><span class="pname">${esc(L.name)}</span><span class="pslots">${used?`<i class="slot on ${used==='scientist'?'sci':''}">${meeple(used,p.color,16)}</span>`:'<i class="slot"></span>'}</span></div></div>`; }).join('')}</div></div>`;
   return `<div class="board" aria-label="Paris, 1819">${places}${lab}</div>`;
 }
 // Small gain tokens for option rows: a number with an icon, a material cube, or a short text.
@@ -561,7 +561,7 @@ function todayModal(){
 }
 function todayLabel(){ const c=S.card; if(!c) return ''; if(c.t==='ev') return esc(EVENTS.find(x=>x.id===c.id).name); const e=ENCOUNTERS.find(x=>x.id===c.id); return `Encounter: ${e.who==='captain'?'Captain Walton':e.who==='woman'?'a stranger':'the Creature'}`; }
 function captainTrack(){
-  return `<div class="captain" title="Captain Walton closes in. When he reaches the skull, the game ends.">${Array.from({length:MAX_ROUNDS},(_,k)=>`<i class="${k<S.captain?'past':''} ${k===S.captain?'now':''}"></i>`).join('')}<span class="skull">☠</span></div>`;
+  return `<div class="captain" title="Captain Walton closes in. When he reaches the skull, the game ends.">${Array.from({length:MAX_ROUNDS},(_,k)=>`<i class="${k<S.captain?'past':''} ${k===S.captain?'now':''}"></span>`).join('')}<span class="skull">☠</span></div>`;
 }
 function whoSendHTML(){
   const p=S.players[0];
@@ -609,21 +609,21 @@ function anatomyHTML(p,ro){
 }
 function decayGridHTML(p){
   const cell=(t,n,k)=>{ const rot=n&&(k===3||(t==='blood'&&k===1)); return `<b class="dg-cell ${n?'on '+t:''} ${rot?'rot':''}">${n||''}</b>`; };
-  const rows=MATS.map(t=>`<div class="dg-row"><span class="dg-name"><i class="cube ${t}"></i>${MAT_N[t]}</span>${p.mats[t].map((n,k)=>cell(t,n,k)).join('')}</div>`).join('');
+  const rows=MATS.map(t=>`<div class="dg-row"><span class="dg-name"><i class="cube ${t}"></span>${MAT_N[t]}</span>${p.mats[t].map((n,k)=>cell(t,n,k)).join('')}</div>`).join('');
   return `<div class="decaygrid"><div class="dg-row dg-head"><span class="dg-name">Decomposition</span><b>I</b><b>II</b><b>III</b><b>IV</b></div>${rows}
-    <div class="dg-foot"><span><i class="cube bone"></i>Bone <b>${p.bone}</b></span><span>Preserved <b>${p.preserved}</b><small>/9</small></span>${p.ice?`<span class="ice">${icon('ice','🧊','si')}no decay for ${p.ice} dawn${p.ice>1?'s':''}</span>`:''}</div></div>`; }
+    <div class="dg-foot"><span><i class="cube bone"></span>Bone <b>${p.bone}</b></span><span>Preserved <b>${p.preserved}</b><small>/9</small></span>${p.ice?`<span class="ice">${icon('ice','🧊','si')}no decay for ${p.ice} dawn${p.ice>1?'s':''}</span>`:''}</div></div>`; }
 function decayHTML(p,ro){
   const lab=!ro&&S.phase==='lab';
-  const rows=MATS.map(t=>`<tr><td><i class="cube ${t}"></i> ${MAT_N[t]}</td>${p.mats[t].map((n,k)=>`<td class="${n?'':'z'} ${(k===3||(t==='blood'&&k===1))&&n?'rot':''}">${n}</td>`).join('')}</tr>`).join('');
+  const rows=MATS.map(t=>`<tr><td><i class="cube ${t}"></span> ${MAT_N[t]}</td>${p.mats[t].map((n,k)=>`<td class="${n?'':'z'} ${(k===3||(t==='blood'&&k===1))&&n?'rot':''}">${n}</td>`).join('')}</tr>`).join('');
   const pres = lab ? ['muscle','organ'].map(t=>{ const n=Math.min(sum(p.mats[t]),9-p.preserved); return n?`<button class="chip" data-act="preserve" data-t="${t}" data-n="${Math.min(3,n)}">Preserve ${Math.min(3,n)} ${t}</button>`:''; }).join('') : '';
   return `<table class="decay"><thead><tr><th>Material</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr></thead><tbody>${rows}
-    <tr><td><i class="cube bone"></i> Bone</td><td colspan="4" style="text-align:left">${p.bone} <span style="color:var(--muted)">· never rots (max 12)</span></td></tr>
+    <tr><td><i class="cube bone"></span> Bone</td><td colspan="4" style="text-align:left">${p.bone} <span style="color:var(--muted)">· never rots (max 12)</span></td></tr>
     <tr><td>Preserved</td><td colspan="4" style="text-align:left">${p.preserved} of 9 <span style="color:var(--muted)">· flesh kept for selling at the Market</span></td></tr></tbody></table>
     ${pres?`<div class="row" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${pres}</div>`:''}
     <p style="font-size:12px;color:var(--muted);margin:6px 0 0">Each dawn materials age one stage. Red cells rot at the next dawn.${p.ice?` <b style="color:var(--spark)">Ice: no decay for ${p.ice} more dawn${p.ice>1?'s':''}.</b>`:''}</p>`;
 }
 function handHTML(p){
-  if(!p.hand.length) return '<div style="font-size:13px;color:var(--muted);font-style:italic">No cards. Research comes from the Academy, humanity cards from Saint-Roch.</div>';
+  if(!p.hand.length) return '<div style="font-size:13px;color:var(--muted)">No cards. Research comes from the Academy, humanity cards from Saint-Roch.</div>';
   return p.hand.map(c=>{ const can=cardPlayable(0,c) && !busy;
     const WHERE={preserve:'Use it: offered at the Market when you sell preserved flesh.', steady:'Use it: at night, tick the Steady Hands box above your parts, then build.', guest:'Use it: offered when you lecture at the Academy.',
       daisy:'Use it: offered when you resolve a cadaver.', dissect:'Use it: offered when you resolve a stage I or II cadaver.', electro:'Use it: offered when you resolve a stage I to III cadaver (needs a charged jar).',
@@ -631,8 +631,8 @@ function handHTML(p){
       burial:'Use it: offered at the Public Square.', animal:'Use it: offered when you lecture.', human:'Use it: offered when you lecture.', trap:'Use it: offered when the Creature visits you.', mercy:'Use it: offered when an execution is announced.',
       midnight:'Use it: press Play during your turn in the city phase.', publish:'Use it: press Play during your turn, while your scientist is still at home.'};
     const how = WHERE[c.id] || (c.when==='any'||c.when==='aid'||c.when==='target' ? 'Use it: press Play.' : '');
-    const thumb = c.kind==='research' ? `<span class="hthumb">${researchArt(c)}</span>` : '';
-    return `<div class="hcard">${thumb}<span><span class="eyebrow">${c.kind}</span><br><b>${esc(c.name)}</b><br><span style="color:var(--parch-dim)">${esc(c.text)} ${gainTxt(c.gain)?'<b>'+gainTxt(c.gain)+'</b>':''}</span>${c.mit?`<br><span style="font-size:12px;color:var(--spark)">Or spend it after throwing the switch: ${MIT_N[c.mit]}</span>`:''}${how?`<br><span style="font-size:12px;color:var(--muted)">${how}</span>`:''}</span>${can?`<button class="animate" data-act="play" data-id="${c.id}">Play</button>`:''}</div>`; }).join('');
+    const acts=`<div class="gc-acts col">${can?`<button class="btn primary" data-act="play" data-id="${c.id}">Play</button>`:''}${how?`<span class="huse">${esc(how)}</span>`:''}</div>`;
+    return cardHTML(c,{acts}); }).join('');
 }
 // ---------- Laboratory popup (night actions) ----------
 function switchBoxHTML(p){
@@ -653,7 +653,7 @@ function labBody(){
       <div class="labcol"><div class="sub" style="margin-top:0">Body parts</div>${toggles.trim()?`<div class="row" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${toggles}</div>`:''}<div class="anat">${anatomyHTML(p)}</div></div>
       <div class="labcol"><div class="sub" style="margin-top:0">Decomposition track</div>${decayHTML(p)}<div class="sub">Points per part and quality</div>${pointsTable()}</div>
     </div>
-    <div class="sub">Cards in hand <span style="font-size:12px;color:var(--muted)">(up to 3 of each kind)</span></div><div class="hand">${handHTML(p)}</div>`;
+    <div class="sub">Cards in hand <span style="font-size:12px;color:var(--muted)">(up to 3 of each kind)</span></div><div class="gcards">${handHTML(p)}</div>`;
 }
 // Live modals re-render on every render(), so builds, preserves and card plays refresh in place.
 function labModal(){ openModal({kind:'lab', live:true, title:'Your laboratory', wide:true, xwide:true, html:()=>labBody(),
@@ -664,13 +664,13 @@ function characterModal(){
       ${hasChar(p,'zoo')&&!p.zooUsed&&p.jars.some(j=>!j)&&S.phase!=='end'?`<div style="margin-top:6px"><button class="chip" data-act="zoo">Charge 1 ${icon('jar','🏺','si')} jar with the eel</button></div>`:''}
       ${p.police?`<p class="hint" style="margin:8px 0 0">You have <b>${p.police} police marker${p.police>1?'s':''}</b> from the Dark Alley. ${p.police>=2?'The Dark Alley is closed to you. ':''}<button class="chip" data-act="police" ${p.coin>=3?'':'disabled'}>Pay 3 francs to clear them</button></p>`:''}</div></div>
     <div class="res four" style="margin-top:12px"><div><b>${p.vp}</b><span>VP built</span></div><div><b>${aliveCount(p)}<small>/6</small></b><span>Alive</span></div><div><b>${p.left.scientist}</b><span>Scientists home</span></div><div><b>${p.left.assistant}</b><span>Assistants home</span></div></div>
-    <div class="sub">Cards in hand <span style="font-size:12px;color:var(--muted)">(up to 3 of each kind)</span></div><div class="hand">${handHTML(p)}</div>`,
+    <div class="sub">Cards in hand <span style="font-size:12px;color:var(--muted)">(up to 3 of each kind)</span></div><div class="gcards">${handHTML(p)}</div>`,
     buttons:[{label:'Close',primary:true,fn:closeModal}]});
 }
 // Your hand: research and humanity cards picked up at the Academy, Saint-Roch and elsewhere, with Play buttons.
 function handModal(){
   const p=S.players[0];
-  openModal({kind:'hand', live:true, title:'Your cards', wide:true, html:()=>`<p class="flavor" style="margin-top:0">Research cards come from the Academy, humanity cards from Saint-Roch. You may hold up to 3 of each kind; a 4th replaces the oldest.</p><div class="hand">${handHTML(p)}</div>`, buttons:[{label:'Close',primary:true,fn:closeModal}]});
+  openModal({kind:'hand', live:true, title:'Your cards', wide:true, html:()=>`<p class="flavor" style="margin-top:0">Research cards come from the Academy, humanity cards from Saint-Roch. You may hold up to 3 of each kind; a 4th replaces the oldest.</p><div class="gcards">${handHTML(p)}</div>`, buttons:[{label:'Close',primary:true,fn:closeModal}]});
 }
 // ---------- Right column ----------
 function rivalsRow(){

@@ -14,7 +14,7 @@
   --paper:#d9c8a3; --paper2:#cbb88f; --paper-ink:#3b2d22;
   --f-display:"Amarante",Georgia,serif;              /* every title, card name, button and label */
   --f-title:var(--f-display);                          /* the two big headings share it */
-  --f-flavor:"EB Garamond",Georgia,serif;            /* italic flavour text */
+  --f-flavor:"EB Garamond",Georgia,serif;            /* flavour text, never italic */
   --f-body:"EB Garamond",Georgia,"Times New Roman",serif; /* running text */
   color-scheme:dark;
 }
@@ -28,7 +28,11 @@ button:focus-visible,[tabindex]:focus-visible,input:focus-visible,select:focus-v
 .wrap{max-width:1320px;margin:0 auto;padding-block:18px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.02em}
 .eyebrow{font-family:var(--f-display);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.flavor{font-family:var(--f-flavor);font-style:italic;color:var(--parch-dim)}
+.flavor{font-family:var(--f-flavor);color:var(--parch-dim)}
+i,em{font-style:normal}
+.soft{color:inherit;opacity:.85}
+.gc-acts .huse{font-size:12px;color:var(--muted);text-align:center;max-width:190px;line-height:1.3}
+.modal .gcards{justify-content:flex-start}
 .num{font-variant-numeric:tabular-nums}
 
 /* top bar */
@@ -78,7 +82,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .loc .lname{font-family:var(--f-display);font-size:17px;line-height:1.15}
 .loc .ldist{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .loc .ltext{font-size:13.5px;color:var(--parch)}
-.loc .lcost{font-size:12.5px;color:var(--parch-dim);font-style:italic}
+.loc .lcost{font-size:12.5px;color:var(--parch-dim)}
 .loc .slots{display:flex;gap:5px;margin-top:4px}
 .loc .slot{width:16px;height:16px;border-radius:50%;border:1px dashed var(--line2)}
 .loc.can{border-color:#3b5d7d;cursor:pointer}
@@ -119,11 +123,11 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .figure svg{width:100%;height:auto;display:block}
 .figure .cap{text-align:center;font-size:12.5px;color:var(--parch-dim);margin-top:4px}
 .inv{display:flex;flex-direction:column;gap:6px;min-width:0}
-.inv .empty{font-size:13.5px;color:var(--muted);font-style:italic;padding:6px 0}
+.inv .empty{font-size:13.5px;color:var(--muted);padding:6px 0}
 .part{border:1px solid var(--line);border-radius:3px;padding:7px 8px;display:flex;flex-direction:column;gap:4px;background:var(--panel2);min-width:0}
 .part .ptop{display:flex;justify-content:space-between;gap:6px;align-items:baseline}
 .part .pname{font-family:var(--f-display);font-size:16px}
-.part .powner{font-size:12px;color:var(--parch-dim);font-style:italic;overflow-wrap:anywhere}
+.part .powner{font-size:12px;color:var(--parch-dim);overflow-wrap:anywhere}
 .part .pmeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px}
 .stars{color:var(--brass);letter-spacing:1px}
 .stars .off{color:var(--line2)}
@@ -144,7 +148,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .rivals{display:flex;flex-direction:column;gap:8px}
 .rival{border:1px solid var(--line);border-radius:4px;padding:9px 11px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}
 .rival .rn{font-family:var(--f-display);font-size:16px;display:flex;align-items:center;gap:7px}
-.rival .re{font-size:12px;color:var(--muted);font-style:italic}
+.rival .re{font-size:12px;color:var(--muted)}
 .rival .rs{font-size:12.5px;color:var(--parch-dim);display:flex;flex-wrap:wrap;gap:4px 12px;grid-column:1/-1}
 .pips{display:flex;gap:3px}
 .pips i{width:9px;height:9px;border-radius:50%;border:1px solid var(--line2);display:block}
@@ -227,7 +231,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 #tip{position:fixed;z-index:70;pointer-events:none;max-width:280px;background:var(--panel2);border:1px solid var(--line2);border-radius:4px;padding:10px 12px;font-size:13px;line-height:1.45;box-shadow:0 10px 30px rgba(0,0,0,.5);color:var(--parch)}
 #tip b{font-family:var(--f-display);font-weight:400;font-size:17px;display:block}
 #tip .tp{color:var(--muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
-#tip .tc{color:var(--parch-dim);font-style:italic}
+#tip .tc{color:var(--parch-dim)}
 #tip .ts{margin-top:4px;color:var(--spark)}
 .cube{width:12px;height:12px;border-radius:2px;display:inline-block;border:1px solid rgba(0,0,0,.45);vertical-align:-1px;flex:none}
 .cube.muscle{background:#8a4b2b}.cube.organ{background:#7a5a96}.cube.blood{background:#c03b3b}.cube.bone{background:#ece6d6}.cube.animal{background:#e38b2c}
@@ -483,7 +487,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .ccard .cm.heart{background:#5a1f1f;color:#f0a79f}
 .ccard .cband{position:absolute;left:0;right:0;top:46%;background:rgba(236,224,198,.88);color:#2b2320;padding:4px 8px;text-align:center;border-top:1px solid rgba(0,0,0,.4);border-bottom:1px solid rgba(0,0,0,.4);transform:rotate(-2deg) scale(1.04)}
 .ccard .cband .cn{position:static;display:block;font-family:var(--f-display);font-size:15px;color:#2b2320;text-shadow:none;line-height:1.1}
-.ccard .cband .cq{display:block;font-family:var(--f-flavor);font-style:italic;font-size:10.5px;color:#4a3a2e;line-height:1.1;margin-top:1px}
+.ccard .cband .cq{display:block;font-family:var(--f-flavor);font-size:10.5px;color:#4a3a2e;line-height:1.1;margin-top:1px}
 .ccard .ci small{display:block;font-size:8px;letter-spacing:.04em;text-transform:uppercase;opacity:.8}
 .ccard .cstrip.text{display:block;text-align:center;font-size:11px;line-height:1.25;color:var(--parch);padding:6px 6px}
 .ccard .cstrip.text small{font-size:9.5px;color:var(--parch-dim)}

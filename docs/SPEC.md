@@ -20,7 +20,7 @@ This document describes the game **as currently built** (version 12 of the publi
 ### 2.1 Delivery
 - One HTML page plus an `art/` folder of images beside it (`python3 build.py --embed` makes a single self-contained file instead). Public test build on GitHub Pages at https://exidium.github.io/second-spark/ (`npm run deploy`). No server logic.
 - No JavaScript libraries. Locations, cards and dice are hand-written inline SVG. The six character portraits are generated images (see 12.5) embedded as data URIs; the SVG portrait is the fallback when an image is missing.
-- Fonts from Google Fonts: **Amarante** (every title, card name, button and label), **EB Garamond** (body text, italic for flavor). Georgia/serif fallback. Body size 16px.
+- Fonts from Google Fonts: **Amarante** (every title, card name, button and label), **EB Garamond** (body text and flavour, never italic). Georgia/serif fallback. Body size 16px.
 - External network: none except Google Fonts. (Artifact sandbox blocks other hosts.)
 
 ### 2.2 Source layout
