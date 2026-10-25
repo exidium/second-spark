@@ -304,7 +304,7 @@ function charCardHTML(c){ return `<div class="hcard" style="align-items:flex-sta
 function catalogHTML(){
   const cad=src=>CADAVERS[src].map((r,k)=>{ const c=cadaverFromRowStatic(src,r,k); return cardHTML(c); }).join('');
   return `<p class="flavor">Numbers follow the physical game. Names, wording and art are ours.</p>
-    <div class="sub">Cemetery cadavers (14)</div><div class="gcards">${cad('cemetery')}</div>
+    <div class="sub">Graveyard cadavers (14)</div><div class="gcards">${cad('cemetery')}</div>
     <div class="sub">Morgue cadavers (14)</div><div class="gcards">${cad('morgue')}</div>
     <div class="sub">Hospital cadavers (14)</div><div class="gcards">${cad('hospital')}</div>
     <div class="sub">Public Square cadavers (10)</div><div class="gcards">${cad('square')}</div>
@@ -452,7 +452,7 @@ function miniBack(name,left){ return IMG['card-tall-back'] ? `<div class="mcard 
 function slotsHTML(l){
   const b=BOARD_POS[l.id]||{}; if(!b.cards) return '';
   let inner='';
-  if(l.id==='cemetery') inner=miniBack('Cemetery', S.decks.cemetery.length);
+  if(l.id==='cemetery') inner=miniBack('Grave', S.decks.cemetery.length);
   else if(l.id==='morgue') inner=miniBack('Morgue', S.decks.morgue.length);
   else { const rows=faceUp(l.id).slice(0,3); const fixed=l.id==='academy'||l.id==='church'||l.id==='docks'; const pad=fixed ? Math.max(0,3-rows.length) : (rows.length?0:1);
     inner = rows.map(miniCard).join('') + '<i class="mslot"></i>'.repeat(pad); }
@@ -569,14 +569,6 @@ function todayLabel(){ const c=S.card; if(!c) return ''; if(c.t==='ev') return e
 function captainTrack(){
   return `<div class="captain" title="Captain Walton closes in. When he reaches the skull, the game ends.">${Array.from({length:MAX_ROUNDS},(_,k)=>`<i class="${k<S.captain?'past':''} ${k===S.captain?'now':''}"></i>`).join('')}<span class="skull">☠</span></div>`;
 }
-function whoSendHTML(){
-  const p=S.players[0];
-  if(S.phase==='day' && isMyTurn()) return `<div class="whosend you"><strong>Pick meeple then location</strong>
-      <div class="row stack">${['scientist','assistant'].map(k=>`<button class="btn ${p.sel===k?'primary':''}" data-act="sel" data-k="${k}" ${p.left[k]?'':'disabled'} aria-pressed="${p.sel===k}">${meeple(k,p.sel===k?'#0e1520':p.color,13)} ${k==='scientist'?'Scientist':'Assistant'} <b>${p.left[k]}</b></button>`).join('')}</div></div>`;
-  if(S.phase==='day'){ const c=S.players[S.cur]; return `<div class="whosend"><span class="eyebrow">Day ${S.round}</span><strong><span class="dot" style="background:${c.color}"></span> ${esc(c.name)} is choosing…</strong><span class="hintline">${leftN(p)?`${p.left.scientist} scientist, ${p.left.assistant} assistant${p.left.assistant!==1?'s':''} at home.`:'All your people are out.'}</span></div>`; }
-  if(S.phase==='lab') return `<div class="whosend you"><span class="eyebrow">Night ${S.round}</span><strong>Lab phase</strong><div class="row"><button class="btn primary" data-act="lab">Laboratory</button><button class="btn" data-act="endlab">End the night</button></div></div>`;
-  return `<div class="whosend"><span class="eyebrow">${S.phase==='event'?'Event phase':S.phase==='firstmove'?'The first player moves':'Dawn'}</span><strong>The city stirs…</strong></div>`;
-}
 function objectivesHTML(){
   return `<div class="objs">${S.objectives.map(id=>{ const o=OBJECTIVES.find(x=>x.id===id); const c=S.claimed[id]; return `<span class="obj ${c!==undefined?'got':''}" title="10 VP">${c!==undefined?`<span class="dot" style="background:${S.players[c].color}"></span>`:''}${esc(o.name)}</span>`; }).join('')}</div>`;
 }
@@ -686,6 +678,22 @@ function rivalsRow(){
 }
 function handTipHTML(p){ if(!p.hand.length) return '<b>Cards in hand</b>No cards yet. Research at the Academy, atone at Saint-Roch.';
   return '<b>Cards in hand</b>'+p.hand.map(c=>`<div>• <b style="display:inline;font-size:inherit">${esc(c.name)}</b> <span class="tp" style="display:inline">${c.kind}</span><br>${esc(c.text||'')}</div>`).join(''); }
+// Your people: one figure per meeple. At home it is solid in your colour and picks the kind to send; placed, it leaves a dotted slot naming where it went.
+function peoplePanel(){
+  const p=S.players[0], mine=S.phase==='day'&&isMyTurn();
+  const where=k=>Object.entries(S.occ).filter(([key,o])=>o.p===0&&o.kind===k).map(([key])=>key.startsWith('lab.')?LABSPOT[key.slice(4)].name:LOC[key.split('.')[0]].name);
+  const row=k=>{ const total=k==='scientist'?sciTotal(p):asstTotal(p), home=p.left[k], out=where(k); const items=[];
+    for(let i=0;i<total;i++){ const isHome=i<home;
+      if(isHome) items.push(`<button class="mp home ${p.sel===k?'sel':''}" data-act="sel" data-k="${k}" ${mine?'':'disabled'} aria-pressed="${p.sel===k}" title="${k==='scientist'?'Scientist':'Assistant'} at home"><span class="mslot2">${meeple(k,p.color,26)}</span><small>${k==='scientist'?'Scientist':'Assistant'}</small></button>`);
+      else { const at=out[i-home]||''; items.push(`<span class="mp used" title="${esc(at)}"><span class="mslot2">${meeple(k,'#ece0c6',26)}</span><small>${esc(at)||'out'}</small></span>`); } }
+    return items.join(''); };
+  let head;
+  if(mine) head='Pick a meeple, then a location';
+  else if(S.phase==='day'){ const c=S.players[S.cur]; head=`<span class="dot" style="background:${c.color}"></span> ${esc(c.name)} is choosing…`; }
+  else if(S.phase==='lab') head=`Night ${S.round}`;
+  else head=S.phase==='event'?'Event phase':S.phase==='firstmove'?'The first player moves':'Dawn';
+  return `<section class="panel people ${mine?'you':''}" aria-label="Your people"><span class="eyebrow">Your people</span><strong class="phead">${head}</strong><div class="prow">${row('scientist')}${row('assistant')}</div></section>`;
+}
 function sideColumn(){
   const p=S.players[0], ch=charged(p), lab=S.phase==='lab';
   return `<aside class="sidecol">
@@ -696,10 +704,11 @@ function sideColumn(){
     </section>
     <section class="panel labsum" aria-label="Your laboratory">
       <span class="eyebrow">Your laboratory</span>
-      <div class="labsum-row"><div class="lableft"><button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory">${tableHTML(p,'me')}</button>
-        <div class="row labbtns"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory':'Laboratory'}</button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div></div>
+      <div class="labsum-row"><div class="lableft"><button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory">${tableHTML(p,'me')}</button></div>
         <div class="labright">${decayGridHTML(p)}</div></div>
+      <div class="row labbtns"><button class="btn ${lab?'primary pulse':''}" data-act="lab">Laboratory</button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div>
     </section>
+    ${peoplePanel()}
     ${logPanel()}
   </aside>`;
 }
@@ -794,7 +803,7 @@ function render(){
         ${topRowHTML()}
         ${toolbarHTML()}
         <div class="boardscroll">${boardHTML()}</div>
-        <div class="underbar">${whoSendHTML()}<div class="rivalrow" aria-label="Rival scientists">${rivalsRow()}</div></div>
+        <div class="underbar"><div class="rivalrow" aria-label="Rival scientists">${rivalsRow()}</div></div>
       </div>
       ${sideColumn()}
     </div></div>`;

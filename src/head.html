@@ -564,15 +564,6 @@ i,em{font-style:normal}
 .labplaces{display:flex;gap:.8cqw}
 .place.lab{position:static;transform:none}
 .underbar{display:flex;gap:10px;align-items:stretch}
-.whosend{flex:0 0 220px;background:var(--panel2);border:1px solid var(--line2);border-radius:5px;padding:10px 12px;display:flex;flex-direction:column;gap:5px;font-size:12.5px;min-width:0}
-.whosend.you{border-color:var(--spark);box-shadow:0 0 18px -6px var(--spark-glow)}
-.whosend .eyebrow{font-size:11px}
-.whosend strong{font-family:var(--f-display);font-weight:400;font-size:16px;display:flex;align-items:center;gap:6px}
-.whosend .row{display:flex;gap:6px;flex-wrap:wrap}
-.whosend .row.stack{flex-direction:column;align-items:stretch}
-.whosend .row.stack .btn{justify-content:space-between}
-.whosend .btn{padding:4px 9px;font-size:13px;display:inline-flex;align-items:center;gap:6px}
-.whosend .hintline{color:var(--parch-dim)}
 .sidecol{display:flex;flex-direction:column;gap:12px;min-width:0}
 .sidebtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .sidebtns.two{grid-template-columns:repeat(2,1fr)}
@@ -624,9 +615,21 @@ i,em{font-style:normal}
 .cardsbtn .ico{width:30px;height:30px;filter:drop-shadow(0 1px 2px #000)}
 .cardsbtn .count{position:absolute;top:-7px;right:-7px;background:var(--spark);color:#0e1520;border-radius:10px;min-width:20px;height:20px;padding:0 5px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
 .cardsbtn span{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.labsum .labbtns{display:flex;gap:6px;flex-direction:column;align-items:stretch}
-.labsum .labbtns .btn{padding:6px 8px;font-size:13px;white-space:nowrap}
+.labsum .labbtns{display:flex;gap:8px;flex-direction:row;justify-content:center}
+.labsum .labbtns .btn{flex:1;padding:8px 10px;font-size:14px;white-space:nowrap}
 .rivalrow{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;min-width:0}
+.people{display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center}
+.people.you{border-color:var(--spark);box-shadow:0 0 18px -6px var(--spark-glow)}
+.people .phead{font-family:var(--f-display);font-weight:400;font-size:16px;display:flex;align-items:center;gap:6px}
+.people .prow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.people .mp{display:flex;flex-direction:column;align-items:center;gap:3px;width:62px;background:none;border:0;padding:0;color:inherit;font:inherit}
+.people .mp .mslot2{width:44px;height:58px;padding-bottom:4px}
+.people .mp.home{cursor:pointer}.people .mp.home .mslot2{border-style:solid;border-color:rgba(236,224,198,.55);background:rgba(0,0,0,.3)}.people .mp.home .mslot2 svg{opacity:1;filter:drop-shadow(0 1px 2px #000)}
+.people .mp.home:hover .mslot2{border-color:var(--parch)}
+.people .mp.sel .mslot2{border-color:var(--spark);box-shadow:0 0 14px -2px var(--spark-glow),inset 0 0 0 1px var(--spark)}
+.people .mp.home:disabled{cursor:default}.people .mp.home:disabled .mslot2{opacity:.7}
+.people .mp small{font-size:11px;color:var(--muted);line-height:1.1;max-width:62px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.people .mp.sel small{color:var(--spark)}.people .mp.used small{color:var(--parch-dim)}
 @media (max-width:900px){.underbar{flex-direction:column}.whosend{flex:none}.rivalrow{grid-template-columns:1fr}}
 .rivalmini{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--pc);border-radius:4px;padding:8px 10px;display:flex;flex-direction:row;gap:10px;align-items:center;text-align:left;font:inherit;cursor:pointer;min-width:0;color:var(--parch)}
 .rivalmini .rbody{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}

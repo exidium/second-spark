@@ -423,3 +423,12 @@ The name on a scoundrel card had inherited a centred alignment and sat on the Sc
 
 **D135. Mini card text at 10px.** (Bruno: "miniature card text, leave at 10px.")
 The board's mini cards (deck plate and count, number strips, names) use 10px, the one exception to the 11px floor; those declarations carry a `/*mini*/` mark the build guard honours. The mini cards shrink back to 48 to 64px wide with 14px strip cells.
+
+**D136. Your people: the meeples themselves, in the sidebar under Your laboratory.** (Bruno: "Instead of having those buttons, let's move this whole part below the 'your laboratory' in the sidebar. Instead of having a button for assistant and scientist, I want you to visually show all the meeples. When they are used, create a status or have a dotted line where they were supposed to be.")
+The Pick meeple box leaves the bar under the map (which now holds only the rivals). A Your people panel sits under Your laboratory: one figure per meeple you own (scientists first, then assistants, growing with reputation). A meeple at home is solid in your colour inside a slot and is the button that picks what to send; the chosen one glows blue. A placed meeple leaves a dotted slot with a faint silhouette and the name of the place it went to. The heading reads Pick a meeple, then a location on your turn, otherwise who is choosing or the phase.
+
+**D137. The Cemetery is the Graveyard; its deck plate says Grave.** (Bruno: "Cemetery text still doesn't fit the card art. Instead of cemetery, call it graveyard. The card, only say grave.")
+Every player-facing Cemetery becomes Graveyard (place name, event and card texts, popup titles, the SPEC). The mini deck on the board carries the short plate Grave so it fits the brass. Ids, file names and the Tabletop reference keep cemetery.
+
+**D138. Night buttons side by side under the laboratory panel; the night prompt lives only in the sidebar.** (Bruno: "when the night is over, lab phase, only display on side bar. Button should be next to laboratory, not under it.")
+The Laboratory button sits on its own row under the table and the decomposition grid; at night End the night joins it beside, not below. The night prompt that used to sit under the map is gone with the old picker box; the Your people panel says Night N.

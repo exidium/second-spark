@@ -9,7 +9,7 @@ This document describes the game **as currently built** (version 12 of the publi
 ## 1. Ground rules for this project
 
 - **Mechanics and numbers follow the physical game.** Card values (materials, stages, expertise, costs, effects, round ranges) were read from the Tabletop Simulator card sheets and the rulebook.
-- **Names, wording and art are original.** Do not copy Plaid Hat card text, card names that are creative (for example "King's Mercy", "Leopold the Vast"), character names, or any of their illustrations into the game. Plain descriptive names (Cemetery, Hospital Thief, Cutthroat, Body Snatcher, Dog Catcher) are fine.
+- **Names, wording and art are original.** Do not copy Plaid Hat card text, card names that are creative (for example "King's Mercy", "Leopold the Vast"), character names, or any of their illustrations into the game. Plain descriptive names (Graveyard, Hospital Thief, Cutthroat, Body Snatcher, Dog Catcher) are fine.
 - **Captain Walton, the Creature and Victor Frankenstein** come from Mary Shelley's novel (public domain) and are used freely.
 - **Writing style for all player-facing text:** no em dashes; plain, short sentences; every option shows exactly what you gain and what you pay.
 
@@ -101,7 +101,7 @@ Each space holds one meeple. **Sci** = scientist only. Costs listed are in franc
 
 | Location (real place) | Space | Effect |
 |---|---|---|
-| Cemetery (Père Lachaise) | Dig up cadavers | Free. Draw 3 hidden cemetery cadavers, resolve any (see 7.1). |
+| Graveyard (Père Lachaise) | Dig up cadavers | Free. Draw 3 hidden cemetery cadavers, resolve any (see 7.1). |
 | Public Square (Place de Grève) | Buy a body | 1f. Take one face-up executed body and resolve it. Only after an execution. |
 | Morgue (Quai du Marché-Neuf) | Buy cadavers | 1f. Draw 2 hidden morgue cadavers, resolve any. |
 | Slaughterhouse (Montmartre) | Animal parts | +4 animal at stage II, or +3 animal at stage I. |
@@ -133,7 +133,7 @@ Each space holds one meeple. **Sci** = scientist only. Costs listed are in franc
 - **Hospital:** exactly 2 bodies. Not replaced until dawn. If both are gone, Retrieve is unavailable.
 - **Docks:** 3 scoundrels. A hired one is replaced immediately.
 - **Public Square:** bodies only appear after an execution (1 body with 2 players, 2 with 3 or 4). Discarded at dawn.
-- **Cemetery and Morgue are hidden:** cards are only drawn when you use the space.
+- **Graveyard and Morgue are hidden:** cards are only drawn when you use the space.
 
 All displays are shown as mini cards beside their place on the board (art and name; research and humanity cards show only their parchment face with the book or cross icon; the Academy, Saint-Roch and Docks rows keep three slots, a dashed outline where a card was taken until the dawn refill) and at full size in the place popup.
 
@@ -196,7 +196,7 @@ First to humanity 10 · First with 2 parts alive · First to expertise 27 · Fir
 Format: stage, then [muscle, organ, blood, bone], expertise, humanity cost. Stage 0 means bones only (no expertise option).
 Resolving a cadaver: pay its humanity cost (if any), then take **either** its materials (at the card's stage; bone has no stage) **or** its expertise. Unresolved cards cost nothing. Drawn cards return to their deck (the deck reshuffles when empty).
 
-- **Cemetery (14):** IV [0,3,0,3] e1 · IV [2,2,0,3] e1 · IV [2,2,0,2] e1 · IV [2,1,0,3] e1 · bones 5 · bones 5 · bones 4 · bones 4 · III [3,4,0,3] e1 h1 · III [3,4,0,2] e1 h1 · III [3,3,0,2] e1 h1 · III [2,3,0,3] e1 h1 · III [1,2,0,3] e1 · IV [3,4,0,2] e1
+- **Graveyard (14):** IV [0,3,0,3] e1 · IV [2,2,0,3] e1 · IV [2,2,0,2] e1 · IV [2,1,0,3] e1 · bones 5 · bones 5 · bones 4 · bones 4 · III [3,4,0,3] e1 h1 · III [3,4,0,2] e1 h1 · III [3,3,0,2] e1 h1 · III [2,3,0,3] e1 h1 · III [1,2,0,3] e1 · IV [3,4,0,2] e1
 - **Hospital (14):** II [2,3,1,2] e1 · II [3,2,1,2] e1 · II [2,2,1,3] e1 · II [1,2,1,1] e1 · I [2,3,1,3] e2 · I [3,2,1,3] e2 · I [2,3,2,1] e2 · II [2,3,2,2] e1 · I [2,4,2,2] e2 · I [2,3,2,2] e2 · I [2,3,1,3] e2 · I [3,2,1,3] e2 · I [2,3,2,1] e2 · II [2,4,2,2] e1
 - **Morgue (14):** II [3,3,0,3] · III [2,4,0,2] · III [2,3,0,2] · III [3,2,0,2] · III [2,2,0,3] · III [2,1,0,2] · III [4,2,0,3] · III [3,1,0,4] · II [2,4,2,2] h1 · II [2,3,1,2] h1 · II [2,3,1,3] h1 · II [3,2,1,3] h1 · II [2,3,1,1] · II [4,3,2,2] h1. All expertise 1.
 - **Public Square (10):** all stage I, expertise 2: [4,3,2,4] · [3,3,3,4] · [2,4,3,3] · [2,4,2,3] · [2,3,2,3] · [3,2,2,3] · [4,2,1,2] · [4,4,3,3] · [4,4,3,2]. Plus **Big Gustave, the butcher of Rungis** [4,4,4,4], expertise 3, costs +1f. (In the physical game this card is held aside for an encounter we don't have; here it is part of the deck.)
@@ -257,7 +257,7 @@ Each card is used **once**, either for its effect (gain shown) or, after throwin
 | A Trap of Your Own | When the Creature visits you (Now encounter) | Spend 1 charged jar to cancel the encounter | +3 humanity |
 | Royal Pardon | When an execution is announced | Pay 2f to cancel it | +2 humanity, +2 reputation |
 | A Decent Burial | Buying at the Public Square | Bury the body instead of resolving it | +3 humanity, +2 reputation |
-| Night at the Graves | Any time (day) | Close the Cemetery and Body Snatcher hiring for the day | +1 humanity |
+| Night at the Graves | Any time (day) | Close the Graveyard and Body Snatcher hiring for the day | +1 humanity |
 | Shame the Morgue | Any time (day) | Close the Morgue for the day | +1 humanity |
 | Mercy for Beasts | Lecturing | Instead of the normal benefit | +3 humanity |
 | Walk the Quays | Any time (day) | Close the Docks for the day | +1 humanity |
@@ -278,20 +278,20 @@ Targeted cards are cancelled by Countermeasures. When an AI targets the human, a
 | Glut of Meat | 1 to 5 | ⚡ | Slaughterhouse +2 animal and +1f |
 | Hard Times | 1 to 5 | | No Hospital work. Lectures give reputation only. Jars: buy 1, get 1 free |
 | An Anonymous Letter | 1 to 5 | | Anyone with humanity > 0 may take a humanity card. Highest humanity: +1 humanity |
-| Patrols at the Graves | 1 to 4 | ⚡ | Cemetery closed. Scoundrels +1f |
+| Patrols at the Graves | 1 to 4 | ⚡ | Graveyard closed. Scoundrels +1f |
 | Fire at the Academy | 1 to 4 | ☠ | Academy closed. Anyone may pay 2f for +2 reputation. The first player picks someone for the Captain's plea (aid: humanity card +1 humanity; refuse: research card −2 humanity) |
 | Cattle Plague | 1 to 5 | | Slaughterhouse closed. Dog Catchers +1f |
-| Cholera | 1 to 7 | ⚡ | Hospital work +2f. Cemetery and Morgue draw 1 extra |
+| Cholera | 1 to 7 | ⚡ | Hospital work +2f. Graveyard and Morgue draw 1 extra |
 | Student Parade | 1 to 4 | | Academy is scientists only |
 | Loyalty Pledges | 1 to 5 | ☠ | Everyone pays 1f for +1 reputation, or loses 1 reputation |
 | Student Riots | 1 to 7 | ☠ | Dark Alley and Docks closed |
 | A Dead Man's Notes | 1 to 7 | ⚡ | Anyone may lose 1 humanity for +2 expertise |
-| All Saints' Day | 1 to 6 | | Cemetery, Morgue, hospital bodies, Hospital Thieves, Body Snatchers: +1 humanity cost |
+| All Saints' Day | 1 to 6 | | Graveyard, Morgue, hospital bodies, Hospital Thieves, Body Snatchers: +1 humanity cost |
 | A Widow's Bequest | 1 to 5 | ☠ | Research and lectures +2f |
 | The Captain's Wrath | 7 to 12 | ☠ | Humanity below 3: lose 1 jar |
 | Opening Night at the Odéon | 5 to 12 | | Odéon location appears for the day |
 | The Flesh Is Willing | 7 to 12 | ☠ | Each throw may re-roll up to 2 dice for free |
-| Storm from the Sea | 7 to 12 | ⚡ | Cemetery and Docks closed |
+| Storm from the Sea | 7 to 12 | ⚡ | Graveyard and Docks closed |
 | Inquiry at the Hospital | 6 to 12 | ☠ | Hospital closed |
 
 Event yes/no prompts use **Accept / Refuse** buttons, with the gain and cost written in the question.
@@ -316,7 +316,7 @@ AI first players aim harmful encounters at the leader.
 | e20 | 7 to 12 | Now, last dark deed | Agree to help / Refuse | Become first player; a meeple goes to Saint-Roch now; no humanity loss today | −2 humanity (if impossible, everyone else +1 humanity) |
 | e18 | 6 to 12 | Now, first player picks | Expertise 13+? | Draw 1 research | Scientist must Practice now: +2 expertise |
 | e16 | 7 to 12 | Now, most humanity cards | Take the bag / Refuse it | +1 muscle, organ, blood (II) and 1 bone, −2 humanity | The next player gains 1 of each (I); you +1 humanity |
-| e29 | 1 to 5 | Secret: Cemetery Dig | Climb into the grave / Dig elsewhere | Bones-only cards are redrawn; all count as stage I; resolving any costs 1 humanity total, card costs ignored | Draw only 2; card costs ignored |
+| e29 | 1 to 5 | Secret: Graveyard Dig | Climb into the grave / Dig elsewhere | Bones-only cards are redrawn; all count as stage I; resolving any costs 1 humanity total, card costs ignored | Draw only 2; card costs ignored |
 
 A **secret** encounter is held by the first player. The first *other* player to use that exact space meets it before the space resolves. A Trap of Your Own can cancel "Now" encounters with the Creature.
 **Missing:** the physical game's round 1 to 4 encounter cards were not in the exported sheets.
@@ -384,7 +384,7 @@ At night, move muscle or organ (oldest first) into preserved flesh (max 9) to se
 ---
 
 ## 11. Computer rivals (AI)
-- Personas: **ruthless** (Dark Alley, Cemetery), **careful** (Hospital, Morgue, ice), **scholar** (Academy, expertise).
+- Personas: **ruthless** (Dark Alley, Graveyard), **careful** (Hospital, Morgue, ice), **scholar** (Academy, expertise).
 - Placement: score every legal space and meeple kind with a heuristic based on material shortfall for its next two buildable steps, expertise gap to the next part, francs, humanity, damage, jars, and the event; subtract bump costs; add randomness. Prefers assistants unless the space needs or rewards a scientist.
 - Cadaver picks: materials if useful, else expertise when behind on expertise; skips humanity-cost cards at humanity −6 or lower unless ruthless.
 - Cards: plays "any time" research immediately; aid cards rarely (humanity < 2, 25%); targeted humanity cards at the leader (40%); Cross Their Path (30%); closures (20%).
@@ -412,20 +412,21 @@ Desktop (1100px and wider): the page uses the full browser width; the right colu
 - Top row: the logo, the 4 bonus objectives (claimed ones show the claimant's colour) and the Captain Walton track (12 steps, skull at the end) at the right end.
 - Toolbar on top of the board: "Day N · phase · first player" and "Today's note: card name" with a note icon (click it to see the full event or encounter card). No bump track on the page; bump costs appear in the place popup.
 - **The board**: Bruno's painted Paris (`art/ui/board.jpg`, 16:9). Each place is a chip with its name and one meeple slot per action space (dashed when free, the occupant's meeple silhouette in their colour when taken). Places you can use pulse blue; closed places are struck through and dimmed. Positions are percentages in `BOARD_POS` (data.js). **No tooltips on the places**; the explanation lives in the popup (12.3).
-- Beside each place, its cards at mini size (portrait and numbers strip for cadavers, art and name for the rest): the face-down deck with the count left for Cemetery and Morgue; the face-up rows for Hospital (2 bodies), Academy (3 research), Saint-Roch (3 humanity), Docks (3 scoundrels), Public Square (bodies after an execution, else an empty slot).
+- Beside each place, its cards at mini size (portrait and numbers strip for cadavers, art and name for the rest): the face-down deck with the count left for Graveyard and Morgue; the face-up rows for Hospital (2 bodies), Academy (3 research), Saint-Roch (3 humanity), Docks (3 scoundrels), Public Square (bodies after an execution, else an empty slot).
 - "Your laboratory" strip on the lower edge: Practice, Give Blood, Repair, Charge Jars as small places with your own meeple once used.
-- Under the map, a bar: the "Pick meeple then location" box on the left (Scientist and Assistant buttons stacked, with counts, on your turn; otherwise who is choosing, or the phase), and the three rivals beside it as horizontal strips (portrait with the player colour as a left rule, name and role, Muscle/Skin/Alive counts, Humanity/Expertise/Reputation icons). Click a rival to open their lab popup. Under 900px the bar stacks.
+- Under the map, a bar with the three rivals as horizontal strips (portrait with the player colour as a left rule, name and role, Muscle/Skin/Alive counts, Humanity/Expertise/Reputation icons). Click a rival to open their lab popup. Under 900px the bar stacks.
 - Below 1100px the board scrolls sideways inside its own box (minimum 760px) so the page itself never overflows.
 
 **Right column**
 - Buttons: **Your character** (portrait, name, role, ability, Zoologist charge, police payoff, VP built, people at home, cards in hand with Play buttons) , **Help** (rules, plus an Every card button) and **New game**. The points table lives in the Laboratory popup.
 - Stat bars (humanity, expertise, reputation with the blue threshold squares and their tooltips), then the counters: francs, jars charged/total, ice, police, and a **Cards** tile (card icon with a count badge) that opens the hand with Play buttons; hovering it lists the cards in hand with their text.
-- **Your laboratory**, two columns: the operating table as pixel art on the left at 112px (the iron table under six part images in muscle, skin or alive state, ghosts for empty slots, damage badges; click it to open the Laboratory popup), the **Laboratory** button under it (at night it pulses and an End the night button appears under it), and on the right a decomposition grid: one row per material, four stage cells, a solid cube in the material's colour with the count where there is material, a dashed outline where there is none, a red rim on a cell that rots at the next dawn. Bone, preserved and ice on a line beneath.
+- **Your laboratory**, two columns: the operating table as pixel art on the left at 112px (the iron table under six part images in muscle, skin or alive state, ghosts for empty slots, damage badges; click it to open the Laboratory popup), on the right a decomposition grid: one row per material, four stage cells, a solid cube in the material's colour with the count where there is material, a dashed outline where there is none, a red rim on a cell that rots at the next dawn. Bone, preserved and ice on a line beneath. Under both columns the **Laboratory** button (at night it pulses and End the night sits beside it).
+- **Your people**: one figure per meeple (scientists, then assistants). At home: solid in your colour, click to choose what to send, the chosen one glows. Placed: a dotted slot with the name of the place it went to. Heading: Pick a meeple, then a location on your turn; otherwise who is choosing, or the phase.
 - Rival lab popup (from the strip under the map): a strip with portrait, character, counters and stat bars, then the same three read-only columns as your Laboratory popup (operating table, body parts, decomposition track with the points table).
 - Chronicle, newest first.
 
 ### 12.3 Popups
-- **Place popup** (click a place): the place's night scene flush to the top with its name over it and the place's one-line explanation centred near the bottom of the scene in white type, then one full-width option per action space, each starting with two dotted meeple slots (scientist, assistant) that the occupant's meeple fills, followed by the space name, a scientist tag, the gain as icons, and the occupant's name and bump cost. Cemetery and Morgue have one option naming the draw count (the Morgue's with a coin icon); the Slaughterhouse offers its two cuts as two rows; the Dark Alley shows its gain as icons; the Docks list the three scoundrels with hire buttons on each; the Market shows its trade steppers with a Trade button; the cards there at full size (framed design for Hospital and Research, plain paper otherwise), or the deck back with cards left for Cemetery and Morgue. Choosing an option places the meeple and runs the usual prompts (bump confirmation, Hospital picker, Market steppers, Docks offers, Dark Alley choice, Academy and Saint-Roch card picks). Outside your turn the popup is read-only.
+- **Place popup** (click a place): the place's night scene flush to the top with its name over it and the place's one-line explanation centred near the bottom of the scene in white type, then one full-width option per action space, each starting with two dotted meeple slots (scientist, assistant) that the occupant's meeple fills, followed by the space name, a scientist tag, the gain as icons, and the occupant's name and bump cost. Graveyard and Morgue have one option naming the draw count (the Morgue's with a coin icon); the Slaughterhouse offers its two cuts as two rows; the Dark Alley shows its gain as icons; the Docks list the three scoundrels with hire buttons on each; the Market shows its trade steppers with a Trade button; the cards there at full size (framed design for Hospital and Research, plain paper otherwise), or the deck back with cards left for Graveyard and Morgue. Choosing an option places the meeple and runs the usual prompts (bump confirmation, Hospital picker, Market steppers, Docks offers, Dark Alley choice, Academy and Saint-Roch card picks). Outside your turn the popup is read-only.
 - **Laboratory popup** (extra wide, three columns; opened from the Laboratory button or the operating table): column 1 the operating table at 230px with legend, VP built and the switch box (1 to 3 jars); column 2 the part rows with Start / Add skin buttons (fresh or oldest first, with VP) and the Steady Hands and Surgeon toggles; column 3 the decomposition track with Preserve buttons and the points-per-part table. End the night in the footer. It refreshes in place after each action; the throw opens the dice modal and returns to it. Under 1000px the columns stack.
 - Locked modals (must choose) for drawn cards and encounters; others can be cancelled.
 - Cadaver resolution: illustrated cards with Materials / +N expertise / Leave toggles and any applicable research cards.
@@ -440,7 +441,7 @@ Desktop (1100px and wider): the page uses the full browser width; the right colu
 ---
 
 ### 12.5 Generated art
-The title is text in the display font (no logo image) and six pixel-art character portraits made with Nano Banana 2 from the prompts in `docs/prompts/all-images.md` (style in `ART_STYLE.md`): 384x576 PNG, 32 colours, about 60KB each. Shown in the picker, your character line (44x58 avatar), the rivals panel (30x40), the rival lab window (72x96) and the card catalog. All 52 cadavers have generated pixel portraits (`art/cadavers/<deck>-NN.png`, 3:4, face to the camera, seen from above on a pillow, slab or straw; cemetery skin grey, bones-only cards show a skull at the same scale). The seeded SVG face is only a fallback for a missing file. The 16 scoundrels have generated portraits too (`art/scoundrels/scoundrel-NN.png`, by template index), straight on and sombre. The 12 places and 4 lab spaces have generated 16:9 scenes (`art/locations/`), and the 19 events and 15 encounters have 4:3 scenes (`art/events/`, `art/encounters/`, by position in their data lists); encounter and research cards share the landscape event layout; the 16 research cards have 4:3 scenes (`art/research/`). Cadaver cards follow the physical game's layout: the portrait fills a 3:4 card, the deck and body name sit over the top, an expertise and cost row sits above a foot strip of five boxes (stage numeral, then muscle, organ, blood, bone in the material colours). Scoundrel cards use the same frame with cost and humanity marks top left, a slanted title band across the middle (name and flavour line), a benefit row and the counts strip (Hospital Thieves show a text panel instead). Event cards are landscape: the 4:3 scene on top with the name over it and marks for lightning and execution, the text in a panel below. Mini cards on the board show the portrait with the same strip. Research and humanity cards are text cards on plain pixel parchment (`art/frames/card-research-bg.png`, a greener tint for humanity) with an emblem at the top (an open book, a stone cross), then name, kind, text, and a gain row of numbers with icons (expertise, reputation, coin, heart); research cards add a dice strip below. Their generated scenes (`art/research/`) appear only on the board's mini cards and as thumbnails in the hand. The Cemetery and Morgue places show the pixel-art deck back (`art/frames/card-tall-back.png`) with the deck name on its brass plate and the cards left; the parchment front (`card-tall-front.webp`) is kept but unused. Everything else is still SVG.
+The title is text in the display font (no logo image) and six pixel-art character portraits made with Nano Banana 2 from the prompts in `docs/prompts/all-images.md` (style in `ART_STYLE.md`): 384x576 PNG, 32 colours, about 60KB each. Shown in the picker, your character line (44x58 avatar), the rivals panel (30x40), the rival lab window (72x96) and the card catalog. All 52 cadavers have generated pixel portraits (`art/cadavers/<deck>-NN.png`, 3:4, face to the camera, seen from above on a pillow, slab or straw; cemetery skin grey, bones-only cards show a skull at the same scale). The seeded SVG face is only a fallback for a missing file. The 16 scoundrels have generated portraits too (`art/scoundrels/scoundrel-NN.png`, by template index), straight on and sombre. The 12 places and 4 lab spaces have generated 16:9 scenes (`art/locations/`), and the 19 events and 15 encounters have 4:3 scenes (`art/events/`, `art/encounters/`, by position in their data lists); encounter and research cards share the landscape event layout; the 16 research cards have 4:3 scenes (`art/research/`). Cadaver cards follow the physical game's layout: the portrait fills a 3:4 card, the deck and body name sit over the top, an expertise and cost row sits above a foot strip of five boxes (stage numeral, then muscle, organ, blood, bone in the material colours). Scoundrel cards use the same frame with cost and humanity marks top left, a slanted title band across the middle (name and flavour line), a benefit row and the counts strip (Hospital Thieves show a text panel instead). Event cards are landscape: the 4:3 scene on top with the name over it and marks for lightning and execution, the text in a panel below. Mini cards on the board show the portrait with the same strip. Research and humanity cards are text cards on plain pixel parchment (`art/frames/card-research-bg.png`, a greener tint for humanity) with an emblem at the top (an open book, a stone cross), then name, kind, text, and a gain row of numbers with icons (expertise, reputation, coin, heart); research cards add a dice strip below. Their generated scenes (`art/research/`) appear only on the board's mini cards and as thumbnails in the hand. The Graveyard and Morgue places show the pixel-art deck back (`art/frames/card-tall-back.png`) with the deck name on its brass plate and the cards left; the parchment front (`card-tall-front.webp`) is kept but unused. Everything else is still SVG.
 
 ## 13. Testing
 - Both tests serve `dist/` over a local HTTP server so the relative image paths resolve.

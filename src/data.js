@@ -95,7 +95,7 @@ const HUMANITY = [
   {id:'trap', name:'A Trap of Your Own', when:'react', text:'When the Creature visits you, spend 1 charged jar to send him away.', gain:{hum:3}},
   {id:'mercy', name:'Royal Pardon', when:'react', text:'When an execution is announced, pay 2 francs to stop it.', gain:{hum:2, rep:2}},
   {id:'burial', name:'A Decent Burial', when:'square', text:'When buying a body at the Public Square, bury it instead.', gain:{hum:3, rep:2}},
-  {id:'graveguard', name:'Night at the Graves', when:'any', text:'The Cemetery and hiring Body Snatchers are closed for the rest of today.', gain:{hum:1}, close:['cemetery','snatch']},
+  {id:'graveguard', name:'Night at the Graves', when:'any', text:'The Graveyard and hiring Body Snatchers are closed for the rest of today.', gain:{hum:1}, close:['cemetery','snatch']},
   {id:'moral', name:'Shame the Morgue', when:'any', text:'The Morgue is closed for the rest of today.', gain:{hum:1}, close:['morgue']},
   {id:'animal', name:'Mercy for Beasts', when:'lecture', text:'When lecturing, argue against vivisection instead of gaining the normal benefit.', gain:{hum:3}},
   {id:'patrol', name:'Walk the Quays', when:'any', text:'The Docks are closed for the rest of today.', gain:{hum:1}, close:['docks']},
@@ -112,20 +112,20 @@ const EVENTS = [
   {id:'meat', name:'Glut of Meat', r:[1,5], storm:1, text:'The Slaughterhouse gives 2 extra animal and 1 franc.'},
   {id:'hardtimes', name:'Hard Times', r:[1,5], text:'No work at the Hospital. Lectures pay reputation only. Leyden jars: buy 1, get 1 free.'},
   {id:'enemy', name:'An Anonymous Letter', r:[1,5], text:'Anyone with humanity above 0 may take a humanity card. The kindest scientist hears a confession.'},
-  {id:'graves', name:'Patrols at the Graves', r:[1,4], storm:1, text:'The Cemetery is closed. Every scoundrel costs 1 franc more.'},
+  {id:'graves', name:'Patrols at the Graves', r:[1,4], storm:1, text:'The Graveyard is closed. Every scoundrel costs 1 franc more.'},
   {id:'fire', name:'Fire at the Academy', r:[1,4], exec:1, text:'The Academy is closed. Once today, anyone may pay 2 francs to gain 2 reputation for the rebuilding.'},
   {id:'plague', name:'Cattle Plague', r:[1,5], text:'The Slaughterhouse is closed. Dog Catchers cost 1 franc more.'},
-  {id:'cholera', name:'Cholera', r:[1,7], storm:1, text:'Hospital shifts pay 2 francs more. The Cemetery and Morgue draw 1 extra card.'},
+  {id:'cholera', name:'Cholera', r:[1,7], storm:1, text:'Hospital shifts pay 2 francs more. The Graveyard and Morgue draw 1 extra card.'},
   {id:'parade', name:'Student Parade', r:[1,4], text:'Only scientists may go to the Academy.'},
   {id:'bourbon', name:'Loyalty Pledges', r:[1,5], exec:1, text:'Everyone pays 1 franc to gain 1 reputation, or loses 1 reputation.'},
   {id:'riots', name:'Student Riots', r:[1,7], exec:1, text:'The Dark Alley and the Docks are closed.'},
   {id:'darkres', name:'A Dead Man’s Notes', r:[1,7], storm:1, text:'Anyone may lose 1 humanity to gain 2 expertise.'},
-  {id:'toussaint', name:'All Saints’ Day', r:[1,6], text:'Cemetery, Morgue, Hospital cadavers, Hospital Thieves and Body Snatchers all cost 1 extra humanity.'},
+  {id:'toussaint', name:'All Saints’ Day', r:[1,6], text:'Graveyard, Morgue, Hospital cadavers, Hospital Thieves and Body Snatchers all cost 1 extra humanity.'},
   {id:'grant', name:'A Widow’s Bequest', r:[1,5], exec:1, text:'Research and lectures at the Academy pay 2 francs extra.'},
   {id:'betrayal', name:'The Captain’s Wrath', r:[7,12], exec:1, text:'Anyone with humanity below 3 loses 1 Leyden jar.'},
   {id:'odeon', name:'Opening Night at the Odéon', r:[5,12], text:'The theatre is a new location today: +2 reputation. Each player may go once. Anyone there can be bumped for free and goes home.'},
   {id:'willing', name:'The Flesh Is Willing', r:[7,12], exec:1, text:'Every throw of the switch may re-roll up to 2 dice for free.'},
-  {id:'storm2', name:'Storm from the Sea', r:[7,12], storm:1, text:'The Cemetery and the Docks are closed.'},
+  {id:'storm2', name:'Storm from the Sea', r:[7,12], storm:1, text:'The Graveyard and the Docks are closed.'},
   {id:'purge', name:'Inquiry at the Hospital', r:[6,12], exec:1, text:'The Hospital is closed.'},
 ];
 
@@ -165,7 +165,7 @@ const OBJECTIVES = [
 
 // Locations and their action spaces (one meeple per space, bumping allowed)
 const LOCS = [
-  {id:'cemetery', name:'Cemetery', place:'Père Lachaise', spaces:[{k:'dig', n:'Dig up cadavers'}],
+  {id:'cemetery', name:'Graveyard', place:'Père Lachaise', spaces:[{k:'dig', n:'Dig up cadavers'}],
    text:'Draw 3 cadavers. Resolve any you like for materials or expertise.', yields:'Stage III to IV muscle and organs, bone'},
   {id:'square', name:'Public Square', place:'Place de Grève', spaces:[{k:'buy', n:'Buy a body (1 franc)'}],
    text:'Pay 1 franc for one of the executed bodies on display. Only after an execution.', yields:'Stage I, the freshest you can get'},

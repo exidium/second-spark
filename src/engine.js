@@ -447,7 +447,7 @@ async function resolveSpace(i,key,kind,pre,mod){
       let cards=[]; for(let k=0;k<n;k++){ let c=drawCadaver('cemetery'); if(mod.fresh){ let g=0; while(!c.exp && g++<6) c=drawCadaver('cemetery'); } cards.push(c); }
       if(mod.fresh) cards.forEach(c=>{ c.mats=c.mats.map(([t,st,k])=>[t,t==='bone'?0:1,k]); c.stage=1; });
       const extraH = S.ev==='toussaint'?1:0;
-      await resolveCadavers(i, cards, {title:'Cemetery', intro:'You dig by lantern light.', noCardCost: mod.fresh||mod.two, flatCost: mod.fresh?1:0, extraH});
+      await resolveCadavers(i, cards, {title:'Graveyard', intro:'You dig by lantern light.', noCardCost: mod.fresh||mod.two, flatCost: mod.fresh?1:0, extraH});
       break; }
     case 'square.buy': {
       p.coin-=1; const card=S.square.find(x=>x.id===pre.card) || S.square[0]; S.square=S.square.filter(x=>x!==card);
