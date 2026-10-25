@@ -198,7 +198,7 @@ const BOARD_POS = {
   market:{x:73,y:36,cards:null}, first:{x:48,y:45,cards:null}, morgue:{x:62,y:55,cards:'right'}, hospital:{x:20,y:64,cards:'right'},
   academy:{x:45,y:75,cards:'right'}, docks:{x:70,y:69,cards:'right'}, alley:{x:84,y:84,cards:null}, odeon:{x:30,y:89,cards:null},
 };
-const LAB_STRIP = {x:55, y:92};
+const LAB_POS = {x:20, y:86};
 const LOC = Object.fromEntries(LOCS.map(l=>[l.id,l]));
 const SPACE = {}; LOCS.forEach(l=>l.spaces.forEach(s=>{ SPACE[l.id+'.'+s.k]={...s, loc:l.id, key:l.id+'.'+s.k}; }));
 const LABSPOTS = [

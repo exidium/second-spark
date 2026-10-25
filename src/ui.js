@@ -89,7 +89,7 @@ async function handle(act,d,el){
   if(act==='sel'){ const p=S.players[0]; if(p.left[d.k]){ p.sel=d.k; render(); } return; }
   if(act==='space'){ tip.hidden=true; await clickSpace(d.key); return; }
   if(act==='loc'){ tip.hidden=true; if(busy) return; await placeModal(d.id); return; }
-  if(act==='labplace'){ tip.hidden=true; if(busy) return; await labPlaceModal(d.id); return; }
+  if(act==='labplace'){ tip.hidden=true; if(busy) return; await labPlaceModal(); return; }
   if(!S) return;
   const p=S.players[0];
   if(act==='lab'){ labModal(); return; }
@@ -466,8 +466,8 @@ function boardHTML(){
     return `<div class="place ${can?'can':''} cards-${b.cards||'none'}" style="left:${b.x}%;top:${b.y}%" data-act="loc" data-id="${l.id}" tabindex="0" role="button" aria-label="${esc(l.name)}">
       <div class="pchip"><span class="pname">${esc(l.name)}</span><span class="pslots">${keys.map(slotDot).join('')}</span></div>${slotsHTML(l)}</div>`;
   }).join('');
-  const lab = `<div class="labstrip" style="left:${LAB_STRIP.x}%;top:${LAB_STRIP.y}%"><span class="pname">Your laboratory</span><div class="labplaces">${LABSPOTS.map(L=>{ const key='lab.'+L.id, used=p.labUsed[L.id], can=humanCan(key);
-    return `<div class="place lab ${can?'can':''}" data-act="labplace" data-id="${L.id}" tabindex="0" role="button" aria-label="${esc(L.name)}"><div class="pchip"><span class="pname">${esc(L.name)}</span><span class="pslots">${used?`<i class="slot on ${used==='scientist'?'sci':''}">${meeple(used,p.color,16)}</i>`:'<i class="slot"></i>'}</span></div></div>`; }).join('')}</div></div>`;
+  const labCan=LABSPOTS.some(L=>humanCan('lab.'+L.id));
+  const lab = `<div class="place ${labCan?'can':''} cards-none" style="left:${LAB_POS.x}%;top:${LAB_POS.y}%" data-act="labplace" data-id="lab" tabindex="0" role="button" aria-label="Your laboratory"><div class="pchip"><span class="pname">Your laboratory</span><span class="pslots">${LABSPOTS.map(L=>{ const used=p.labUsed[L.id]; return used?`<i class="slot on ${used==='scientist'?'sci':''}">${meeple(used,p.color,16)}</i>`:'<i class="slot"></i>'; }).join('')}</span></div></div>`;
   return `<div class="board" aria-label="Paris, 1819">${places}${lab}</div>`;
 }
 // Small gain tokens for option rows: a number with an icon, a material cube, or a short text.
@@ -555,11 +555,17 @@ async function placeModal(id){
   if(key && key.pre){ prePick=key.pre; await clickSpace(key.key); prePick=null; }
   else if(key) await clickSpace(key);
 }
-async function labPlaceModal(id){
-  const L=LABSPOT[id], key='lab.'+id, p=S.players[0], can=humanCan(key), kind=kindFor(0,key)||p.sel;
-  const k=await ask({title:'', hero:true, html:`${placeHero(id, L.name, true, esc(L.text))}${L.sci?'<p class="flavor">Scientist only.</p>':''}${p.labUsed[id]?'<p class="flavor">Already used today.</p>':''}`,
-    options:[{label:'Use it', sub:spaceGain(key,kind), value:key, disabled:!can, lead: slotsLead(p.labUsed[id]?{p:0,kind:p.labUsed[id]}:null)}], buttons:[{label:'Close', value:null}]});
+async function labPlaceModal(){
+  const p=S.players[0], mine=S.phase==='day'&&isMyTurn();
+  const options=LABSPOTS.map(L=>{ const key='lab.'+L.id, can=humanCan(key), kind=kindFor(0,key)||p.sel, used=p.labUsed[L.id];
+    return {label:`${esc(L.name)}${L.sci?'<small class="scitag">Scientist</small>':''}`, sub:`${spaceGain(key,kind)}${used?'<span class="usedtag">Used today</span>':''}`, value:key, disabled:!can, lead:slotsLead(used?{p:0,kind:used}:null)}; });
+  const k=await ask({title:'', hero:true, html:`${placeHero('lab', 'Your laboratory', false, 'Four spaces of your own. Each can be used once a day.')}${mine?'':'<p class="flavor">Not your move right now. You can look, not act.</p>'}`, options, buttons:[{label:'Close', value:null}]});
   if(k) await clickSpace(k);
+}
+// Night falls: everyone is home. Offer the laboratory or the end of the night right away.
+async function nightPrompt(){
+  const go=await ask({title:`Night ${S.round}`, html:'<p>Everyone is home. Build, throw the switch and preserve in your laboratory, or end the night now.</p>', buttons:[{label:'End the night', value:false},{label:'Go to the laboratory', primary:true, value:true}]});
+  if(go) labModal(); else handle('endlab',{});
 }
 function todayModal(){
   const c=S.card; if(!c) return;

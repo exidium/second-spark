@@ -444,3 +444,12 @@ The two dotted meeple slots appear only on placement options; a plain question (
 
 **D142. The toolbar sits flush on the map and close under the objectives row.** (Bruno: "leave no margin between the map and the black bar that has Day 1 · City phase. Also reduce the margin between the bar and the top bar with bonus objectives.")
 The Day and Today's note bar touches the map (the map loses its top rule) and the objectives row keeps only the column's 16px gap above the bar.
+
+**D143. Your laboratory is one place on the map, under the Hospital, with its four spaces as buttons in its popup.** (Bruno: "Make 'Your laboratory' a location on the map. Make the options as buttons on the pop-up. Leave the laboratory below the hospital.")
+The strip of four small lab places at the foot of the map is gone. One place chip, Your laboratory, sits under the Hospital (`LAB_POS` in data.js) with four slot dots that fill with your meeple as each space is used. Its popup shows a generated attic laboratory scene (`art/locations/location-lab.png`) and one option row per space (Practice, Give Blood, Repair, Charge Jars) with the dotted meeple slots, the scientist tag, the gain as icons and "used today" once spent.
+
+**D144. Bigger emblems on the mini research and humanity cards.** (Bruno: "increase card icon size for church and cross. Also for academy.")
+The book and the cross fill 92% of the mini card.
+
+**D145. When night falls, a prompt offers the laboratory or the end of the night.** (Bruno: "when all players run out of meeples, propose a pop-up asking the player if he wants to finish the night or go to the laboratory.")
+As the lab phase begins, a Night N popup asks: Go to the laboratory (opens the Laboratory popup) or End the night (with the usual warning if you could still build or throw).

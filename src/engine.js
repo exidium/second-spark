@@ -593,7 +593,7 @@ async function labPhase(){
   log('Night. The laboratories light their lamps.', 'day');
   S.players.forEach((p,i)=>{ if(p.ai && !p.labDone){ aiLab(i); p.labDone=true; } });
   save(); render();
-  if(!S.players[0].ai){ await new Promise(r=>{ labResolve=r; render(); }); labResolve=null; }
+  if(!S.players[0].ai){ await new Promise(r=>{ labResolve=r; render(); if(!S.fast && typeof nightPrompt==='function') nightPrompt(); }); labResolve=null; }
   const done=S.players.filter(p=>aliveCount(p)===6);
   if(done.length){ finish('alive'); return; }
   S.phase='dawn'; save();
