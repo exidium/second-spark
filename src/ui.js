@@ -19,7 +19,7 @@ function renderModal(){
   if(!modal){ root.innerHTML=''; return; }
   modalFns=[]; const reg=fn=>{ modalFns.push(fn); return modalFns.length-1; };
   const html = typeof modal.html==='function' ? modal.html(reg) : (modal.html||'');
-  const opts=(modal.options||[]).map(o=>o.heading?`<div class="eyebrow" style="margin-top:6px">${o.heading}</div>`:`<button class="opt has-lead" ${o.disabled?'disabled':''} data-mfn="${reg(o.fn)}">${o.lead||'<span class="optlead two"></span>'}<span><span class="ot">${o.label}</span>${o.sub?`<small>${o.sub}</small>`:''}</span><span class="num">${o.right||''}</span></button>`).join('');
+  const opts=(modal.options||[]).map(o=>o.heading?`<div class="eyebrow" style="margin-top:6px">${o.heading}</div>`:`<button class="opt ${o.lead?'has-lead':''}" ${o.disabled?'disabled':''} data-mfn="${reg(o.fn)}">${o.lead||''}<span><span class="ot">${o.label}</span>${o.sub?`<small>${o.sub}</small>`:''}</span><span class="num">${o.right||''}</span></button>`).join('');
   const btns=(modal.buttons||[]).map(b=>`<button class="btn ${b.primary?'primary':''}" ${b.disabled?'disabled':''} data-mfn="${reg(b.fn)}">${b.label}</button>`).join('');
   root.innerHTML=`<div class="scrim" data-scrim="1"><div class="modal ${modal.wide?'wide':''} ${modal.xwide?'xwide':''} ${modal.hero?'hero':''}" role="dialog" aria-modal="true" aria-label="${esc(String(modal.title).replace(/<[^>]+>/g,''))}">
     ${modal.title?`<h2>${modal.title}</h2>`:''}${html}${opts?`<div class="opts">${opts}</div>`:''}<div class="actions">${btns}</div></div></div>`;
@@ -173,7 +173,7 @@ async function humanPre(i,key,kind,noCancel){
     case 'alley.murder': {
       const un=p.hand.some(h=>h.id==='unethical') && charged(p)>0;
       return await ask({title:'Dark Alley', html:`<p>Murder someone for ${matsHTML([['muscle',1,4],['organ',1,4],['blood',1,3],['bone',0,2]])}</p><p class="flavor">Costs 3 humanity and earns a police marker. At 2 markers the Dark Alley is closed to you until you pay 3 francs.</p>`,
-        options:[{label:'Do it', value:{}}, ...(un?[{label:'Unethical Experiment instead', sub:'Spend 1 charged jar: +5 expertise, −1 humanity, no materials.', value:{unethical:true}}]:[])], buttons:cancel});
+        options:[{label:'Do it', sub:grow(`<span class="gi neg"><b>3</b>${icon('heart-broken','💔')}</span>`, `<span class="gi neg"><b>1</b>${icon('police','⭐')}</span>`), value:{}}, ...(un?[{label:`${icon('cards','🃏','si')} Use card “Unethical Experiment”`, sub:grow(gtx('Spend'), gt(1,'jar','🏺'), gtx('·'), gt(5,'expertise','🧠'), `<span class="gi neg"><b>1</b>${icon('heart-broken','💔')}</span>`, gtx('· no materials')), value:{unethical:true}}]:[])], buttons:cancel});
     }
     case 'church.atone': {
       if(prePick) return prePick;
@@ -183,7 +183,7 @@ async function humanPre(i,key,kind,noCancel){
     }
     case 'lab.blood': {
       if(!p.hand.some(h=>h.id==='transfusion')) return {};
-      return await ask({title:'Give Blood', html:'', options:[{label:'Give blood', sub:'3 blood at stage I.', value:{}},{label:'Play Transfusion instead', sub:'+3 expertise, +1 reputation, +1 franc.', value:{transfusion:true}}], buttons:cancel});
+      return await ask({title:'Give Blood', html:'', options:[{label:'Give blood', sub:grow(cube('blood',3,1)), value:{}},{label:`${icon('cards','🃏','si')} Use card “Transfusion”`, sub:grow(gt(3,'expertise','🧠'), gt(1,'reputation','🎖️'), gt(1,'coin','🪙')), value:{transfusion:true}}], buttons:cancel});
     }
     case 'cemetery.dig': case 'morgue.buy': case 'hospital.work': case 'hospital.volunteer': case 'first.first': case 'odeon.show':
     case 'lab.practice': case 'lab.repair': case 'lab.charge': return {};
@@ -195,7 +195,7 @@ async function chooseScoundrel(p, row, intro, canCancel){
     <div class="gcards">${row.map(c=>{ const ok=scCost(c)<=p.coin && scAllowed(c); const un=c.kind==='cut' && p.hand.some(h=>h.id==='unethical') && charged(p)>0;
       const b=(label,v,primary)=>`<button class="btn ${primary?'primary':''} sm" ${ok?'':'disabled'} data-mfn="${reg(()=>done(v))}">${label}</button>`;
       const acts = c.kind==='thief' ? b(`Draw ${c.draw} from the Hospital`,{card:c.id,how:'mats'},true)
-        : [b('Materials',{card:c.id,how:'mats'},true), c.exp?b(`+${c.exp} expertise${c.expH?' (−1 humanity)':''}`,{card:c.id,how:'exp'}):'', c.hum?b(`+${c.hum} humanity`,{card:c.id,how:'hum'}):'', un?b('Unethical Experiment',{card:c.id,how:'exp',unethical:true}):''].join('');
+        : [b('Materials',{card:c.id,how:'mats'},true), c.exp?b(`+${c.exp} ${icon('expertise','🧠','si')}${c.expH?` −1 ${icon('heart-broken','💔','si')}`:''}`,{card:c.id,how:'exp'}):'', c.hum?b(`+${c.hum} ${icon('heart','❤️','si')}`,{card:c.id,how:'hum'}):'', un?b(`${icon('cards','🃏','si')} Use card “Unethical Experiment”`,{card:c.id,how:'exp',unethical:true}):''].join('');
       return cardHTML(c,{acts:`<div class="gc-acts col">${acts}</div>`}); }).join('')}</div>`, buttons:canCancel===false?[]:[{label:'Cancel', value:null}], locked:canCancel===false});
 }
 // Market trades: steppers for each trade and a running "francs after" total. Shared by the place popup and the second-use path.
@@ -536,7 +536,7 @@ async function placeModal(id){
       <div class="sub">Hire one of the scoundrels</div><div class="gcards">${S.docks.map(c=>{ const ok=can && scCost(c)<=p.coin && scAllowed(c); const un=c.kind==='cut' && p.hand.some(h=>h.id==='unethical') && charged(p)>0;
         const b=(label,v,primary)=>`<button class="btn ${primary?'primary':''} sm" ${ok?'':'disabled'} data-mfn="${reg(()=>{ picked=v; done(key); })}">${label}</button>`;
         const acts = c.kind==='thief' ? b(`Draw ${c.draw} from the Hospital`,{card:c.id,how:'mats'},true)
-          : [b('Materials',{card:c.id,how:'mats'},true), c.exp?b(`+${c.exp} expertise${c.expH?' (−1 humanity)':''}`,{card:c.id,how:'exp'}):'', c.hum?b(`+${c.hum} humanity`,{card:c.id,how:'hum'}):'', un?b('Unethical Experiment',{card:c.id,how:'exp',unethical:true}):''].join('');
+          : [b('Materials',{card:c.id,how:'mats'},true), c.exp?b(`+${c.exp} ${icon('expertise','🧠','si')}${c.expH?` −1 ${icon('heart-broken','💔','si')}`:''}`,{card:c.id,how:'exp'}):'', c.hum?b(`+${c.hum} ${icon('heart','❤️','si')}`,{card:c.id,how:'hum'}):'', un?b(`${icon('cards','🃏','si')} Use card “Unethical Experiment”`,{card:c.id,how:'exp',unethical:true}):''].join('');
         return cardHTML(c,{acts:`<div class="gc-acts col">${acts}</div>`}); }).join('')}</div>`;
     const k=await ask({title:'', hero:true, wide:true, html, buttons:[{label:'Close', value:null}]});
     if(k && picked){ prePick=picked; await clickSpace(k); prePick=null; }
