@@ -728,6 +728,7 @@ const CHAR_SEED={psycho:4441, zoo:812, charlatan:2290, human:3707, heiress:5150,
 const CHAR_BG={psycho:'morgue', zoo:'docks', charlatan:'square', human:'hospital', heiress:'square', surgeon:'hospital'};
 const CHAR_LOOK={psycho:{hair:3,hat:'brim',alive:1}, zoo:{hair:0,hat:'top',alive:1}, charlatan:{hair:2,hat:'top',alive:1}, human:{hair:4,hat:0,alive:1}, heiress:{hair:2,hat:'brim',alive:1}, surgeon:{hair:2,hat:0,alive:1}};
 const CHAR_PERK={psycho:'Humanity locked at 0', zoo:'+1 die or +1 charge each day', charlatan:'Starts at reputation 3', human:'Starts at humanity 2', heiress:'Never broke, studies faster', surgeon:'Starts at expertise 2, builds cheaper'};
+function homeSlots(){ return ['scientist','assistant','assistant'].map(k=>`<span class="mslot2">${meeple(k,'#ece0c6',22)}</span>`).join(''); }
 function titleScreen(){
   const saved=loadSaved();
   return `<div class="wrap title-wrap"><div class="title-actions"><button class="linkbtn" data-act="rules">How to play</button></div><div class="hero">
@@ -740,14 +741,12 @@ function titleScreen(){
       ${saved?`<button class="btn" data-act="continue">Continue Day ${saved.round}</button>`:''}
     </div>
     <div class="sub">Choose your scientist</div>
-    <div class="charpicker" role="group" aria-label="Choose your character">${CHARACTERS.map((c,k)=>`<button class="gcard charpick ${chosenChar===c.id?'sel':''}" data-act="pickchar" data-id="${c.id}" aria-pressed="${chosenChar===c.id}">
-        <span class="gc-art">${charArt(c.id)}</span>
-        <span class="gc-kind">${esc(c.role)}</span><span class="gc-title">${esc(c.name)}</span>
-        <span class="gc-body"><span class="perk">${esc(CHAR_PERK[c.id])}</span>${esc(c.text)}</span></button>`).join('')}
-      <button class="gcard charpick ${chosenChar==='random'?'sel':''}" data-act="pickchar" data-id="random" aria-pressed="${chosenChar==='random'}">
-        <span class="gc-art"><svg viewBox="0 0 120 70" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" style="color:var(--paper-ink)"><rect x="38" y="14" width="44" height="44" rx="7" fill="var(--paper)"/><circle cx="50" cy="26" r="3.5" fill="currentColor"/><circle cx="70" cy="46" r="3.5" fill="currentColor"/><circle cx="60" cy="36" r="3.5" fill="currentColor"/></g></svg></span>
-        <span class="gc-kind">Fate decides</span><span class="gc-title">Random scientist</span>
-        <span class="gc-body">You are dealt one of the six at random. Your rivals always get random ones.</span></button>
+    <div class="charpicker" role="group" aria-label="Choose your character">${CHARACTERS.map(c=>`<button class="scard charpick ${chosenChar===c.id?'sel':''}" data-act="pickchar" data-id="${c.id}" aria-pressed="${chosenChar===c.id}">
+        <span class="sc-card"><span class="sc-port">${charArt(c.id)}</span><span class="sc-text"><span class="sc-name">${esc(c.name)}</span><span class="sc-body">${esc(c.text)}</span><span class="sc-role">${esc(c.role)}</span></span></span>
+        <span class="sc-home">${homeSlots()}</span></button>`).join('')}
+      <button class="scard charpick ${chosenChar==='random'?'sel':''}" data-act="pickchar" data-id="random" aria-pressed="${chosenChar==='random'}">
+        <span class="sc-card"><span class="sc-port sc-dice"><svg viewBox="0 0 60 80" aria-hidden="true"><g fill="none" stroke="#2b2420" stroke-width="2"><rect x="8" y="18" width="44" height="44" rx="6" fill="#ece6d6"/><circle cx="20" cy="30" r="4" fill="#2b2420"/><circle cx="40" cy="50" r="4" fill="#2b2420"/><circle cx="30" cy="40" r="4" fill="#2b2420"/></g></svg></span><span class="sc-text"><span class="sc-name">Random scientist</span><span class="sc-body">You are dealt one of the six at random. Your rivals always get random ones.</span><span class="sc-role">Fate decides</span></span></span>
+        <span class="sc-home">${homeSlots()}</span></button>
     </div></div></div>`;
 }
 function endScreen(){
@@ -800,6 +799,7 @@ if(IMG['card-tall-back']) document.documentElement.style.setProperty('--card-bac
 if(IMG['board']) document.documentElement.style.setProperty('--board', `url("${IMG['board']}")`);
 if(IMG['card-research-bg']) document.documentElement.style.setProperty('--card-research', `url("${IMG['card-research-bg']}")`);
 if(IMG['card-humanity-bg']) document.documentElement.style.setProperty('--card-humanity', `url("${IMG['card-humanity-bg']}")`);
+if(IMG['card-scientist-bg']) document.documentElement.style.setProperty('--card-scientist', `url("${IMG['card-scientist-bg']}")`);
 try{ window.claude?.hot?.snapshot?.(()=>({S})); }catch(e){}
 window.__spark={ get S(){return S}, set S(v){S=v;}, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});

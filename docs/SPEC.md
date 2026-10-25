@@ -31,7 +31,7 @@ src/art.js       SVG illustrations (locations, lab spaces, portraits, card icons
 src/engine.js    rules, state, async game loop, AI, scoring, persistence
 src/ui.js        modals, tooltips, human input, all rendering, boot
 build.py         concatenates the above into dist/second-spark.html and copies every image under art/ (except source/) to dist/art/; `const IMG` maps file stems to those paths (`--embed` inlines them instead)
-art/<set>/       web-sized images: ui/ (bg-wall, board), frames/ (card-tall-front, card-tall-back), characters/, locations/, cadavers/, scoundrels/, research/, humanity/, events/, encounters/
+art/<set>/       web-sized images: ui/ (bg-wall, board), frames/ (card-tall-front, card-tall-back, card-research-bg, card-humanity-bg, card-scientist-bg), characters/, locations/, cadavers/, scoundrels/, research/, humanity/, events/, encounters/
 art/source/<set>/ originals, never embedded, ignored by git (pencil/ holds the earlier pencil-style art)
 tools/gen_gemini.py  generates images with Nano Banana 2 from docs/prompts/all-images.md (needs GEMINI_API_KEY)
 tools/pixelize.py    makes the game copies: 32 colours at 384px wide (--width) or a true 96-pixel canvas
@@ -61,7 +61,7 @@ tools/pixelize.py    makes the game copies: 32 colours at 384px wide (--width) o
 
 ## 3. Setup
 
-- Title screen: name field, **character cards** (6 characters plus a "Random scientist" card, random selected by default), rival count (1 to 3), "Light the lamps".
+- Title screen, everything centred: name field, rival count (1 to 3), "Light the lamps", then the **scientist cards** (6 characters plus a "Random scientist" card, random selected by default): landscape 2.35:1 like the physical cards, portrait left, parchment text panel with name, ability and role, three dotted home slots under each.
 - Rivals: Dr Ambrose Pell (ruthless), Mme Odile Varnier (careful), Prof Horace Quill (scholar). Each gets a random remaining character.
 - Each player starts with francs equal to the number of players, humanity 0, expertise 0, reputation 0, 1 empty Leyden jar, no materials.
 - Character start bonuses: Charlatan reputation 3, Humanitarian humanity 2, Surgeon expertise 2.
