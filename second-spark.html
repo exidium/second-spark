@@ -524,6 +524,11 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .slots{display:flex;gap:.4cqw;align-items:flex-start}
 .mcard{position:relative;width:clamp(28px,4.6cqw,54px);aspect-ratio:3/4;background:var(--paper);border:1px solid #6b5640;border-radius:3px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 6px rgba(0,0,0,.6);color:var(--paper-ink);box-sizing:border-box}
 .mcard.framed{background:var(--card-front) center/100% 100% no-repeat;border:0;padding:11% 10% 13%}
+.mcard.face{background:var(--card-research) center/100% 100% no-repeat,#ebe6da;border:0;padding:12% 9% 9%;color:#1f1b1a;justify-content:center;align-items:center;gap:3%}
+.mcard.face.hum{background:var(--card-humanity) center/100% 100% no-repeat,#e9e3d4;color:#2e2a28}
+.mcard.face .memblem{display:block;width:54%;aspect-ratio:1;flex:none}
+.mcard.face .memblem .ico{display:block;width:100%;height:100%;filter:none}
+.mcard.face .mname{padding:0;width:100%;font-size:clamp(5px,.66cqw,7px);line-height:1.15;overflow-wrap:normal;word-break:normal;-webkit-line-clamp:2}
 .mcard .mart{display:block;width:100%;flex:1;min-height:0;overflow:hidden}
 .mcard .mart svg{display:block;width:100%;height:100%}
 .mcard .mart img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
@@ -2374,6 +2379,8 @@ function miniCard(c){
   if(SC_WHO[c.kind] && c.tpl!=null && IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]){ const n=t=>{ const m=(c.mats||[]).find(x=>x[0]===t); return m?m[2]:0; }; const st=(c.mats||[]).find(x=>x[0]!=='bone');
     const strip = c.kind==='thief' ? `<span class="mstrip one">Draw ${c.draw}</span>` : `<span class="mstrip"><span class="stage">${st?ROMAN[st[1]-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span>`;
     return `<div class="mcard cad" title="${esc(c.name)}: ${fr(scCost(c))}"><span class="mart"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt=""></span>${strip}</div>`; }
+  if((c.kind==='research' && IMG['card-research-bg']) || (c.kind==='humanity' && IMG['card-humanity-bg'])){ const hum=c.kind==='humanity';
+    return `<div class="mcard face ${hum?'hum':''}" title="${esc(c.name)}"><span class="memblem">${icon(hum?'cross':'book', hum?'✝':'📖')}</span><span class="mname">${esc(c.name)}</span></div>`; }
   const framed = hasFrame() && c.kind==='research';
   return `<div class="mcard ${framed?'framed':''}"><span class="mart">${miniArt(c)}</span><span class="mname">${esc(c.name)}</span></div>`; }
 function miniBack(name,left){ return IMG['card-tall-back'] ? `<div class="mcard back"><span class="plate">${esc(name)}</span><span class="mcount">${left}</span></div>` : `<div class="mcard back plain"><span class="mname">${esc(name)} deck</span><span class="mcount">${left}</span></div>`; }
