@@ -398,7 +398,7 @@ Balance target and result (30+ AI games): games end on Days 10 to 12, roughly a 
 ## 12. User interface
 
 ### 12.1 Visual identity
-- Single dark look by choice: a tiled stone wall (`art/ui/bg-wall.jpg`, 1024px tile) under an ink wash on every screen, lamp-black `#121016` fallback, panels `#1b171f`, parchment text `#ece0c6`. Accent "galvanic blue" `#9fd0ff`. Engraved paper map `#d9c8a3` with ink `#3b2d22`.
+- Single dark look by choice: a tiled pixel stone wall (`art/ui/bg-wall.png`, 128px tile drawn at 512px) under an ink wash on every screen, lamp-black `#121016` fallback, panels `#1b171f`, parchment text `#ece0c6`. Accent "galvanic blue" `#9fd0ff`. Engraved paper map `#d9c8a3` with ink `#3b2d22`.
 - Material colours: muscle `#8a4b2b`, organ `#7a5a96`, blood `#c03b3b`, bone `#ece6d6`, animal `#e38b2c`.
 - Body part state colours: **muscle bold red** (`#b23a2b`/`#e0533f`), **skin bold yellow** (`#e0b22e`/`#f0c419`), **alive blue** (`#9fd0ff`, glow). Damage: yellow lightning `#ffd36a`.
 - Player colours: you `#9fd0ff`, Pell `#d6675f`, Varnier `#74b393`, Quill `#cda65c`.

@@ -351,3 +351,6 @@ The painted logo is retired (kept in `art/source/ui/`). The new logo (`art/ui/ti
 
 **D111. One-line logo everywhere, with clean transparency; the place explanation is centred white text over the scene, the paper scrap is withdrawn.** (Bruno: "make the sentence in one line. Also, the transparency is all wrong." and "the text on the image, with the paper... it sucks. Let's just do a centralized white text on top of the image.")
 The logo is regenerated on one line (`art/ui/title.png`, 480px wide) and keyed from a white ground: background components are removed by size, edge pixels get alpha from their lightness, and the downscale runs on premultiplied alpha so no light halo survives. The same file serves the title screen (560px) and the header. The scrap of paper (D105 to D107) is gone; the place's one-line explanation sits centred near the bottom of the scene in white body type with a dark glow.
+
+**D112. The page's stone wall is pixel art.** (Bruno: "can you make those background bricks pixel art too?")
+The painted seamless tile (kept in `art/source/ui/bg-wall-painted.jpg`) is reduced to a 128px tile in 14 colours with no dither (`art/ui/bg-wall.png`) and drawn at 512px with pixelated rendering, so each wall pixel is four screen pixels. The uniform reduction keeps the tile seamless. A 256px version was tried and looked too fine next to the scene art.

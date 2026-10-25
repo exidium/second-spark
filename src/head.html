@@ -19,9 +19,9 @@
   color-scheme:dark;
 }
 html,body{background:var(--ink);color:var(--parch)}
-/* Seamless stone wall (art/bg-wall.jpg, set as --bg-tile at boot) under a slight ink wash and the candle glow. Falls back to plain ink. */
+/* Seamless pixel stone wall (art/ui/bg-wall.png, 128px tile shown at 512px, set as --bg-tile at boot) under a slight ink wash and the candle glow. Falls back to plain ink. */
 body{font-family:var(--f-body);font-size:16px;line-height:1.5;
-  background:radial-gradient(1200px 600px at 75% -10%, rgba(205,166,92,.08), transparent 60%), linear-gradient(rgba(18,16,22,.38), rgba(18,16,22,.38)), var(--bg-tile, none) center top / 512px auto repeat, var(--ink);}
+  background:radial-gradient(1200px 600px at 75% -10%, rgba(205,166,92,.08), transparent 60%), linear-gradient(rgba(18,16,22,.38), rgba(18,16,22,.38)), var(--bg-tile, none) center top / 512px auto repeat, var(--ink);;image-rendering:pixelated}
 *{box-sizing:border-box}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,[tabindex]:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--spark);outline-offset:2px}
