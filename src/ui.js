@@ -376,8 +376,7 @@ function bar(filled,n,cls,opts){ opts=opts||{}; return `<div class="bar ${cls}" 
 const EXP_TIPS={3:'<b>Expertise 3</b>You can build arms.',8:'<b>Expertise 8</b>You can build the torso.',10:'<b>Expertise 10</b>One of your shock dice becomes a blue die (more eyes, fewer bolts).',14:'<b>Expertise 14</b>You can build the head.',20:'<b>Expertise 20</b>Two of your shock dice become blue.',27:'<b>Expertise 27</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
 const REP_TIPS={7:'<b>Reputation 7</b>The Hospital lets you retrieve a cadaver for free. You hire a 3rd assistant.',15:'<b>Reputation 15</b>An assistant is promoted to a 2nd scientist. At the Hospital you may take a 2nd cadaver for 1 franc.',23:'<b>Reputation 23</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
 const SLOT_ORDER=[['legR','R Leg'],['legL','L Leg'],['armR','R Arm'],['armL','L Arm'],['torso','Torso'],['head','Head']];
-function bodyLine(p){ return `<div class="bodyline">${SLOT_ORDER.map(([s,n])=>{ const t=p.table[s]; const c=!t?'none':t.alive?'alive':t.side==='skin'?'skin':'muscle';
-  return `<span class="bl ${c}" title="${n}: ${({none:'not started',muscle:'muscle',skin:'skin (complete)',alive:'alive'})[c]}${t&&t.dmg?', damaged':''}">${n}${t&&t.dmg?'⚡':''}</span>`; }).join('<span class="bls">–</span>')}</div>`; }
+function humBar(h){ return `<div class="bar hd" style="--n:20">${Array.from({length:20},(_,k)=>{ const v=k-10; const on = h<0 ? (v>=h&&v<0) : (v>=0&&v<h); return `<i class="${on?'on '+(h<0?'neg':'pos'):''}" ${k===10?'style="box-shadow:-2px 0 0 var(--parch-dim)"':''}></i>`; }).join('')}</div>`; }
 function statBars(p, small){
   return `<div class="tracks ${small?'small':''}">
       <div class="track"><span class="lab">${icon(p.hum<0?'heart-broken':'heart','❤️','si')}Humanity</span>${humBar(p.hum)}<span class="num">${p.hum>0?'+':''}${p.hum}</span></div>
@@ -385,7 +384,6 @@ function statBars(p, small){
       <div class="track"><span class="lab">${icon('reputation','🎖️','si')}Reputation</span>${bar(Math.min(p.rep,30),30,'r',{marks:[7,15,23], tips:REP_TIPS})}<span class="num">${p.rep}</span></div>
     </div>`;
 }
-function humBar(h){ return `<div class="bar hd" style="--n:20">${Array.from({length:20},(_,k)=>{ const v=k-10; const on = h<0 ? (v>=h&&v<0) : (v>=0&&v<h); return `<i class="${on?'on '+(h<0?'neg':'pos'):''}" ${k===10?'style="box-shadow:-2px 0 0 var(--parch-dim)"':''}></i>`; }).join('')}</div>`; }
 // Meeples: flat single-colour silhouettes drawn on a 14x20 pixel grid (one path of unit squares, so they stay crisp at any size).
 // Scientist: top hat, narrow shoulders, split coat tails. Assistant: flat cap with a brim, round shoulders, solid apron. Colour is the player's.
 const MEEPLE_GRID = {
@@ -656,11 +654,10 @@ function labBody(){
     ${hasChar(p,'surgeon')&&!p.surgeonUsed?`<label class="chip" style="cursor:pointer"><input type="checkbox" data-opt="surgeon" ${uiOpts.surgeon?'checked':''}> Surgeon: 1 less material</label>`:''}` : '';
   return `<p class="flavor" style="margin-top:0">${lab?'Build parts (as many as you can), throw the switch once, and preserve spare flesh for the Market.':'By day you can only look. Building and the switch happen at night.'}</p>
     <div class="lab3">
-      <div class="labcol"><div class="sub" style="margin-top:0">Operating table</div><div class="figure big">${tableHTML(p,'lab')}</div><div class="legend"><span class="bl muscle">■ muscle ${onTable(p).length-completeCount(p)}</span><span class="bl skin">■ skin ${completeCount(p)-aliveCount(p)}</span><span class="bl alive">■ alive ${aliveCount(p)}</span><span class="bl dmgl">⚡ damage ${dmgTotal(p)}</span></div><p class="num" style="font-size:12.5px;color:var(--parch-dim);text-align:center;margin:4px 0">${p.vp} VP built</p>${bodyLine(p)}${lab?switchBoxHTML(p):''}</div>
+      <div class="labcol"><div class="sub" style="margin-top:0">Operating table</div><div class="figure big">${tableHTML(p,'lab')}</div><div class="legend"><span class="bl muscle">■ muscle ${onTable(p).length-completeCount(p)}</span><span class="bl skin">■ skin ${completeCount(p)-aliveCount(p)}</span><span class="bl alive">■ alive ${aliveCount(p)}</span><span class="bl dmgl">⚡ damage ${dmgTotal(p)}</span></div><p class="num" style="font-size:12.5px;color:var(--parch-dim);text-align:center;margin:4px 0">${p.vp} VP built</p>${lab?switchBoxHTML(p):''}</div>
       <div class="labcol"><div class="sub" style="margin-top:0">Body parts</div>${toggles.trim()?`<div class="row" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${toggles}</div>`:''}<div class="anat">${anatomyHTML(p)}</div></div>
       <div class="labcol"><div class="sub" style="margin-top:0">Decomposition track</div>${decayHTML(p)}<div class="sub">Points per part and quality</div>${pointsTable()}</div>
-    </div>
-    <div class="sub">Cards in hand <span style="font-size:12px;color:var(--muted)">(up to 3 of each kind)</span></div><div class="gcards">${handHTML(p)}</div>`;
+    </div>`;
 }
 // Live modals re-render on every render(), so builds, preserves and card plays refresh in place.
 function labModal(){ openModal({kind:'lab', live:true, title:'Your laboratory', wide:true, xwide:true, html:()=>labBody(),
