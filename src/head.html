@@ -521,11 +521,12 @@ i,em{font-style:normal}
 
 /* ===== board layout (Bruno's wireframe): painted Paris on the left, your column on the right ===== */
 .wrap.game{max-width:none;padding-block:10px 24px}
-.toprow{margin-bottom:8px;gap:8px 16px}
+.toprow{margin-bottom:0;gap:8px 16px}
 .toprow .brand-logo{font-size:30px;margin:0 6px 0 0}
 .captainbox{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end}
-.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(18,16,22,.86);border:1px solid var(--line2);border-bottom:0;border-radius:4px 4px 0 0;padding:5px 12px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(18,16,22,.86);border:1px solid var(--line2);border-bottom:0;border-radius:4px 4px 0 0;padding:5px 12px;margin-bottom:-16px;position:relative;z-index:1}
 .boardscroll{border-radius:0 0 4px 4px}
+.boardscroll .board{border-radius:0 0 4px 4px;border-top:0}
 .board{border-radius:0 0 4px 4px}
 .todaybtn{background:none;border:0;padding:0;text-align:left;font-family:var(--f-display);font-size:16px;color:var(--parch);cursor:pointer;letter-spacing:.02em;display:inline-flex;align-items:center;gap:7px}
 .todaybtn .ico.si{width:20px;height:20px}
