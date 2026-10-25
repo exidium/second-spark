@@ -32,6 +32,10 @@ js += '\n'.join((src / f).read_text(encoding='utf-8') for f in ['data.js', 'art.
 html = '<!doctype html>\n' + (src / 'head.html').read_text(encoding='utf-8') + '\n<div id="tip" hidden></div>\n<script>\n(() => {\n"use strict";\n' + js + '\n})();\n</script>\n'
 if '—' in html:
     raise SystemExit('Em dash found in the build. Player-facing text must not use em dashes.')
+import re as _re
+_small=[d for d in _re.findall(r'font-size:[^;}"]*', html) if any(float(x)<12 for x in _re.findall(r'([0-9.]+)px', d))]
+if _small:
+    raise SystemExit('Font size below 12px in the build: ' + ', '.join(_small[:5]) + '. The minimum is 12px.')
 out = out_dir / 'second-spark.html'
 out.write_text(html, encoding='utf-8')
 total = sum(f.stat().st_size for f in files)

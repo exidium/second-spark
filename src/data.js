@@ -196,7 +196,7 @@ const LOCS = [
 const BOARD_POS = {
   cemetery:{x:12,y:17,cards:'right'}, square:{x:26,y:31,cards:'right'}, slaughter:{x:55,y:15,cards:null}, church:{x:79,y:17,cards:'left'},
   market:{x:73,y:36,cards:null}, first:{x:48,y:45,cards:null}, morgue:{x:62,y:55,cards:'right'}, hospital:{x:20,y:64,cards:'right'},
-  academy:{x:43,y:74,cards:'right'}, docks:{x:69,y:71,cards:'left'}, alley:{x:82,y:81,cards:null}, odeon:{x:30,y:89,cards:null},
+  academy:{x:45,y:75,cards:'right'}, docks:{x:70,y:69,cards:'right'}, alley:{x:84,y:84,cards:null}, odeon:{x:30,y:89,cards:null},
 };
 const LAB_STRIP = {x:55, y:92};
 const LOC = Object.fromEntries(LOCS.map(l=>[l.id,l]));

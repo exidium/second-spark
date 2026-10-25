@@ -399,3 +399,6 @@ The How to play link sits centred above the tagline instead of in the top-left c
 
 **D127. Event and encounter text over the picture.** (Bruno: "Event cards... Use the text over image. Don't use the cream background.")
 The cream text strip under the scene is gone. The name and the text sit over the lower part of the picture on a dark gradient, in parchment and white. Encounter cards share the layout.
+
+**D128. Minimum font size 12px.** (Bruno: "new rule. Minimum font size: 12.")
+Every font size below 12px (164 declarations, from 4px strip digits on the board's mini cards to 11.5px labels) is raised to 12px; clamps keep their fluid middle but floor and cap at 12px or more. To hold 12px type the mini cards on the board grow from about 48px to 56 to 76px wide and their number strip cells to 16px tall. The build now fails if any font size below 12px reaches the page, like it does for an em dash.
