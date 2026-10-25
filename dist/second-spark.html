@@ -437,16 +437,17 @@ i,em{font-style:normal}
 .ccard .cs.z{opacity:.35}
 .gcard-wrap.sel .ccard{outline:3px solid var(--spark);outline-offset:1px}
 /* event cards: landscape, scene on top, text panel below */
-.ecard{width:360px;max-width:100%;border-radius:7px;overflow:hidden;border:2px solid #2a2320;box-shadow:0 8px 22px rgba(0,0,0,.55);background:var(--paper);color:var(--paper-ink);display:flex;flex-direction:column}
-.ecard .eart{position:relative;aspect-ratio:4/3;background:#0e0b0c}
+.ecard{width:360px;max-width:100%;border-radius:7px;overflow:hidden;border:2px solid #2a2320;box-shadow:0 8px 22px rgba(0,0,0,.55);background:#0e0b0c;color:var(--parch);display:flex;flex-direction:column}
+.ecard .eart{position:relative;aspect-ratio:4/3;background:#0e0b0c;min-height:240px}
 .ecard .eart img,.ecard .eart svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .ecard .eart svg{padding:12%;box-sizing:border-box;background:var(--paper2)}
 .ecard .ek{position:absolute;top:6px;left:8px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--parch);text-shadow:0 1px 3px #000;opacity:.85}
-.ecard .en{position:absolute;left:8px;right:8px;bottom:8px;font-family:var(--f-display);font-size:18px;line-height:1.1;color:var(--parch);text-shadow:0 1px 3px #000,0 0 8px #000}
+.ecard .eover{position:absolute;left:0;right:0;bottom:0;padding:48px 10px 10px;background:linear-gradient(to bottom,rgba(14,11,12,0),rgba(14,11,12,.82) 34%,rgba(14,11,12,.94));display:flex;flex-direction:column;gap:4px}
+.ecard .en{font-family:var(--f-display);font-size:18px;line-height:1.1;color:var(--parch);text-shadow:0 1px 3px #000,0 0 8px #000}
 .ecard .emarks{position:absolute;top:6px;right:8px;display:flex;gap:4px}
 .ecard .em{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:10px;background:rgba(14,11,12,.78);color:var(--parch);border:1px solid rgba(236,224,198,.35)}
 .ecard .em.storm{color:#9fd0ff;border-color:#9fd0ff}.ecard .em.exec{color:#f0a79f;border-color:#d6675f}
-.ecard .ebody{font-size:12.5px;line-height:1.35;padding:8px 10px 9px;display:flex;flex-direction:column;gap:4px}
+.ecard .ebody{font-size:12.5px;line-height:1.35;padding:0;display:flex;flex-direction:column;gap:4px;color:#fff;text-shadow:0 1px 2px #000}
 /* frosted text cards (research): parchment face with the title, text and gain icons, a dark dice strip below */
 .fcard{width:190px;display:flex;flex-direction:column;border-radius:7px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.55);border:2px solid #2a2320}
 .fface{aspect-ratio:3/4;background:var(--card-research) center/100% 100% no-repeat,#ebe6da;color:#1f1b1a;padding:11% 13% 10%;display:flex;flex-direction:column;align-items:center;text-align:center;box-sizing:border-box}
@@ -2280,16 +2281,14 @@ function eventArt(e){ const k=EVENTS.indexOf(e); const src=k>=0&&IMG[`event-${St
 // Event card: landscape, the 4:3 scene across the top, the name over it, the text and the lightning or execution marks in a panel below.
 function eventCardHTML(e){
   const marks=`${e.storm?'<span class="em storm" title="Lightning: every Leyden jar is charged">⚡ lightning</span>':''}${e.exec?'<span class="em exec" title="Execution: bodies go on display at the Public Square">☠ execution</span>':''}`;
-  return `<div class="ecard"><div class="eart">${eventArt(e)}<span class="ek">Event · days ${e.r[0]} to ${e.r[1]}</span><span class="en">${esc(e.name)}</span>${marks?`<div class="emarks">${marks}</div>`:''}</div>
-    <div class="ebody">${esc(e.text)}${e.storm?'<div><b>Lightning:</b> every Leyden jar is charged.</div>':''}${e.exec?'<div><b>Execution:</b> bodies go on display at the Public Square.</div>':''}</div></div>`;
+  return `<div class="ecard"><div class="eart">${eventArt(e)}<span class="ek">Event · days ${e.r[0]} to ${e.r[1]}</span>${marks?`<div class="emarks">${marks}</div>`:''}<div class="eover"><span class="en">${esc(e.name)}</span><div class="ebody">${esc(e.text)}${e.storm?'<div><b>Lightning:</b> every Leyden jar is charged.</div>':''}${e.exec?'<div><b>Execution:</b> bodies go on display at the Public Square.</div>':''}</div></div></div></div>`;
 }
 // Encounter scene: art/encounters/encounter-NN.png by position in ENCOUNTERS, else the seeded SVG face.
 function encounterArt(e){ const k=ENCOUNTERS.indexOf(e); const src=k>=0&&IMG[`encounter-${String(k+1).padStart(2,'0')}`]; return src ? `<img src="${src}" alt="">` : portrait(e.id.length*977, e.who==='captain'?'docks':'morgue', e.who!=='woman'); }
 function encounterCardHTML(e){
   const who = e.who==='captain'?'Captain Walton':e.who==='woman'?'A stranger':'The Creature';
   const trig = e.loc ? `Hidden. Triggers on the first rival to use ${esc(LOC[e.loc.split('.')[0]].name)}: ${esc(SPACE[e.loc].n)}.` : `Now. ${({maxExp:'The scientist with the most expertise',fewestComplete:'The scientist with the fewest complete parts',maxHum:'The scientist with the most humanity',fpOther:'Someone the first player chooses (not themselves)',fp:'Someone the first player chooses',fpWithPart:'Someone with a part on the table, chosen by the first player',lastDark:'Whoever last killed or hired a Cutthroat',mostHumCards:'Whoever holds the most humanity cards'})[e.target]}.`;
-  return `<div class="ecard"><div class="eart">${encounterArt(e)}<span class="ek">Encounter · days ${e.r[0]} to ${e.r[1]}</span><span class="en">${who}</span></div>
-    <div class="ebody"><span class="soft">${esc(e.text)}</span><div>${trig}</div>${e.testText?`<div>Test: ${esc(e.testText)}.</div>`:''}${e.choice?`<div>Choice: ${esc(e.choice[0])} or ${esc(e.choice[1])}.</div>`:''}</div></div>`;
+  return `<div class="ecard"><div class="eart">${encounterArt(e)}<span class="ek">Encounter · days ${e.r[0]} to ${e.r[1]}</span><div class="eover"><span class="en">${who}</span><div class="ebody"><span class="soft">${esc(e.text)}</span><div>${trig}</div>${e.testText?`<div>Test: ${esc(e.testText)}.</div>`:''}${e.choice?`<div>Choice: ${esc(e.choice[0])} or ${esc(e.choice[1])}.</div>`:''}</div></div></div></div>`;
 }
 // Character portrait: generated image if art/character-<id>.* was embedded at build time, else the SVG portrait.
 // Title logo: art/title.webp (gold lettering with a transparent ground), else the text heading.

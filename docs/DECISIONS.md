@@ -396,3 +396,6 @@ D123's removal of `<i>` tags also rewrote the `</i>` closings of the board slot 
 
 **D126. How to play centred on the title screen.** (Bruno: "Centralize how to play button as well.")
 The How to play link sits centred above the tagline instead of in the top-left corner.
+
+**D127. Event and encounter text over the picture.** (Bruno: "Event cards... Use the text over image. Don't use the cream background.")
+The cream text strip under the scene is gone. The name and the text sit over the lower part of the picture on a dark gradient, in parchment and white. Encounter cards share the layout.

@@ -286,16 +286,14 @@ function eventArt(e){ const k=EVENTS.indexOf(e); const src=k>=0&&IMG[`event-${St
 // Event card: landscape, the 4:3 scene across the top, the name over it, the text and the lightning or execution marks in a panel below.
 function eventCardHTML(e){
   const marks=`${e.storm?'<span class="em storm" title="Lightning: every Leyden jar is charged">⚡ lightning</span>':''}${e.exec?'<span class="em exec" title="Execution: bodies go on display at the Public Square">☠ execution</span>':''}`;
-  return `<div class="ecard"><div class="eart">${eventArt(e)}<span class="ek">Event · days ${e.r[0]} to ${e.r[1]}</span><span class="en">${esc(e.name)}</span>${marks?`<div class="emarks">${marks}</div>`:''}</div>
-    <div class="ebody">${esc(e.text)}${e.storm?'<div><b>Lightning:</b> every Leyden jar is charged.</div>':''}${e.exec?'<div><b>Execution:</b> bodies go on display at the Public Square.</div>':''}</div></div>`;
+  return `<div class="ecard"><div class="eart">${eventArt(e)}<span class="ek">Event · days ${e.r[0]} to ${e.r[1]}</span>${marks?`<div class="emarks">${marks}</div>`:''}<div class="eover"><span class="en">${esc(e.name)}</span><div class="ebody">${esc(e.text)}${e.storm?'<div><b>Lightning:</b> every Leyden jar is charged.</div>':''}${e.exec?'<div><b>Execution:</b> bodies go on display at the Public Square.</div>':''}</div></div></div></div>`;
 }
 // Encounter scene: art/encounters/encounter-NN.png by position in ENCOUNTERS, else the seeded SVG face.
 function encounterArt(e){ const k=ENCOUNTERS.indexOf(e); const src=k>=0&&IMG[`encounter-${String(k+1).padStart(2,'0')}`]; return src ? `<img src="${src}" alt="">` : portrait(e.id.length*977, e.who==='captain'?'docks':'morgue', e.who!=='woman'); }
 function encounterCardHTML(e){
   const who = e.who==='captain'?'Captain Walton':e.who==='woman'?'A stranger':'The Creature';
   const trig = e.loc ? `Hidden. Triggers on the first rival to use ${esc(LOC[e.loc.split('.')[0]].name)}: ${esc(SPACE[e.loc].n)}.` : `Now. ${({maxExp:'The scientist with the most expertise',fewestComplete:'The scientist with the fewest complete parts',maxHum:'The scientist with the most humanity',fpOther:'Someone the first player chooses (not themselves)',fp:'Someone the first player chooses',fpWithPart:'Someone with a part on the table, chosen by the first player',lastDark:'Whoever last killed or hired a Cutthroat',mostHumCards:'Whoever holds the most humanity cards'})[e.target]}.`;
-  return `<div class="ecard"><div class="eart">${encounterArt(e)}<span class="ek">Encounter · days ${e.r[0]} to ${e.r[1]}</span><span class="en">${who}</span></div>
-    <div class="ebody"><span class="soft">${esc(e.text)}</span><div>${trig}</div>${e.testText?`<div>Test: ${esc(e.testText)}.</div>`:''}${e.choice?`<div>Choice: ${esc(e.choice[0])} or ${esc(e.choice[1])}.</div>`:''}</div></div>`;
+  return `<div class="ecard"><div class="eart">${encounterArt(e)}<span class="ek">Encounter · days ${e.r[0]} to ${e.r[1]}</span><div class="eover"><span class="en">${who}</span><div class="ebody"><span class="soft">${esc(e.text)}</span><div>${trig}</div>${e.testText?`<div>Test: ${esc(e.testText)}.</div>`:''}${e.choice?`<div>Choice: ${esc(e.choice[0])} or ${esc(e.choice[1])}.</div>`:''}</div></div></div></div>`;
 }
 // Character portrait: generated image if art/character-<id>.* was embedded at build time, else the SVG portrait.
 // Title logo: art/title.webp (gold lettering with a transparent ground), else the text heading.
