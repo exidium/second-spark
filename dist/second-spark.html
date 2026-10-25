@@ -98,10 +98,11 @@ i,em{font-style:normal}
 .labhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 .res{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-bottom:12px}
 .res div{border:1px solid var(--line);border-radius:3px;padding:6px 4px;text-align:center;min-width:0}
-.res b{display:block;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1}
+.res b{display:flex;align-items:center;justify-content:center;gap:5px;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1}
+.res b .ico.si{width:20px;height:20px}
 .res span{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .tracks{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
-.track{display:grid;grid-template-columns:92px minmax(0,1fr) 28px;align-items:center;gap:8px;font-size:12.5px}
+.track{display:grid;grid-template-columns:118px minmax(0,1fr) 28px;align-items:center;gap:8px;font-size:12.5px}
 .track .lab{letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
 .ico.si{width:16px;height:16px;filter:none}
 .ot .ico.si,.btn .ico.si,.chip .ico.si{width:20px;height:20px;vertical-align:-5px;margin:0 2px}
@@ -385,7 +386,7 @@ i,em{font-style:normal}
 .bl.alive{color:var(--spark);font-weight:700;text-shadow:0 0 8px var(--spark-glow)}
 .bls{color:var(--line2)}
 .tracks.small{gap:4px;margin:2px 0 6px}
-.tracks.small .track{grid-template-columns:72px minmax(0,1fr) 26px;font-size:11.5px}
+.tracks.small .track{grid-template-columns:100px minmax(0,1fr) 26px;font-size:11.5px}
 .tracks.small .track .lab{font-size:11px}
 .tracks.small .bar i{height:7px}
 .bar i.mk{cursor:help}
@@ -2684,7 +2685,7 @@ function sideColumn(){
   return `<aside class="sidecol">
     <div class="sidebtns"><button class="btn" data-act="character">Your character</button><button class="btn" data-act="rules">Help</button><button class="btn" data-act="newgame">New game</button></div>
     <section class="panel">${statBars(p)}
-      <div class="res five"><div><b>${p.coin}</b><span>${icon('coin','🪙','si')}Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>${icon('jar','🏺','si')}Jars</span></div><div><b>${p.ice}</b><span>${icon('ice','🧊','si')}Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>${icon('police','⭐','si')}Police</span></div>
+      <div class="res five"><div><b>${icon('coin','🪙','si')}${p.coin}</b><span>Francs</span></div><div><b>${icon('jar','🏺','si')}${ch}<small>/${p.jars.length}</small></b><span>Jars</span></div><div><b>${icon('ice','🧊','si')}${p.ice}</b><span>Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${icon('police','⭐','si')}${p.police}<small>/2</small></b><span>Police</span></div>
         <button class="cardsbtn" data-act="hand" data-tipt="${esc(handTipHTML(p))}" aria-label="Cards in hand">${icon('cards','🃏')}<b class="count">${p.hand.length}</b><span>Cards</span></button></div>
     </section>
     <section class="panel labsum" aria-label="Your laboratory">
@@ -2701,7 +2702,7 @@ function rivalModal(i){
   const p=S.players[i]; const C=CHARACTERS.find(c=>c.id===p.char);
   openModal({kind:'rival', live:true, title:`${esc(p.name)}’s Laboratory`, wide:true, xwide:true, html:()=>`
     <div class="rivalhead" style="--pc:${p.color}">${charArt(p.char,'avatar lg')}<div class="rivalinfo"><b>${C?esc(C.name):''}</b>, ${C?esc(C.role.toLowerCase()):''}.<br><span style="color:var(--parch-dim)">${C?esc(C.text):''}</span>
-      <div class="res four" style="margin-top:8px"><div><b>${p.vp}</b><span>VP built</span></div><div><b>${p.coin}</b><span>Francs</span></div><div><b>${charged(p)}<small>/${p.jars.length}</small></b><span>${icon('jar','🏺','si')}Jars</span></div><div><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>Police</span></div></div>
+      <div class="res four" style="margin-top:8px"><div><b>${p.vp}</b><span>VP built</span></div><div><b>${p.coin}</b><span>Francs</span></div><div><b>${icon('jar','🏺','si')}${charged(p)}<small>/${p.jars.length}</small></b><span>Jars</span></div><div><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>Police</span></div></div>
       ${statBars(p)}
       <p style="font-size:13px;color:var(--parch-dim);margin:0">${p.hand.filter(h=>h.kind==='research').length} research and ${p.hand.filter(h=>h.kind==='humanity').length} humanity cards · Ice ${p.ice}${S.phase==='day'?` · at home: ${p.left.scientist} scientist, ${p.left.assistant} assistant${p.left.assistant!==1?'s':''}`:''}</p></div></div>
     <div class="lab3">

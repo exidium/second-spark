@@ -408,3 +408,6 @@ Cards are reached from the Cards tile; the table shows the parts. The Your chara
 
 **D130. Minimum font size is 11px.** (Bruno: "miniature cards can be done in 11px font. The minimum fonts can be 11 again.")
 The floor of D128 moves from 12px to 11px: sizes that were 11 or 11.5px before the rule return, anything smaller stays at 11px, and the build guard checks for 11px. The mini cards on the board settle at 52 to 70px wide with 15px strip cells.
+
+**D131. Counter icons beside the number; wider label column on the stat bars.** (Bruno: "Put the icons next to the number, text below. The reputation text is under the bars... can you put the bars a bit more to the right?")
+In every counter tile the icon sits left of the number and the label alone runs beneath. The stat bars' label column grows from 92 to 118px (72 to 100px in the compact variant) so Reputation and its icon no longer run under the bar.

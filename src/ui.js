@@ -690,7 +690,7 @@ function sideColumn(){
   return `<aside class="sidecol">
     <div class="sidebtns"><button class="btn" data-act="character">Your character</button><button class="btn" data-act="rules">Help</button><button class="btn" data-act="newgame">New game</button></div>
     <section class="panel">${statBars(p)}
-      <div class="res five"><div><b>${p.coin}</b><span>${icon('coin','🪙','si')}Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>${icon('jar','🏺','si')}Jars</span></div><div><b>${p.ice}</b><span>${icon('ice','🧊','si')}Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>${icon('police','⭐','si')}Police</span></div>
+      <div class="res five"><div><b>${icon('coin','🪙','si')}${p.coin}</b><span>Francs</span></div><div><b>${icon('jar','🏺','si')}${ch}<small>/${p.jars.length}</small></b><span>Jars</span></div><div><b>${icon('ice','🧊','si')}${p.ice}</b><span>Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${icon('police','⭐','si')}${p.police}<small>/2</small></b><span>Police</span></div>
         <button class="cardsbtn" data-act="hand" data-tipt="${esc(handTipHTML(p))}" aria-label="Cards in hand">${icon('cards','🃏')}<b class="count">${p.hand.length}</b><span>Cards</span></button></div>
     </section>
     <section class="panel labsum" aria-label="Your laboratory">
@@ -707,7 +707,7 @@ function rivalModal(i){
   const p=S.players[i]; const C=CHARACTERS.find(c=>c.id===p.char);
   openModal({kind:'rival', live:true, title:`${esc(p.name)}’s Laboratory`, wide:true, xwide:true, html:()=>`
     <div class="rivalhead" style="--pc:${p.color}">${charArt(p.char,'avatar lg')}<div class="rivalinfo"><b>${C?esc(C.name):''}</b>, ${C?esc(C.role.toLowerCase()):''}.<br><span style="color:var(--parch-dim)">${C?esc(C.text):''}</span>
-      <div class="res four" style="margin-top:8px"><div><b>${p.vp}</b><span>VP built</span></div><div><b>${p.coin}</b><span>Francs</span></div><div><b>${charged(p)}<small>/${p.jars.length}</small></b><span>${icon('jar','🏺','si')}Jars</span></div><div><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>Police</span></div></div>
+      <div class="res four" style="margin-top:8px"><div><b>${p.vp}</b><span>VP built</span></div><div><b>${p.coin}</b><span>Francs</span></div><div><b>${icon('jar','🏺','si')}${charged(p)}<small>/${p.jars.length}</small></b><span>Jars</span></div><div><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>Police</span></div></div>
       ${statBars(p)}
       <p style="font-size:13px;color:var(--parch-dim);margin:0">${p.hand.filter(h=>h.kind==='research').length} research and ${p.hand.filter(h=>h.kind==='humanity').length} humanity cards · Ice ${p.ice}${S.phase==='day'?` · at home: ${p.left.scientist} scientist, ${p.left.assistant} assistant${p.left.assistant!==1?'s':''}`:''}</p></div></div>
     <div class="lab3">
