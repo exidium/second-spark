@@ -354,3 +354,6 @@ The logo is regenerated on one line (`art/ui/title.png`, 480px wide) and keyed f
 
 **D112. The page's stone wall is pixel art.** (Bruno: "can you make those background bricks pixel art too?")
 The painted seamless tile (kept in `art/source/ui/bg-wall-painted.jpg`) is reduced to a 128px tile in 14 colours with no dither (`art/ui/bg-wall.png`) and drawn at 512px with pixelated rendering, so each wall pixel is four screen pixels. The uniform reduction keeps the tile seamless. A 256px version was tried and looked too fine next to the scene art.
+
+**D113. The logo is text in the display font.** (Bruno: "the alpha channel is sucking. Can you make it with a font only? The same we're using for titles and cards.")
+No logo image. "Second Spark" is set in Amarante, the face of every title and card name, parchment with Spark in the alive blue and its glow, a hard black drop under the letters. Title screen at up to 84px, header at 30px. The generated pixel logos stay in `art/source/ui/` for reference.

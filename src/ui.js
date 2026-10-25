@@ -299,7 +299,7 @@ function encounterCardHTML(e){
 }
 // Character portrait: generated image if art/character-<id>.* was embedded at build time, else the SVG portrait.
 // Title logo: art/title.webp (gold lettering with a transparent ground), else the text heading.
-function logoHTML(cls){ const src=IMG['title']; return src ? `<img class="logo ${cls||''}" src="${src}" alt="Second Spark">` : `<h1>Second <span>Spark</span></h1>`; }
+function logoHTML(cls){ return `<h1 class="logo ${cls||''}">Second <span>Spark</span></h1>`; }
 function charArt(id, cls){ const src=IMG['character-'+id]; if(src) return `<img class="${cls||''}" src="${src}" alt="">`;
   const svg=portrait(CHAR_SEED[id], CHAR_BG[id], false, CHAR_LOOK[id]); return cls?`<span class="${cls}">${svg}</span>`:svg; }
 function charCardHTML(c){ return `<div class="hcard" style="align-items:flex-start">${charArt(c.id,'avatar')}<span><span class="eyebrow">${esc(c.role)}</span><br><b>${esc(c.name)}</b><br><span style="color:var(--parch-dim)">${esc(c.text)}</span></span></div>`; }

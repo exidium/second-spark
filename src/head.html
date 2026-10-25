@@ -373,13 +373,11 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .bar i.mk:hover{outline:2px solid var(--spark);outline-offset:0}
 
 /* title logo */
-.logo{display:block;height:auto;pointer-events:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
-.hero-logo{width:min(100%,560px);margin:-10px auto -6px;image-rendering:pixelated}
-.hero-sub{text-align:center;color:#fff;font-size:13px}
-.title-wrap{position:relative}
-.title-actions{position:absolute;top:14px;right:max(16px,env(safe-area-inset-right,0px))}
-.brand-logo{height:96px;width:auto;margin:0 0 -14px -12px;image-rendering:pixelated}
-@media (max-width:640px){.brand-logo{height:80px}}
+.logo{font-family:var(--f-display);font-weight:400;letter-spacing:.02em;color:var(--parch);text-shadow:0 2px 0 #000,0 4px 18px rgba(0,0,0,.7);white-space:nowrap}
+.logo span{color:var(--spark);text-shadow:0 2px 0 #000,0 0 24px var(--spark-glow)}
+.hero-logo{font-size:clamp(44px,8vw,84px);line-height:1;text-align:center;margin:4px 0 8px}
+.brand-logo{font-size:32px;line-height:1;margin:0}
+@media (max-width:640px){.brand-logo{font-size:26px}}
 
 /* tall framed cards (engraved parchment front, wooden back) */
 .gcard-wrap{display:flex;flex-direction:column;gap:6px;width:190px}
@@ -494,7 +492,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 /* ===== board layout (Bruno's wireframe): painted Paris on the left, your column on the right ===== */
 .wrap.game{max-width:none;padding-block:10px 24px}
 .toprow{margin-bottom:8px;gap:8px 16px}
-.toprow .brand-logo{height:58px;margin:-6px 0 -10px -6px}
+.toprow .brand-logo{font-size:30px;margin:0 6px 0 0}
 .captainbox{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end}
 .toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(18,16,22,.86);border:1px solid var(--line2);border-bottom:0;border-radius:4px 4px 0 0;padding:5px 12px}
 .boardscroll{border-radius:0 0 4px 4px}
