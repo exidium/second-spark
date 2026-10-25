@@ -679,15 +679,20 @@ function rivalsRow(){
       <span class="rcounts"><span><b>${onTable(p).length-completeCount(p)}</b>Muscle</span><span><b>${completeCount(p)-aliveCount(p)}</b>Skin</span><span><b>${aliveCount(p)}</b>Alive</span></span>
       <span class="rstats"><span>${icon(p.hum<0?'heart-broken':'heart','❤️','si')}Humanity<b>${p.hum>0?'+':''}${p.hum}</b></span><span>${icon('expertise','🧠','si')}Expertise<b>${p.exp}</b></span><span>${icon('reputation','🎖️','si')}Reputation<b>${p.rep}</b></span></span></span></button>`; }).join('');
 }
+function handTipHTML(p){ if(!p.hand.length) return '<b>Cards in hand</b>No cards yet. Research at the Academy, atone at Saint-Roch.';
+  return '<b>Cards in hand</b>'+p.hand.map(c=>`<div>• <b style="display:inline;font-size:inherit">${esc(c.name)}</b> <span class="tp" style="display:inline">${c.kind}</span><br>${esc(c.text||'')}</div>`).join(''); }
 function sideColumn(){
   const p=S.players[0], ch=charged(p), lab=S.phase==='lab';
   return `<aside class="sidecol">
     <div class="sidebtns"><button class="btn" data-act="character">Your character</button><button class="btn" data-act="rules">Help</button><button class="btn" data-act="newgame">New game</button></div>
-    <section class="panel">${statBars(p)}<div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory: build, throw, preserve':'Laboratory'}</button><button class="btn" data-act="hand">Cards <b class="count">${p.hand.length}</b></button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div></section>
+    <section class="panel">${statBars(p)}
+      <div class="res five"><div><b>${p.coin}</b><span>${icon('coin','🪙','si')}Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>${icon('jar','🏺','si')}Jars</span></div><div><b>${p.ice}</b><span>${icon('ice','🧊','si')}Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>${icon('police','⭐','si')}Police</span></div>
+        <button class="cardsbtn" data-act="hand" data-tipt="${esc(handTipHTML(p))}" aria-label="Cards in hand">${icon('cards','🃏')}<b class="count">${p.hand.length}</b><span>Cards</span></button></div>
+    </section>
     <section class="panel labsum" aria-label="Your laboratory">
       <span class="eyebrow">Your laboratory</span>
       <button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory">${tableSVG(p,'me')}</button>
-      <div class="res four"><div><b>${p.coin}</b><span>${icon('coin','🪙','si')}Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>${icon('jar','🏺','si')}Jars</span></div><div><b>${p.ice}</b><span>${icon('ice','🧊','si')}Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>${icon('police','⭐','si')}Police</span></div></div>
+      <div class="row labbtns"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory: build, throw, preserve':'Laboratory'}</button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div>
       ${decayGridHTML(p)}
     </section>
     ${logPanel()}

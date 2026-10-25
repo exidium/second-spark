@@ -599,6 +599,13 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .labsum-grid .decaybox{display:flex;flex-direction:column;gap:4px}
 .labsum-grid .decay{font-size:12px}
 .res.four{grid-template-columns:repeat(4,1fr);margin:10px 0 0}
+.res.five{grid-template-columns:repeat(4,1fr) 64px;margin:12px 0 0}
+.cardsbtn{border:1px solid var(--line);border-radius:3px;background:var(--panel2);color:var(--parch);font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 2px;position:relative;min-width:0}
+.cardsbtn:hover{border-color:var(--spark)}
+.cardsbtn .ico{width:30px;height:30px;filter:drop-shadow(0 1px 2px #000)}
+.cardsbtn .count{position:absolute;top:-7px;right:-7px;background:var(--spark);color:#0e1520;border-radius:10px;min-width:20px;height:20px;padding:0 5px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+.cardsbtn span{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.labsum .labbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .rivalrow{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;min-width:0}
 @media (max-width:900px){.underbar{flex-direction:column}.whosend{flex:none}.rivalrow{grid-template-columns:1fr}}
 .rivalmini{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--pc);border-radius:4px;padding:8px 10px;display:flex;flex-direction:row;gap:10px;align-items:center;text-align:left;font:inherit;cursor:pointer;min-width:0;color:var(--parch)}
