@@ -393,3 +393,6 @@ Three full bodies of the companion were generated with Nano Banana 2 in the char
 
 **D125. Fix: closing tags broken by the italics pass.** (Found while wiring D124.)
 D123's removal of `<i>` tags also rewrote the `</i>` closings of the board slot dots and the material cubes, which left those elements open and nested the whole side column inside a board slot. The closings are restored; `<i class=...>` stays as a styling hook with no italics.
+
+**D126. How to play centred on the title screen.** (Bruno: "Centralize how to play button as well.")
+The How to play link sits centred above the tagline instead of in the top-left corner.
