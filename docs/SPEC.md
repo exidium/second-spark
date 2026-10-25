@@ -31,7 +31,7 @@ src/art.js       SVG illustrations (locations, lab spaces, portraits, card icons
 src/engine.js    rules, state, async game loop, AI, scoring, persistence
 src/ui.js        modals, tooltips, human input, all rendering, boot
 build.py         concatenates the above into dist/second-spark.html and copies every image under art/ (except source/) to dist/art/; `const IMG` maps file stems to those paths (`--embed` inlines them instead)
-art/<set>/       web-sized images: ui/ (bg-wall, board), frames/ (card-tall-front, card-tall-back, card-research-bg, card-humanity-bg, card-scientist-bg), characters/, locations/, cadavers/, scoundrels/, research/, humanity/, events/, encounters/
+art/<set>/       web-sized images: ui/ (bg-wall, board), frames/ (card-tall-front, card-tall-back, card-research-bg, card-humanity-bg, card-scientist-bg), body/ (table and the 18 body parts), characters/, locations/, cadavers/, scoundrels/, research/, humanity/, events/, encounters/
 art/source/<set>/ originals, never embedded, ignored by git (pencil/ holds the earlier pencil-style art)
 tools/gen_gemini.py  generates images with Nano Banana 2 from docs/prompts/all-images.md (needs GEMINI_API_KEY)
 tools/pixelize.py    makes the game copies: 32 colours at 384px wide (--width) or a true 96-pixel canvas
@@ -420,7 +420,7 @@ Desktop (1100px and wider): the page uses the full browser width; the right colu
 **Right column**
 - Buttons: **Your character** (portrait, name, role, ability, Zoologist charge, police payoff, VP built, people at home, cards in hand with Play buttons) , **Help** (rules, plus an Every card button) and **New game**. The points table lives in the Laboratory popup.
 - Stat bars (humanity, expertise, reputation with the blue threshold squares and their tooltips), then the counters: francs, jars charged/total, ice, police, and a **Cards** tile (card icon with a count badge) that opens the hand with Play buttons; hovering it lists the cards in hand with their text.
-- **Your laboratory**, tall and graphic: the operating table figure large and centred (click it to open the Laboratory popup), the **Laboratory** button under it (at night it pulses and an End the night button appears beside it), and a decomposition grid: one row per material, four stage cells, a solid cube in the material's colour with the count where there is material, a dashed outline where there is none, a red rim on a cell that rots at the next dawn. Bone, preserved and ice on a line beneath.
+- **Your laboratory**, tall and graphic: the operating table as pixel art, large and centred (the iron table under six part images in muscle, skin or alive state, ghosts for empty slots, damage badges; click it to open the Laboratory popup), the **Laboratory** button under it (at night it pulses and an End the night button appears beside it), and a decomposition grid: one row per material, four stage cells, a solid cube in the material's colour with the count where there is material, a dashed outline where there is none, a red rim on a cell that rots at the next dawn. Bone, preserved and ice on a line beneath.
 - Rival lab popup (from the strip under the map): a strip with portrait, character, counters and stat bars, then the same three read-only columns as your Laboratory popup (operating table, body parts, decomposition track with the points table).
 - Chronicle, newest first.
 

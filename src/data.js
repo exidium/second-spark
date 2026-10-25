@@ -10,6 +10,7 @@ const MAT_N = {muscle:'Muscle', organ:'Organ', blood:'Blood', bone:'Bone', anima
 const KEY = {M:'muscle', O:'organ', B:'blood', X:'bone'};
 const ROMAN = ['I','II','III','IV'];
 const SLOT6 = ['head','torso','armL','armR','legL','legR'];
+const BODY_CENTRES = {"head": [49.7, 7.4], "torso": [49.7, 34.4], "armL": [21.5, 36.8], "armR": [77.9, 36.7], "legL": [41.0, 71.8], "legR": [58.4, 71.8]}; // part centres in % of the body image, from tools/body_parts.py
 const SLOT_T = {head:'head', torso:'torso', armL:'arm', armR:'arm', legL:'leg', legR:'leg'};
 const SLOT_N = {head:'Head', torso:'Torso', armL:'Left arm', armR:'Right arm', legL:'Left leg', legR:'Right leg'};
 const PARTS = {

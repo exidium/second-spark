@@ -579,6 +579,14 @@ i,em{font-style:normal}
 .labsum .eyebrow{text-align:center}
 .labsum .tablebtn{width:100%;display:flex;justify-content:center;background:radial-gradient(60% 70% at 50% 45%,rgba(159,208,255,.06),transparent 70%),var(--panel2);border:1px solid var(--line);border-radius:6px;padding:10px 0}
 .labsum .tablebtn svg{width:auto;height:230px;max-width:100%}
+.labsum .tablebtn .tablefig{width:170px}
+.tablefig{position:relative;aspect-ratio:2/3;width:100%;max-width:230px;margin:0 auto;image-rendering:pixelated;border-radius:4px;overflow:hidden}
+.tablefig .bt{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tablefig .body{position:absolute;left:4%;top:3%;width:92%;height:94%}
+.tablefig .bp{position:absolute;inset:0;width:100%;height:100%;display:block}
+.tablefig .bp.ghost{opacity:.22;filter:brightness(.25)}
+.tablefig .bp.alive{filter:drop-shadow(0 0 6px rgba(159,208,255,.8))}
+.tablefig .bdmg{position:absolute;transform:translate(-50%,-50%);background:#17121a;border:1px solid #ffd36a;color:#ffd36a;border-radius:10px;font-size:11px;line-height:1.4;padding:0 5px;font-weight:700;white-space:nowrap;image-rendering:auto}
 .labsum .res.four{margin:0}
 .decaygrid{display:flex;flex-direction:column;gap:4px;font-size:12.5px}
 .dg-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(4,34px);gap:4px;align-items:center}
@@ -655,7 +663,7 @@ i,em{font-style:normal}
 .lab3{display:grid;grid-template-columns:230px minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
 @media (max-width:1000px){.lab3{grid-template-columns:1fr}}
 .labcol{min-width:0}
-.labcol .figure.big svg{max-width:230px;margin:0 auto}
+.labcol .figure.big svg,.labcol .figure.big .tablefig{max-width:230px;margin:0 auto}
 .labcol .anat{gap:6px}
 .labcol .ptable{margin-top:4px}
 .rivalhead{display:flex;gap:14px;align-items:flex-start;border-left:3px solid var(--pc);padding-left:12px;margin-bottom:14px}

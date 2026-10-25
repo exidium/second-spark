@@ -374,7 +374,7 @@ function cadaverArt(c){ const src=c.art&&IMG[c.art]; return src ? `<img src="${s
    BOARD RENDERING
    ========================================================= */
 function bar(filled,n,cls,opts){ opts=opts||{}; return `<div class="bar ${cls}" style="--n:${n}">${Array.from({length:n},(_,k)=>{ const mk=opts.marks&&opts.marks.includes(k+1); const t=mk&&opts.tips?opts.tips[k+1]:'';
-  return `<i class="${k<filled?'on':''} ${mk?'mk':''}" ${t?`data-tipt="${esc(t)}" aria-label="${esc(t.replace(/<[^>]+>/g,''))}"`:''}></span>`; }).join('')}</div>`; }
+  return `<i class="${k<filled?'on':''} ${mk?'mk':''}" ${t?`data-tipt="${esc(t)}" aria-label="${esc(t.replace(/<[^>]+>/g,''))}"`:''}></i>`; }).join('')}</div>`; }
 const EXP_TIPS={3:'<b>Expertise 3</b>You can build arms.',8:'<b>Expertise 8</b>You can build the torso.',10:'<b>Expertise 10</b>One of your shock dice becomes a blue die (more eyes, fewer bolts).',14:'<b>Expertise 14</b>You can build the head.',20:'<b>Expertise 20</b>Two of your shock dice become blue.',27:'<b>Expertise 27</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
 const REP_TIPS={7:'<b>Reputation 7</b>The Hospital lets you retrieve a cadaver for free. You hire a 3rd assistant.',15:'<b>Reputation 15</b>An assistant is promoted to a 2nd scientist. At the Hospital you may take a 2nd cadaver for 1 franc.',23:'<b>Reputation 23</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
 const SLOT_ORDER=[['legR','R Leg'],['legL','L Leg'],['armR','R Arm'],['armL','L Arm'],['torso','Torso'],['head','Head']];
@@ -387,7 +387,7 @@ function statBars(p, small){
       <div class="track"><span class="lab">${icon('reputation','🎖️','si')}Reputation</span>${bar(Math.min(p.rep,30),30,'r',{marks:[7,15,23], tips:REP_TIPS})}<span class="num">${p.rep}</span></div>
     </div>`;
 }
-function humBar(h){ return `<div class="bar hd" style="--n:20">${Array.from({length:20},(_,k)=>{ const v=k-10; const on = h<0 ? (v>=h&&v<0) : (v>=0&&v<h); return `<i class="${on?'on '+(h<0?'neg':'pos'):''}" ${k===10?'style="box-shadow:-2px 0 0 var(--parch-dim)"':''}></span>`; }).join('')}</div>`; }
+function humBar(h){ return `<div class="bar hd" style="--n:20">${Array.from({length:20},(_,k)=>{ const v=k-10; const on = h<0 ? (v>=h&&v<0) : (v>=0&&v<h); return `<i class="${on?'on '+(h<0?'neg':'pos'):''}" ${k===10?'style="box-shadow:-2px 0 0 var(--parch-dim)"':''}></i>`; }).join('')}</div>`; }
 // Meeples: flat single-colour silhouettes drawn on a 14x20 pixel grid (one path of unit squares, so they stay crisp at any size).
 // Scientist: top hat, narrow shoulders, split coat tails. Assistant: flat cap with a brim, round shoulders, solid apron. Colour is the player's.
 const MEEPLE_GRID = {
@@ -403,6 +403,15 @@ const MEEPLE_PATH = Object.fromEntries(Object.entries(MEEPLE_GRID).map(([k,rows]
 function meeple(kind,color,size){
   size=(size||18)*(kind==='scientist'?1.5:1); const d=MEEPLE_PATH[kind]||MEEPLE_PATH.assistant;
   return `<svg width="${size*.7}" height="${size}" viewBox="0 0 14 20" aria-hidden="true" shape-rendering="crispEdges"><path d="${d}" fill="${color}"/></svg>`;
+}
+// Operating table as pixel art: the table image under six part images (muscle, skin or alive), empty slots as a faint ghost, damage badges at each part's centre.
+function tableHTML(p,key){
+  if(!(IMG['table'] && IMG['muscle-head'])) return tableSVG(p,key);
+  const parts=SLOT6.map(s=>{ const t=p.table[s]; const st=!t?'':t.alive?'alive':t.side==='skin'?'skin':'muscle'; const c=BODY_CENTRES[s];
+    const img=st?`<img class="bp ${st}" src="${IMG[st+'-'+s]}" alt="">`:`<img class="bp ghost" src="${IMG['muscle-'+s]}" alt="">`;
+    const dmg=t&&t.dmg?`<span class="bdmg" style="left:${c[0]}%;top:${c[1]}%" title="${SLOT_N[s]}: ${t.dmg} damage">⚡${t.dmg}</span>`:'';
+    return img+dmg; }).join('');
+  return `<div class="tablefig" role="img" aria-label="Operating table: ${onTable(p).length} parts built, ${completeCount(p)} with skin, ${aliveCount(p)} alive, ${dmgTotal(p)} damage"><img class="bt" src="${IMG['table']}" alt=""><div class="body">${parts}</div></div>`;
 }
 function tableSVG(p,key){
   key=key||0;
@@ -430,7 +439,7 @@ function faceUp(id){ return id==='hospital'?S.hosp : id==='academy'?S.researchRo
 // Research scene: art/research/research-NN.png by the card's position in RESEARCH, else the small SVG icon.
 function researchArt(c){ const k=RESEARCH.findIndex(r=>r.id===c.id); const src=k>=0&&IMG[`research-${String(k+1).padStart(2,'0')}`]; return src ? `<img src="${src}" alt="">` : researchIcon(c); }
 function researchIcon(c){ return ICONART[c.id==='demo'||c.id==='electro'?'jar':c.id==='healing'||c.id==='transfusion'?'flask':c.id==='tutor'||c.id==='guest'?'coin':'book']; }
-function slotDot(key){ const o=S.occ[key]; if(!o) return '<i class="slot"></span>'; return `<i class="slot on ${o.kind==='scientist'?'sci':''}">${meeple(o.kind,S.players[o.p].color,16)}</span>`; }
+function slotDot(key){ const o=S.occ[key]; if(!o) return '<i class="slot"></i>'; return `<i class="slot on ${o.kind==='scientist'?'sci':''}">${meeple(o.kind,S.players[o.p].color,16)}</i>`; }
 function miniArt(c){ if(c.kind==='cadaver') return cadaverArt(c); if(SC_WHO[c.kind]) return scoundrelArt(c); if(c.kind==='research') return researchArt(c); if(c.kind==='humanity') return ICONART.candle; return ''; }
 // Mini card on the board: art and name only. The place popup shows the same card at full size.
 function miniCard(c){
@@ -449,7 +458,7 @@ function slotsHTML(l){
   let inner='';
   if(l.id==='cemetery') inner=miniBack('Cemetery', S.decks.cemetery.length);
   else if(l.id==='morgue') inner=miniBack('Morgue', S.decks.morgue.length);
-  else { const rows=faceUp(l.id); inner = rows.length ? rows.slice(0,3).map(miniCard).join('') : '<i class="mslot"></span>'; }
+  else { const rows=faceUp(l.id); inner = rows.length ? rows.slice(0,3).map(miniCard).join('') : '<i class="mslot"></i>'; }
   return `<div class="slots">${inner}</div>`;
 }
 function boardHTML(){
@@ -460,7 +469,7 @@ function boardHTML(){
       <div class="pchip"><span class="pname">${esc(l.name)}</span><span class="pslots">${keys.map(slotDot).join('')}</span></div>${slotsHTML(l)}</div>`;
   }).join('');
   const lab = `<div class="labstrip" style="left:${LAB_STRIP.x}%;top:${LAB_STRIP.y}%"><span class="pname">Your laboratory</span><div class="labplaces">${LABSPOTS.map(L=>{ const key='lab.'+L.id, used=p.labUsed[L.id], can=humanCan(key);
-    return `<div class="place lab ${can?'can':''}" data-act="labplace" data-id="${L.id}" tabindex="0" role="button" aria-label="${esc(L.name)}"><div class="pchip"><span class="pname">${esc(L.name)}</span><span class="pslots">${used?`<i class="slot on ${used==='scientist'?'sci':''}">${meeple(used,p.color,16)}</span>`:'<i class="slot"></span>'}</span></div></div>`; }).join('')}</div></div>`;
+    return `<div class="place lab ${can?'can':''}" data-act="labplace" data-id="${L.id}" tabindex="0" role="button" aria-label="${esc(L.name)}"><div class="pchip"><span class="pname">${esc(L.name)}</span><span class="pslots">${used?`<i class="slot on ${used==='scientist'?'sci':''}">${meeple(used,p.color,16)}</i>`:'<i class="slot"></i>'}</span></div></div>`; }).join('')}</div></div>`;
   return `<div class="board" aria-label="Paris, 1819">${places}${lab}</div>`;
 }
 // Small gain tokens for option rows: a number with an icon, a material cube, or a short text.
@@ -561,7 +570,7 @@ function todayModal(){
 }
 function todayLabel(){ const c=S.card; if(!c) return ''; if(c.t==='ev') return esc(EVENTS.find(x=>x.id===c.id).name); const e=ENCOUNTERS.find(x=>x.id===c.id); return `Encounter: ${e.who==='captain'?'Captain Walton':e.who==='woman'?'a stranger':'the Creature'}`; }
 function captainTrack(){
-  return `<div class="captain" title="Captain Walton closes in. When he reaches the skull, the game ends.">${Array.from({length:MAX_ROUNDS},(_,k)=>`<i class="${k<S.captain?'past':''} ${k===S.captain?'now':''}"></span>`).join('')}<span class="skull">☠</span></div>`;
+  return `<div class="captain" title="Captain Walton closes in. When he reaches the skull, the game ends.">${Array.from({length:MAX_ROUNDS},(_,k)=>`<i class="${k<S.captain?'past':''} ${k===S.captain?'now':''}"></i>`).join('')}<span class="skull">☠</span></div>`;
 }
 function whoSendHTML(){
   const p=S.players[0];
@@ -609,15 +618,15 @@ function anatomyHTML(p,ro){
 }
 function decayGridHTML(p){
   const cell=(t,n,k)=>{ const rot=n&&(k===3||(t==='blood'&&k===1)); return `<b class="dg-cell ${n?'on '+t:''} ${rot?'rot':''}">${n||''}</b>`; };
-  const rows=MATS.map(t=>`<div class="dg-row"><span class="dg-name"><i class="cube ${t}"></span>${MAT_N[t]}</span>${p.mats[t].map((n,k)=>cell(t,n,k)).join('')}</div>`).join('');
+  const rows=MATS.map(t=>`<div class="dg-row"><span class="dg-name"><i class="cube ${t}"></i>${MAT_N[t]}</span>${p.mats[t].map((n,k)=>cell(t,n,k)).join('')}</div>`).join('');
   return `<div class="decaygrid"><div class="dg-row dg-head"><span class="dg-name">Decomposition</span><b>I</b><b>II</b><b>III</b><b>IV</b></div>${rows}
-    <div class="dg-foot"><span><i class="cube bone"></span>Bone <b>${p.bone}</b></span><span>Preserved <b>${p.preserved}</b><small>/9</small></span>${p.ice?`<span class="ice">${icon('ice','🧊','si')}no decay for ${p.ice} dawn${p.ice>1?'s':''}</span>`:''}</div></div>`; }
+    <div class="dg-foot"><span><i class="cube bone"></i>Bone <b>${p.bone}</b></span><span>Preserved <b>${p.preserved}</b><small>/9</small></span>${p.ice?`<span class="ice">${icon('ice','🧊','si')}no decay for ${p.ice} dawn${p.ice>1?'s':''}</span>`:''}</div></div>`; }
 function decayHTML(p,ro){
   const lab=!ro&&S.phase==='lab';
-  const rows=MATS.map(t=>`<tr><td><i class="cube ${t}"></span> ${MAT_N[t]}</td>${p.mats[t].map((n,k)=>`<td class="${n?'':'z'} ${(k===3||(t==='blood'&&k===1))&&n?'rot':''}">${n}</td>`).join('')}</tr>`).join('');
+  const rows=MATS.map(t=>`<tr><td><i class="cube ${t}"></i> ${MAT_N[t]}</td>${p.mats[t].map((n,k)=>`<td class="${n?'':'z'} ${(k===3||(t==='blood'&&k===1))&&n?'rot':''}">${n}</td>`).join('')}</tr>`).join('');
   const pres = lab ? ['muscle','organ'].map(t=>{ const n=Math.min(sum(p.mats[t]),9-p.preserved); return n?`<button class="chip" data-act="preserve" data-t="${t}" data-n="${Math.min(3,n)}">Preserve ${Math.min(3,n)} ${t}</button>`:''; }).join('') : '';
   return `<table class="decay"><thead><tr><th>Material</th><th>I</th><th>II</th><th>III</th><th>IV</th></tr></thead><tbody>${rows}
-    <tr><td><i class="cube bone"></span> Bone</td><td colspan="4" style="text-align:left">${p.bone} <span style="color:var(--muted)">· never rots (max 12)</span></td></tr>
+    <tr><td><i class="cube bone"></i> Bone</td><td colspan="4" style="text-align:left">${p.bone} <span style="color:var(--muted)">· never rots (max 12)</span></td></tr>
     <tr><td>Preserved</td><td colspan="4" style="text-align:left">${p.preserved} of 9 <span style="color:var(--muted)">· flesh kept for selling at the Market</span></td></tr></tbody></table>
     ${pres?`<div class="row" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${pres}</div>`:''}
     <p style="font-size:12px;color:var(--muted);margin:6px 0 0">Each dawn materials age one stage. Red cells rot at the next dawn.${p.ice?` <b style="color:var(--spark)">Ice: no decay for ${p.ice} more dawn${p.ice>1?'s':''}.</b>`:''}</p>`;
@@ -649,7 +658,7 @@ function labBody(){
     ${hasChar(p,'surgeon')&&!p.surgeonUsed?`<label class="chip" style="cursor:pointer"><input type="checkbox" data-opt="surgeon" ${uiOpts.surgeon?'checked':''}> Surgeon: 1 less material</label>`:''}` : '';
   return `<p class="flavor" style="margin-top:0">${lab?'Build parts (as many as you can), throw the switch once, and preserve spare flesh for the Market.':'By day you can only look. Building and the switch happen at night.'}</p>
     <div class="lab3">
-      <div class="labcol"><div class="sub" style="margin-top:0">Operating table</div><div class="figure big">${tableSVG(p,'lab')}</div><div class="legend"><span class="bl muscle">■ muscle ${onTable(p).length-completeCount(p)}</span><span class="bl skin">■ skin ${completeCount(p)-aliveCount(p)}</span><span class="bl alive">■ alive ${aliveCount(p)}</span><span class="bl dmgl">⚡ damage ${dmgTotal(p)}</span></div><p class="num" style="font-size:12.5px;color:var(--parch-dim);text-align:center;margin:4px 0">${p.vp} VP built</p>${bodyLine(p)}${lab?switchBoxHTML(p):''}</div>
+      <div class="labcol"><div class="sub" style="margin-top:0">Operating table</div><div class="figure big">${tableHTML(p,'lab')}</div><div class="legend"><span class="bl muscle">■ muscle ${onTable(p).length-completeCount(p)}</span><span class="bl skin">■ skin ${completeCount(p)-aliveCount(p)}</span><span class="bl alive">■ alive ${aliveCount(p)}</span><span class="bl dmgl">⚡ damage ${dmgTotal(p)}</span></div><p class="num" style="font-size:12.5px;color:var(--parch-dim);text-align:center;margin:4px 0">${p.vp} VP built</p>${bodyLine(p)}${lab?switchBoxHTML(p):''}</div>
       <div class="labcol"><div class="sub" style="margin-top:0">Body parts</div>${toggles.trim()?`<div class="row" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${toggles}</div>`:''}<div class="anat">${anatomyHTML(p)}</div></div>
       <div class="labcol"><div class="sub" style="margin-top:0">Decomposition track</div>${decayHTML(p)}<div class="sub">Points per part and quality</div>${pointsTable()}</div>
     </div>
@@ -691,7 +700,7 @@ function sideColumn(){
     </section>
     <section class="panel labsum" aria-label="Your laboratory">
       <span class="eyebrow">Your laboratory</span>
-      <button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory">${tableSVG(p,'me')}</button>
+      <button class="figure tablebtn" data-act="lab" aria-label="Open your laboratory">${tableHTML(p,'me')}</button>
       <div class="row labbtns"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory: build, throw, preserve':'Laboratory'}</button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div>
       ${decayGridHTML(p)}
     </section>
@@ -707,7 +716,7 @@ function rivalModal(i){
       ${statBars(p)}
       <p style="font-size:13px;color:var(--parch-dim);margin:0">${p.hand.filter(h=>h.kind==='research').length} research and ${p.hand.filter(h=>h.kind==='humanity').length} humanity cards · Ice ${p.ice}${S.phase==='day'?` · at home: ${p.left.scientist} scientist, ${p.left.assistant} assistant${p.left.assistant!==1?'s':''}`:''}</p></div></div>
     <div class="lab3">
-      <div class="labcol"><div class="sub" style="margin-top:0">Operating table</div><div class="figure big">${tableSVG(p,'m'+i)}</div><div class="legend"><span class="bl muscle">■ muscle ${onTable(p).length-completeCount(p)}</span><span class="bl skin">■ skin ${completeCount(p)-aliveCount(p)}</span><span class="bl alive">■ alive ${aliveCount(p)}</span><span class="bl dmgl">⚡ damage ${dmgTotal(p)}</span></div></div>
+      <div class="labcol"><div class="sub" style="margin-top:0">Operating table</div><div class="figure big">${tableHTML(p,'m'+i)}</div><div class="legend"><span class="bl muscle">■ muscle ${onTable(p).length-completeCount(p)}</span><span class="bl skin">■ skin ${completeCount(p)-aliveCount(p)}</span><span class="bl alive">■ alive ${aliveCount(p)}</span><span class="bl dmgl">⚡ damage ${dmgTotal(p)}</span></div></div>
       <div class="labcol"><div class="sub" style="margin-top:0">Body parts</div><div class="anat">${anatomyHTML(p,true)}</div></div>
       <div class="labcol"><div class="sub" style="margin-top:0">Decomposition track</div>${decayHTML(p,true)}<div class="sub">Points per part and quality</div>${pointsTable()}</div>
     </div>`,
