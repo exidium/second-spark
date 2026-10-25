@@ -414,14 +414,14 @@ Desktop (1100px and wider): the page uses the full browser width; the right colu
 - **The board**: Bruno's painted Paris (`art/ui/board.jpg`, 16:9). Each place is a chip with its name and one meeple slot per action space (dashed when free, the occupant's meeple silhouette in their colour when taken). Places you can use pulse blue; closed places are struck through and dimmed. Positions are percentages in `BOARD_POS` (data.js). **No tooltips on the places**; the explanation lives in the popup (12.3).
 - Beside each place, its cards at mini size (portrait and numbers strip for cadavers, art and name for the rest): the face-down deck with the count left for Cemetery and Morgue; the face-up rows for Hospital (2 bodies), Academy (3 research), Saint-Roch (3 humanity), Docks (3 scoundrels), Public Square (bodies after an execution, else an empty slot).
 - "Your laboratory" strip on the lower edge: Practice, Give Blood, Repair, Charge Jars as small places with your own meeple once used.
-- "Who do you send?" box bottom-left: Scientist and Assistant buttons stacked, with counts, on your turn; otherwise who is choosing, or the phase.
+- Under the map, a bar: the "Who do you send?" box on the left (Scientist and Assistant buttons stacked, with counts, on your turn; otherwise who is choosing, or the phase), and the three rivals beside it as horizontal strips (portrait with the player colour as a left rule, name and role, Muscle/Skin/Alive counts, Humanity/Expertise/Reputation icons). Click a rival to open their lab popup. Under 900px the bar stacks.
 - Below 1100px the board scrolls sideways inside its own box (minimum 760px) so the page itself never overflows.
 
 **Right column**
 - Buttons: **Your character** (portrait, name, role, ability, Zoologist charge, police payoff, VP built, people at home, cards in hand with Play buttons) , **Help** (rules, plus an Every card button) and **New game**. The points table lives in the Laboratory popup.
 - Operating table (SVG figure with state colours and damage badges; click it to open the Laboratory popup) beside the squeezed decomposition track, and four counters: francs, jars charged/total, ice, police.
 - Stat bars (humanity, expertise, reputation with the blue threshold squares and their tooltips), the **Laboratory** button (at night it pulses and an End the night button appears beside it) and a **Cards** button showing the number of cards in hand, which opens the hand with Play buttons.
-- Rivals: three compact cards (portrait, name on one line, role, Muscle/Skin/Alive counts, Humanity/Expertise/Reputation numbers). Click one to open their lab popup: a strip with portrait, character, counters and stat bars, then the same three read-only columns as your Laboratory popup (operating table, body parts, decomposition track with the points table).
+- Rival lab popup (from the strip under the map): a strip with portrait, character, counters and stat bars, then the same three read-only columns as your Laboratory popup (operating table, body parts, decomposition track with the points table).
 - Chronicle, newest first.
 
 ### 12.3 Popups

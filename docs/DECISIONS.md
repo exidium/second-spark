@@ -369,3 +369,6 @@ The strip of three dotted meeple slots under each scientist card on the title sc
 
 **D117. Bigger emblem and name on the research and humanity mini cards.** (Bruno: "make the miniature text and book icon bigger in academy. Same for Church.")
 The book or cross fills 62% of the mini card's width (was 54%) and the name runs at up to 9px (was 7px), with less padding around them.
+
+**D118. A bar under the map holds the meeple picker and the rivals; rival strips are horizontal.** (Bruno: "let's create a bar below the map. That bar should have the meeples and the rivals. Update rivals layout to be more horizontal.")
+The Who do you send box leaves its corner of the board and heads a bar directly under the map, in page type rather than board-relative sizes. The three rivals sit beside it as horizontal strips: portrait on the left with the player's colour as a left rule, then name and role on one line, the Muscle / Skin / Alive counts and the Humanity / Expertise / Reputation icons on the lines below. The side column keeps the table, counters, bars, buttons and the chronicle. Under 900px the bar stacks: picker, then one rival per row.

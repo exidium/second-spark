@@ -461,7 +461,7 @@ function boardHTML(){
   }).join('');
   const lab = `<div class="labstrip" style="left:${LAB_STRIP.x}%;top:${LAB_STRIP.y}%"><span class="pname">Your laboratory</span><div class="labplaces">${LABSPOTS.map(L=>{ const key='lab.'+L.id, used=p.labUsed[L.id], can=humanCan(key);
     return `<div class="place lab ${can?'can':''}" data-act="labplace" data-id="${L.id}" tabindex="0" role="button" aria-label="${esc(L.name)}"><div class="pchip"><span class="pname">${esc(L.name)}</span><span class="pslots">${used?`<i class="slot on ${used==='scientist'?'sci':''}">${meeple(used,p.color,16)}</i>`:'<i class="slot"></i>'}</span></div></div>`; }).join('')}</div></div>`;
-  return `<div class="board" aria-label="Paris, 1819">${places}${lab}${whoSendHTML()}</div>`;
+  return `<div class="board" aria-label="Paris, 1819">${places}${lab}</div>`;
 }
 // Small gain tokens for option rows: a number with an icon, a material cube, or a short text.
 const gt = (n, name, fb) => `<span class="gi"><b>${n}</b>${icon(name, fb)}</span>`;
@@ -670,9 +670,9 @@ function handModal(){
 // ---------- Right column ----------
 function rivalsRow(){
   return S.players.slice(1).map((p,k)=>{ const C=CHARACTERS.find(c=>c.id===p.char);
-    return `<button class="rivalmini" data-act="rival" data-i="${k+1}" style="--pc:${p.color}" aria-label="See ${esc(p.name)}’s laboratory">${charArt(p.char,'avatar')}<span class="rname"><b title="${esc(p.name)}">${esc(p.name)}</b><small>${C?esc(C.role):''}</small></span>
+    return `<button class="rivalmini" data-act="rival" data-i="${k+1}" style="--pc:${p.color}" aria-label="See ${esc(p.name)}’s laboratory">${charArt(p.char,'avatar')}<span class="rbody"><span class="rname"><b title="${esc(p.name)}">${esc(p.name)}</b><small>${C?esc(C.role):''}</small></span>
       <span class="rcounts"><span><b>${onTable(p).length-completeCount(p)}</b>Muscle</span><span><b>${completeCount(p)-aliveCount(p)}</b>Skin</span><span><b>${aliveCount(p)}</b>Alive</span></span>
-      <span class="rstats"><span>${icon(p.hum<0?'heart-broken':'heart','❤️','si')}Humanity<b>${p.hum>0?'+':''}${p.hum}</b></span><span>${icon('expertise','🧠','si')}Expertise<b>${p.exp}</b></span><span>${icon('reputation','🎖️','si')}Reputation<b>${p.rep}</b></span></span></button>`; }).join('');
+      <span class="rstats"><span>${icon(p.hum<0?'heart-broken':'heart','❤️','si')}Humanity<b>${p.hum>0?'+':''}${p.hum}</b></span><span>${icon('expertise','🧠','si')}Expertise<b>${p.exp}</b></span><span>${icon('reputation','🎖️','si')}Reputation<b>${p.rep}</b></span></span></span></button>`; }).join('');
 }
 function sideColumn(){
   const p=S.players[0], ch=charged(p), lab=S.phase==='lab';
@@ -683,7 +683,6 @@ function sideColumn(){
       <div class="res four"><div><b>${p.coin}</b><span>${icon('coin','🪙','si')}Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>${icon('jar','🏺','si')}Jars</span></div><div><b>${p.ice}</b><span>${icon('ice','🧊','si')}Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>${icon('police','⭐','si')}Police</span></div></div>
     </section>
     <section class="panel">${statBars(p)}<div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory: build, throw, preserve':'Laboratory'}</button><button class="btn" data-act="hand">Cards <b class="count">${p.hand.length}</b></button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div></section>
-    <section class="panel" aria-label="Rival scientists"><div class="sub" style="margin:0 0 8px">Rivals</div><div class="rivalrow">${rivalsRow()}</div></section>
     ${logPanel()}
   </aside>`;
 }
@@ -778,6 +777,7 @@ function render(){
         ${topRowHTML()}
         ${toolbarHTML()}
         <div class="boardscroll">${boardHTML()}</div>
+        <div class="underbar">${whoSendHTML()}<div class="rivalrow" aria-label="Rival scientists">${rivalsRow()}</div></div>
       </div>
       ${sideColumn()}
     </div></div>`;
