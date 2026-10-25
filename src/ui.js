@@ -299,7 +299,7 @@ function encounterCardHTML(e){
 }
 // Character portrait: generated image if art/character-<id>.* was embedded at build time, else the SVG portrait.
 // Title logo: art/title.webp (gold lettering with a transparent ground), else the text heading.
-function logoHTML(cls){ const src=(cls==='brand-logo' && IMG['title-wide']) || IMG['title']; return src ? `<img class="logo ${cls||''}" src="${src}" alt="Second Spark">` : `<h1>Second <span>Spark</span></h1>`; }
+function logoHTML(cls){ const src=IMG['title']; return src ? `<img class="logo ${cls||''}" src="${src}" alt="Second Spark">` : `<h1>Second <span>Spark</span></h1>`; }
 function charArt(id, cls){ const src=IMG['character-'+id]; if(src) return `<img class="${cls||''}" src="${src}" alt="">`;
   const svg=portrait(CHAR_SEED[id], CHAR_BG[id], false, CHAR_LOOK[id]); return cls?`<span class="${cls}">${svg}</span>`:svg; }
 function charCardHTML(c){ return `<div class="hcard" style="align-items:flex-start">${charArt(c.id,'avatar')}<span><span class="eyebrow">${esc(c.role)}</span><br><b>${esc(c.name)}</b><br><span style="color:var(--parch-dim)">${esc(c.text)}</span></span></div>`; }
@@ -334,7 +334,7 @@ function cadaverCardHTML(c, extra, hc){
 // Scoundrel picture: the generated portrait for its template (art/scoundrels/scoundrel-NN.png), else the seeded SVG face.
 // Place illustration: the generated scene (art/locations/location-<id>.png or lab-<id>.png) if present, else the SVG drawing.
 // Place popup header: the scene flush to the modal's top and sides, the place name large in white over it.
-function placeHero(id, name, lab, text){ return `<div class="phero">${placeArt(id, lab)}<span class="phname">${esc(name)}</span>${text?`<div class="scrap"><p>${text}</p></div>`:''}</div>`; }
+function placeHero(id, name, lab, text){ return `<div class="phero">${placeArt(id, lab)}<span class="phname">${esc(name)}</span>${text?`<p class="ptext">${text}</p>`:''}</div>`; }
 function placeArt(id, lab){ const src=IMG[(lab?'lab-':'location-')+id]; return src ? `<img src="${src}" alt="">` : (ART[id]||''); }
 // Scoundrel card in the physical game's layout: full-bleed portrait, cost and humanity marks top left, a title band across the
 // middle with the name and a line of flavour, a benefit row (expertise, humanity, materials), and the stage and counts strip at the foot.
@@ -797,7 +797,6 @@ if(IMG['card-tall-front']) document.documentElement.style.setProperty('--card-fr
 if(IMG['card-tall-back']) document.documentElement.style.setProperty('--card-back', `url("${IMG['card-tall-back']}")`);
 if(IMG['board']) document.documentElement.style.setProperty('--board', `url("${IMG['board']}")`);
 if(IMG['card-research-bg']) document.documentElement.style.setProperty('--card-research', `url("${IMG['card-research-bg']}")`);
-if(IMG['scrap']) document.documentElement.style.setProperty('--scrap', `url("${IMG['scrap']}")`);
 if(IMG['card-humanity-bg']) document.documentElement.style.setProperty('--card-humanity', `url("${IMG['card-humanity-bg']}")`);
 try{ window.claude?.hot?.snapshot?.(()=>({S})); }catch(e){}
 window.__spark={ get S(){return S}, set S(v){S=v;}, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };

@@ -27,7 +27,7 @@ All four JS files are concatenated into one IIFE by `build.py`, so they share sc
 ## Conventions
 - **Player-facing text:** no em dashes (the build fails if one appears). Short, plain sentences. Every option shows its exact gain and cost.
 - **Yes/no questions** use Accept / Refuse with the effect written in the question. **Encounter choices** keep their story wording.
-- **Tooltips** only on the blue threshold squares of the expertise and reputation bars. Nowhere else. A place explains itself on the scrap of paper inside its popup.
+- **Tooltips** only on the blue threshold squares of the expertise and reputation bars. Nowhere else. A place explains itself in the white line over its popup scene.
 - **Original names and art** for anything creative. Mechanics and numbers may match the physical game.
 - Keep the single dark visual identity and the colour meanings: muscle red, skin yellow, alive blue, damage yellow lightning.
 - State must stay JSON-serializable. If its shape changes, bump `SAVE_KEY` and `S.v` together.
