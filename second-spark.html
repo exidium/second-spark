@@ -556,14 +556,15 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .labstrip>.pname{color:var(--parch-dim);font-size:clamp(8px,1cqw,12px);letter-spacing:.08em;text-transform:uppercase}
 .labplaces{display:flex;gap:.8cqw}
 .place.lab{position:static;transform:none}
-.whosend{position:absolute;left:1.2cqw;bottom:1.2cqw;background:rgba(18,16,22,.88);border:1px solid var(--line2);border-radius:5px;padding:.8cqw 1.1cqw;display:flex;flex-direction:column;gap:.4cqw;max-width:24cqw;font-size:clamp(9px,1.1cqw,13px);z-index:3}
+.underbar{display:flex;gap:10px;align-items:stretch}
+.whosend{flex:0 0 220px;background:var(--panel2);border:1px solid var(--line2);border-radius:5px;padding:10px 12px;display:flex;flex-direction:column;gap:5px;font-size:12.5px;min-width:0}
 .whosend.you{border-color:var(--spark);box-shadow:0 0 18px -6px var(--spark-glow)}
-.whosend .eyebrow{font-size:clamp(8px,.9cqw,11px)}
-.whosend strong{font-family:var(--f-display);font-weight:400;font-size:clamp(11px,1.5cqw,18px);display:flex;align-items:center;gap:.4cqw}
-.whosend .row{display:flex;gap:.6cqw;flex-wrap:wrap}
+.whosend .eyebrow{font-size:10px}
+.whosend strong{font-family:var(--f-display);font-weight:400;font-size:16px;display:flex;align-items:center;gap:6px}
+.whosend .row{display:flex;gap:6px;flex-wrap:wrap}
 .whosend .row.stack{flex-direction:column;align-items:stretch}
 .whosend .row.stack .btn{justify-content:space-between}
-.whosend .btn{padding:.4cqw .9cqw;font-size:clamp(9px,1.2cqw,14px);display:inline-flex;align-items:center;gap:.4cqw}
+.whosend .btn{padding:4px 9px;font-size:13px;display:inline-flex;align-items:center;gap:6px}
 .whosend .hintline{color:var(--parch-dim)}
 .sidecol{display:flex;flex-direction:column;gap:12px;min-width:0}
 .sidebtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -582,19 +583,20 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .labsum-grid .decaybox{display:flex;flex-direction:column;gap:4px}
 .labsum-grid .decay{font-size:12px}
 .res.four{grid-template-columns:repeat(4,1fr);margin:10px 0 0}
-.rivalrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-@media (max-width:420px){.rivalrow{grid-template-columns:1fr}}
-.rivalmini{background:var(--panel2);border:1px solid var(--line);border-top:3px solid var(--pc);border-radius:4px;padding:8px 6px;display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center;font:inherit;cursor:pointer;min-width:0;color:var(--parch)}
+.rivalrow{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;min-width:0}
+@media (max-width:900px){.underbar{flex-direction:column}.whosend{flex:none}.rivalrow{grid-template-columns:1fr}}
+.rivalmini{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--pc);border-radius:4px;padding:8px 10px;display:flex;flex-direction:row;gap:10px;align-items:center;text-align:left;font:inherit;cursor:pointer;min-width:0;color:var(--parch)}
+.rivalmini .rbody{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}
 .rivalmini:hover{border-color:var(--spark)}
-.rivalmini .avatar{width:36px;height:48px}
-.rivalmini .rname{display:flex;flex-direction:column;line-height:1.15;min-width:0;max-width:100%}
-.rivalmini .rname b{font-family:var(--f-display);font-weight:400;font-size:12px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:100%}
-.rivalmini .rname small{color:var(--muted);font-size:11px}
-.rivalmini .rcounts{display:flex;gap:8px;font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.rivalmini .rcounts span{display:flex;flex-direction:column;align-items:center}
-.rivalmini .rcounts b{font-size:15px;color:var(--parch);font-variant-numeric:tabular-nums}
-.rivalmini .rstats{display:flex;flex-direction:column;gap:2px;width:100%;font-size:11.5px;color:var(--parch-dim)}
-.rivalmini .rstats span{display:flex;justify-content:space-between}
+.rivalmini .avatar{width:42px;height:56px}
+.rivalmini .rname{display:flex;align-items:baseline;gap:6px;line-height:1.15;min-width:0;max-width:100%}
+.rivalmini .rname b{font-family:var(--f-display);font-weight:400;font-size:14px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;min-width:0}
+.rivalmini .rname small{color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.rivalmini .rcounts{display:flex;gap:10px;font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.rivalmini .rcounts span{display:flex;align-items:baseline;gap:4px}
+.rivalmini .rcounts b{font-size:14px;color:var(--parch);font-variant-numeric:tabular-nums}
+.rivalmini .rstats{display:flex;flex-wrap:wrap;gap:2px 10px;width:100%;font-size:11px;color:var(--parch-dim)}
+.rivalmini .rstats span{display:inline-flex;align-items:center;gap:4px}
 .rivalmini .rstats b{color:var(--parch);font-variant-numeric:tabular-nums}
 .modal.hero{padding-top:0;overflow-x:hidden}
 .phero{position:relative;margin:0 -20px 10px;background:#0e0b0c}
@@ -2415,7 +2417,7 @@ function boardHTML(){
   }).join('');
   const lab = `<div class="labstrip" style="left:${LAB_STRIP.x}%;top:${LAB_STRIP.y}%"><span class="pname">Your laboratory</span><div class="labplaces">${LABSPOTS.map(L=>{ const key='lab.'+L.id, used=p.labUsed[L.id], can=humanCan(key);
     return `<div class="place lab ${can?'can':''}" data-act="labplace" data-id="${L.id}" tabindex="0" role="button" aria-label="${esc(L.name)}"><div class="pchip"><span class="pname">${esc(L.name)}</span><span class="pslots">${used?`<i class="slot on ${used==='scientist'?'sci':''}">${meeple(used,p.color,16)}</i>`:'<i class="slot"></i>'}</span></div></div>`; }).join('')}</div></div>`;
-  return `<div class="board" aria-label="Paris, 1819">${places}${lab}${whoSendHTML()}</div>`;
+  return `<div class="board" aria-label="Paris, 1819">${places}${lab}</div>`;
 }
 // Small gain tokens for option rows: a number with an icon, a material cube, or a short text.
 const gt = (n, name, fb) => `<span class="gi"><b>${n}</b>${icon(name, fb)}</span>`;
@@ -2624,9 +2626,9 @@ function handModal(){
 // ---------- Right column ----------
 function rivalsRow(){
   return S.players.slice(1).map((p,k)=>{ const C=CHARACTERS.find(c=>c.id===p.char);
-    return `<button class="rivalmini" data-act="rival" data-i="${k+1}" style="--pc:${p.color}" aria-label="See ${esc(p.name)}’s laboratory">${charArt(p.char,'avatar')}<span class="rname"><b title="${esc(p.name)}">${esc(p.name)}</b><small>${C?esc(C.role):''}</small></span>
+    return `<button class="rivalmini" data-act="rival" data-i="${k+1}" style="--pc:${p.color}" aria-label="See ${esc(p.name)}’s laboratory">${charArt(p.char,'avatar')}<span class="rbody"><span class="rname"><b title="${esc(p.name)}">${esc(p.name)}</b><small>${C?esc(C.role):''}</small></span>
       <span class="rcounts"><span><b>${onTable(p).length-completeCount(p)}</b>Muscle</span><span><b>${completeCount(p)-aliveCount(p)}</b>Skin</span><span><b>${aliveCount(p)}</b>Alive</span></span>
-      <span class="rstats"><span>${icon(p.hum<0?'heart-broken':'heart','❤️','si')}Humanity<b>${p.hum>0?'+':''}${p.hum}</b></span><span>${icon('expertise','🧠','si')}Expertise<b>${p.exp}</b></span><span>${icon('reputation','🎖️','si')}Reputation<b>${p.rep}</b></span></span></button>`; }).join('');
+      <span class="rstats"><span>${icon(p.hum<0?'heart-broken':'heart','❤️','si')}Humanity<b>${p.hum>0?'+':''}${p.hum}</b></span><span>${icon('expertise','🧠','si')}Expertise<b>${p.exp}</b></span><span>${icon('reputation','🎖️','si')}Reputation<b>${p.rep}</b></span></span></span></button>`; }).join('');
 }
 function sideColumn(){
   const p=S.players[0], ch=charged(p), lab=S.phase==='lab';
@@ -2637,7 +2639,6 @@ function sideColumn(){
       <div class="res four"><div><b>${p.coin}</b><span>${icon('coin','🪙','si')}Francs</span></div><div><b>${ch}<small>/${p.jars.length}</small></b><span>${icon('jar','🏺','si')}Jars</span></div><div><b>${p.ice}</b><span>${icon('ice','🧊','si')}Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${p.police}<small>/2</small></b><span>${icon('police','⭐','si')}Police</span></div></div>
     </section>
     <section class="panel">${statBars(p)}<div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ${lab?'primary pulse':''}" data-act="lab">${lab?'Laboratory: build, throw, preserve':'Laboratory'}</button><button class="btn" data-act="hand">Cards <b class="count">${p.hand.length}</b></button>${lab?'<button class="btn" data-act="endlab">End the night</button>':''}</div></section>
-    <section class="panel" aria-label="Rival scientists"><div class="sub" style="margin:0 0 8px">Rivals</div><div class="rivalrow">${rivalsRow()}</div></section>
     ${logPanel()}
   </aside>`;
 }
@@ -2732,6 +2733,7 @@ function render(){
         ${topRowHTML()}
         ${toolbarHTML()}
         <div class="boardscroll">${boardHTML()}</div>
+        <div class="underbar">${whoSendHTML()}<div class="rivalrow" aria-label="Rival scientists">${rivalsRow()}</div></div>
       </div>
       ${sideColumn()}
     </div></div>`;
