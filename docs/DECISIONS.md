@@ -420,3 +420,6 @@ The board's mini research and humanity cards are the parchment face with the boo
 
 **D134. Scoundrel name left-aligned under the kind label.** (Bruno: "the name positioning is bugged. Fix this. All aligned to the left.")
 The name on a scoundrel card had inherited a centred alignment and sat on the Scoundrel label. It is left-aligned now and starts 22px down, clear of the label.
+
+**D135. Mini card text at 10px.** (Bruno: "miniature card text, leave at 10px.")
+The board's mini cards (deck plate and count, number strips, names) use 10px, the one exception to the 11px floor; those declarations carry a `/*mini*/` mark the build guard honours. The mini cards shrink back to 48 to 64px wide with 14px strip cells.
