@@ -480,3 +480,6 @@ Live popups (Your cards, Laboratory, Your character) are rebuilt on every refres
 
 **D154. A Your turn toast.** (Bruno: "when it's the player's turn, display a toast in the middle bottom, and slowly fade it out in 3 seconds. Motion bottom to up, quick fade in.")
 When your day turn begins, "Your turn, pick a meeple, then a location." rises from below at the bottom middle of the map in a quarter second, holds briefly, then fades out over about 3 seconds. Blue rim and glow, your colour as the left rule.
+
+**D155. The Your turn toast uses one type size.** (Bruno: "keep font size of the toast to one size.")
+"Your turn" is bold blue in the same 16px body type as the rest of the line.
