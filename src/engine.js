@@ -10,7 +10,7 @@ const sum = a => a.reduce((x,y)=>x+y,0);
 // Francs are always written out: "1 franc", "3 francs". Player-facing text never uses the "f" abbreviation.
 const fr = n => `${n} franc${n===1?'':'s'}`;
 let S=null, modal=null, gameToken=0;
-const sleep = ms => new Promise(r=>setTimeout(r, (S&&S.fast)?0:ms));
+const sleep = ms => new Promise(r=>setTimeout(r, (S&&S.fast)?0:ms*(typeof PACE==='number'?PACE:1)));
 function uid(){ return S.uid++; }
 function log(t, cls){ S.log.push({r:S.round,t,cls}); if(S.log.length>220) S.log.shift(); }
 function dawnNote(t){ S.dawn.push(t); log(t); }
@@ -407,7 +407,7 @@ async function cityPhase(tok){
     for(let k=0;k<n;k++){ const i=(S.cur+k)%n, p=S.players[i]; if(leftN(p)>0 && legalAny(i)){ next=i; break; } else if(leftN(p)>0){ log(`${B(p)} has nowhere left to go and passes.`); p.left={scientist:0,assistant:0}; } }
     if(next<0) break;
     S.cur=next; save(); render();
-    if(S.players[next].ai){ await sleep(550); if(tok!==gameToken) return; await aiTurn(next); }
+    if(S.players[next].ai){ await sleep(1200); if(tok!==gameToken) return; await aiTurn(next); render(); await sleep(350); }
     else { await humanTurn(); if(tok!==gameToken) return; }
     S.cur=(next+1)%n;
   }
@@ -593,7 +593,7 @@ async function labPhase(){
   log('Night. The laboratories light their lamps.', 'day');
   S.players.forEach((p,i)=>{ if(p.ai && !p.labDone){ aiLab(i); p.labDone=true; } });
   save(); render();
-  if(!S.players[0].ai){ await new Promise(r=>{ labResolve=r; render(); if(!S.fast && typeof nightPrompt==='function') nightPrompt(); }); labResolve=null; }
+  if(!S.players[0].ai){ await new Promise(async r=>{ labResolve=r; render(); if(!S.fast && typeof nightPrompt==='function'){ await sleep(1100); nightPrompt(); } }); labResolve=null; }
   const done=S.players.filter(p=>aliveCount(p)===6);
   if(done.length){ finish('alive'); return; }
   S.phase='dawn'; save();
@@ -696,19 +696,19 @@ function startThrow(i,n,useZoo){
 }
 async function humanThrow(n){
   const p=S.players[0]; if(!canThrow(p)) return;
-  const dice=startThrow(0,n,true); const st={}; let willing = S.ev==='willing';
+  const dice=startThrow(0,n,true); const st={}; let willing = S.ev==='willing'; let rolled=new Set(dice.map((_,k)=>k));
   render();
   while(true){
     const cards=p.hand.filter(h=>h.kind==='research');
-    const choice=await ask({title:'You throw the switch', wide:true, locked:true, html:`<div class="sdice">${dice.map(d=>`<span class="sdie ${d.c} roll" title="${d.f}">${DIEICON[d.f]}</span>`).join('')}</div>
+    const choice=await ask({title:'You throw the switch', wide:true, locked:true, html:`<div class="sdice">${dice.map((d,k)=>`<span class="sdie ${d.c} ${rolled.has(k)?'roll':''}" style="--i:${k}" title="${d.f}">${DIEICON[d.f]}</span>`).join('')}</div>
       <p class="sum">Eye: a finished part comes alive · Bolt: damage · Broken heart: −1 humanity${st.ignoreDmg?' · <b>bolts ignored</b>':''}${st.ignoreHeart?' · <b>hearts ignored</b>':''}</p>
       ${cards.length||willing?'<p style="font-size:13px;color:var(--parch-dim)">Before the result counts, you may spend research cards to change the dice.</p>':''}`,
       options:[...(willing?[{label:'The Flesh Is Willing', sub:'Re-roll up to 2 bad dice, free.', value:'willing'}]:[]),
         ...cards.map(c=>({label:`${esc(c.name)}: ${MIT_N[c.mit]}`, sub:'Discards the card.', value:c.id}))],
       buttons:[{label:'Accept the result', primary:true, value:'ok'}]});
     if(choice==='ok') break;
-    if(choice==='willing'){ applyMitigation(dice,'willing',st); willing=false; continue; }
-    const c=p.hand.find(h=>h.id===choice); if(c){ p.hand=p.hand.filter(h=>h!==c); applyMitigation(dice,c.mit,st); }
+    if(choice==='willing'){ const before=dice.map(d=>d.f); applyMitigation(dice,'willing',st); willing=false; rolled=new Set(dice.map((d,k)=>d.f!==before[k]?k:-1).filter(k=>k>=0)); continue; }
+    const c=p.hand.find(h=>h.id===choice); if(c){ const before=dice.map(d=>d.f); p.hand=p.hand.filter(h=>h!==c); applyMitigation(dice,c.mit,st); rolled=new Set(dice.map((d,k)=>d.f!==before[k]?k:-1).filter(k=>k>=0)); }
   }
   const notes=resolveThrow(0,dice,st); save(); render();
   if(dice.some(d=>d.f==='alive')) flash();

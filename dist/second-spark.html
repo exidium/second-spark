@@ -191,8 +191,10 @@ i,em{font-style:normal}
 .opt small{display:block;color:var(--parch-dim);font-size:12.5px}
 .dice{display:flex;gap:10px;justify-content:center;margin:14px 0 6px}
 .dice svg{width:52px;height:52px}
-.roll{animation:tumble .5s ease-out}
-@keyframes tumble{0%{transform:rotate(-140deg) scale(.6);opacity:0}100%{transform:none;opacity:1}}
+.roll{animation:tumble .6s ease-out both;animation-delay:calc(var(--i,0)*120ms)}
+.roll svg{animation:face .6s both;animation-delay:calc(var(--i,0)*120ms)}
+@keyframes tumble{0%{transform:rotate(-200deg) scale(.5);opacity:0}70%{transform:rotate(10deg) scale(1.08);opacity:1}100%{transform:none;opacity:1}}
+@keyframes face{0%,70%{opacity:0}100%{opacity:1}}
 .verdict{text-align:center;font-family:var(--f-display);font-size:24px}
 .verdict.ok{color:var(--spark);text-shadow:0 0 16px var(--spark-glow)}
 .verdict.bad{color:var(--crim)}
@@ -695,10 +697,44 @@ i,em{font-style:normal}
 .tablebtn .openhint{color:var(--spark);font-size:11px;letter-spacing:.1em;margin-top:2px}
 .tablebtn:hover .openhint{text-decoration:underline}
 
+
+/* ---------- Motion: entrance animations keyed on what changed since the last render (see diffForRender) ---------- */
+#veil{position:fixed;inset:0;pointer-events:none;z-index:40;opacity:0;transition:opacity 1.2s ease;background:radial-gradient(ellipse at 50% 40%,rgba(10,14,30,.25),rgba(4,6,14,.85) 80%)}
+body[data-phase="lab"] #veil{opacity:.6}
+body[data-phase="lab"] .pchip{box-shadow:0 0 18px rgba(205,166,92,.35),0 0 2px rgba(205,166,92,.6)}
+body[data-phase="lab"] .toolbar{box-shadow:0 0 24px -6px rgba(205,166,92,.3)}
+.slot.on.land{animation:land .4s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes land{0%{transform:translateY(-14px) scale(.8);opacity:0}60%{transform:translateY(2px) scale(1.05);opacity:1}100%{transform:none;opacity:1}}
+.mcard.deal{animation:deal .35s ease-out both;animation-delay:calc(var(--i,0)*90ms)}
+.gcards>.gcard-wrap{animation:deal .35s ease-out both}
+.gcards>.gcard-wrap:nth-child(2){animation-delay:90ms}.gcards>.gcard-wrap:nth-child(3){animation-delay:180ms}.gcards>.gcard-wrap:nth-child(4){animation-delay:270ms}
+@keyframes deal{0%{transform:translateX(-10px) translateY(4px);opacity:0}100%{transform:none;opacity:1}}
+.mcard.back.lift{animation:lift .4s ease-out}
+@keyframes lift{0%{transform:translateY(0)}40%{transform:translateY(-5px) rotate(-2deg)}100%{transform:none}}
+.people .mp.used.go .mslot2{animation:go .5s ease-out both}
+@keyframes go{0%{border-style:solid;background:rgba(0,0,0,.3)}100%{}}
+.people .mp.used.go .mslot2 svg{animation:fadeout .5s ease-out both}
+@keyframes fadeout{0%{opacity:1}100%{opacity:.18}}
+.people .mp.home.back{animation:back .45s ease-out both;animation-delay:calc(var(--i,0)*80ms)}
+@keyframes back{0%{transform:translateY(8px);opacity:0}100%{transform:none;opacity:1}}
+.rivalmini.turn{box-shadow:0 0 0 1px var(--pc),0 0 18px -4px var(--pc);border-color:var(--pc)}
+.tick{display:inline-flex;align-items:center;gap:inherit;position:relative;animation:tick .6s ease-out}
+.tick.up{color:var(--spark)}.tick.down{color:var(--crim)}
+@keyframes tick{0%{transform:scale(1)}30%{transform:scale(1.3)}100%{transform:scale(1)}}
+.tick .delta{position:absolute;left:100%;top:-4px;margin-left:4px;font-size:12px;font-weight:600;white-space:nowrap;animation:delta .9s ease-out forwards;pointer-events:none}
+.res .tick .delta{left:auto;right:-8px;top:-14px}
+@keyframes delta{0%{opacity:0;transform:translateY(4px)}20%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+.bar i.lit{animation:lit .7s ease-out}
+@keyframes lit{0%,40%{filter:brightness(2.2);box-shadow:0 0 6px currentColor}100%{filter:none}}
+.tablefig .bp.alive.born{animation:born 1.5s ease-out}
+@keyframes born{0%,100%{filter:drop-shadow(0 0 6px rgba(159,208,255,.8))}20%,60%{filter:drop-shadow(0 0 16px rgba(159,208,255,1)) brightness(1.4)}40%,80%{filter:drop-shadow(0 0 4px rgba(159,208,255,.6))}}
+.tablefig .bdmg.hit{animation:hit .4s ease-out}
+@keyframes hit{0%,100%{transform:translate(-50%,-50%)}25%{transform:translate(-50%,-50%) translateX(-3px) rotate(-6deg)}50%{transform:translate(-50%,-50%) translateX(3px) rotate(6deg)}75%{transform:translate(-50%,-50%) translateX(-2px)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
 <div id="app"></div>
+<div id="veil" aria-hidden="true"></div>
 <div id="modalRoot"></div>
 
 <div id="tip" hidden></div>
@@ -1049,7 +1085,7 @@ const sum = a => a.reduce((x,y)=>x+y,0);
 // Francs are always written out: "1 franc", "3 francs". Player-facing text never uses the "f" abbreviation.
 const fr = n => `${n} franc${n===1?'':'s'}`;
 let S=null, modal=null, gameToken=0;
-const sleep = ms => new Promise(r=>setTimeout(r, (S&&S.fast)?0:ms));
+const sleep = ms => new Promise(r=>setTimeout(r, (S&&S.fast)?0:ms*(typeof PACE==='number'?PACE:1)));
 function uid(){ return S.uid++; }
 function log(t, cls){ S.log.push({r:S.round,t,cls}); if(S.log.length>220) S.log.shift(); }
 function dawnNote(t){ S.dawn.push(t); log(t); }
@@ -1446,7 +1482,7 @@ async function cityPhase(tok){
     for(let k=0;k<n;k++){ const i=(S.cur+k)%n, p=S.players[i]; if(leftN(p)>0 && legalAny(i)){ next=i; break; } else if(leftN(p)>0){ log(`${B(p)} has nowhere left to go and passes.`); p.left={scientist:0,assistant:0}; } }
     if(next<0) break;
     S.cur=next; save(); render();
-    if(S.players[next].ai){ await sleep(550); if(tok!==gameToken) return; await aiTurn(next); }
+    if(S.players[next].ai){ await sleep(1200); if(tok!==gameToken) return; await aiTurn(next); render(); await sleep(350); }
     else { await humanTurn(); if(tok!==gameToken) return; }
     S.cur=(next+1)%n;
   }
@@ -1632,7 +1668,7 @@ async function labPhase(){
   log('Night. The laboratories light their lamps.', 'day');
   S.players.forEach((p,i)=>{ if(p.ai && !p.labDone){ aiLab(i); p.labDone=true; } });
   save(); render();
-  if(!S.players[0].ai){ await new Promise(r=>{ labResolve=r; render(); if(!S.fast && typeof nightPrompt==='function') nightPrompt(); }); labResolve=null; }
+  if(!S.players[0].ai){ await new Promise(async r=>{ labResolve=r; render(); if(!S.fast && typeof nightPrompt==='function'){ await sleep(1100); nightPrompt(); } }); labResolve=null; }
   const done=S.players.filter(p=>aliveCount(p)===6);
   if(done.length){ finish('alive'); return; }
   S.phase='dawn'; save();
@@ -1735,19 +1771,19 @@ function startThrow(i,n,useZoo){
 }
 async function humanThrow(n){
   const p=S.players[0]; if(!canThrow(p)) return;
-  const dice=startThrow(0,n,true); const st={}; let willing = S.ev==='willing';
+  const dice=startThrow(0,n,true); const st={}; let willing = S.ev==='willing'; let rolled=new Set(dice.map((_,k)=>k));
   render();
   while(true){
     const cards=p.hand.filter(h=>h.kind==='research');
-    const choice=await ask({title:'You throw the switch', wide:true, locked:true, html:`<div class="sdice">${dice.map(d=>`<span class="sdie ${d.c} roll" title="${d.f}">${DIEICON[d.f]}</span>`).join('')}</div>
+    const choice=await ask({title:'You throw the switch', wide:true, locked:true, html:`<div class="sdice">${dice.map((d,k)=>`<span class="sdie ${d.c} ${rolled.has(k)?'roll':''}" style="--i:${k}" title="${d.f}">${DIEICON[d.f]}</span>`).join('')}</div>
       <p class="sum">Eye: a finished part comes alive · Bolt: damage · Broken heart: −1 humanity${st.ignoreDmg?' · <b>bolts ignored</b>':''}${st.ignoreHeart?' · <b>hearts ignored</b>':''}</p>
       ${cards.length||willing?'<p style="font-size:13px;color:var(--parch-dim)">Before the result counts, you may spend research cards to change the dice.</p>':''}`,
       options:[...(willing?[{label:'The Flesh Is Willing', sub:'Re-roll up to 2 bad dice, free.', value:'willing'}]:[]),
         ...cards.map(c=>({label:`${esc(c.name)}: ${MIT_N[c.mit]}`, sub:'Discards the card.', value:c.id}))],
       buttons:[{label:'Accept the result', primary:true, value:'ok'}]});
     if(choice==='ok') break;
-    if(choice==='willing'){ applyMitigation(dice,'willing',st); willing=false; continue; }
-    const c=p.hand.find(h=>h.id===choice); if(c){ p.hand=p.hand.filter(h=>h!==c); applyMitigation(dice,c.mit,st); }
+    if(choice==='willing'){ const before=dice.map(d=>d.f); applyMitigation(dice,'willing',st); willing=false; rolled=new Set(dice.map((d,k)=>d.f!==before[k]?k:-1).filter(k=>k>=0)); continue; }
+    const c=p.hand.find(h=>h.id===choice); if(c){ const before=dice.map(d=>d.f); p.hand=p.hand.filter(h=>h!==c); applyMitigation(dice,c.mit,st); rolled=new Set(dice.map((d,k)=>d.f!==before[k]?k:-1).filter(k=>k>=0)); }
   }
   const notes=resolveThrow(0,dice,st); save(); render();
   if(dice.some(d=>d.f==='alive')) flash();
@@ -2384,16 +2420,16 @@ function cadaverArt(c){ const src=c.art&&IMG[c.art]; return src ? `<img src="${s
    BOARD RENDERING
    ========================================================= */
 function bar(filled,n,cls,opts){ opts=opts||{}; return `<div class="bar ${cls}" style="--n:${n}">${Array.from({length:n},(_,k)=>{ const mk=opts.marks&&opts.marks.includes(k+1); const t=mk&&opts.tips?opts.tips[k+1]:'';
-  return `<i class="${k<filled?'on':''} ${mk?'mk':''}" ${t?`data-tipt="${esc(t)}" aria-label="${esc(t.replace(/<[^>]+>/g,''))}"`:''}></i>`; }).join('')}</div>`; }
+  return `<i class="${k<filled?'on':''} ${mk?'mk':''} ${opts.lit>0&&k<filled&&k>=filled-opts.lit?'lit':''}" ${t?`data-tipt="${esc(t)}" aria-label="${esc(t.replace(/<[^>]+>/g,''))}"`:''}></i>`; }).join('')}</div>`; }
 const EXP_TIPS={3:'<b>Expertise 3</b>You can build arms.',8:'<b>Expertise 8</b>You can build the torso.',10:'<b>Expertise 10</b>One of your shock dice becomes a blue die (more eyes, fewer bolts).',14:'<b>Expertise 14</b>You can build the head.',20:'<b>Expertise 20</b>Two of your shock dice become blue.',27:'<b>Expertise 27</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
 const REP_TIPS={7:'<b>Reputation 7</b>The Hospital lets you retrieve a cadaver for free. You hire a 3rd assistant.',15:'<b>Reputation 15</b>An assistant is promoted to a 2nd scientist. At the Hospital you may take a 2nd cadaver for 1 franc.',23:'<b>Reputation 23</b>Bonus objective, if it is in play this game: the first to reach it gains 10 VP.'};
 const SLOT_ORDER=[['legR','R Leg'],['legL','L Leg'],['armR','R Arm'],['armL','L Arm'],['torso','Torso'],['head','Head']];
 function humBar(h){ return `<div class="bar hd" style="--n:20">${Array.from({length:20},(_,k)=>{ const v=k-10; const on = h<0 ? (v>=h&&v<0) : (v>=0&&v<h); return `<i class="${on?'on '+(h<0?'neg':'pos'):''}" ${k===10?'style="box-shadow:-2px 0 0 var(--parch-dim)"':''}></i>`; }).join('')}</div>`; }
 function statBars(p, small){
   return `<div class="tracks ${small?'small':''}">
-      <div class="track"><span class="lab">${icon(p.hum<0?'heart-broken':'heart','❤️','si')}Humanity</span>${humBar(p.hum)}<span class="num">${p.hum>0?'+':''}${p.hum}</span></div>
-      <div class="track"><span class="lab">${icon('expertise','🧠','si')}Expertise</span>${bar(Math.min(p.exp,30),30,'e',{marks:[3,8,10,14,20,27], tips:EXP_TIPS})}<span class="num">${p.exp}</span></div>
-      <div class="track"><span class="lab">${icon('reputation','🎖️','si')}Reputation</span>${bar(Math.min(p.rep,30),30,'r',{marks:[7,15,23], tips:REP_TIPS})}<span class="num">${p.rep}</span></div>
+      <div class="track"><span class="lab">${icon(p.hum<0?'heart-broken':'heart','❤️','si')}Humanity</span>${humBar(p.hum)}<span class="num">${tickNum('hum',(p.hum>0?'+':'')+p.hum)}</span></div>
+      <div class="track"><span class="lab">${icon('expertise','🧠','si')}Expertise</span>${bar(Math.min(p.exp,30),30,'e',{marks:[3,8,10,14,20,27], tips:EXP_TIPS, lit:isNew('nums','exp')?anim.nums.exp:0})}<span class="num">${tickNum('exp',p.exp)}</span></div>
+      <div class="track"><span class="lab">${icon('reputation','🎖️','si')}Reputation</span>${bar(Math.min(p.rep,30),30,'r',{marks:[7,15,23], tips:REP_TIPS, lit:isNew('nums','rep')?anim.nums.rep:0})}<span class="num">${tickNum('rep',p.rep)}</span></div>
     </div>`;
 }
 // Meeples: flat single-colour silhouettes drawn on a 14x20 pixel grid (one path of unit squares, so they stay crisp at any size).
@@ -2416,8 +2452,8 @@ function meeple(kind,color,size){
 function tableHTML(p,key){
   if(!(IMG['table'] && IMG['muscle-head'])) return tableSVG(p,key);
   const parts=SLOT6.map(s=>{ const t=p.table[s]; const st=!t?'':t.alive?'alive':t.side==='skin'?'skin':'muscle'; const c=BODY_CENTRES[s];
-    const img=st?`<img class="bp ${st}" src="${IMG[st+'-'+s]}" alt="">`:`<img class="bp ghost" src="${IMG['muscle-'+s]}" alt="">`;
-    const dmg=t&&t.dmg?`<span class="bdmg" style="left:${c[0]}%;top:${c[1]}%" title="${SLOT_N[s]}: ${t.dmg} damage">⚡${t.dmg}</span>`:'';
+    const img=st?`<img class="bp ${st} ${st==='alive'&&isNew('alive',s)?'born':''}" src="${IMG[st+'-'+s]}" alt="">`:`<img class="bp ghost" src="${IMG['muscle-'+s]}" alt="">`;
+    const dmg=t&&t.dmg?`<span class="bdmg ${isNew('dmg',s)?'hit':''}" style="left:${c[0]}%;top:${c[1]}%" title="${SLOT_N[s]}: ${t.dmg} damage">⚡${t.dmg}</span>`:'';
     return img+dmg; }).join('');
   return `<div class="tablefig" role="img" aria-label="Operating table: ${onTable(p).length} parts built, ${completeCount(p)} with skin, ${aliveCount(p)} alive, ${dmgTotal(p)} damage"><img class="bt" src="${IMG['table']}" alt=""><div class="body">${parts}</div></div>`;
 }
@@ -2447,27 +2483,59 @@ function faceUp(id){ return id==='hospital'?S.hosp : id==='academy'?S.researchRo
 // Research scene: art/research/research-NN.png by the card's position in RESEARCH, else the small SVG icon.
 function researchArt(c){ const k=RESEARCH.findIndex(r=>r.id===c.id); const src=k>=0&&IMG[`research-${String(k+1).padStart(2,'0')}`]; return src ? `<img src="${src}" alt="">` : researchIcon(c); }
 function researchIcon(c){ return ICONART[c.id==='demo'||c.id==='electro'?'jar':c.id==='healing'||c.id==='transfusion'?'flask':c.id==='tutor'||c.id==='guest'?'coin':'book']; }
-function slotDot(key){ const o=S.occ[key]; if(!o) return '<i class="slot"></i>'; return `<i class="slot on ${o.kind==='scientist'?'sci':''}">${meeple(o.kind,S.players[o.p].color,16)}</i>`; }
+/* =========================================================
+   MOTION: what changed since the last render. Every render rebuilds the page from strings, so an entrance
+   animation would replay each time; the snapshot below marks only the elements that are new this render.
+   ========================================================= */
+let PACE=1; // multiplies every pacing delay; tests set it low
+const seen={occ:{}, lab:{}, rows:{}, alive:{}, dmg:{}, nums:{}, phase:null, decks:{}, round:0, left:null};
+let anim=null, commitPending=false;
+const ROWS={hospital:'hosp', square:'square', docks:'docks', academy:'researchRow', church:'humanityRow'};
+function snapshotNums(p){ return {coin:p.coin, exp:p.exp, rep:p.rep, hum:p.hum, ice:p.ice, jars:charged(p), police:p.police, vp:p.vp}; }
+function diffForRender(){
+  if(!S || S.fast){ anim=null; return; }
+  const p=S.players[0]; const a={occ:{}, lab:{}, rows:{}, alive:{}, dmg:{}, nums:{}, home:false, decks:{}};
+  for(const k in S.occ) if(!seen.occ[k]) a.occ[k]=true;
+  for(const k in p.labUsed) if(p.labUsed[k] && !seen.lab[k]) a.lab[k]=true;
+  for(const id in ROWS){ const ids=(S[ROWS[id]]||[]).map(c=>c.id); const old=seen.rows[id]||[]; let n=0; ids.forEach(cid=>{ if(!old.includes(cid)) a.rows[id+':'+cid]=n++; }); }
+  for(const sl of SLOT6){ const t=p.table[sl]; if(t&&t.alive&&!seen.alive[sl]) a.alive[sl]=true; if(t&&t.dmg>(seen.dmg[sl]||0)) a.dmg[sl]=true; }
+  const nums=snapshotNums(p); for(const k in nums) if(seen.phase!==null && nums[k]!==seen.nums[k]) a.nums[k]=nums[k]-(seen.nums[k]||0);
+  for(const d of ['cemetery','morgue']) if(seen.decks[d]!=null && S.decks[d].length!==seen.decks[d]) a.decks[d]=true;
+  a.home = !!seen.left && (p.left.scientist+p.left.assistant > seen.left.scientist+seen.left.assistant);
+  a.went = seen.left ? {scientist:p.left.scientist<seen.left.scientist, assistant:p.left.assistant<seen.left.assistant} : {};
+  anim=a;
+}
+function commitSeen(){
+  if(!S || S.fast) return; const p=S.players[0];
+  seen.occ=Object.fromEntries(Object.keys(S.occ).map(k=>[k,true])); seen.lab={...p.labUsed};
+  for(const id in ROWS) seen.rows[id]=(S[ROWS[id]]||[]).map(c=>c.id);
+  for(const sl of SLOT6){ const t=p.table[sl]; seen.alive[sl]=!!(t&&t.alive); seen.dmg[sl]=t?t.dmg||0:0; }
+  seen.nums=snapshotNums(p); seen.left={...p.left}; seen.phase=S.phase; seen.round=S.round; seen.decks={cemetery:S.decks.cemetery.length, morgue:S.decks.morgue.length};
+}
+const isNew=(kind,id)=>!!(anim && anim[kind] && anim[kind][id]!==undefined && anim[kind][id]!==false);
+// A number that just changed: a tick class and a floating delta.
+function tickNum(key, text){ if(!isNew('nums',key)) return text; const d=anim.nums[key]; return `<span class="tick ${d>0?'up':'down'}">${text}<span class="delta">${d>0?'+':''}${d}</span></span>`; }
+function slotDot(key){ const o=S.occ[key]; if(!o) return '<i class="slot"></i>'; return `<i class="slot on ${o.kind==='scientist'?'sci':''} ${isNew('occ',key)?'land':''}">${meeple(o.kind,S.players[o.p].color,16)}</i>`; }
 function miniArt(c){ if(c.kind==='cadaver') return cadaverArt(c); if(SC_WHO[c.kind]) return scoundrelArt(c); if(c.kind==='research') return researchArt(c); if(c.kind==='humanity') return ICONART.candle; return ''; }
 // Mini card on the board: art and name only. The place popup shows the same card at full size.
-function miniCard(c){
+function miniCard(c, rowId){ const deal=rowId&&isNew('rows',rowId+':'+c.id)?` deal" style="--i:${anim.rows[rowId+':'+c.id]}`:'';
   if(c.kind==='cadaver' && c.art && IMG[c.art]){ const n=t=>{ const m=c.mats.find(x=>x[0]===t); return m?m[2]:0; };
-    return `<div class="mcard cad" title="${esc(c.name)}"><span class="mart"><img src="${IMG[c.art]}" alt=""></span><span class="mstrip"><span class="stage">${c.stage?ROMAN[c.stage-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span></div>`; }
+    return `<div class="mcard cad${deal}" title="${esc(c.name)}"><span class="mart"><img src="${IMG[c.art]}" alt=""></span><span class="mstrip"><span class="stage">${c.stage?ROMAN[c.stage-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span></div>`; }
   if(SC_WHO[c.kind] && c.tpl!=null && IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]){ const n=t=>{ const m=(c.mats||[]).find(x=>x[0]===t); return m?m[2]:0; }; const st=(c.mats||[]).find(x=>x[0]!=='bone');
     const strip = c.kind==='thief' ? `<span class="mstrip one">Draw ${c.draw}</span>` : `<span class="mstrip"><span class="stage">${st?ROMAN[st[1]-1]:'✕'}</span>${['muscle','organ','blood','bone'].map(t=>`<span class="${t} ${n(t)?'':'z'}">${n(t)}</span>`).join('')}</span>`;
-    return `<div class="mcard cad" title="${esc(c.name)}: ${fr(scCost(c))}"><span class="mart"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt=""></span>${strip}</div>`; }
+    return `<div class="mcard cad${deal}" title="${esc(c.name)}: ${fr(scCost(c))}"><span class="mart"><img src="${IMG[`scoundrel-${String(c.tpl+1).padStart(2,'0')}`]}" alt=""></span>${strip}</div>`; }
   if((c.kind==='research' && IMG['card-research-bg']) || (c.kind==='humanity' && IMG['card-humanity-bg'])){ const hum=c.kind==='humanity';
-    return `<div class="mcard face ${hum?'hum':''}" title="${esc(c.name)}"><span class="memblem">${icon(hum?'cross':'book', hum?'✝':'📖')}</span></div>`; }
+    return `<div class="mcard face ${hum?'hum':''}${deal}" title="${esc(c.name)}"><span class="memblem">${icon(hum?'cross':'book', hum?'✝':'📖')}</span></div>`; }
   const framed = hasFrame() && c.kind==='research';
-  return `<div class="mcard ${framed?'framed':''}"><span class="mart">${miniArt(c)}</span><span class="mname">${esc(c.name)}</span></div>`; }
-function miniBack(name,left){ return IMG['card-tall-back'] ? `<div class="mcard back"><span class="plate">${esc(name)}</span><span class="mcount">${left}</span></div>` : `<div class="mcard back plain"><span class="mname">${esc(name)} deck</span><span class="mcount">${left}</span></div>`; }
+  return `<div class="mcard ${framed?'framed':''}${deal}"><span class="mart">${miniArt(c)}</span><span class="mname">${esc(c.name)}</span></div>`; }
+function miniBack(name,left,deck){ return IMG['card-tall-back'] ? `<div class="mcard back ${deck&&isNew('decks',deck)?'lift':''}"><span class="plate">${esc(name)}</span><span class="mcount">${left}</span></div>` : `<div class="mcard back plain"><span class="mname">${esc(name)} deck</span><span class="mcount">${left}</span></div>`; }
 function slotsHTML(l){
   const b=BOARD_POS[l.id]||{}; if(!b.cards) return '';
   let inner='';
-  if(l.id==='cemetery') inner=miniBack('Grave', S.decks.cemetery.length);
-  else if(l.id==='morgue') inner=miniBack('Morgue', S.decks.morgue.length);
+  if(l.id==='cemetery') inner=miniBack('Grave', S.decks.cemetery.length,'cemetery');
+  else if(l.id==='morgue') inner=miniBack('Morgue', S.decks.morgue.length,'morgue');
   else { const rows=faceUp(l.id).slice(0,3); const fixed=l.id==='academy'||l.id==='church'||l.id==='docks'; const pad=fixed ? Math.max(0,3-rows.length) : (rows.length?0:1);
-    inner = rows.map(miniCard).join('') + '<i class="mslot"></i>'.repeat(pad); }
+    inner = rows.map(c=>miniCard(c,l.id)).join('') + '<i class="mslot"></i>'.repeat(pad); }
   return `<div class="slots">${inner}</div>`;
 }
 function boardHTML(){
@@ -2479,7 +2547,7 @@ function boardHTML(){
       <div class="pchip"><span class="pname">${esc(l.name)}</span><span class="pslots">${keys.map(slotDot).join('')}</span></div>${slotsHTML(l)}</div>`;
   }).join('');
   const labCan=LABSPOTS.some(L=>humanCan('lab.'+L.id));
-  const lab = `<div class="place ${labCan?'can':''} cards-none" style="left:${LAB_POS.x}%;top:${LAB_POS.y}%" data-act="labplace" data-id="lab" tabindex="0" role="button" aria-label="Your laboratory"><div class="pchip"><span class="pname">Your laboratory</span><span class="pslots">${LABSPOTS.map(L=>{ const used=p.labUsed[L.id]; return used?`<i class="slot on ${used==='scientist'?'sci':''}">${meeple(used,p.color,16)}</i>`:'<i class="slot"></i>'; }).join('')}</span></div></div>`;
+  const lab = `<div class="place ${labCan?'can':''} cards-none" style="left:${LAB_POS.x}%;top:${LAB_POS.y}%" data-act="labplace" data-id="lab" tabindex="0" role="button" aria-label="Your laboratory"><div class="pchip"><span class="pname">Your laboratory</span><span class="pslots">${LABSPOTS.map(L=>{ const used=p.labUsed[L.id]; return used?`<i class="slot on ${used==='scientist'?'sci':''} ${isNew('lab',L.id)?'land':''}">${meeple(used,p.color,16)}</i>`:'<i class="slot"></i>'; }).join('')}</span></div></div>`;
   return `<div class="board" aria-label="Paris, 1819">${places}${lab}</div>`;
 }
 // Small gain tokens for option rows: a number with an icon, a material cube, or a short text.
@@ -2691,7 +2759,7 @@ function handModal(){
 // ---------- Right column ----------
 function rivalsRow(){
   return S.players.slice(1).map((p,k)=>{ const C=CHARACTERS.find(c=>c.id===p.char);
-    return `<button class="rivalmini" data-act="rival" data-i="${k+1}" style="--pc:${p.color}" aria-label="See ${esc(p.name)}’s laboratory">${charArt(p.char,'avatar')}<span class="rbody"><span class="rname"><b title="${esc(p.name)}">${esc(p.name)}</b><small>${C?esc(C.role):''}</small></span>
+    return `<button class="rivalmini ${S.phase==='day'&&S.cur===k+1?'turn':''}" data-act="rival" data-i="${k+1}" style="--pc:${p.color}" aria-label="See ${esc(p.name)}’s laboratory">${charArt(p.char,'avatar')}<span class="rbody"><span class="rname"><b title="${esc(p.name)}">${esc(p.name)}</b><small>${C?esc(C.role):''}</small></span>
       <span class="rcounts"><span><b>${onTable(p).length-completeCount(p)}</b>Muscle</span><span><b>${completeCount(p)-aliveCount(p)}</b>Skin</span><span><b>${aliveCount(p)}</b>Alive</span></span>
       <span class="rstats"><span>${icon(p.hum<0?'heart-broken':'heart','❤️','si')}Humanity<b>${p.hum>0?'+':''}${p.hum}</b></span><span>${icon('expertise','🧠','si')}Expertise<b>${p.exp}</b></span><span>${icon('reputation','🎖️','si')}Reputation<b>${p.rep}</b></span></span></span></button>`; }).join('');
 }
@@ -2703,8 +2771,8 @@ function peoplePanel(){
   const where=k=>Object.entries(S.occ).filter(([key,o])=>o.p===0&&o.kind===k).map(([key])=>key.startsWith('lab.')?LABSPOT[key.slice(4)].name:LOC[key.split('.')[0]].name);
   const row=k=>{ const total=k==='scientist'?sciTotal(p):asstTotal(p), home=p.left[k], out=where(k); const items=[];
     for(let i=0;i<total;i++){ const isHome=i<home;
-      if(isHome) items.push(`<button class="mp home ${p.sel===k?'sel':''}" data-act="sel" data-k="${k}" ${mine?'':'disabled'} aria-pressed="${p.sel===k}" title="${k==='scientist'?'Scientist':'Assistant'} at home"><span class="mslot2">${meeple(k,p.color,26)}</span><small>${k==='scientist'?'Scientist':'Assistant'}</small></button>`);
-      else { const at=out[i-home]||''; items.push(`<span class="mp used" title="${esc(at)}"><span class="mslot2">${meeple(k,'#ece0c6',26)}</span><small>${esc(at)||'out'}</small></span>`); } }
+      if(isHome) items.push(`<button class="mp home ${p.sel===k?'sel':''} ${anim&&anim.home?'back':''}" style="--i:${items.length}" data-act="sel" data-k="${k}" ${mine?'':'disabled'} aria-pressed="${p.sel===k}" title="${k==='scientist'?'Scientist':'Assistant'} at home"><span class="mslot2">${meeple(k,p.color,26)}</span><small>${k==='scientist'?'Scientist':'Assistant'}</small></button>`);
+      else { const at=out[i-home]||''; const went=anim&&anim.went&&anim.went[k]; items.push(`<span class="mp used ${went&&i===home?'go':''}" title="${esc(at)}"><span class="mslot2">${meeple(k,'#ece0c6',26)}</span><small>${esc(at)||'out'}</small></span>`); } }
     return items.join(''); };
   let head;
   if(mine) head='Pick a meeple, then a location';
@@ -2718,7 +2786,7 @@ function sideColumn(){
   return `<aside class="sidecol">
     <div class="sidebtns"><button class="btn" data-act="character">Your character</button><button class="btn" data-act="rules">Help</button><button class="btn" data-act="newgame">New game</button></div>
     <section class="panel">${statBars(p)}
-      <div class="res five"><div><b>${icon('coin','🪙','si')}${p.coin}</b><span>Francs</span></div><div><b>${icon('jar','🏺','si')}${ch}<small>/${p.jars.length}</small></b><span>Jars</span></div><div><b>${icon('ice','🧊','si')}${p.ice}</b><span>Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${icon('police','⭐','si')}${p.police}<small>/2</small></b><span>Police</span></div>
+      <div class="res five"><div><b>${icon('coin','🪙','si')}${tickNum('coin',p.coin)}</b><span>Francs</span></div><div><b>${icon('jar','🏺','si')}${tickNum('jars',ch)}<small>/${p.jars.length}</small></b><span>Jars</span></div><div><b>${icon('ice','🧊','si')}${tickNum('ice',p.ice)}</b><span>Ice</span></div><div title=""><b style="color:${p.police?'var(--crim)':'inherit'}">${icon('police','⭐','si')}${p.police}<small>/2</small></b><span>Police</span></div>
         <button class="cardsbtn" data-act="hand" data-tipt="${esc(handTipHTML(p))}" aria-label="Cards in hand">${icon('cards','🃏')}<b class="count">${p.hand.length}</b><span>Cards</span></button></div>
     </section>
     <section class="panel labsum" aria-label="Your laboratory">
@@ -2813,9 +2881,10 @@ function toolbarHTML(){
 }
 function render(){
   const app=document.getElementById('app');
-  if(!S){ app.innerHTML=titleScreen(); return; }
+  if(!S){ app.innerHTML=titleScreen(); document.body.dataset.phase='title'; return; }
   if(S.phase==='end'){ app.innerHTML=endScreen(); return; }
   if(S.fast) return;
+  diffForRender(); document.body.dataset.phase=S.phase;
   app.innerHTML=`<div class="wrap game">
     <div class="grid2">
       <div class="col">
@@ -2827,6 +2896,7 @@ function render(){
       ${sideColumn()}
     </div></div>`;
   if(modal && modal.live) renderModal();
+  if(!commitPending){ commitPending=true; requestAnimationFrame(()=>{ commitPending=false; commitSeen(); }); }
 }
 /* =========================================================
    BOOT
@@ -2843,7 +2913,7 @@ if(IMG['card-research-bg']) document.documentElement.style.setProperty('--card-r
 if(IMG['card-humanity-bg']) document.documentElement.style.setProperty('--card-humanity', `url("${IMG['card-humanity-bg']}")`);
 if(IMG['card-scientist-bg']) document.documentElement.style.setProperty('--card-scientist', `url("${IMG['card-scientist-bg']}")`);
 try{ window.claude?.hot?.snapshot?.(()=>({S})); }catch(e){}
-window.__spark={ get S(){return S}, set S(v){S=v;}, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
+window.__spark={ get S(){return S}, set S(v){S=v;}, setPace(v){ PACE=v; }, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 
 })();

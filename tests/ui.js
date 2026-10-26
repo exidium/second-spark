@@ -12,6 +12,7 @@ function serve() { const dist = path.join(__dirname, '..', 'dist'); return new P
   const pg = await b.newPage({ viewport: { width: 1300, height: 1500 } });
   pg.on('pageerror', e => errs.push(e.message));
   await pg.goto(url);
+  await pg.evaluate(() => window.__spark.setPace(0.01)); // animations stay, pacing delays shrink
   await pg.click('.charpick[data-id=surgeon]');
   await pg.click('[data-act=start]');
   let steps = 0;

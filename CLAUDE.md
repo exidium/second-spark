@@ -20,7 +20,7 @@ Run both tests before calling a change done. A healthy build has no page errors,
 - `src/data.js`: every number and card. Change balance here first.
 - `src/art.js`: inline SVG art (locations, lab spaces, portraits, card icons, dice).
 - `src/engine.js`: state `S`, async phase loop (`loop()`), space effects (`resolveSpace`), cadaver resolution, building (`planBuild`, `build`), the switch (`startThrow`, `resolveThrow`), dawn, encounters (`OUT` outcomes), card play, AI (`aiChoose`, `aiSpaceOptions`, `aiLab`), scoring, save.
-- `src/ui.js`: promise modals (`ask`, `askYN`), threshold tooltip, human input (`clickSpace`, `humanPre`), all rendering (`render`, `labPanel`, `locCards`, `rivalsPanel`), title and end screens, boot.
+- `src/ui.js`: promise modals (`ask`, `askYN`), threshold tooltip, human input (`clickSpace`, `humanPre`), all rendering (`render`, `labPanel`, `locCards`, `rivalsPanel`), title and end screens, motion snapshot (`seen`, `diffForRender`, `isNew`, `PACE`), boot.
 
 All four JS files are concatenated into one IIFE by `build.py`, so they share scope. Order matters only for top-level `const`s used at load time.
 
