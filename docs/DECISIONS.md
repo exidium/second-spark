@@ -476,4 +476,4 @@ A toast is clamped to the map's width with 6px to spare, its pointer slides to s
 The decomposition track and the points-per-part table go from 12 to 14px (headers 13px, roomier cells). The switch offers one full-width button per line reading the jar icon and Use 1 jar, Use 2 jars, Use 3 jars.
 
 **D153. Fix: cards in a popup deal in once.** (Bruno: "There's an animation bug on my cards. Looks like the animation blinks after it ends and replays.")
-Live popups (Your cards, Laboratory, Your character) are rebuilt on every refresh, which restarted the card deal-in. A popup now carries a fresh mark only on its first draw, and only then do its cards animate.
+Live popups (Your cards, Laboratory, Your character) are rebuilt on every refresh, which restarted the card deal-in. A popup now carries a firstdraw class only on its first draw (not `.fresh`, which is the freshness dots and broke the popup layout for a moment), and only then do its cards animate.

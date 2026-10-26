@@ -713,8 +713,8 @@ body[data-phase="lab"] .toolbar{box-shadow:0 0 24px -6px rgba(205,166,92,.3)}
 .slot.on.land{animation:land .4s cubic-bezier(.3,1.4,.5,1) both}
 @keyframes land{0%{transform:translateY(-14px) scale(.8);opacity:0}60%{transform:translateY(2px) scale(1.05);opacity:1}100%{transform:none;opacity:1}}
 .mcard.deal{animation:deal .35s ease-out both;animation-delay:calc(var(--i,0)*90ms)}
-.modal.fresh .gcards>.gcard-wrap{animation:deal .35s ease-out both}
-.modal.fresh .gcards>.gcard-wrap:nth-child(2){animation-delay:90ms}.modal.fresh .gcards>.gcard-wrap:nth-child(3){animation-delay:180ms}.modal.fresh .gcards>.gcard-wrap:nth-child(4){animation-delay:270ms}
+.modal.firstdraw .gcards>.gcard-wrap{animation:deal .35s ease-out both}
+.modal.firstdraw .gcards>.gcard-wrap:nth-child(2){animation-delay:90ms}.modal.firstdraw .gcards>.gcard-wrap:nth-child(3){animation-delay:180ms}.modal.firstdraw .gcards>.gcard-wrap:nth-child(4){animation-delay:270ms}
 @keyframes deal{0%{transform:translateX(-10px) translateY(4px);opacity:0}100%{transform:none;opacity:1}}
 .mcard.back.lift{animation:lift .4s ease-out}
 @keyframes lift{0%{transform:translateY(0)}40%{transform:translateY(-5px) rotate(-2deg)}100%{transform:none}}
@@ -2084,7 +2084,7 @@ function renderModal(){
   const opts=(modal.options||[]).map(o=>o.heading?`<div class="eyebrow" style="margin-top:6px">${o.heading}</div>`:`<button class="opt ${o.lead?'has-lead':''}" ${o.disabled?'disabled':''} data-mfn="${reg(o.fn)}">${o.lead||''}<span><span class="ot">${o.label}</span>${o.sub?`<small>${o.sub}</small>`:''}</span><span class="num">${o.right||''}</span></button>`).join('');
   const btns=(modal.buttons||[]).map(b=>`<button class="btn ${b.primary?'primary':''}" ${b.disabled?'disabled':''} data-mfn="${reg(b.fn)}">${b.label}</button>`).join('');
   const fresh=!modal._drawn; modal._drawn=true;
-  root.innerHTML=`<div class="scrim" data-scrim="1"><div class="modal ${fresh?'fresh':''} ${modal.wide?'wide':''} ${modal.xwide?'xwide':''} ${modal.hero?'hero':''}" role="dialog" aria-modal="true" aria-label="${esc(String(modal.title).replace(/<[^>]+>/g,''))}">
+  root.innerHTML=`<div class="scrim" data-scrim="1"><div class="modal ${fresh?'firstdraw':''} ${modal.wide?'wide':''} ${modal.xwide?'xwide':''} ${modal.hero?'hero':''}" role="dialog" aria-modal="true" aria-label="${esc(String(modal.title).replace(/<[^>]+>/g,''))}">
     ${modal.title?`<h2>${modal.title}</h2>`:''}${html}${opts?`<div class="opts">${opts}</div>`:''}<div class="actions">${btns}</div></div></div>`;
   const f=root.querySelector('.opt:not(:disabled), .btn.primary, .btn'); if(f) f.focus({preventScroll:true});
 }
