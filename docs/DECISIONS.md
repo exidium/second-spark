@@ -474,3 +474,6 @@ A toast is clamped to the map's width with 6px to spare, its pointer slides to s
 
 **D152. Bigger type in the Laboratory's decomposition and points tables; full-width switch buttons.** (Bruno: "Make font bigger in decomposition and points per quality. The throw the switch is weird. Put label as 'ICON Use 1 jars'. Each button should occupy the whole line.")
 The decomposition track and the points-per-part table go from 12 to 14px (headers 13px, roomier cells). The switch offers one full-width button per line reading the jar icon and Use 1 jar, Use 2 jars, Use 3 jars.
+
+**D153. Fix: cards in a popup deal in once.** (Bruno: "There's an animation bug on my cards. Looks like the animation blinks after it ends and replays.")
+Live popups (Your cards, Laboratory, Your character) are rebuilt on every refresh, which restarted the card deal-in. A popup now carries a fresh mark only on its first draw, and only then do its cards animate.

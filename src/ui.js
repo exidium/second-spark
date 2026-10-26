@@ -21,7 +21,8 @@ function renderModal(){
   const html = typeof modal.html==='function' ? modal.html(reg) : (modal.html||'');
   const opts=(modal.options||[]).map(o=>o.heading?`<div class="eyebrow" style="margin-top:6px">${o.heading}</div>`:`<button class="opt ${o.lead?'has-lead':''}" ${o.disabled?'disabled':''} data-mfn="${reg(o.fn)}">${o.lead||''}<span><span class="ot">${o.label}</span>${o.sub?`<small>${o.sub}</small>`:''}</span><span class="num">${o.right||''}</span></button>`).join('');
   const btns=(modal.buttons||[]).map(b=>`<button class="btn ${b.primary?'primary':''}" ${b.disabled?'disabled':''} data-mfn="${reg(b.fn)}">${b.label}</button>`).join('');
-  root.innerHTML=`<div class="scrim" data-scrim="1"><div class="modal ${modal.wide?'wide':''} ${modal.xwide?'xwide':''} ${modal.hero?'hero':''}" role="dialog" aria-modal="true" aria-label="${esc(String(modal.title).replace(/<[^>]+>/g,''))}">
+  const fresh=!modal._drawn; modal._drawn=true;
+  root.innerHTML=`<div class="scrim" data-scrim="1"><div class="modal ${fresh?'fresh':''} ${modal.wide?'wide':''} ${modal.xwide?'xwide':''} ${modal.hero?'hero':''}" role="dialog" aria-modal="true" aria-label="${esc(String(modal.title).replace(/<[^>]+>/g,''))}">
     ${modal.title?`<h2>${modal.title}</h2>`:''}${html}${opts?`<div class="opts">${opts}</div>`:''}<div class="actions">${btns}</div></div></div>`;
   const f=root.querySelector('.opt:not(:disabled), .btn.primary, .btn'); if(f) f.focus({preventScroll:true});
 }
