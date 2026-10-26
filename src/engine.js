@@ -415,7 +415,7 @@ async function cityPhase(tok){
       if(!S.fast && typeof moveToast==='function'){ const key=Object.keys(S.occ).find(k=>!occBefore.has(k)&&S.occ[k].p===next) || Object.keys(p.labUsed).map(k=>'lab.'+k).find(k=>p.labUsed[k.slice(4)]&&!labBefore[k.slice(4)]);
         if(key) moveToast(next, key, S.occ[key]?S.occ[key].kind:p.labUsed[key.slice(4)], S.log.slice(logAt).map(l=>l.t)); }
       await sleep(2400); }
-    else { await humanTurn(); if(tok!==gameToken) return; if(typeof clearMoveToasts==='function') clearMoveToasts(); }
+    else { if(!S.fast && typeof yourTurnToast==='function') yourTurnToast(); await humanTurn(); if(tok!==gameToken) return; if(typeof clearMoveToasts==='function') clearMoveToasts(); }
     S.cur=(next+1)%n;
   }
   if(tok!==gameToken) return;

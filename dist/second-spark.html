@@ -705,6 +705,10 @@ i,em{font-style:normal}
 .movetoast b{font-weight:700;text-shadow:0 1px 2px #000}
 .movetoast::after{content:'';position:absolute;left:var(--ax,50%);bottom:-6px;transform:translateX(-50%);border:6px solid transparent;border-bottom:0;border-top-color:var(--brass)}
 .movetoast.below::after{bottom:auto;top:-6px;border:6px solid transparent;border-top:0;border-bottom-color:var(--brass)}
+#turnToast{position:fixed;transform:translate(-50%,-100%);z-index:46;background:rgba(14,11,16,.96);border:1px solid var(--spark);border-left:5px solid var(--pc,var(--spark));border-radius:6px;padding:10px 18px;font-size:16px;color:var(--parch);box-shadow:0 10px 28px rgba(0,0,0,.7),0 0 22px -6px var(--spark-glow);opacity:0;pointer-events:none;white-space:nowrap}
+#turnToast b{font-family:var(--f-display);font-weight:400;font-size:19px;color:var(--spark)}
+#turnToast.show{animation:turnin 3.6s ease forwards}
+@keyframes turnin{0%{opacity:0;transform:translate(-50%,-100%) translateY(18px)}7%{opacity:1;transform:translate(-50%,-100%)}17%{opacity:1}100%{opacity:0;transform:translate(-50%,-100%)}}
 /* ---------- Motion: entrance animations keyed on what changed since the last render (see diffForRender) ---------- */
 #veil{position:fixed;inset:0;pointer-events:none;z-index:40;opacity:0;transition:opacity 1.2s ease;background:radial-gradient(ellipse at 50% 40%,rgba(10,14,30,.25),rgba(4,6,14,.85) 80%)}
 body[data-phase="lab"] #veil{opacity:.6}
@@ -1497,7 +1501,7 @@ async function cityPhase(tok){
       if(!S.fast && typeof moveToast==='function'){ const key=Object.keys(S.occ).find(k=>!occBefore.has(k)&&S.occ[k].p===next) || Object.keys(p.labUsed).map(k=>'lab.'+k).find(k=>p.labUsed[k.slice(4)]&&!labBefore[k.slice(4)]);
         if(key) moveToast(next, key, S.occ[key]?S.occ[key].kind:p.labUsed[key.slice(4)], S.log.slice(logAt).map(l=>l.t)); }
       await sleep(2400); }
-    else { await humanTurn(); if(tok!==gameToken) return; if(typeof clearMoveToasts==='function') clearMoveToasts(); }
+    else { if(!S.fast && typeof yourTurnToast==='function') yourTurnToast(); await humanTurn(); if(tok!==gameToken) return; if(typeof clearMoveToasts==='function') clearMoveToasts(); }
     S.cur=(next+1)%n;
   }
   if(tok!==gameToken) return;
@@ -2676,6 +2680,14 @@ function moveAction(lines, nm, fallback){
 }
 function whereName(key){ if(key.startsWith('lab.')) return 'their laboratory'; const id=SPACE[key].loc;
   return id==='church'?'Saint-Roch':id==='first'?'the First Player space':id==='odeon'?'the Odéon':'the '+LOC[id].name; }
+// Your turn: a toast at the bottom middle of the map, rising in quickly and fading out slowly.
+function yourTurnToast(){
+  const board=document.querySelector('.board'); if(!board) return; const r=board.getBoundingClientRect(), p=S.players[0];
+  let el=document.getElementById('turnToast'); if(!el){ el=document.createElement('div'); el.id='turnToast'; document.body.appendChild(el); }
+  el.style.left=(r.left+r.width/2)+'px'; el.style.top=Math.min(innerHeight-20, r.bottom-24)+'px'; el.style.setProperty('--pc', p.color);
+  el.innerHTML=`<b>Your turn</b>, pick a meeple, then a location.`;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+}
 // One toast per rival, above the place it went to. They stay through your turn and clear once you place.
 const moveToasts={};
 const BODY_VERB={'cemetery.dig':'dig up','morgue.buy':'buy','square.buy':'buy','hospital.retrieve':'retrieve'};
@@ -2968,7 +2980,7 @@ if(IMG['card-research-bg']) document.documentElement.style.setProperty('--card-r
 if(IMG['card-humanity-bg']) document.documentElement.style.setProperty('--card-humanity', `url("${IMG['card-humanity-bg']}")`);
 if(IMG['card-scientist-bg']) document.documentElement.style.setProperty('--card-scientist', `url("${IMG['card-scientist-bg']}")`);
 try{ window.claude?.hot?.snapshot?.(()=>({S})); }catch(e){}
-window.__spark={ get S(){return S}, set S(v){S=v;}, setPace(v){ PACE=v; }, moveToast, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
+window.__spark={ get S(){return S}, set S(v){S=v;}, setPace(v){ PACE=v; }, moveToast, yourTurnToast, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 
 })();

@@ -614,6 +614,14 @@ function moveAction(lines, nm, fallback){
 }
 function whereName(key){ if(key.startsWith('lab.')) return 'their laboratory'; const id=SPACE[key].loc;
   return id==='church'?'Saint-Roch':id==='first'?'the First Player space':id==='odeon'?'the Odéon':'the '+LOC[id].name; }
+// Your turn: a toast at the bottom middle of the map, rising in quickly and fading out slowly.
+function yourTurnToast(){
+  const board=document.querySelector('.board'); if(!board) return; const r=board.getBoundingClientRect(), p=S.players[0];
+  let el=document.getElementById('turnToast'); if(!el){ el=document.createElement('div'); el.id='turnToast'; document.body.appendChild(el); }
+  el.style.left=(r.left+r.width/2)+'px'; el.style.top=Math.min(innerHeight-20, r.bottom-24)+'px'; el.style.setProperty('--pc', p.color);
+  el.innerHTML=`<b>Your turn</b>, pick a meeple, then a location.`;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+}
 // One toast per rival, above the place it went to. They stay through your turn and clear once you place.
 const moveToasts={};
 const BODY_VERB={'cemetery.dig':'dig up','morgue.buy':'buy','square.buy':'buy','hospital.retrieve':'retrieve'};
@@ -906,5 +914,5 @@ if(IMG['card-research-bg']) document.documentElement.style.setProperty('--card-r
 if(IMG['card-humanity-bg']) document.documentElement.style.setProperty('--card-humanity', `url("${IMG['card-humanity-bg']}")`);
 if(IMG['card-scientist-bg']) document.documentElement.style.setProperty('--card-scientist', `url("${IMG['card-scientist-bg']}")`);
 try{ window.claude?.hot?.snapshot?.(()=>({S})); }catch(e){}
-window.__spark={ get S(){return S}, set S(v){S=v;}, setPace(v){ PACE=v; }, moveToast, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
+window.__spark={ get S(){return S}, set S(v){S=v;}, setPace(v){ PACE=v; }, moveToast, yourTurnToast, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});

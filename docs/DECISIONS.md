@@ -477,3 +477,6 @@ The decomposition track and the points-per-part table go from 12 to 14px (header
 
 **D153. Fix: cards in a popup deal in once.** (Bruno: "There's an animation bug on my cards. Looks like the animation blinks after it ends and replays.")
 Live popups (Your cards, Laboratory, Your character) are rebuilt on every refresh, which restarted the card deal-in. A popup now carries a firstdraw class only on its first draw (not `.fresh`, which is the freshness dots and broke the popup layout for a moment), and only then do its cards animate.
+
+**D154. A Your turn toast.** (Bruno: "when it's the player's turn, display a toast in the middle bottom, and slowly fade it out in 3 seconds. Motion bottom to up, quick fade in.")
+When your day turn begins, "Your turn, pick a meeple, then a location." rises from below at the bottom middle of the map in a quarter second, holds briefly, then fades out over about 3 seconds. Blue rim and glow, your colour as the left rule.
