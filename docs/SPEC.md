@@ -128,8 +128,8 @@ Each space holds one meeple. **Sci** = scientist only. Costs listed are in franc
 | Charge Jars | Charge 3 jars (scientist) or 2 (assistant) |
 
 ### 5.3 Face-up displays (refreshed every dawn)
-- **Academy:** 3 research cards. Taking one replaces it immediately from the deck.
-- **Saint-Roch:** 3 humanity cards. Same replacement rule.
+- **Academy:** 3 research cards. A taken card is not replaced until dawn (a dashed slot shows the gap); with none left, Take a research card is unavailable.
+- **Saint-Roch:** 3 humanity cards. Same rule: no replacement until dawn; with none left only a scientist may atone, for the humanity.
 - **Hospital:** exactly 2 bodies. Not replaced until dawn. If both are gone, Retrieve is unavailable.
 - **Docks:** 3 scoundrels. A hired one is replaced immediately.
 - **Public Square:** bodies only appear after an execution (1 body with 2 players, 2 with 3 or 4). Discarded at dawn.
@@ -430,7 +430,7 @@ Desktop (1100px and wider): the page uses the full browser width; the right colu
 - **Your laboratory place** (under the Hospital on the map): the attic scene and one option row per lab space with meeple slots, scientist tag and gain; Used today once spent.
 - **Night prompt**: as the lab phase begins, Night N asks Go to the laboratory or End the night.
 - **Laboratory popup** (extra wide, three columns; opened from the Laboratory button or the operating table): column 1 the operating table at 230px with legend, VP built and the switch box (1 to 3 jars); column 2 the part rows with Start / Add skin buttons (fresh or oldest first, with VP) and the Steady Hands and Surgeon toggles; column 3 the decomposition track with Preserve buttons and the points-per-part table. End the night in the footer. It refreshes in place after each action; the throw opens the dice modal and returns to it. Under 1000px the columns stack.
-- **Motion**: ui.js snapshots each render and animates only what changed: meeples land on slots and fade or return in Your people, new cards slide into rows, counters tick with a floating delta, lit bar cells flash, a part coming alive pulses blue, damage badges shake. A fixed veil darkens the page during the lab phase (1.2s fade) with lamp glow on the chips; dice tumble in sequence. Each rival move shows a toast at the bottom middle of the map (name in bold in their colour, the space and the place, the chronicle detail beneath) and is paced at 1.2s before and 2.4s after (`PACE` multiplier; tests and fast mode shrink it). `prefers-reduced-motion` turns everything off.
+- **Motion**: ui.js snapshots each render and animates only what changed: meeples land on slots and fade or return in Your people, new cards slide into rows, counters tick with a floating delta, lit bar cells flash, a part coming alive pulses blue, damage badges shake. A fixed veil darkens the page during the lab phase (1.2s fade) with lamp glow on the chips; dice tumble in sequence. Each rival move shows a one-line toast just above the place ("Name sends an assistant to hire a Cutthroat, in the Docks.", name in bold in their colour; it stays until you place, one per rival, stacked over a shared place) and is paced at 1.2s before and 2.4s after (`PACE` multiplier; tests and fast mode shrink it). `prefers-reduced-motion` turns everything off.
 - Locked modals (must choose) for drawn cards and encounters; others can be cancelled. Plain questions have no meeple lead on their rows. Any option that plays a card reads Use card "Name" after the cards icon; costs and gains are icons.
 - Cadaver resolution: illustrated cards (place label, name, tags as icons: expertise, humanity cost, price) with Materials / +N expertise icon / Leave buttons and any applicable research cards under each, the chosen one filled blue.
 - Throw result: dice faces, legend, mitigation options, then a summary of what came alive or broke.

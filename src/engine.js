@@ -393,6 +393,8 @@ function canPlace(i,key,kind){
   if(S.closed[sp.loc]) return false;
   if(sp.sci && kind!=='scientist') return false;
   if(sp.loc==='academy' && S.ev==='parade' && kind!=='scientist') return false;
+  if(key==='academy.research' && !S.researchRow.length) return false;
+  if(key==='church.atone' && !S.humanityRow.length && kind!=='scientist') return false;
   const need=spaceNeeds(i,key); if(need===null) return false;
   const b=bumpInfo(i,key); if(!b) return false;
   return p.coin >= need + b.cost;
@@ -413,7 +415,7 @@ async function cityPhase(tok){
       if(!S.fast && typeof moveToast==='function'){ const key=Object.keys(S.occ).find(k=>!occBefore.has(k)&&S.occ[k].p===next) || Object.keys(p.labUsed).map(k=>'lab.'+k).find(k=>p.labUsed[k.slice(4)]&&!labBefore[k.slice(4)]);
         if(key) moveToast(next, key, S.occ[key]?S.occ[key].kind:p.labUsed[key.slice(4)], S.log.slice(logAt).map(l=>l.t)); }
       await sleep(2400); }
-    else { await humanTurn(); if(tok!==gameToken) return; }
+    else { await humanTurn(); if(tok!==gameToken) return; if(typeof clearMoveToasts==='function') clearMoveToasts(); }
     S.cur=(next+1)%n;
   }
   if(tok!==gameToken) return;
@@ -505,7 +507,7 @@ async function resolveSpace(i,key,kind,pre,mod){
 }
 function takeRowCard(p,row,cardId){
   let idx=row.findIndex(x=>x.id===cardId); if(idx<0) idx=0; if(!row[idx]) return;
-  const c=row[idx]; const repl = c.kind==='research'?drawResearch():drawHumanity(); row.splice(idx,1); if(repl) row.splice(idx,0,repl);
+  const c=row[idx]; row.splice(idx,1); // no refill during the day: the row is dealt again at dawn
   addCard(p,c);
   if(p.ai) aiMaybePlay(S.players.indexOf(p));
 }

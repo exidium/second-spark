@@ -599,19 +599,39 @@ async function nightPrompt(){
   const go=await ask({title:`Night ${S.round}`, html:'<p>Everyone is home. Build, throw the switch and preserve in your laboratory, or end the night now.</p>', buttons:[{label:'End the night', value:false},{label:'Go to the laboratory', primary:true, value:true}]});
   if(go) labModal(); else handle('endlab',{});
 }
-// A rival's move, shown in a toast at the bottom middle of the map: "Name sends a meeple to do x, in location y", with the chronicle detail under it.
-function moveToast(i, key, kind, lines){
-  const p=S.players[i]; const lab=key.startsWith('lab.'); const sp=lab?LABSPOT[key.slice(4)]:SPACE[key]; const where=lab?'their laboratory':LOC[sp.loc].name;
-  const act=(lab?sp.name:sp.n).replace(/\s*\(.*\)$/,''); const actLc=act.charAt(0).toLowerCase()+act.slice(1);
-  const plain=t=>t.replace(/<\/(b|span|i)>\s*(?=<)/g,'$& ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').replace(/\s+([.,:;])/g,'$1').trim(); const nm=p.name;
-  const detail=lines.map(plain).filter(t=>!/has nowhere left/.test(t)).map(t=>t.startsWith(nm)?t.slice(nm.length).trim():t).filter(Boolean)[0]||'';
-  let el=document.getElementById('moveToast'); if(!el){ el=document.createElement('div'); el.id='moveToast'; document.body.appendChild(el); }
-  const board=document.querySelector('.board'); if(board){ const r=board.getBoundingClientRect(); el.style.left=(r.left+r.width/2)+'px'; el.style.top=Math.min(innerHeight-70, r.bottom-18)+'px'; }
-  el.style.setProperty('--pc', p.color);
-  el.innerHTML=`<span class="mt-who" style="color:${p.color}">${esc(nm)}</span> sends ${kind==='scientist'?'their scientist':'an assistant'} to ${esc(actLc)}, in ${esc(where)}.${detail?`<small>${esc(detail)}</small>`:''}`;
-  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
-  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'), 2300*Math.max(PACE,0.2));
+// A rival's move, shown in a small toast just above the place: "Name sends an assistant to <action>, in <place>."
+// The action comes from the chronicle line of that move, turned into the infinitive ("hires a Cutthroat" -> "hire a Cutthroat").
+function toInfinitive(w){ const irr={does:'do', is:'be', has:'have', goes:'go'}; if(irr[w]) return irr[w];
+  if(/ies$/.test(w)) return w.slice(0,-3)+'y'; if(/(ch|sh|ss|x|z)es$/.test(w)) return w.slice(0,-2); return w.replace(/s$/,''); }
+function moveAction(lines, nm, fallback){
+  const plain=t=>t.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+  const line=lines.map(plain).find(t=>t.startsWith(nm+' ')&&!/has nowhere left|bumps |claims the bonus/.test(t));
+  if(!line) return fallback;
+  let act=line.slice(nm.length+1).split(/[:.,;]| and | at the | in the | at | from the /)[0].trim();
+  if(/^is seen/.test(act)) return 'watch the show';
+  const w=act.split(' '); w[0]=toInfinitive(w[0]); return w.join(' ');
 }
+function whereName(key){ if(key.startsWith('lab.')) return 'their laboratory'; const id=SPACE[key].loc;
+  return id==='church'?'Saint-Roch':id==='first'?'the First Player space':id==='odeon'?'the Odéon':'the '+LOC[id].name; }
+// One toast per rival, above the place it went to. They stay through your turn and clear once you place.
+const moveToasts={};
+const BODY_VERB={'cemetery.dig':'dig up','morgue.buy':'buy','square.buy':'buy','hospital.retrieve':'retrieve'};
+function placeMoveToast(el){ const anchor=document.querySelector(`.board .place[data-id="${el.dataset.at}"] .pchip`)||document.querySelector('.board'); if(!anchor) return;
+  const r=anchor.getBoundingClientRect(); const stack=[...document.querySelectorAll('.movetoast')].filter(o=>o.dataset.at===el.dataset.at); const k=stack.indexOf(el);
+  el.style.left=(r.left+r.width/2)+'px'; el.style.top=Math.max(10,r.top-8-k*40)+'px'; }
+function placeAllMoveToasts(){ document.querySelectorAll('.movetoast').forEach(placeMoveToast); }
+function clearMoveToasts(){ for(const i in moveToasts){ moveToasts[i].remove(); delete moveToasts[i]; } }
+function moveToast(i, key, kind, lines){
+  const p=S.players[i]; const lab=key.startsWith('lab.'); const sp=lab?LABSPOT[key.slice(4)]:SPACE[key];
+  const fb=(lab?sp.name:sp.n).replace(/\s*\(.*\)$/,''); let action=moveAction(lines, p.name, fb.charAt(0).toLowerCase()+fb.slice(1));
+  if(BODY_VERB[key]){ const n=lines.filter(t=>t.replace(/<[^>]+>/g,'').startsWith(p.name+' takes ')).length; action=n?`${BODY_VERB[key]} ${n} cadaver${n>1?'s':''}`:action; }
+  if(moveToasts[i]) moveToasts[i].remove();
+  const el=document.createElement('div'); el.className='movetoast'; el.dataset.at=lab?'lab':sp.loc; document.body.appendChild(el); moveToasts[i]=el;
+  el.style.setProperty('--pc', p.color);
+  el.innerHTML=`<b style="color:${p.color}">${esc(p.name)}</b> sends ${kind==='scientist'?'their scientist':'an assistant'} to ${esc(action)}, in ${esc(whereName(key))}.`;
+  placeMoveToast(el); void el.offsetWidth; el.classList.add('show');
+}
+addEventListener('resize', placeAllMoveToasts); addEventListener('scroll', placeAllMoveToasts, true);
 function todayModal(){
   const c=S.card; if(!c) return;
   const card = c.t==='ev' ? eventCardHTML(EVENTS.find(x=>x.id===c.id)) : encounterCardHTML(ENCOUNTERS.find(x=>x.id===c.id));
@@ -846,7 +866,7 @@ function toolbarHTML(){
 }
 function render(){
   const app=document.getElementById('app');
-  if(!S){ app.innerHTML=titleScreen(); document.body.dataset.phase='title'; return; }
+  if(!S){ clearMoveToasts(); app.innerHTML=titleScreen(); document.body.dataset.phase='title'; return; }
   if(S.phase==='end'){ app.innerHTML=endScreen(); return; }
   if(S.fast) return;
   diffForRender(); document.body.dataset.phase=S.phase;
@@ -861,6 +881,7 @@ function render(){
       ${sideColumn()}
     </div></div>`;
   if(modal && modal.live) renderModal();
+  if(S.phase!=='day') clearMoveToasts(); else placeAllMoveToasts();
   if(!commitPending){ commitPending=true; requestAnimationFrame(()=>{ commitPending=false; commitSeen(); }); }
 }
 /* =========================================================
