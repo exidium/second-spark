@@ -471,3 +471,6 @@ D133 only drew the dotted slot; the engine still dealt a replacement at once. Ta
 
 **D151. Move toasts stay inside the map.** (Bruno: "careful so that the tooltip does not leave the map area.")
 A toast is clamped to the map's width with 6px to spare, its pointer slides to stay over the place, and when there is no room above the chip it hangs below it with the pointer on top.
+
+**D152. Bigger type in the Laboratory's decomposition and points tables; full-width switch buttons.** (Bruno: "Make font bigger in decomposition and points per quality. The throw the switch is weird. Put label as 'ICON Use 1 jars'. Each button should occupy the whole line.")
+The decomposition track and the points-per-part table go from 12 to 14px (headers 13px, roomier cells). The switch offers one full-width button per line reading the jar icon and Use 1 jar, Use 2 jars, Use 3 jars.

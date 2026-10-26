@@ -261,10 +261,10 @@ i,em{font-style:normal}
 .tog:disabled{opacity:.4;cursor:not-allowed}
 .modal.wide{max-width:664px}
 .modal.xwide{max-width:1240px}
-.decay{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums;margin-top:6px}
-.decay th{font-weight:400;color:var(--muted);font-size:11px;letter-spacing:.08em;padding:3px 4px;text-align:center}
+.decay{width:100%;border-collapse:collapse;font-size:14.5px;font-variant-numeric:tabular-nums;margin-top:6px}
+.decay th{font-weight:400;color:var(--muted);font-size:13px;letter-spacing:.08em;padding:3px 4px;text-align:center}
 .decay th:first-child{text-align:left}
-.decay td{padding:4px;text-align:center;border-top:1px solid var(--line)}
+.decay td{padding:6px 4px;text-align:center;border-top:1px solid var(--line)}
 .decay td:first-child{text-align:left;white-space:nowrap}
 .decay td.z{color:var(--line2)}
 .decay td.rot{background:rgba(180,66,60,.12)}
@@ -284,7 +284,9 @@ i,em{font-style:normal}
 .hcard{display:flex;justify-content:space-between;gap:8px;align-items:center;border:1px solid var(--line);border-radius:3px;padding:6px 8px;font-size:13px;background:var(--panel2)}
 .hcard b{font-family:var(--f-display);font-weight:400;font-size:15px}
 .switchbox{border:1px solid #3b5d7d;border-radius:4px;padding:10px;margin-top:10px;background:linear-gradient(180deg,rgba(159,208,255,.06),transparent)}
-.switchbox .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.switchbox .row{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.switchbox .row .btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 12px;font-size:15px}
+.switchbox .row .btn .ico.si{width:20px;height:20px}
 .jars{display:inline-flex;gap:4px;vertical-align:middle}
 .jars i{width:10px;height:16px;border-radius:2px 2px 3px 3px;border:1px solid var(--line2);display:block}
 .jars i.ch{background:var(--spark);border-color:var(--spark);box-shadow:0 0 8px var(--spark-glow)}
@@ -374,13 +376,13 @@ i,em{font-style:normal}
 .bl.dmgl{color:#ffd36a;font-weight:700}
 .tables .figure .cap{font-size:12px}
 .ptable{overflow-x:auto;min-width:0}
-.ptable table{border-collapse:collapse;width:100%;font-size:12px;font-variant-numeric:tabular-nums}
-.ptable th,.ptable td{padding:3px 4px;text-align:center;border-bottom:1px solid var(--line)}
-.ptable th{font-weight:400;color:var(--muted);font-size:11px;letter-spacing:.06em}
+.ptable table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+.ptable th,.ptable td{padding:5px 5px;text-align:center;border-bottom:1px solid var(--line)}
+.ptable th{font-weight:400;color:var(--muted);font-size:13px;letter-spacing:.06em}
 .ptable td:first-child,.ptable th:first-child{text-align:left;white-space:nowrap}
 .ptable .m{color:#e0a37f}.ptable .s{color:var(--parch)}.ptable .a{color:var(--spark)}
 .ptable th.m{color:#c46a4c}.ptable th.s{color:var(--parch-dim)}.ptable th.a{color:var(--spark)}
-.ptable p{font-size:11.5px;color:var(--muted);margin:5px 0 0;line-height:1.4}
+.ptable p{font-size:13px;color:var(--muted);margin:5px 0 0;line-height:1.4}
 .vpline{font-size:12px}
 .vpst{display:inline-block;border:1px solid var(--line2);border-radius:3px;padding:0 5px;margin-right:2px}
 .anat{margin-bottom:4px}
@@ -2776,7 +2778,7 @@ function switchBoxHTML(p){
   return `<div class="switchbox"><div class="sub" style="margin:0">Throw the switch</div>
       <div style="font-size:13px;color:var(--parch-dim)">Each charged jar rolls 2 shock dice. ${blueDice(p)?`Your expertise makes ${blueDice(p)} of them blue.`:'Expertise 10 makes one of them blue.'}${p.sabotaged?' <span style="color:var(--crim)">Your wires are cut: you lose a die.</span>':''}${hasChar(p,'zoo')&&!p.zooUsed?' Zoologist: +1 gray die.':''}</div>
       ${p.thrown?'<div style="margin-top:6px;color:var(--muted)">Thrown for tonight.</div>':
-        `<div class="row">${[1,2,3].map(n=>`<button class="btn ${n===Math.min(3,ch)?'primary':''}" data-act="throw" data-n="${n}" ${canThrow(p)&&n<=ch?'':'disabled'}>${n} ${icon('jar','🏺','si')} jar${n>1?'s':''}</button>`).join('')}</div>
+        `<div class="row">${[1,2,3].map(n=>`<button class="btn ${n===Math.min(3,ch)?'primary':''}" data-act="throw" data-n="${n}" ${canThrow(p)&&n<=ch?'':'disabled'}>${icon('jar','🏺','si')} Use ${n} jar${n>1?'s':''}</button>`).join('')}</div>
          ${!SLOT6.some(s=>p.table[s]&&p.table[s].side==='skin')?'<div style="font-size:12px;color:var(--muted);margin-top:4px">You need at least one complete (skinned) part.</div>':ch?'':'<div style="font-size:12px;color:var(--muted);margin-top:4px">No charged jars. Charge them in your lab during the day.</div>'}`}</div>`;
 }
 function labBody(){

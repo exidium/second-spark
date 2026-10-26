@@ -716,7 +716,7 @@ function switchBoxHTML(p){
   return `<div class="switchbox"><div class="sub" style="margin:0">Throw the switch</div>
       <div style="font-size:13px;color:var(--parch-dim)">Each charged jar rolls 2 shock dice. ${blueDice(p)?`Your expertise makes ${blueDice(p)} of them blue.`:'Expertise 10 makes one of them blue.'}${p.sabotaged?' <span style="color:var(--crim)">Your wires are cut: you lose a die.</span>':''}${hasChar(p,'zoo')&&!p.zooUsed?' Zoologist: +1 gray die.':''}</div>
       ${p.thrown?'<div style="margin-top:6px;color:var(--muted)">Thrown for tonight.</div>':
-        `<div class="row">${[1,2,3].map(n=>`<button class="btn ${n===Math.min(3,ch)?'primary':''}" data-act="throw" data-n="${n}" ${canThrow(p)&&n<=ch?'':'disabled'}>${n} ${icon('jar','🏺','si')} jar${n>1?'s':''}</button>`).join('')}</div>
+        `<div class="row">${[1,2,3].map(n=>`<button class="btn ${n===Math.min(3,ch)?'primary':''}" data-act="throw" data-n="${n}" ${canThrow(p)&&n<=ch?'':'disabled'}>${icon('jar','🏺','si')} Use ${n} jar${n>1?'s':''}</button>`).join('')}</div>
          ${!SLOT6.some(s=>p.table[s]&&p.table[s].side==='skin')?'<div style="font-size:12px;color:var(--muted);margin-top:4px">You need at least one complete (skinned) part.</div>':ch?'':'<div style="font-size:12px;color:var(--muted);margin-top:4px">No charged jars. Charge them in your lab during the day.</div>'}`}</div>`;
 }
 function labBody(){
