@@ -616,9 +616,15 @@ function whereName(key){ if(key.startsWith('lab.')) return 'their laboratory'; c
 // One toast per rival, above the place it went to. They stay through your turn and clear once you place.
 const moveToasts={};
 const BODY_VERB={'cemetery.dig':'dig up','morgue.buy':'buy','square.buy':'buy','hospital.retrieve':'retrieve'};
-function placeMoveToast(el){ const anchor=document.querySelector(`.board .place[data-id="${el.dataset.at}"] .pchip`)||document.querySelector('.board'); if(!anchor) return;
-  const r=anchor.getBoundingClientRect(); const stack=[...document.querySelectorAll('.movetoast')].filter(o=>o.dataset.at===el.dataset.at); const k=stack.indexOf(el);
-  el.style.left=(r.left+r.width/2)+'px'; el.style.top=Math.max(10,r.top-8-k*40)+'px'; }
+function placeMoveToast(el){ const anchor=document.querySelector(`.board .place[data-id="${el.dataset.at}"] .pchip`); const board=document.querySelector('.board'); if(!anchor||!board) return;
+  const r=anchor.getBoundingClientRect(), B=board.getBoundingClientRect(), w=el.offsetWidth, h=el.offsetHeight;
+  const stack=[...document.querySelectorAll('.movetoast')].filter(o=>o.dataset.at===el.dataset.at); const k=stack.indexOf(el);
+  const cx=r.left+r.width/2, left=Math.min(Math.max(cx, B.left+w/2+6), B.right-w/2-6);
+  const fitAbove=Math.max(0, Math.floor((r.top-8-(B.top+6))/(h+6)));   // how many toasts fit above the chip
+  let top, below=false;
+  if(k<fitAbove) top=r.top-8-k*(h+6); else { top=r.bottom+8+(k-fitAbove)*(h+6)+h; below=true; }   // the rest hang under it
+  el.classList.toggle('below', below);
+  el.style.left=left+'px'; el.style.top=top+'px'; el.style.setProperty('--ax', Math.min(Math.max(cx-left+w/2, 12), w-12)+'px'); }
 function placeAllMoveToasts(){ document.querySelectorAll('.movetoast').forEach(placeMoveToast); }
 function clearMoveToasts(){ for(const i in moveToasts){ moveToasts[i].remove(); delete moveToasts[i]; } }
 function moveToast(i, key, kind, lines){
@@ -899,5 +905,5 @@ if(IMG['card-research-bg']) document.documentElement.style.setProperty('--card-r
 if(IMG['card-humanity-bg']) document.documentElement.style.setProperty('--card-humanity', `url("${IMG['card-humanity-bg']}")`);
 if(IMG['card-scientist-bg']) document.documentElement.style.setProperty('--card-scientist', `url("${IMG['card-scientist-bg']}")`);
 try{ window.claude?.hot?.snapshot?.(()=>({S})); }catch(e){}
-window.__spark={ get S(){return S}, set S(v){S=v;}, setPace(v){ PACE=v; }, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
+window.__spark={ get S(){return S}, set S(v){S=v;}, setPace(v){ PACE=v; }, moveToast, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});

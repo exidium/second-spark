@@ -468,3 +468,6 @@ Each rival keeps one toast, above the place they last went to, through your turn
 
 **D150. A card taken from the Academy or Saint-Roch is not replaced until dawn.** (Bruno: "If someone buys a card during the day, that card does not get replaced. We had 3 cards, now we will have 2 until the next day. Next day, 3 again.")
 D133 only drew the dotted slot; the engine still dealt a replacement at once. Taking a research or humanity card now leaves the row one shorter until the dawn deal of three. With the research row empty, Take a research card cannot be chosen; with the humanity row empty, only a scientist may still atone (for the +1 humanity).
+
+**D151. Move toasts stay inside the map.** (Bruno: "careful so that the tooltip does not leave the map area.")
+A toast is clamped to the map's width with 6px to spare, its pointer slides to stay over the place, and when there is no room above the chip it hangs below it with the pointer on top.
