@@ -407,7 +407,12 @@ async function cityPhase(tok){
     for(let k=0;k<n;k++){ const i=(S.cur+k)%n, p=S.players[i]; if(leftN(p)>0 && legalAny(i)){ next=i; break; } else if(leftN(p)>0){ log(`${B(p)} has nowhere left to go and passes.`); p.left={scientist:0,assistant:0}; } }
     if(next<0) break;
     S.cur=next; save(); render();
-    if(S.players[next].ai){ await sleep(1200); if(tok!==gameToken) return; await aiTurn(next); render(); await sleep(350); }
+    if(S.players[next].ai){ await sleep(1200); if(tok!==gameToken) return;
+      const p=S.players[next], occBefore=new Set(Object.keys(S.occ)), labBefore={...p.labUsed}, logAt=S.log.length;
+      await aiTurn(next); render();
+      if(!S.fast && typeof moveToast==='function'){ const key=Object.keys(S.occ).find(k=>!occBefore.has(k)&&S.occ[k].p===next) || Object.keys(p.labUsed).map(k=>'lab.'+k).find(k=>p.labUsed[k.slice(4)]&&!labBefore[k.slice(4)]);
+        if(key) moveToast(next, key, S.occ[key]?S.occ[key].kind:p.labUsed[key.slice(4)], S.log.slice(logAt).map(l=>l.t)); }
+      await sleep(2400); }
     else { await humanTurn(); if(tok!==gameToken) return; }
     S.cur=(next+1)%n;
   }

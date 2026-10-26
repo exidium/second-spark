@@ -599,6 +599,19 @@ async function nightPrompt(){
   const go=await ask({title:`Night ${S.round}`, html:'<p>Everyone is home. Build, throw the switch and preserve in your laboratory, or end the night now.</p>', buttons:[{label:'End the night', value:false},{label:'Go to the laboratory', primary:true, value:true}]});
   if(go) labModal(); else handle('endlab',{});
 }
+// A rival's move, shown in a toast at the bottom middle of the map: "Name sends a meeple to do x, in location y", with the chronicle detail under it.
+function moveToast(i, key, kind, lines){
+  const p=S.players[i]; const lab=key.startsWith('lab.'); const sp=lab?LABSPOT[key.slice(4)]:SPACE[key]; const where=lab?'their laboratory':LOC[sp.loc].name;
+  const act=(lab?sp.name:sp.n).replace(/\s*\(.*\)$/,''); const actLc=act.charAt(0).toLowerCase()+act.slice(1);
+  const plain=t=>t.replace(/<\/(b|span|i)>\s*(?=<)/g,'$& ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').replace(/\s+([.,:;])/g,'$1').trim(); const nm=p.name;
+  const detail=lines.map(plain).filter(t=>!/has nowhere left/.test(t)).map(t=>t.startsWith(nm)?t.slice(nm.length).trim():t).filter(Boolean)[0]||'';
+  let el=document.getElementById('moveToast'); if(!el){ el=document.createElement('div'); el.id='moveToast'; document.body.appendChild(el); }
+  const board=document.querySelector('.board'); if(board){ const r=board.getBoundingClientRect(); el.style.left=(r.left+r.width/2)+'px'; el.style.top=Math.min(innerHeight-70, r.bottom-18)+'px'; }
+  el.style.setProperty('--pc', p.color);
+  el.innerHTML=`<span class="mt-who" style="color:${p.color}">${esc(nm)}</span> sends ${kind==='scientist'?'their scientist':'an assistant'} to ${esc(actLc)}, in ${esc(where)}.${detail?`<small>${esc(detail)}</small>`:''}`;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'), 2300*Math.max(PACE,0.2));
+}
 function todayModal(){
   const c=S.card; if(!c) return;
   const card = c.t==='ev' ? eventCardHTML(EVENTS.find(x=>x.id===c.id)) : encounterCardHTML(ENCOUNTERS.find(x=>x.id===c.id));

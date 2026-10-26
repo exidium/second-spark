@@ -698,6 +698,10 @@ i,em{font-style:normal}
 .tablebtn:hover .openhint{text-decoration:underline}
 
 
+#moveToast{position:fixed;transform:translate(-50%,-100%) translateY(10px);z-index:45;min-width:320px;max-width:min(640px,80vw);background:rgba(14,11,16,.96);border:1px solid var(--brass);border-left:5px solid var(--pc,var(--brass));border-radius:6px;padding:12px 18px;font-size:16px;line-height:1.3;color:var(--parch);box-shadow:0 12px 32px rgba(0,0,0,.75),0 0 0 1px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;text-align:center}
+#moveToast.show{opacity:1;transform:translate(-50%,-100%)}
+#moveToast .mt-who{font-family:var(--f-display);font-weight:700;font-size:18px;text-shadow:0 1px 2px #000}
+#moveToast small{display:block;font-size:13px;color:var(--parch-dim);margin-top:4px}
 /* ---------- Motion: entrance animations keyed on what changed since the last render (see diffForRender) ---------- */
 #veil{position:fixed;inset:0;pointer-events:none;z-index:40;opacity:0;transition:opacity 1.2s ease;background:radial-gradient(ellipse at 50% 40%,rgba(10,14,30,.25),rgba(4,6,14,.85) 80%)}
 body[data-phase="lab"] #veil{opacity:.6}
@@ -1482,7 +1486,12 @@ async function cityPhase(tok){
     for(let k=0;k<n;k++){ const i=(S.cur+k)%n, p=S.players[i]; if(leftN(p)>0 && legalAny(i)){ next=i; break; } else if(leftN(p)>0){ log(`${B(p)} has nowhere left to go and passes.`); p.left={scientist:0,assistant:0}; } }
     if(next<0) break;
     S.cur=next; save(); render();
-    if(S.players[next].ai){ await sleep(1200); if(tok!==gameToken) return; await aiTurn(next); render(); await sleep(350); }
+    if(S.players[next].ai){ await sleep(1200); if(tok!==gameToken) return;
+      const p=S.players[next], occBefore=new Set(Object.keys(S.occ)), labBefore={...p.labUsed}, logAt=S.log.length;
+      await aiTurn(next); render();
+      if(!S.fast && typeof moveToast==='function'){ const key=Object.keys(S.occ).find(k=>!occBefore.has(k)&&S.occ[k].p===next) || Object.keys(p.labUsed).map(k=>'lab.'+k).find(k=>p.labUsed[k.slice(4)]&&!labBefore[k.slice(4)]);
+        if(key) moveToast(next, key, S.occ[key]?S.occ[key].kind:p.labUsed[key.slice(4)], S.log.slice(logAt).map(l=>l.t)); }
+      await sleep(2400); }
     else { await humanTurn(); if(tok!==gameToken) return; }
     S.cur=(next+1)%n;
   }
@@ -2646,6 +2655,19 @@ async function labPlaceModal(){
 async function nightPrompt(){
   const go=await ask({title:`Night ${S.round}`, html:'<p>Everyone is home. Build, throw the switch and preserve in your laboratory, or end the night now.</p>', buttons:[{label:'End the night', value:false},{label:'Go to the laboratory', primary:true, value:true}]});
   if(go) labModal(); else handle('endlab',{});
+}
+// A rival's move, shown in a toast at the bottom middle of the map: "Name sends a meeple to do x, in location y", with the chronicle detail under it.
+function moveToast(i, key, kind, lines){
+  const p=S.players[i]; const lab=key.startsWith('lab.'); const sp=lab?LABSPOT[key.slice(4)]:SPACE[key]; const where=lab?'their laboratory':LOC[sp.loc].name;
+  const act=(lab?sp.name:sp.n).replace(/\s*\(.*\)$/,''); const actLc=act.charAt(0).toLowerCase()+act.slice(1);
+  const plain=t=>t.replace(/<\/(b|span|i)>\s*(?=<)/g,'$& ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').replace(/\s+([.,:;])/g,'$1').trim(); const nm=p.name;
+  const detail=lines.map(plain).filter(t=>!/has nowhere left/.test(t)).map(t=>t.startsWith(nm)?t.slice(nm.length).trim():t).filter(Boolean)[0]||'';
+  let el=document.getElementById('moveToast'); if(!el){ el=document.createElement('div'); el.id='moveToast'; document.body.appendChild(el); }
+  const board=document.querySelector('.board'); if(board){ const r=board.getBoundingClientRect(); el.style.left=(r.left+r.width/2)+'px'; el.style.top=Math.min(innerHeight-70, r.bottom-18)+'px'; }
+  el.style.setProperty('--pc', p.color);
+  el.innerHTML=`<span class="mt-who" style="color:${p.color}">${esc(nm)}</span> sends ${kind==='scientist'?'their scientist':'an assistant'} to ${esc(actLc)}, in ${esc(where)}.${detail?`<small>${esc(detail)}</small>`:''}`;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'), 2300*Math.max(PACE,0.2));
 }
 function todayModal(){
   const c=S.card; if(!c) return;
