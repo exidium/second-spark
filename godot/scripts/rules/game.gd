@@ -12,6 +12,7 @@ var D: Dictionary            # game data from data/game.json
 var S: Dictionary = {}       # game state
 var ui                       # presenter
 var token = 0               # bumps when a game is abandoned, so a running loop stops
+var no_save := false         # test runs (autoplay, screenshots) leave no saved game behind
 var LOC = {}
 var SPACE = {}
 var LABSPOT = {}
@@ -2307,7 +2308,7 @@ func ai_lab(i: int) -> void:
 # ================================================================ persistence
 
 func save() -> void:
-	if S.is_empty() or S.fast or S.phase == "end":
+	if S.is_empty() or S.fast or no_save or S.phase == "end":
 		return
 	var f = FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if f:

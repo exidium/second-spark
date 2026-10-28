@@ -1,30 +1,31 @@
-# Second Spark, Godot diorama
+# Second Spark (Godot)
 
-An experiment: the same Paris map as a 3D table in Godot 4.7. No full rules yet.
+The game, in Godot 4.7: one human against 1 to 3 AI rivals, 1819 Paris, a 3D table in a pixel look.
+Same rules and art as the web build in `../src` (D158).
 
-## Run it
-Open this `godot/` folder in Godot (Project Manager, Import, pick `project.godot`) and press Play, or from a terminal:
+## Play
+Open this folder in Godot (Project Manager, Import, pick `project.godot`) and press Play, or from a terminal at the repo root:
 
 ```
 godot --path godot
 ```
 
-## What it does
-- The painted map lies on a wooden table. Each place is a dark disc with its name and one ring per action space (gold rings are scientist only).
-- You have a scientist (top hat) and two assistants (flat caps) along the front edge. Click one to lift it, then click a glowing ring (one ring per action space) or the place's disc for its first free space. It hops along an arc and lands with a small squash.
-- Hover a space or a card to see what it does, in the panel at the top left.
-- Card rows: Research beside the Academy, Humanity beside Saint-Roch, Scoundrels beside the Docks. Researching or atoning takes the first card and leaves an empty spot until dawn; a hired scoundrel is replaced at once. Your cards lie in a fan along the front edge.
-- The three rivals take turns after you, each move shown in a toast at the bottom.
-- When everyone is placed, night falls (the light dims and turns blue, lanterns glow at each place). At dawn the meeples hop home and Day 2 begins.
-- Right-drag turns the table, the mouse wheel zooms.
+Click one of your meeples (or pick it in the side column), then click a glowing place or one of its rings. Each place opens a popup with what it does, its cards and its spaces. Right-drag turns the table, the mouse wheel zooms. At night the Laboratory button opens your operating table.
+
+## Test
+```
+npm run godot:sim     # 20 AI-only games, headless: stuck games, endings, winners
+npm run godot:ui      # one full game played as you through the real popups (prints AUTOPLAY END ...)
+godot --path godot -- --shot         # screenshots of your first turn, a place popup, the rivals and the lab, in ../tests/
+godot --path godot -- --shot-title   # the title screen
+```
 
 ## Files
-- `scripts/main.gd`: everything, built in code (table, places, meeples, turns, night and dawn, camera, HUD).
-- `data/game.json`: places, spaces, cards and rivals exported from `src/data.js`. Regenerate it after changing the web game's data: `node tools/export_godot_data.js`.
-- `assets/board.jpg`: a copy of `art/ui/board.jpg`.
-- `godot --path godot -- --shot` plays one move and saves three screenshots to `tests/` (git-ignored).
-
-## Next steps if this continues
-1. Port the rules: `src/engine.js` phase by phase (resources, space effects, cadavers, the laboratory).
-2. Popups as Godot Control scenes, the laboratory as its own 3D scene.
-3. Exports: Godot builds desktop, mobile and web from the same project.
+- `scripts/rules/game.gd`: every rule, the AI and scoring, ported from `src/engine.js`. No drawing.
+- `scripts/rules/null_presenter.gd`: the list of everything the rules ask a presenter (and the silent one used by the simulation).
+- `scripts/main.gd`: the presenter: title screen, layout, popups, your turn, the night, the end.
+- `scripts/view/board.gd`: the 3D table, meeples, card rows, night and day.
+- `scripts/ui/`: style, card faces, popups, side column, laboratory, meeple icon.
+- `data/game.json` and `assets/art/`: exported from `src/data.js` and `art/` by `node tools/export_godot_data.js`. Run it after changing either.
+- `assets/fonts/`: Amarante and EB Garamond (Open Font License).
+- `tests/sim.gd`: the headless simulation.

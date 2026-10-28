@@ -38,5 +38,18 @@ All four JS files are concatenated into one IIFE by `build.py`, so they share sc
 - **Public test build:** `npm run deploy` rebuilds and pushes `dist/` to the `gh-pages` branch, served at https://exidium.github.io/second-spark/. Commit to `main` first so the source matches.
 - **Single file:** `python3 build.py --embed` if someone needs one self-contained HTML (several MB).
 
-## Godot diorama
-`godot/` is a separate Godot 4.7 experiment (3D table, placement by space, card rows, night and dawn; no other rules). Run with `godot --path godot`. It reads `godot/data/game.json`, exported from `src/data.js` by `node tools/export_godot_data.js`; rerun that after changing the data. It is not part of the build or the tests; see `godot/README.md`.
+## Godot version (the real game from now on, D158)
+`godot/` is the Godot 4.7 game: same rules, same art, pixel look. The web page stays as the reference until Bruno approves the Godot version.
+```
+node tools/export_godot_data.js   # after any change to src/data.js or art/: writes godot/data/game.json, copies art
+godot --path godot                # play
+npm run godot:sim                 # 20 AI-only games, headless
+npm run godot:ui                  # one full game played as the human through the real popups
+tools/gdcheck.sh res://scripts/main.gd   # parse-check a script without hanging
+```
+- `scripts/rules/game.gd`: the rules (port of `src/engine.js`), no drawing. Human choices and animations go through the presenter (`null_presenter.gd` lists every method). Keep it in step with `engine.js` while both exist.
+- `scripts/main.gd`: the presenter and controller: title, layout, every popup, your turn, the night, the end, autoplay and screenshot modes (`-- --shot`, `-- --shot-title`).
+- `scripts/view/board.gd`: the 3D table, synced from the state with animations. Drawn at half resolution (`SHRINK`) for the pixel look.
+- `scripts/ui/`: `style.gd` (tokens, fonts, widgets), `cards.gd` (card faces), `modal.gd` (popups), `hud.gd` (side column), `lab.gd` (laboratory), `meeple_icon.gd`.
+- GDScript traps: lambdas capture locals by value (a button can't hold its own popup: use `_close_from`); `:=` can't infer types from Dictionary values; new `class_name`s need `godot --headless --path godot --import` before a parse check.
+- Same conventions as the web page: no em dashes, no italics, minimum 11px type, tooltips only on threshold squares and the Cards tile.

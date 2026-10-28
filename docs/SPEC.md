@@ -57,6 +57,15 @@ tools/pixelize.py    makes the game copies: 32 colours at 384px wide (--width) o
 ### 2.5 Test hooks
 `window.__spark` exposes `S`, `newGame(name, nRivals, charId, {fast, allAI})`, `loop`, `endLab`, `planBuild`, `build`, `playCard`, `canPlace`, `allKeys`, `aiChoose`.
 
+### 2.6 The Godot version (the game from now on)
+Bruno chose Godot as the real game (D158). `godot/` is a Godot 4.7 project that implements this specification:
+- `godot/scripts/rules/game.gd` is a line-by-line port of `src/engine.js`: every rule, event, encounter, card, the AI and scoring. It holds no drawing code. Every human decision and every animation goes through a presenter object (`null_presenter.gd` lists the methods).
+- `godot/data/game.json` is exported from `src/data.js` by `node tools/export_godot_data.js`, together with the art. `src/data.js` stays the one place to change numbers and cards.
+- The board is a 3D table drawn at half resolution and scaled up without smoothing, so it keeps the pixel look. Popups, the side panel, cards and the laboratory are Godot controls in the same fonts, colours and layout rules as the web page.
+- Tests: `npm run godot:sim` plays 20 AI-only games headless, and `npm run godot:ui` plays one full game as the human through the real popups and buttons.
+
+The web page stays as the reference build until the Godot version has been played through and approved.
+
 ---
 
 ## 3. Setup
