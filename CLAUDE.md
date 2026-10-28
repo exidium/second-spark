@@ -39,4 +39,4 @@ All four JS files are concatenated into one IIFE by `build.py`, so they share sc
 - **Single file:** `python3 build.py --embed` if someone needs one self-contained HTML (several MB).
 
 ## Godot diorama
-`godot/` is a separate Godot 4.7 experiment (3D table, placement and night only). Run with `godot --path godot`. It is not part of the build or the tests; see `godot/README.md`.
+`godot/` is a separate Godot 4.7 experiment (3D table, placement by space, card rows, night and dawn; no other rules). Run with `godot --path godot`. It reads `godot/data/game.json`, exported from `src/data.js` by `node tools/export_godot_data.js`; rerun that after changing the data. It is not part of the build or the tests; see `godot/README.md`.

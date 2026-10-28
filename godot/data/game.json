@@ -1,0 +1,916 @@
+{
+ "LOCS": [
+  {
+   "id": "cemetery",
+   "name": "Graveyard",
+   "place": "Père Lachaise",
+   "spaces": [
+    {
+     "k": "dig",
+     "n": "Dig up cadavers"
+    }
+   ],
+   "text": "Draw 3 cadavers. Resolve any you like for materials or expertise.",
+   "yields": "Stage III to IV muscle and organs, bone"
+  },
+  {
+   "id": "square",
+   "name": "Public Square",
+   "place": "Place de Grève",
+   "spaces": [
+    {
+     "k": "buy",
+     "n": "Buy a body (1 franc)"
+    }
+   ],
+   "text": "Pay 1 franc for one of the executed bodies on display. Only after an execution.",
+   "yields": "Stage I, the freshest you can get"
+  },
+  {
+   "id": "morgue",
+   "name": "Morgue",
+   "place": "Quai du Marché-Neuf",
+   "spaces": [
+    {
+     "k": "buy",
+     "n": "Buy cadavers (1 franc)"
+    }
+   ],
+   "text": "Pay 1 franc, draw 2 unclaimed cadavers, resolve any.",
+   "yields": "Stage II to III materials"
+  },
+  {
+   "id": "slaughter",
+   "name": "Slaughterhouse",
+   "place": "Montmartre",
+   "spaces": [
+    {
+     "k": "take",
+     "n": "Animal parts"
+    }
+   ],
+   "text": "Take 4 animal at stage II, or 3 at stage I.",
+   "yields": "Animal stands in for most materials, for a little less VP"
+  },
+  {
+   "id": "hospital",
+   "name": "Hospital",
+   "place": "Hôpital de la Charité",
+   "spaces": [
+    {
+     "k": "retrieve",
+     "n": "Retrieve cadaver"
+    },
+    {
+     "k": "work",
+     "n": "Work",
+     "sci": 1
+    },
+    {
+     "k": "volunteer",
+     "n": "Volunteer",
+     "sci": 1
+    }
+   ],
+   "text": "Retrieve a cadaver (reputation 7+), work a shift, or volunteer.",
+   "yields": "Stage I to II materials, francs, humanity"
+  },
+  {
+   "id": "academy",
+   "name": "Academy",
+   "place": "Institut de France",
+   "spaces": [
+    {
+     "k": "adv",
+     "n": "Advanced research",
+     "sci": 1
+    },
+    {
+     "k": "research",
+     "n": "Research"
+    },
+    {
+     "k": "lecture",
+     "n": "Lecture"
+    },
+    {
+     "k": "donate",
+     "n": "Donate",
+     "sci": 1
+    }
+   ],
+   "text": "Research for cards and expertise, lecture, or donate for reputation.",
+   "yields": "Expertise, research cards, reputation"
+  },
+  {
+   "id": "market",
+   "name": "Market",
+   "place": "Les Halles",
+   "spaces": [
+    {
+     "k": "trade",
+     "n": "Buy and sell"
+    }
+   ],
+   "text": "Sell bone and preserved flesh. Buy Leyden jars and ice.",
+   "yields": "Jars, ice, francs"
+  },
+  {
+   "id": "docks",
+   "name": "Docks",
+   "place": "Port Saint-Nicolas",
+   "spaces": [
+    {
+     "k": "hire",
+     "n": "Hire a scoundrel"
+    }
+   ],
+   "text": "Hire one of the three scoundrels on offer.",
+   "yields": "Materials, expertise or humanity"
+  },
+  {
+   "id": "alley",
+   "name": "Dark Alley",
+   "place": "Faubourg Saint-Marcel",
+   "spaces": [
+    {
+     "k": "murder",
+     "n": "Murder",
+     "sci": 1
+    }
+   ],
+   "text": "Murder for fresh materials. Costs 3 humanity and earns a police marker.",
+   "yields": "Stage I muscle 4, organ 4, blood 3, bone 2"
+  },
+  {
+   "id": "church",
+   "name": "Saint-Roch",
+   "place": "Rue Saint-Honoré",
+   "spaces": [
+    {
+     "k": "atone",
+     "n": "Atone"
+    }
+   ],
+   "text": "Take a humanity card. A scientist also gains 1 humanity.",
+   "yields": "Humanity cards"
+  },
+  {
+   "id": "first",
+   "name": "First Player",
+   "place": "Parvis Notre-Dame",
+   "spaces": [
+    {
+     "k": "first",
+     "n": "Become first player for the next day",
+     "nobump": 1
+    }
+   ],
+   "text": "Become first player. Can’t be bumped. When everyone has finished, you may move this meeple to another space and use it.",
+   "yields": ""
+  },
+  {
+   "id": "odeon",
+   "name": "Théâtre de l’Odéon",
+   "place": "Rive gauche",
+   "event": "odeon",
+   "spaces": [
+    {
+     "k": "show",
+     "n": "Be seen (+2 rep)",
+     "freebump": 1
+    }
+   ],
+   "text": "Opening night. +2 reputation. Each player may go once; bumping here is free and sends the meeple home.",
+   "yields": ""
+  }
+ ],
+ "BOARD_POS": {
+  "cemetery": {
+   "x": 12,
+   "y": 17,
+   "cards": "right"
+  },
+  "square": {
+   "x": 26,
+   "y": 31,
+   "cards": "right"
+  },
+  "slaughter": {
+   "x": 55,
+   "y": 15,
+   "cards": null
+  },
+  "church": {
+   "x": 79,
+   "y": 17,
+   "cards": "left"
+  },
+  "market": {
+   "x": 73,
+   "y": 36,
+   "cards": null
+  },
+  "first": {
+   "x": 48,
+   "y": 45,
+   "cards": null
+  },
+  "morgue": {
+   "x": 62,
+   "y": 55,
+   "cards": "right"
+  },
+  "hospital": {
+   "x": 20,
+   "y": 64,
+   "cards": "right"
+  },
+  "academy": {
+   "x": 45,
+   "y": 75,
+   "cards": "right"
+  },
+  "docks": {
+   "x": 70,
+   "y": 69,
+   "cards": "right"
+  },
+  "alley": {
+   "x": 84,
+   "y": 84,
+   "cards": null
+  },
+  "odeon": {
+   "x": 30,
+   "y": 89,
+   "cards": null
+  }
+ },
+ "RESEARCH": [
+  {
+   "id": "counter",
+   "name": "Countermeasures",
+   "when": "react",
+   "text": "Cancels a rival’s humanity card aimed at you (used automatically).",
+   "gain": {
+    "coin": 2
+   },
+   "mit": "ignoreDmg"
+  },
+  {
+   "id": "unethical",
+   "name": "Unethical Experiment",
+   "when": "alley",
+   "text": "At the Dark Alley or hiring a Cutthroat: spend 1 charged jar and skip the normal benefit.",
+   "gain": {
+    "exp": 5,
+    "hum": -1
+   },
+   "mit": "rerollAny"
+  },
+  {
+   "id": "preserve",
+   "name": "Pickling Jars",
+   "when": "market",
+   "text": "At the Market: +1 franc for every sale of preserved flesh.",
+   "gain": {},
+   "mit": "ignoreHeart"
+  },
+  {
+   "id": "steady",
+   "name": "Steady Hands",
+   "when": "build",
+   "text": "When building a part: need 1 fewer of each material.",
+   "gain": {
+    "exp": 2
+   },
+   "mit": "rerollDmg"
+  },
+  {
+   "id": "tutor",
+   "name": "Private Pupil",
+   "when": "any",
+   "text": "Take on a wealthy pupil.",
+   "gain": {
+    "rep": 2,
+    "coin": 3
+   },
+   "mit": "ignoreDmg"
+  },
+  {
+   "id": "guest",
+   "name": "Guest Lecturer",
+   "when": "lecture",
+   "text": "When lecturing: gain this as well.",
+   "gain": {
+    "rep": 2,
+    "coin": 2
+   },
+   "mit": "rerollAny"
+  },
+  {
+   "id": "healing",
+   "name": "Healing Salve",
+   "when": "any",
+   "text": "Remove all damage from your parts.",
+   "gain": {
+    "exp": 2
+   },
+   "mit": "rerollGray",
+   "effect": "heal"
+  },
+  {
+   "id": "midnight",
+   "name": "Burning the Candle",
+   "when": "turn",
+   "text": "On your turn: use one of your placed meeples’ spaces again, paying its costs. It is not a new placement.",
+   "gain": {},
+   "mit": "rerollBlue"
+  },
+  {
+   "id": "daisy",
+   "name": "Fresh as Morning",
+   "when": "cadaver",
+   "text": "When resolving a cadaver: its materials count as stage I.",
+   "gain": {
+    "rep": 2,
+    "coin": 2
+   },
+   "mit": "rerollDmg"
+  },
+  {
+   "id": "dissect",
+   "name": "Close Dissection",
+   "when": "cadaver12",
+   "text": "When resolving a stage I or II cadaver: pay its cost, discard it, gain this instead.",
+   "gain": {
+    "exp": 4
+   },
+   "mit": "rerollGray"
+  },
+  {
+   "id": "study2",
+   "name": "Evening Study",
+   "when": "any",
+   "text": "Read late into the night.",
+   "gain": {
+    "exp": 2
+   },
+   "mit": "rerollGray"
+  },
+  {
+   "id": "study3",
+   "name": "Practical Study",
+   "when": "any",
+   "text": "Practise on a cat.",
+   "gain": {
+    "exp": 3
+   },
+   "mit": "rerollBlue"
+  },
+  {
+   "id": "electro",
+   "name": "Electrolysis",
+   "when": "cadaver123",
+   "text": "When resolving a stage I to III cadaver: spend 1 charged jar, pay its cost, discard it, gain this instead.",
+   "gain": {
+    "exp": 4,
+    "rep": 2
+   },
+   "mit": "rerollGray"
+  },
+  {
+   "id": "demo",
+   "name": "Public Galvanism",
+   "when": "any",
+   "text": "Spend 1 charged jar and 2 animal to make a dead dog dance for a crowd.",
+   "gain": {
+    "exp": 3,
+    "rep": 2,
+    "coin": 1,
+    "hum": -1
+   },
+   "mit": "rerollBlue",
+   "effect": "demo"
+  },
+  {
+   "id": "transfusion",
+   "name": "Transfusion",
+   "when": "blood",
+   "text": "When giving blood: gain this instead of the blood.",
+   "gain": {
+    "exp": 3,
+    "rep": 1,
+    "coin": 1
+   },
+   "mit": "rerollGray"
+  },
+  {
+   "id": "publish",
+   "name": "Publish a Paper",
+   "when": "turn",
+   "text": "On your turn: your unplaced scientist sits out this round to write.",
+   "gain": {
+    "exp": 2,
+    "rep": 3,
+    "coin": 1
+   },
+   "mit": "rerollDmg",
+   "effect": "publish"
+  }
+ ],
+ "HUMANITY": [
+  {
+   "id": "aid1",
+   "name": "Whisper to the Captain",
+   "when": "aid",
+   "text": "Pay 1 franc: the Captain moves 1 step closer to the end. Not from Day 11. One aid card per day.",
+   "cost": 1,
+   "gain": {
+    "hum": 2
+   },
+   "aid": 1
+  },
+  {
+   "id": "aid2",
+   "name": "Fund the Captain",
+   "when": "aid",
+   "text": "Pay 2 francs: the Captain moves 1 step closer to the end. Not from Day 11. One aid card per day.",
+   "cost": 2,
+   "gain": {
+    "hum": 3
+   },
+   "aid": 1
+  },
+  {
+   "id": "aid0",
+   "name": "Tell the Captain Everything",
+   "when": "aid",
+   "text": "The Captain moves 1 step closer to the end. Not from Day 11. One aid card per day.",
+   "cost": 0,
+   "gain": {
+    "hum": 1
+   },
+   "aid": 1
+  },
+  {
+   "id": "influence",
+   "name": "Petition the Prefect",
+   "when": "any",
+   "text": "All cadavers waiting at the Hospital are given a burial.",
+   "gain": {
+    "hum": 1
+   },
+   "effect": "clearHosp"
+  },
+  {
+   "id": "trap",
+   "name": "A Trap of Your Own",
+   "when": "react",
+   "text": "When the Creature visits you, spend 1 charged jar to send him away.",
+   "gain": {
+    "hum": 3
+   }
+  },
+  {
+   "id": "mercy",
+   "name": "Royal Pardon",
+   "when": "react",
+   "text": "When an execution is announced, pay 2 francs to stop it.",
+   "gain": {
+    "hum": 2,
+    "rep": 2
+   }
+  },
+  {
+   "id": "burial",
+   "name": "A Decent Burial",
+   "when": "square",
+   "text": "When buying a body at the Public Square, bury it instead.",
+   "gain": {
+    "hum": 3,
+    "rep": 2
+   }
+  },
+  {
+   "id": "graveguard",
+   "name": "Night at the Graves",
+   "when": "any",
+   "text": "The Graveyard and hiring Body Snatchers are closed for the rest of today.",
+   "gain": {
+    "hum": 1
+   },
+   "close": [
+    "cemetery",
+    "snatch"
+   ]
+  },
+  {
+   "id": "moral",
+   "name": "Shame the Morgue",
+   "when": "any",
+   "text": "The Morgue is closed for the rest of today.",
+   "gain": {
+    "hum": 1
+   },
+   "close": [
+    "morgue"
+   ]
+  },
+  {
+   "id": "animal",
+   "name": "Mercy for Beasts",
+   "when": "lecture",
+   "text": "When lecturing, argue against vivisection instead of gaining the normal benefit.",
+   "gain": {
+    "hum": 3
+   }
+  },
+  {
+   "id": "patrol",
+   "name": "Walk the Quays",
+   "when": "any",
+   "text": "The Docks are closed for the rest of today.",
+   "gain": {
+    "hum": 1
+   },
+   "close": [
+    "docks"
+   ]
+  },
+  {
+   "id": "sabotage",
+   "name": "Cut the Wires",
+   "when": "target",
+   "text": "Choose a rival: their next throw of the switch loses 1 die.",
+   "gain": {
+    "hum": 1
+   },
+   "effect": "sabotage"
+  },
+  {
+   "id": "thwart",
+   "name": "Cross Their Path",
+   "when": "any",
+   "text": "The next rival to place in Paris must choose a different space.",
+   "gain": {
+    "hum": 2
+   },
+   "effect": "thwart"
+  },
+  {
+   "id": "human",
+   "name": "The Dignity of the Dead",
+   "when": "lecture",
+   "text": "When lecturing, speak for the dead instead of gaining the normal benefit.",
+   "gain": {
+    "hum": 3
+   }
+  },
+  {
+   "id": "snatcher",
+   "name": "Urchin Raid",
+   "when": "target",
+   "text": "Choose a rival: throw away up to 3 of their materials, one of each colour.",
+   "gain": {
+    "hum": 2
+   },
+   "effect": "snatch"
+  },
+  {
+   "id": "burn",
+   "name": "A Careless Lantern",
+   "when": "target",
+   "text": "Choose a rival with 2+ research cards: one of them burns.",
+   "gain": {
+    "hum": 2
+   },
+   "effect": "burn"
+  }
+ ],
+ "SCOUNDRELS": [
+  {
+   "kind": "thief",
+   "name": "Hospital Thief",
+   "cost": 2,
+   "hcost": 1,
+   "draw": 2
+  },
+  {
+   "kind": "thief",
+   "name": "Hospital Thief",
+   "cost": 2,
+   "hcost": 1,
+   "draw": 2
+  },
+  {
+   "kind": "thief",
+   "name": "Hospital Thief",
+   "cost": 1,
+   "hcost": 1,
+   "draw": 1
+  },
+  {
+   "kind": "thief",
+   "name": "Hospital Thief",
+   "cost": 1,
+   "hcost": 1,
+   "draw": 1
+  },
+  {
+   "kind": "dog",
+   "name": "Dog Catcher",
+   "cost": 2,
+   "hcost": 1,
+   "exp": 3,
+   "expH": 1,
+   "hum": 5,
+   "mats": [
+    [
+     "animal",
+     1,
+     8
+    ]
+   ]
+  },
+  {
+   "kind": "dog",
+   "name": "Dog Catcher",
+   "cost": 1,
+   "hcost": 0,
+   "exp": 2,
+   "expH": 1,
+   "hum": 3,
+   "mats": [
+    [
+     "animal",
+     1,
+     5
+    ]
+   ]
+  },
+  {
+   "kind": "dog",
+   "name": "Dog Catcher",
+   "cost": 1,
+   "hcost": 0,
+   "exp": 2,
+   "expH": 1,
+   "hum": 3,
+   "mats": [
+    [
+     "animal",
+     1,
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "dog",
+   "name": "Dog Catcher",
+   "cost": 1,
+   "hcost": 0,
+   "exp": 2,
+   "expH": 1,
+   "hum": 3,
+   "mats": [
+    [
+     "animal",
+     1,
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "cut",
+   "name": "Cutthroat",
+   "cost": 2,
+   "hcost": 1,
+   "exp": 2,
+   "mats": [
+    [
+     "muscle",
+     1,
+     4
+    ],
+    [
+     "organ",
+     1,
+     4
+    ],
+    [
+     "blood",
+     1,
+     4
+    ],
+    [
+     "bone",
+     0,
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "cut",
+   "name": "Cutthroat",
+   "cost": 1,
+   "hcost": 2,
+   "exp": 2,
+   "mats": [
+    [
+     "muscle",
+     1,
+     3
+    ],
+    [
+     "organ",
+     1,
+     3
+    ],
+    [
+     "blood",
+     1,
+     3
+    ],
+    [
+     "bone",
+     0,
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "cut",
+   "name": "Cutthroat",
+   "cost": 1,
+   "hcost": 1,
+   "exp": 2,
+   "mats": [
+    [
+     "muscle",
+     1,
+     4
+    ],
+    [
+     "organ",
+     1,
+     3
+    ],
+    [
+     "blood",
+     1,
+     3
+    ],
+    [
+     "bone",
+     0,
+     2
+    ]
+   ]
+  },
+  {
+   "kind": "cut",
+   "name": "Cutthroat",
+   "cost": 1,
+   "hcost": 1,
+   "exp": 2,
+   "mats": [
+    [
+     "muscle",
+     1,
+     3
+    ],
+    [
+     "organ",
+     1,
+     4
+    ],
+    [
+     "blood",
+     1,
+     3
+    ],
+    [
+     "bone",
+     0,
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "snatch",
+   "name": "Body Snatcher",
+   "cost": 2,
+   "hcost": 0,
+   "exp": 2,
+   "mats": [
+    [
+     "muscle",
+     3,
+     6
+    ],
+    [
+     "organ",
+     3,
+     4
+    ],
+    [
+     "bone",
+     0,
+     5
+    ]
+   ]
+  },
+  {
+   "kind": "snatch",
+   "name": "Body Snatcher",
+   "cost": 1,
+   "hcost": 0,
+   "exp": 1,
+   "mats": [
+    [
+     "muscle",
+     3,
+     4
+    ],
+    [
+     "organ",
+     3,
+     4
+    ],
+    [
+     "bone",
+     0,
+     3
+    ]
+   ]
+  },
+  {
+   "kind": "snatch",
+   "name": "Body Snatcher",
+   "cost": 1,
+   "hcost": 0,
+   "exp": 1,
+   "mats": [
+    [
+     "muscle",
+     3,
+     4
+    ],
+    [
+     "organ",
+     3,
+     3
+    ],
+    [
+     "bone",
+     0,
+     4
+    ]
+   ]
+  },
+  {
+   "kind": "bone",
+   "name": "The Bone Collector",
+   "cost": 1,
+   "hcost": 0,
+   "mats": [
+    [
+     "bone",
+     0,
+     8
+    ]
+   ]
+  }
+ ],
+ "RIVALS": [
+  {
+   "name": "Dr Ambrose Pell",
+   "color": "#d6675f",
+   "ruthless": 1,
+   "scholar": 0,
+   "careful": 0
+  },
+  {
+   "name": "Mme Odile Varnier",
+   "color": "#74b393",
+   "ruthless": 0,
+   "scholar": 0,
+   "careful": 1
+  },
+  {
+   "name": "Prof Horace Quill",
+   "color": "#cda65c",
+   "ruthless": 0,
+   "scholar": 1,
+   "careful": 0
+  }
+ ],
+ "YOU_COLOR": "#9fd0ff",
+ "LAB_POS": {
+  "x": 20,
+  "y": 86
+ },
+ "MAX_ROUNDS": 12
+}
