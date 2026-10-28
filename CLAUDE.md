@@ -37,3 +37,6 @@ All four JS files are concatenated into one IIFE by `build.py`, so they share sc
 `dist/` is the whole deliverable: the page plus `dist/art/`. Open it through a server or as a folder, never as pasted HTML.
 - **Public test build:** `npm run deploy` rebuilds and pushes `dist/` to the `gh-pages` branch, served at https://exidium.github.io/second-spark/. Commit to `main` first so the source matches.
 - **Single file:** `python3 build.py --embed` if someone needs one self-contained HTML (several MB).
+
+## Godot diorama
+`godot/` is a separate Godot 4.7 experiment (3D table, placement and night only). Run with `godot --path godot`. It is not part of the build or the tests; see `godot/README.md`.

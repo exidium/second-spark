@@ -483,3 +483,6 @@ When your day turn begins, "Your turn, pick a meeple, then a location." rises fr
 
 **D155. The Your turn toast uses one type size.** (Bruno: "keep font size of the toast to one size.")
 "Your turn" is bold blue in the same 16px body type as the rest of the line.
+
+**D156. A Godot 4 diorama in `godot/`.** (Bruno: "I wanna try Godot, just for the sake of it!" He chose a folder in this repo, a 3D table diorama as the first slice, and installing Godot with Homebrew.)
+Godot 4.7.2 is installed with Homebrew. `godot/` holds a self-contained project built in code (`scripts/main.gd`): the painted map on a wooden table, each place a disc with its name and one ring per space (gold for scientist only), 3D meeples (top hat scientist, flat-cap assistants) in each player's colour along the table edges. You click a meeple, then a glowing place; it hops along an arc and lands with a squash. Three rivals then place at random legal spaces with a toast each. Once everyone is out, night falls (sun dims to blue, lanterns light at each place) and at dawn everyone hops home. Right-drag orbits, the wheel zooms. No game rules beyond placement and scientist-only spaces; the browser game stays the real game. The web build and tests are unaffected.
