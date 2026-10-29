@@ -60,6 +60,10 @@ func _ready() -> void:
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	bg.modulate = Color(0.45, 0.42, 0.5)
 	ui.add_child(bg)
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--size="):     # screenshots at another window size: -- --shot --size=2560x1400
+			var wh := a.substr(7).split("x")
+			DisplayServer.window_set_size(Vector2i(int(wh[0]), int(wh[1])))
 	shot_mode = "--shot" in OS.get_cmdline_user_args()
 	autoplay = "--autoplay" in OS.get_cmdline_user_args()
 	if autoplay:
@@ -90,6 +94,7 @@ func _build_game_layout() -> void:
 	_fit_board()
 	if not ui.resized.is_connected(_fit_board):
 		ui.resized.connect(_fit_board)
+		get_tree().root.size_changed.connect(_fit_board)
 	board_vp = SubViewport.new()
 	board_vp.physics_object_picking = true
 	board_vp.msaa_3d = Viewport.MSAA_DISABLED
@@ -149,8 +154,16 @@ func _build_game_layout() -> void:
 func _fit_board() -> void:
 	if board_box == null or not is_instance_valid(board_box):
 		return
+	# The board keeps RENDER screen pixels per board pixel whatever the window size: undo the window stretch.
+	var stretch := 1.0
+	var vis := get_viewport().get_visible_rect().size
+	if vis.x > 0 and vis.y > 0:
+		var win := Vector2(DisplayServer.window_get_size())
+		stretch = minf(win.x / vis.x, win.y / vis.y)
+	var f := RENDER / maxf(stretch, 0.25)
+	board_box.scale = Vector2(f, f)
 	board_box.position = Vector2.ZERO
-	board_box.size = Vector2(maxf(64.0, ui.size.x - SIDE_W), ui.size.y) / RENDER
+	board_box.size = Vector2(maxf(64.0, ui.size.x - SIDE_W), ui.size.y) / f
 
 
 func _on_mat_clicked(what: String) -> void:
@@ -172,9 +185,22 @@ func _rebuild_tags() -> void:
 		if t.kind == "points":
 			c = LabView.points_grid(g, t.size)
 		else:
-			c = Style.label(t.text, t.size, t.color, Style.display if t.font == "display" else Style.body)
-			c.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
-			c.add_theme_constant_override("outline_size", 5)
+			var l := Style.label(t.text, t.size, t.color, Style.display if t.font == "display" else Style.body)
+			l.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+			l.add_theme_constant_override("outline_size", 5)
+			c = l
+			if t.get("plate", false):
+				# A dark nameplate, so the name reads over the busy map.
+				l.remove_theme_constant_override("outline_size")
+				var pc := PanelContainer.new()
+				var sb := Style.box(Color(Style.INK, 0.82), Color(Style.BRASS, 0.55), 1, 4)
+				sb.content_margin_left = 7
+				sb.content_margin_right = 7
+				sb.content_margin_top = 0
+				sb.content_margin_bottom = 1
+				pc.add_theme_stylebox_override("panel", sb)
+				pc.add_child(l)
+				c = pc
 		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tag_layer.add_child(c)
 		tag_nodes.append([t, c])
@@ -197,13 +223,15 @@ func _place_tags() -> void:
 		if not vis:
 			continue
 		if resize:
-			if c is Label:
-				c.add_theme_font_size_override("font_size", maxi(11, roundi(t.size * k)))
+			var l: Label = c if c is Label else (c.get_child(0) if c is PanelContainer else null)
+			if l != null:
+				l.add_theme_font_size_override("font_size", maxi(11, roundi(t.size * k)))
+				l.reset_size()
 				c.reset_size()
 			else:
 				c.scale = Vector2(k, k)
 		var sz: Vector2 = c.size * c.scale
-		c.position = (board.world_to_screen(t.pos) * RENDER - sz / 2).round()
+		c.position = (board.world_to_screen(t.pos) * board_box.scale.x - sz / 2).round()
 
 
 func _on_hover(bb: String) -> void:
@@ -455,7 +483,7 @@ func rival_moved(i: int, key: String, kind: String, lines: Array) -> void:
 	toast_layer.add_child(t)
 	move_toasts[i] = t
 	await get_tree().process_frame
-	var at: Vector2 = board.key_screen_pos(i, key) * RENDER
+	var at: Vector2 = board.key_screen_pos(i, key) * board_box.scale.x
 	var pos := at - Vector2(t.size.x / 2, t.size.y + 12)
 	pos.x = clampf(pos.x, 8, toast_layer.size.x - t.size.x - 8)
 	pos.y = clampf(pos.y, 8, toast_layer.size.y - t.size.y - 8)
@@ -703,7 +731,7 @@ func _on_place_clicked(id: String) -> void:
 				acts.append(b)
 			else:
 				for a in _scoundrel_actions(p, c, can):
-					var b := Style.button(a.label, a.primary, 14)
+					var b := Style.button(a.label, a.get("primary", false), 14)
 					b.disabled = not a.ok
 					var pv = a.value
 					b.pressed.connect(func():

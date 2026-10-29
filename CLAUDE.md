@@ -48,8 +48,8 @@ npm run godot:ui                  # one full game played as the human through th
 tools/gdcheck.sh res://scripts/main.gd   # parse-check a script without hanging
 ```
 - `scripts/rules/game.gd`: the rules (port of `src/engine.js`), no drawing. Human choices and animations go through the presenter (`null_presenter.gd` lists every method). Keep it in step with `engine.js` while both exist.
-- `scripts/main.gd`: the presenter and controller: title, layout, every popup, your turn, the night, the end, autoplay and screenshot modes (`-- --shot`, `-- --shot-title`).
-- `scripts/view/board.gd`: the 3D table and your player board below it (`_build_mat`, `sync_mat`), synced from the state with animations. Drawn at 1/1.5 resolution (`RENDER` in `main.gd`) for the pixel look. Never put text in 3D: add a `_tag()` and `main.gd` draws it as a crisp 2D label over that point (`_rebuild_tags`, `_place_tags`).
+- `scripts/main.gd`: the presenter and controller: title, layout, every popup, your turn, the night, the end, autoplay and screenshot modes (`-- --shot`, `-- --shot-title`, add `--size=2560x1400` for another window size).
+- `scripts/view/board.gd`: the 3D table and your player board below it (`_build_mat`, `sync_mat`), synced from the state with animations. Drawn at 1.5 screen pixels per board pixel at any window size (`RENDER`, `_fit_board` in `main.gd`) for the pixel look. Never put text in 3D: add a `_tag()` and `main.gd` draws it as a crisp 2D label over that point (`_rebuild_tags`, `_place_tags`).
 - `scripts/ui/`: `style.gd` (tokens, fonts, widgets), `cards.gd` (card faces), `modal.gd` (popups), `hud.gd` (side column), `lab.gd` (laboratory), `meeple_icon.gd`.
 - GDScript traps: lambdas capture locals by value (a button can't hold its own popup: use `_close_from`); `:=` can't infer types from Dictionary values; new `class_name`s need `godot --headless --path godot --import` before a parse check.
 - Same conventions as the web page: no em dashes, no italics, minimum 11px type, tooltips only on threshold squares (the cards on your board explain themselves through the hover panel, like places).

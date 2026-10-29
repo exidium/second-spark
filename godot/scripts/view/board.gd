@@ -131,8 +131,8 @@ func _build_table() -> void:
 
 
 ## A crisp 2D label that main.gd keeps over a point of the table (text on the 3D board would be pixelated).
-func _tag(id: String, text: String, pos: Vector3, node: Node3D = null, size := 18, color := Style.PARCH, font := "display", kind := "label") -> void:
-	tags.append({"id": id, "kind": kind, "text": text, "pos": pos, "node": node, "size": size, "color": color, "font": font})
+func _tag(id: String, text: String, pos: Vector3, node: Node3D = null, size := 18, color := Style.PARCH, font := "display", kind := "label", plate := false) -> void:
+	tags.append({"id": id, "kind": kind, "text": text, "pos": pos, "node": node, "size": size, "color": color, "font": font, "plate": plate})
 
 
 ## A place: a dark disc with its name, one ring per action space, a click target per ring, a lantern for the night.
@@ -155,7 +155,7 @@ func _make_place(id: String, name: String, pos: Vector3, keys: Array, sci: Array
 	disc.material_override = dm
 	disc.position.y = 0.03
 	root.add_child(disc)
-	_tag("place:" + id, name, pos + Vector3(0, 0.7, 0), root, 19)
+	_tag("place:" + id, name, pos + Vector3(0, 0.7, 0), root, 20, Style.PARCH, "display", "label", true)
 	var slots := []
 	var rings := []
 	for k in n:
