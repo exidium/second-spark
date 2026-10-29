@@ -5,8 +5,8 @@ extends Node3D
 var town: Town
 var cam_rig: Node3D
 var cam: Camera3D
-var target := Vector3(10, 0, 20)
-var yaw := deg_to_rad(-28.0)
+var target := Vector3(-40, 0, -80)
+var yaw := deg_to_rad(0.0)
 var pitch := deg_to_rad(-38.0)
 var dist := 480.0
 var turning := false
@@ -14,6 +14,7 @@ var panning := false
 var label_layer: CanvasLayer
 var label_nodes := []
 var rain: GPUParticles3D
+const RAIN := false   # the board is a dry night; the drizzle stays available
 
 
 func _ready() -> void:
@@ -45,22 +46,22 @@ func _build_world() -> void:
 	var env := Environment.new()
 	var sky := Sky.new()
 	var sm := ProceduralSkyMaterial.new()
-	sm.sky_top_color = Color("#5d646e")
-	sm.sky_horizon_color = Color("#8a8f96")
-	sm.sky_curve = 0.2
-	sm.ground_horizon_color = Color("#6c7076")
-	sm.ground_bottom_color = Color("#3a3d42")
+	sm.sky_top_color = Color("#141a28")
+	sm.sky_horizon_color = Color("#3e4658")
+	sm.sky_curve = 0.18
+	sm.ground_horizon_color = Color("#2d3340")
+	sm.ground_bottom_color = Color("#141720")
 	sm.sun_angle_max = 0.0
 	sky.sky_material = sm
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = 1.35
+	env.ambient_light_energy = 1.3
 	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	env.tonemap_exposure = 1.1
+	env.tonemap_exposure = 1.2
 	env.glow_enabled = true
-	env.glow_intensity = 0.55
+	env.glow_intensity = 0.7
 	env.glow_hdr_threshold = 1.1
 	env.ssao_enabled = true
 	env.ssao_radius = 3.0
@@ -70,22 +71,22 @@ func _build_world() -> void:
 	env.ssr_max_steps = 48
 	env.ssr_fade_in = 0.15
 	env.ssr_fade_out = 2.0
-	env.fog_enabled = true
+	env.fog_enabled = not ("--nofog" in OS.get_cmdline_user_args())
 	env.fog_mode = Environment.FOG_MODE_DEPTH
-	env.fog_light_color = Color("#7d838b")
+	env.fog_light_color = Color("#2a3140")
 	env.fog_density = 1.0
-	env.fog_depth_begin = 380.0
-	env.fog_depth_end = 1150.0
+	env.fog_depth_begin = 520.0
+	env.fog_depth_end = 1600.0
 	env.fog_depth_curve = 1.3
 	env.adjustment_enabled = true
-	env.adjustment_saturation = 0.6
+	env.adjustment_saturation = 0.72
 	env.adjustment_contrast = 1.05
 	we.environment = env
 	add_child(we)
-	# Overcast daylight: soft, from high up, with blurred shadows.
+	# Moonlight: cool, from high up, with soft shadows.
 	var sun := DirectionalLight3D.new()
-	sun.light_color = Color("#c9d0d8")
-	sun.light_energy = 1.0
+	sun.light_color = Color("#b9c4dc")
+	sun.light_energy = 1.1
 	sun.shadow_enabled = true
 	sun.shadow_blur = 4.0
 	sun.directional_shadow_max_distance = 1200.0
@@ -98,7 +99,8 @@ func _build_world() -> void:
 	cam.near = 2.0
 	cam.far = 6000.0
 	cam_rig.add_child(cam)
-	_build_rain()
+	if RAIN:
+		_build_rain()
 
 
 ## A light drizzle: thin slanted streaks in a box that follows the camera's target.
@@ -224,10 +226,10 @@ func _save(path: String) -> void:
 func _shots() -> void:
 	await get_tree().create_timer(1.0).timeout
 	await _save("res://../tests/town-1.png")
-	_view(Vector3(40, 0, -60), -20, -32, 230)
+	_view(Vector3(-54, 0, -372), 10, -30, 260)
 	await _save("res://../tests/town-2.png")
-	_view(Vector3(80, 0, 150), -15, -30, 260)
+	_view(Vector3(36, 0, 360), -25, -30, 300)
 	await _save("res://../tests/town-3.png")
-	_view(Vector3(0, 0, 40), 0, -70, 900)
+	_view(Vector3(0, 0, 0), 0, -72, 1150)
 	await _save("res://../tests/town-4.png")
 	get_tree().quit()

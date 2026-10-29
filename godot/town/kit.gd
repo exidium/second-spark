@@ -6,6 +6,8 @@ extends RefCounted
 var st := {}
 var mats := {}
 var xf := Transform3D.IDENTITY
+var uv_off := Vector2.ZERO           # shifts every texture, so neighbouring houses never line up
+var soot := 0.0                       # how much darker walls get at the ground
 
 
 func _init(m: Dictionary) -> void:
@@ -21,6 +23,11 @@ func _s(k: String) -> SurfaceTool:
 
 
 func tri(k: String, a: Vector3, b: Vector3, c: Vector3, ua: Vector2, ub: Vector2, uc: Vector2, col := Color.WHITE) -> void:
+	tri_c(k, a, b, c, ua, ub, uc, col, col, col)
+
+
+## A triangle with a colour per corner.
+func tri_c(k: String, a: Vector3, b: Vector3, c: Vector3, ua: Vector2, ub: Vector2, uc: Vector2, ca: Color, cb: Color, cc: Color) -> void:
 	var n := (b - a).cross(c - a)
 	if n.length_squared() < 1e-12:
 		return
@@ -34,12 +41,15 @@ func tri(k: String, a: Vector3, b: Vector3, c: Vector3, ua: Vector2, ub: Vector2
 		var tu := ub
 		ub = uc
 		uc = tu
+		var tc := cb
+		cb = cc
+		cc = tc
 	var s := _s(k)
 	# Godot's front faces wind clockwise seen from their normal side.
-	for p in [[a, ua], [c, uc], [b, ub]]:
-		s.set_color(col)
+	for p in [[a, ua, ca], [c, uc, cc], [b, ub, cb]]:
+		s.set_color(p[2])
 		s.set_normal(n)
-		s.set_uv(p[1])
+		s.set_uv((p[1] as Vector2) + uv_off)
 		s.add_vertex(xf * (p[0] as Vector3))
 
 
@@ -52,7 +62,10 @@ func quad(k: String, a: Vector3, b: Vector3, c: Vector3, d: Vector3, ua: Vector2
 func wall(k: String, p0: Vector2, p1: Vector2, y0: float, y1: float, tw: float, th: float, col := Color.WHITE) -> void:
 	var u1 := p0.distance_to(p1) / tw
 	var v1 := (y1 - y0) / th
-	quad(k, Vector3(p0.x, y0, p0.y), Vector3(p1.x, y0, p1.y), Vector3(p1.x, y1, p1.y), Vector3(p0.x, y1, p0.y), Vector2(0, v1), Vector2(u1, v1), Vector2(u1, 0), Vector2(0, 0), col)
+	var low := col * (1.0 - soot * clampf(1.0 - y0 / 4.0, 0.0, 1.0))
+	low.a = 1.0
+	tri_c(k, Vector3(p0.x, y0, p0.y), Vector3(p1.x, y0, p1.y), Vector3(p1.x, y1, p1.y), Vector2(0, v1), Vector2(u1, v1), Vector2(u1, 0), low, low, col)
+	tri_c(k, Vector3(p0.x, y0, p0.y), Vector3(p1.x, y1, p1.y), Vector3(p0.x, y1, p0.y), Vector2(0, v1), Vector2(u1, 0), Vector2(0, 0), low, col, col)
 
 
 func walls(k: String, c: Vector2, w: float, d: float, y0: float, y1: float, tw: float, th: float, col := Color.WHITE) -> void:

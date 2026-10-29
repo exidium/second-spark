@@ -1064,7 +1064,7 @@ Texture of weathered dark wooden planks, vertical boards with nails, rot and gri
 Top-down texture of the dark murky river Seine at night: deep green-black water with faint ripples and a few pale reflections, oily and still. Pixel art, chunky visible pixels, limited dark muted palette, low contrast, night-time gloom of Paris in 1819. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows. No text, no people, no border, no vignette. Canvas 64 by 64 pixels.
 ```
 
-## Town (8) · the textures of the Godot city (D169, D170)
+## Town (15) · the textures of the Godot city (D169 to D171)
 
 Gothic, grey and wet. Two candidates each, the pick checked tiled 2 x 2, then `art/town/<file>.webp` at 512px. `water.webp` and `grass.webp` are kept from D169.
 
@@ -1102,4 +1102,46 @@ Top-down view of a wet dark granite cobbled street at dusk in the rain, small ro
 
 ```
 Top-down view of wet grey stone pavement flagstones, large rectangular slabs, dark joints, rain-darkened. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
+```
+
+### wall-limestone → `wall-limestone.png`
+
+```
+Facade of a gothic Victorian town house, exactly one storey high and one bay wide, one tall narrow pointed-arch window in the middle with dark glass and a carved stone hood mould: pale weathered Portland limestone ashlar, rain streaks, a thin string course along the bottom. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
+```
+
+### wall-blackstone → `wall-blackstone.png`
+
+```
+Facade of a gothic Victorian town house, exactly one storey high and one bay wide, one tall narrow pointed-arch window in the middle with dark glass: heavily soot-blackened rough stone, almost black with grey highlights, grime streaks, a thin stone band along the bottom. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
+```
+
+### wall-stockbrick → `wall-stockbrick.png`
+
+```
+Facade of a gothic Victorian terrace house, exactly one storey high and one bay wide, one tall narrow pointed-arch window in the middle with dark glass and a pale stone surround: yellow-grey London stock brick, sooty patches, a thin stone band along the bottom. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
+```
+
+### wall-brownbrick → `wall-brownbrick.png`
+
+```
+Facade of a gothic Victorian terrace house, exactly one storey high and one bay wide, one tall narrow pointed-arch window in the middle with dark glass and a dark brick arch: dark brown soot-stained brick, damp, a thin band along the bottom. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
+```
+
+### wall-stucco → `wall-stucco.png`
+
+```
+Facade of a gothic Victorian town house, exactly one storey high and one bay wide, one tall narrow pointed-arch window in the middle with dark glass with a moulded surround: cream painted stucco render, peeling and soot-streaked, grey-cream, a thin cornice band along the bottom. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
+```
+
+### roof-fishscale → `roof-fishscale.png`
+
+```
+Dark almost black fish-scale slate roof tiles in overlapping rounded rows, wet sheen, a little moss. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
+```
+
+### roof-claytile → `roof-claytile.png`
+
+```
+Dark brown-red clay roof tiles in overlapping rows, wet, sooty, some tiles darker, a little moss. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
 ```
