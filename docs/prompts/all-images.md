@@ -1063,3 +1063,49 @@ Texture of weathered dark wooden planks, vertical boards with nails, rot and gri
 ```
 Top-down texture of the dark murky river Seine at night: deep green-black water with faint ripples and a few pale reflections, oily and still. Pixel art, chunky visible pixels, limited dark muted palette, low contrast, night-time gloom of Paris in 1819. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows. No text, no people, no border, no vignette. Canvas 64 by 64 pixels.
 ```
+
+## Town (7) · the textures of the Godot town (D169)
+
+Illustrated, not pixel art. Two candidates each, the pick checked tiled 2 x 2, then `art/town/<file>.webp` at 512px.
+
+### roof-tiles → `roof-tiles.png`
+
+```
+Old clay roof tiles in overlapping rows, weathered rust-brown and dark terracotta, some darker mossy tiles, ink outlines on every tile row. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
+```
+
+### wall-timber → `wall-timber.png`
+
+```
+Facade of a half-timbered medieval house, exactly one storey high: dark oak beams in a frame with one diagonal brace on each side, pale grimy plaster between, one small window with dark leaded panes and wooden shutters in the middle. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
+```
+
+### wall-stone → `wall-stone.png`
+
+```
+Wall of rough cut limestone blocks of mixed sizes, grey-ochre, ink outlines on each block, a little moss. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
+```
+
+### cobbles → `cobbles.png`
+
+```
+Top-down view of a worn cobbled street, small rounded grey-brown stones with dirt between them, ink outlines. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
+```
+
+### grass → `grass.png`
+
+```
+Top-down view of dark meadow grass, short hatched pen strokes in muted olive and dark green, a few tiny flowers. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
+```
+
+### field → `field.png`
+
+```
+Top-down view of a ploughed farm field with straight parallel furrows running horizontally, muted ochre and brown earth with thin green crop rows, pen hatching. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
+```
+
+### water → `water.png`
+
+```
+Top-down view of a calm dark river, muted slate blue-green water with fine ink ripple lines drawn in horizontal strokes. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
+```

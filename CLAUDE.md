@@ -39,19 +39,19 @@ All four JS files are concatenated into one IIFE by `build.py`, so they share sc
 - **Single file:** `python3 build.py --embed` if someone needs one self-contained HTML (several MB).
 
 ## Godot version (the real game from now on, D158)
-`godot/` is the Godot 4.7 game: same rules, same art, pixel look. The web page stays as the reference until Bruno approves the Godot version.
+`godot/` is the Godot 4.7 project. Since D169 it opens on the town alone (`godot/town/`); the earlier table, board and HUD are archived in `godot/archive/` (git tag `archive/table-d168`). The web page stays as the reference until Bruno approves the Godot version.
 ```
-python3 tools/make_board_textures.py   # redraws art/ui/player-board.png (mirror board.gd's zone constants)
+godot --path godot                # the town (right-drag turn, left/middle drag or WASD move, wheel zoom)
+godot --path godot -- --shot      # saves tests/town-1..4.png and quits
 node tools/export_godot_data.js   # after any change to src/data.js or art/: writes godot/data/game.json, copies art
-godot --path godot                # play
-npm run godot:sim                 # 20 AI-only games, headless
-npm run godot:ui                  # one full game played as the human through the real popups
-tools/gdcheck.sh res://scripts/main.gd   # parse-check a script without hanging
+npm run godot:sim                 # 20 AI-only games, headless (rules only)
+npm run godot:table               # the archived table
+tools/gdcheck.sh res://town/town.gd   # parse-check a script without hanging
 ```
-- `scripts/rules/game.gd`: the rules (port of `src/engine.js`), no drawing. Human choices and animations go through the presenter (`null_presenter.gd` lists every method). Keep it in step with `engine.js` while both exist.
-- `scripts/main.gd`: the presenter and controller: title, layout, every popup, your turn, the night, the end, autoplay and screenshot modes (`-- --shot`, `-- --shot-title`, add `--size=2560x1400` for another window size).
-- `scripts/view/board.gd`: the 3D table and your wide player board in front of it (`_build_mat`, `sync_mat`: lab spaces, decomposition, stores, jars, operating table; dials to its left, loose gold, police and cards to its right), synced from the state with animations. Drawn at 1.5 screen pixels per board pixel at any window size (`RENDER`, `_fit_board` in `main.gd`) for the pixel look. Never put text in 3D: add a `_tag()` and `main.gd` draws it as a crisp 2D label over that point (`_rebuild_tags`, `_place_tags`).
-- `scripts/view/city.gd`: the city the game is played in (D168): river, islands, bridges, play-area houses, the railing and gas lamps, one landmark per place (`landmark()`, placed by `place_landmark()` clear of discs, card rows, water and other places), and the endless outskirts. Built once from a fixed seed into one mesh per material. Textures in `art/city/` (prompts in `docs/prompts/all-images.md`, City). Place colours are `Style.PLACE_COL`.
-- `scripts/ui/`: `style.gd` (tokens, fonts, widgets), `cards.gd` (card faces), `modal.gd` (popups), `hud.gd` (top bar, rivals and people strip, chronicle bar, drawn over the table), `lab.gd` (laboratory; `board2d` draws a rival's board on the same texture, positions from board.gd's zone constants), `meeple_icon.gd`.
-- GDScript traps: lambdas capture locals by value (a button can't hold its own popup: use `_close_from`); `:=` can't infer types from Dictionary values; new `class_name`s need `godot --headless --path godot --import` before a parse check.
-- Same conventions as the web page: no em dashes, no italics, minimum 11px type, no tooltips: thresholds, cards and every zone of your board explain themselves in the hover panel, like places.
+- `town/kit.gd`: mesh kit (walls, gable/hip roofs, pyramids, cylinders, cones, discs, glowing panes), one SurfaceTool per material, `xf` places what comes next. Faces must wind so Godot sees them front-on from their normal side; `tri()` handles it.
+- `town/town.gd`: the town from seed 1819, metres, +z south. Occupancy grid (1 m: 1 street, 2 built, 3 water, 4 kept open) decides where houses fit. Landmarks in `PLACES` (name, colour, position) and `_build_landmarks()`; mark their ground so houses stay off.
+- `town/town_main.gd`: environment (dusk sky, moon, warm west light, SSAO, fog), camera, landmark names, shot mode. `town/ink.gdshader`: pen lines on a full-screen quad.
+- Textures in `art/town/` (512px webp, mipmaps on in their `.import`), prompts in `docs/prompts/all-images.md` (Town).
+- `scripts/rules/game.gd`: the rules (port of `src/engine.js`), no drawing. Keep it in step with `engine.js` while both exist.
+- GDScript traps: lambdas capture locals by value; `:=` can't infer types from Dictionary or Array values or untyped loop variables (type them: `for s: float in [...]`); don't name a method `free`; new `class_name`s need `godot --headless --path godot --import` before a parse check; in shot mode wait on `process_frame`, not `frame_post_draw`.
+- Same conventions as the web page: no em dashes, no italics, minimum 11px type.

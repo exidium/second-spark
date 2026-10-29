@@ -8,9 +8,10 @@
     "test:ui": "node tests/ui.js",
     "godot:data": "node tools/export_godot_data.js",
     "godot:sim": "godot --headless --path godot --script res://tests/sim.gd -- 20",
-    "godot:ui": "godot --path godot -- --autoplay",
+    "godot:ui": "godot --path godot res://archive/table.tscn -- --autoplay",
     "test": "python3 build.py && node tests/sim.js 20 && node tests/ui.js",
-    "deploy": "python3 build.py && git subtree push --prefix dist origin gh-pages"
+    "deploy": "python3 build.py && git subtree push --prefix dist origin gh-pages",
+    "godot:table": "godot --path godot res://archive/table.tscn"
   },
   "devDependencies": {
     "playwright": "^1.47.0"
