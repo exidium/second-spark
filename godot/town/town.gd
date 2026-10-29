@@ -1,37 +1,40 @@
 class_name Town
 extends RefCounted
-## The town, built from a fixed seed: a walled old town on a bend of the river, streets lined with steep-roofed
-## houses, the landmarks the game needs, suburbs along the roads, then fields, hedges and trees to the horizon.
-## Units are metres; the town centre is the origin, +z is south (towards the default camera).
+## The city (D170): a dense gothic Victorian city on a grid of wet streets, terraces wall to wall round every block,
+## a wide river with embankments and bridges, the landmarks the game needs, and blocks that run on until the rain and
+## fog take them. Built from a fixed seed. Units are metres; the centre is the origin, +z is south (towards the camera).
 
-const STOREY := 3.0
-const TILE := 3.0                   # one wall texture tile: one storey, one window
-const ROOF_T := 7.0                  # one roof texture tile, in metres
-const WALL_A := 160.0                # the town wall, an ellipse
-const WALL_B := 120.0
+const STOREY := 3.4
+const BX := 46.0                    # block size between pavements
+const BZ := 36.0
+const SW := 10.0                    # street width (pavements included)
+const PAVE := 2.4
+const PX := BX + SW
+const PZ := BZ + SW
+const NI := 8                       # blocks each way from the centre
+const NJ := 8
+const DETAIL := 300.0               # beyond this, houses lose chimneys, windows and extras
 const GRID := 1.0
-const HALF := 700.0
-const PITCH := 0.62                  # roof rise per metre of half depth (steep, about 50 degrees)
+const HALF := 600.0
+const PITCH := 1.25                 # gothic roofs: rise per metre of half span
+const RIVER_Z := 205.0
+const RIVER_W := 70.0
+const BRIDGES := [-2, 1, 4]         # the north-south streets that cross the river
 
-# The river comes down the east side, bends below the town and leaves to the west.
-const RIVER := [Vector2(520, -520), Vector2(330, -300), Vector2(225, -120), Vector2(205, 40), Vector2(150, 160), Vector2(40, 205),
-	Vector2(-90, 200), Vector2(-210, 175), Vector2(-330, 230), Vector2(-520, 300), Vector2(-760, 330)]
-const RIVER_W := 30.0
-
-# Each landmark: name, colour, centre, and where its name floats.
+# Each landmark: name, colour, the block it stands in (i, j), and how high its name floats.
 const PLACES := {
-	"church": {"name": "Saint-Roch", "col": "#e6c15a", "pos": Vector2(30, -62)},
-	"square": {"name": "Public Square", "col": "#e0605a", "pos": Vector2(-6, 6)},
-	"first": {"name": "First Player", "col": "#ece4cf", "pos": Vector2(-8, -24)},
-	"market": {"name": "Market", "col": "#e8964a", "pos": Vector2(-88, 8)},
-	"academy": {"name": "Academy", "col": "#7cc4ff", "pos": Vector2(-82, -46)},
-	"hospital": {"name": "Hospital", "col": "#bcd8f0", "pos": Vector2(-40, 80)},
-	"odeon": {"name": "Odéon", "col": "#d98cc0", "pos": Vector2(64, 48)},
-	"alley": {"name": "Dark Alley", "col": "#b48ae0", "pos": Vector2(108, -10)},
-	"cemetery": {"name": "Graveyard", "col": "#8fbf6a", "pos": Vector2(-235, -200)},
-	"slaughter": {"name": "Slaughterhouse", "col": "#c0503f", "pos": Vector2(168, -178)},
-	"docks": {"name": "Docks", "col": "#f08a3c", "pos": Vector2(40, 178)},
-	"morgue": {"name": "Morgue", "col": "#5fc4b8", "pos": Vector2(-62, 172)},
+	"church": {"name": "Saint-Roch", "col": "#e6c15a", "block": Vector2i(1, -2), "h": 92},
+	"square": {"name": "Public Square", "col": "#e0605a", "block": Vector2i(0, 0), "h": 22},
+	"first": {"name": "First Player", "col": "#ece4cf", "block": Vector2i(-1, -1), "h": 82},
+	"market": {"name": "Market", "col": "#e8964a", "block": Vector2i(-2, 0), "h": 30},
+	"academy": {"name": "Academy", "col": "#7cc4ff", "block": Vector2i(2, 0), "h": 46},
+	"hospital": {"name": "Hospital", "col": "#bcd8f0", "block": Vector2i(-2, 2), "h": 36},
+	"odeon": {"name": "Odéon", "col": "#d98cc0", "block": Vector2i(1, 1), "h": 36},
+	"alley": {"name": "Dark Alley", "col": "#b48ae0", "block": Vector2i(3, -1), "h": 30},
+	"cemetery": {"name": "Graveyard", "col": "#8fbf6a", "block": Vector2i(-3, -2), "h": 26},
+	"slaughter": {"name": "Slaughterhouse", "col": "#c0503f", "block": Vector2i(4, 1), "h": 40},
+	"docks": {"name": "Docks", "col": "#f08a3c", "block": Vector2i(2, 3), "h": 30},
+	"morgue": {"name": "Morgue", "col": "#5fc4b8", "block": Vector2i(-1, 3), "h": 24},
 }
 
 var rng := RandomNumberGenerator.new()
@@ -41,25 +44,27 @@ var streets := []                    # [Vector2 a, Vector2 b, float width]
 var labels := []                     # {text, col, pos: Vector3}
 var lights := []                     # {pos: Vector3, col, energy, range}
 var trees := []                      # [Vector3 pos, float size, Color]
+var lamps := []                      # Vector3 lamp bases
 var houses := 0
 
 
 # ---------------------------------------------------------------- materials
 
-func _tex(file: String, rough := 0.95) -> StandardMaterial3D:
+func _tex(file: String, rough := 0.9, metal := 0.0) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_texture = load("res://assets/art/town/%s.webp" % file)
 	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	m.vertex_color_use_as_albedo = true
 	m.roughness = rough
+	m.metallic = metal
 	m.cull_mode = BaseMaterial3D.CULL_DISABLED
 	return m
 
-func _col(c: Color, e := 0.0) -> StandardMaterial3D:
+func _col(c: Color, e := 0.0, rough := 0.85) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = c
 	m.vertex_color_use_as_albedo = true
-	m.roughness = 0.9
+	m.roughness = rough
 	m.cull_mode = BaseMaterial3D.CULL_DISABLED
 	if e > 0:
 		m.emission_enabled = true
@@ -68,45 +73,48 @@ func _col(c: Color, e := 0.0) -> StandardMaterial3D:
 	return m
 
 func _make_mats() -> void:
-	for k in ["roof-tiles", "wall-timber", "wall-stone", "cobbles", "grass", "field"]:
-		mats[k] = _tex(k)
-	mats["water"] = _tex("water", 0.08)
-	mats["water"].metallic = 0.4
-	mats["wood"] = _col(Color("#3a2a1e"))
-	mats["slate"] = _col(Color("#3b4048"))
-	mats["plaster"] = _col(Color("#b9ab8e"))
-	mats["cloth-a"] = _col(Color("#7a2f27"))
-	mats["cloth-b"] = _col(Color("#b49a62"))
-	mats["leaf"] = _col(Color("#3e4d2c"))
-	mats["win"] = _col(Color("#ffb35a"), 2.4)
+	mats["stone"] = _tex("gothic-stone")
+	mats["brick"] = _tex("gothic-brick")
+	mats["shop"] = _tex("gothic-shop")
+	mats["slate"] = _tex("slate", 0.35, 0.1)
+	mats["street"] = _tex("wet-cobbles", 0.12, 0.25)
+	mats["pave"] = _tex("flagstones", 0.22, 0.15)
+	mats["grass"] = _tex("grass")
+	mats["water"] = _tex("water", 0.04, 0.5)
+	mats["iron"] = _col(Color("#15161a"), 0.0, 0.4)
+	mats["wood"] = _col(Color("#2c241f"))
+	mats["glass"] = _col(Color("#5d6c74"), 0.0, 0.05)
+	mats["glass"].metallic = 0.7
+	mats["win"] = _col(Color("#ffbf6e"), 1.3)
+	mats["gas"] = _col(Color("#ffd49a"), 4.0)
 	for id in PLACES:
-		mats["glow:" + id] = _col(Color(PLACES[id].col), 2.6)
+		mats["glow:" + id] = _col(Color(PLACES[id].col), 3.0)
 
 
 # ---------------------------------------------------------------- occupancy grid
 
 func _i(p: Vector2) -> int:
+	var n := int(2 * HALF / GRID)
 	var x := int(floor((p.x + HALF) / GRID))
 	var z := int(floor((p.y + HALF) / GRID))
-	if x < 0 or z < 0 or x >= int(2 * HALF / GRID) or z >= int(2 * HALF / GRID):
+	if x < 0 or z < 0 or x >= n or z >= n:
 		return -1
-	return z * int(2 * HALF / GRID) + x
+	return z * n + x
 
 func cell(p: Vector2) -> int:
 	var i := _i(p)
 	return 255 if i < 0 else occ[i]
 
-## Visit the cells of a rotated rectangle (centre c, half sizes hx along dir, hz across).
 func _obb_cells(c: Vector2, ang: float, hx: float, hz: float) -> Array:
 	var out := []
 	var ax := Vector2(cos(ang), sin(ang))
 	var az := Vector2(-ax.y, ax.x)
-	var ext := absf(ax.x) * hx + absf(az.x) * hz
-	var exz := absf(ax.y) * hx + absf(az.y) * hz
-	var x := floorf(c.x - ext)
-	while x <= c.x + ext:
-		var z := floorf(c.y - exz)
-		while z <= c.y + exz:
+	var ex := absf(ax.x) * hx + absf(az.x) * hz
+	var ez := absf(ax.y) * hx + absf(az.y) * hz
+	var x := floorf(c.x - ex)
+	while x <= c.x + ex:
+		var z := floorf(c.y - ez)
+		while z <= c.y + ez:
 			var q := Vector2(x + 0.5, z + 0.5) - c
 			if absf(q.dot(ax)) <= hx and absf(q.dot(az)) <= hz:
 				out.append(_i(Vector2(x + 0.5, z + 0.5)))
@@ -125,237 +133,223 @@ func is_free(c: Vector2, ang: float, hx: float, hz: float) -> bool:
 			return false
 	return true
 
-func inside_wall(p: Vector2, margin := 0.0) -> bool:
-	return pow(p.x / (WALL_A - margin), 2) + pow(p.y / (WALL_B - margin), 2) < 1.0
+func block_center(b: Vector2i) -> Vector2:
+	return Vector2(b.x * PX, b.y * PZ)
+
+func river_z(x: float) -> float:
+	return RIVER_Z + 22.0 * sin(x / 140.0) + 8.0 * sin(x / 53.0)
+
+func in_water(p: Vector2, margin := 0.0) -> bool:
+	return absf(p.y - river_z(p.x)) < RIVER_W / 2 + margin
 
 
-# ---------------------------------------------------------------- river
+# ---------------------------------------------------------------- streets and the river
 
-func _river_pts() -> PackedVector2Array:
-	var pts := PackedVector2Array()
-	for i in RIVER.size() - 1:
-		var p0: Vector2 = RIVER[maxi(i - 1, 0)]
-		var p1: Vector2 = RIVER[i]
-		var p2: Vector2 = RIVER[i + 1]
-		var p3: Vector2 = RIVER[mini(i + 2, RIVER.size() - 1)]
-		for k in 12:
-			var t := k / 12.0
-			var t2 := t * t
-			var t3 := t2 * t
-			pts.append(0.5 * (2.0 * p1 + (p2 - p0) * t + (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t2 + (3.0 * p1 - p0 - 3.0 * p2 + p3) * t3))
-	pts.append(RIVER[-1])
-	return pts
-
-func _build_river(k: Kit) -> void:
-	var pts := _river_pts()
-	var dist := 0.0
-	for i in pts.size() - 1:
-		var a := pts[i]
-		var b := pts[i + 1]
-		var na := _normal_at(pts, i)
-		var nb := _normal_at(pts, i + 1)
-		var w := RIVER_W / 2
-		var seg := a.distance_to(b)
-		k.quad("water", Vector3(a.x + na.x * w, 0.06, a.y + na.y * w), Vector3(b.x + nb.x * w, 0.06, b.y + nb.y * w), Vector3(b.x - nb.x * w, 0.06, b.y - nb.y * w), Vector3(a.x - na.x * w, 0.06, a.y - na.y * w),
-			Vector2(dist / 18, 0), Vector2((dist + seg) / 18, 0), Vector2((dist + seg) / 18, RIVER_W / 18), Vector2(dist / 18, RIVER_W / 18))
-		# Muddy banks.
-		for s: float in [-1.0, 1.0]:
-			var a0 := a + na * s * w
-			var b0 := b + nb * s * w
-			var a1 := a + na * s * (w + 3.5)
-			var b1 := b + nb * s * (w + 3.5)
-			k.quad("wall-stone", Vector3(a0.x, 0.07, a0.y), Vector3(b0.x, 0.07, b0.y), Vector3(b1.x, 0.09, b1.y), Vector3(a1.x, 0.09, a1.y), Vector2(dist / 6, 0), Vector2((dist + seg) / 6, 0), Vector2((dist + seg) / 6, 0.6), Vector2(dist / 6, 0.6), Color(0.55, 0.5, 0.45))
-		for t in range(0, int(seg) + 1, 3):
-			var p := a.lerp(b, t / maxf(seg, 0.01))
-			var r := w + 4.0
-			var x := -r
-			while x <= r:
-				var z := -r
-				while z <= r:
-					if x * x + z * z <= r * r:
-						var ii := _i(p + Vector2(x, z))
-						if ii >= 0:
-							occ[ii] = 3
-					z += GRID
-				x += GRID
-		dist += seg
-
-func _normal_at(pts: PackedVector2Array, i: int) -> Vector2:
-	var a := pts[maxi(i - 1, 0)]
-	var b := pts[mini(i + 1, pts.size() - 1)]
+func _street_quad(k: Kit, a: Vector2, b: Vector2, w: float) -> void:
 	var d := (b - a).normalized()
-	return Vector2(-d.y, d.x)
+	var n := Vector2(-d.y, d.x)
+	var len := a.distance_to(b)
+	# Carriageway, then a raised pavement either side.
+	var cw := w / 2 - PAVE
+	k.quad("street", Vector3(a.x + n.x * cw, 0.05, a.y + n.y * cw), Vector3(b.x + n.x * cw, 0.05, b.y + n.y * cw), Vector3(b.x - n.x * cw, 0.05, b.y - n.y * cw), Vector3(a.x - n.x * cw, 0.05, a.y - n.y * cw),
+		Vector2(0, 0), Vector2(len / 7, 0), Vector2(len / 7, cw * 2 / 7), Vector2(0, cw * 2 / 7))
+	for s: float in [-1.0, 1.0]:
+		var o0 := n * s * cw
+		var o1 := n * s * (w / 2)
+		k.quad("pave", Vector3(a.x + o0.x, 0.2, a.y + o0.y), Vector3(b.x + o0.x, 0.2, b.y + o0.y), Vector3(b.x + o1.x, 0.2, b.y + o1.y), Vector3(a.x + o1.x, 0.2, a.y + o1.y),
+			Vector2(0, 0), Vector2(len / 5, 0), Vector2(len / 5, PAVE / 5), Vector2(0, PAVE / 5))
+		k.quad("pave", Vector3(a.x + o0.x, 0.05, a.y + o0.y), Vector3(b.x + o0.x, 0.05, b.y + o0.y), Vector3(b.x + o0.x, 0.2, b.y + o0.y), Vector3(a.x + o0.x, 0.2, a.y + o0.y),
+			Vector2(0, 0), Vector2(len / 5, 0), Vector2(len / 5, 0.03), Vector2(0, 0.03), Color(0.7, 0.7, 0.7))
 
-## Where a line from a to b first meets the river, or Vector2.INF.
-func river_crossing(a: Vector2, b: Vector2) -> Vector2:
-	var pts := _river_pts()
-	for i in pts.size() - 1:
-		var hit = Geometry2D.segment_intersects_segment(a, b, pts[i], pts[i + 1])
-		if hit != null:
-			return hit
-	return Vector2.INF
-
-
-# ---------------------------------------------------------------- streets
-
-func street(pts: Array, w: float, k: Kit, tint := Color(0.8, 0.78, 0.75)) -> void:
-	for i in pts.size() - 1:
-		var a: Vector2 = pts[i]
-		var b: Vector2 = pts[i + 1]
-		streets.append([a, b, w])
-		var d := (b - a).normalized()
-		var n := Vector2(-d.y, d.x) * w / 2
-		var a2 := a - d * w * 0.3
-		var b2 := b + d * w * 0.3
-		var y := 0.1 + 0.01 * (i % 2)
-		var len := a2.distance_to(b2)
-		k.quad("cobbles", Vector3(a2.x + n.x, y, a2.y + n.y), Vector3(b2.x + n.x, y, b2.y + n.y), Vector3(b2.x - n.x, y, b2.y - n.y), Vector3(a2.x - n.x, y, a2.y - n.y), Vector2(0, 0), Vector2(len / 6, 0), Vector2(len / 6, w / 6), Vector2(0, w / 6), tint)
-		var c := (a + b) / 2
-		for ii in _obb_cells(c, d.angle(), len / 2, w / 2 + 0.3):
-			if ii >= 0 and occ[ii] == 0:
-				occ[ii] = 1
-
-func plaza(c: Vector2, w: float, d: float, k: Kit) -> void:
-	k.flat("cobbles", c, w, d, 0.12, 6.0, Color(0.85, 0.82, 0.78))
-	mark(c, 0.0, w / 2, d / 2, 4)
-
-## A wandering lane between two points.
-func _lane(a: Vector2, b: Vector2, wander: float, steps: int) -> Array:
-	var pts := [a]
-	var n := (b - a).normalized().orthogonal()
-	for s in range(1, steps):
-		var t := float(s) / steps
-		pts.append(a.lerp(b, t) + n * rng.randf_range(-wander, wander))
-	pts.append(b)
-	return pts
+func street(k: Kit, a: Vector2, b: Vector2, w: float) -> void:
+	streets.append([a, b, w])
+	_street_quad(k, a, b, w)
+	var d := b - a
+	for ii in _obb_cells((a + b) / 2, d.angle(), d.length() / 2, w / 2):
+		if ii >= 0 and occ[ii] == 0:
+			occ[ii] = 1
+	# Gas lamps along the pavements near the centre.
+	if (a + b).length() / 2 < DETAIL:
+		var n := d.normalized().orthogonal()
+		var t := 8.0
+		while t < d.length() - 4:
+			for s: float in [-1.0, 1.0]:
+				var p := a + d.normalized() * t + n * s * (w / 2 - 0.6)
+				if not in_water(p, 2):
+					lamps.append(Vector3(p.x, 0.2, p.y))
+			t += 24.0
 
 func _build_streets(k: Kit) -> void:
-	# Main road: south-west gate, the square, the cathedral close, north-east gate, and on over the river.
-	street([Vector2(-760, 420), Vector2(-420, 300), Vector2(-250, 190), Vector2(-150, 95), Vector2(-80, 45), Vector2(-20, 10), Vector2(20, -20), Vector2(60, -30), Vector2(115, -70), Vector2(175, -110), Vector2(290, -200), Vector2(520, -330), Vector2(800, -460)], 9.0, k)
-	# Cross road: west gate to east gate, crossing the river eastwards.
-	street([Vector2(-800, -30), Vector2(-420, -40), Vector2(-240, -10), Vector2(-160, 0), Vector2(-100, 4), Vector2(-40, 0), Vector2(30, 8), Vector2(100, 20), Vector2(165, 30), Vector2(260, 50), Vector2(420, 40), Vector2(800, 80)], 7.5, k)
-	# South road to the docks and over the bridge.
-	street([Vector2(-10, 20), Vector2(5, 70), Vector2(25, 130), Vector2(38, 165), Vector2(60, 260), Vector2(120, 480), Vector2(160, 800)], 7.0, k)
-	# North road past the academy to the graveyard and beyond.
-	street([Vector2(-20, -10), Vector2(-40, -45), Vector2(-90, -100), Vector2(-150, -130), Vector2(-200, -110), Vector2(-280, -150), Vector2(-420, -260), Vector2(-700, -420)], 6.5, k)
-	street([Vector2(70, -35), Vector2(78, -100), Vector2(60, -160), Vector2(20, -330), Vector2(-20, -800)], 6.0, k)
-	# Ring street just inside the wall.
-	var ring := []
-	for i in 49:
-		var a := TAU * i / 48
-		ring.append(Vector2(cos(a) * (WALL_A - 14), sin(a) * (WALL_B - 14)))
-	street(ring, 5.0, k)
-	# Lanes between the roads.
-	for i in 16:
-		var a := TAU * rng.randf()
-		var p := Vector2(cos(a) * (WALL_A - 14), sin(a) * (WALL_B - 14))
-		var q := Vector2(rng.randf_range(-70, 70), rng.randf_range(-55, 55))
-		street(_lane(p, p.lerp(q, rng.randf_range(0.45, 0.85)), 6.0, 4), rng.randf_range(3.6, 4.6), k)
-	# Riverside quays.
-	street([Vector2(-140, 182), Vector2(-60, 182), Vector2(20, 185), Vector2(90, 165), Vector2(135, 140)], 6.0, k)
-	# Bridges where roads meet the river.
-	for road in [[Vector2(290, -200), Vector2(520, -330)], [Vector2(165, 30), Vector2(260, 50)], [Vector2(38, 165), Vector2(60, 260)], [Vector2(-420, 300), Vector2(-250, 190)]]:
-		var hit := river_crossing(road[0], road[1])
-		if hit != Vector2.INF:
-			bridge(hit, (road[1] - road[0]).angle(), k)
+	# East-west streets, cut at the river.
+	for j in range(-NJ, NJ + 2):
+		var z := (j - 0.5) * PZ
+		if absf(z - RIVER_Z) < RIVER_W / 2 + 30:
+			continue
+		for i in range(-NI, NI + 1):
+			street(k, Vector2((i - 0.5) * PX, z), Vector2((i + 0.5) * PX, z), SW + (4.0 if j == 0 else 0.0))
+	# North-south streets, stopping at the river (the bridges carry three of them over).
+	for i in range(-NI, NI + 2):
+		var x := (i - 0.5) * PX
+		for j in range(-NJ, NJ + 1):
+			var a := Vector2(x, (j - 0.5) * PZ)
+			var b := Vector2(x, (j + 0.5) * PZ)
+			if in_water(a, 8) or in_water(b, 8) or in_water((a + b) / 2, 8):
+				continue
+			street(k, a, b, SW + (4.0 if i == 0 else 0.0))
+	# Two diagonal avenues cutting through the blocks, as the old roads did.
+	street(k, Vector2(-7.5 * PX, -6.5 * PZ), Vector2(-0.5 * PX, -0.5 * PZ), 14.0)
+	street(k, Vector2(0.5 * PX, -0.5 * PZ), Vector2(6.5 * PX, -6.5 * PZ), 12.0)
+	# Embankment roads along both banks.
+	var x := -(NI + 0.5) * PX
+	while x < (NI + 0.5) * PX:
+		for s: float in [-1.0, 1.0]:
+			var a := Vector2(x, river_z(x) + s * (RIVER_W / 2 + 7))
+			var b := Vector2(x + 20, river_z(x + 20) + s * (RIVER_W / 2 + 7))
+			street(k, a, b, 12.0)
+		x += 20
 
-func bridge(c: Vector2, ang: float, k: Kit) -> void:
-	var saved := k.xf
-	k.xf = Transform3D(Basis(Vector3.UP, -ang), Vector3(c.x, 0, c.y))
-	var len := RIVER_W + 16
-	k.box("wall-stone", Vector2.ZERO, len, 9, 0.0, 2.2, 3, 3, Color(0.8, 0.78, 0.72), "cobbles")
-	for s: float in [-1.0, 1.0]:
-		k.box("wall-stone", Vector2(0, s * 4.3), len, 0.6, 2.2, 3.2, 3, 3, Color(0.75, 0.72, 0.68))
-	k.xf = saved
-	mark(c, ang, len / 2, 5, 1)
+func _build_river(k: Kit) -> void:
+	var x := -2000.0
+	while x < 2000.0:
+		var x2 := x + 10
+		var za := river_z(x)
+		var zb := river_z(x2)
+		var h := RIVER_W / 2
+		k.quad("water", Vector3(x, -1.2, za - h), Vector3(x2, -1.2, zb - h), Vector3(x2, -1.2, zb + h), Vector3(x, -1.2, za + h),
+			Vector2(x / 30, (za - h) / 30), Vector2(x2 / 30, (zb - h) / 30), Vector2(x2 / 30, (zb + h) / 30), Vector2(x / 30, (za + h) / 30), Color(0.55, 0.6, 0.6))
+		for s: float in [-1.0, 1.0]:
+			# Stone embankment walls down to the water, a parapet on top.
+			var e0 := Vector2(x, za + s * h)
+			var e1 := Vector2(x2, zb + s * h)
+			k.wall("stone", e0, e1, -1.2, 0.2, 4, 4, Color(0.6, 0.62, 0.64))
+			k.box("stone", (e0 + e1) / 2 + Vector2(0, -s * 0.4), 10.0, 0.6, 0.2, 1.2, 3, 3, Color(0.7, 0.72, 0.74))
+		x = x2
+	var xx := -HALF
+	while xx < HALF:
+		mark(Vector2(xx, river_z(xx)), 0.0, 1.0, RIVER_W / 2 + 1, 3)
+		xx += 1.0
+	# Bridges: a stone deck on piers, lamps along the parapets.
+	for i in BRIDGES:
+		var bx: float = (i - 0.5) * PX
+		var cz := river_z(bx)
+		var len := RIVER_W + 30
+		k.box("stone", Vector2(bx, cz), 16, len, -1.2, 1.6, 4, 4, Color(0.72, 0.73, 0.75), "street")
+		for s: float in [-1.0, 1.0]:
+			k.box("stone", Vector2(bx + s * 7.6, cz), 0.8, len, 1.6, 2.8, 3, 3, Color(0.65, 0.66, 0.68))
+			for t in 5:
+				var p := Vector2(bx + s * 7.6, cz - len / 2 + 10 + t * (len - 20) / 4)
+				lamps.append(Vector3(p.x, 2.8, p.y))
+		for t in 3:
+			k.box("stone", Vector2(bx, cz - RIVER_W / 2 + 12 + t * 23), 13, 5, -1.2, -0.2, 3, 3)
+		mark(Vector2(bx, cz), 0.0, 9, len / 2, 1)
 
 
 # ---------------------------------------------------------------- houses
 
-## A house in its own frame: frontage w along x, depth d, the street on +z. Timber or stone walls, a steep roof,
-## chimneys, sometimes a dormer, a few lit windows.
-func house(k: Kit, c: Vector2, ang: float, w: float, d: float, floors: int, tall_lean := false) -> void:
+## Window tile width for a wall of this span: one window per tile, centred.
+func _tw(span: float) -> float:
+	return span / maxf(1.0, round(span / 3.2))
+
+## A gothic terrace house in its own frame: frontage w along x, depth d, the street on +z.
+func gothic_house(k: Kit, c: Vector2, ang: float, w: float, d: float, floors: int, detail: bool, corner := false) -> void:
 	var saved := k.xf
 	k.xf = Transform3D(Basis(Vector3.UP, -ang), Vector3(c.x, 0, c.y))
-	if tall_lean:
-		k.xf.basis = k.xf.basis * Basis(Vector3.FORWARD, rng.randf_range(-0.035, 0.035))
-	var stone := rng.randf() < 0.28
-	var kw := "wall-stone" if stone else "wall-timber"
-	var t := rng.randf_range(0.7, 1.0)
-	var cw := Color(t, t * rng.randf_range(0.94, 1.0), t * rng.randf_range(0.86, 0.98))
+	var brick := rng.randf() < 0.45
+	var kw := "brick" if brick else "stone"
+	var t := rng.randf_range(0.8, 1.0)
+	var cw := Color(t, t * rng.randf_range(0.95, 1.0), t * rng.randf_range(0.95, 1.05))
 	var h := floors * STOREY
-	if not stone and rng.randf() < 0.5:
-		k.walls("wall-stone", Vector2.ZERO, w, d, 0.0, STOREY, TILE, TILE, cw)
-		k.walls(kw, Vector2.ZERO, w, d, STOREY, h, TILE, TILE, cw)
-	else:
-		k.walls(kw, Vector2.ZERO, w, d, 0.0, h, TILE, TILE, cw)
-	var rt := rng.randf_range(0.55, 1.0)
-	var cr := Color(rt, rt * rng.randf_range(0.78, 0.95), rt * rng.randf_range(0.7, 0.9))
+	var twf := _tw(w)
+	var twd := _tw(d)
+	var shop := detail and rng.randf() < 0.4
+	# Front and back, then the sides (party walls, mostly hidden).
+	var y0 := STOREY if shop else 0.0
+	if shop:
+		k.wall("shop", Vector2(-w / 2, d / 2), Vector2(w / 2, d / 2), 0, STOREY, twf, STOREY, cw)
+	k.wall(kw, Vector2(-w / 2, d / 2), Vector2(w / 2, d / 2), y0, h, twf, STOREY, cw)
+	k.wall(kw, Vector2(w / 2, -d / 2), Vector2(-w / 2, -d / 2), 0, h, twf, STOREY, cw)
+	k.wall(kw, Vector2(w / 2, d / 2), Vector2(w / 2, -d / 2), 0, h, twd, STOREY, cw)
+	k.wall(kw, Vector2(-w / 2, -d / 2), Vector2(-w / 2, d / 2), 0, h, twd, STOREY, cw)
+	# A stone cornice.
+	k.box("stone", Vector2.ZERO, w + 0.3, d + 0.3, h - 0.35, h, 2, 2, cw * 0.85)
+	var cr := Color(0.8, 0.82, 0.88) * rng.randf_range(0.65, 1.0)
 	var roll := rng.randf()
-	if roll < 0.15:
-		cr = Color(0.55, 0.58, 0.66) * rng.randf_range(0.7, 1.0)   # slate
-	elif roll < 0.3:
-		cr = Color(0.62, 0.45, 0.36) * rng.randf_range(0.6, 0.9)   # old brown tiles
-	var along := rng.randf() < 0.65 or w > d * 1.3
 	var rh := 0.0
-	if floors >= 3 and rng.randf() < 0.3:
-		rh = minf(w, d) / 2 * PITCH * 1.1
-		k.hip("roof-tiles", Vector2.ZERO, w, d, h, rh, 0.7, ROOF_T, cr)
-		along = false
-	elif along:
-		rh = d / 2 * PITCH * rng.randf_range(0.9, 1.25)
-		k.gable("roof-tiles", kw, Vector2.ZERO, w, d, h, rh, 0.7, ROOF_T, TILE, TILE, cr, cw)
-	else:
-		rh = w / 2 * PITCH * rng.randf_range(0.9, 1.25)
+	if roll < 0.62:
+		# Steep pointed gable facing the street, a finial on its point.
+		rh = w / 2 * PITCH * rng.randf_range(0.9, 1.3)
 		var s2 := k.xf
 		k.xf = k.xf * Transform3D(Basis(Vector3.UP, PI / 2), Vector3.ZERO)
-		k.gable("roof-tiles", kw, Vector2.ZERO, d, w, h, rh, 0.7, ROOF_T, TILE, TILE, cr, cw)
+		k.gable("slate", kw, Vector2.ZERO, d, w, h, rh, 0.4, 4.0, twf, STOREY, cr, cw)
 		k.xf = s2
-	# Chimneys.
-	for i in rng.randi_range(1, 2):
-		var cx := rng.randf_range(-w / 2 + 0.8, w / 2 - 0.8)
-		var cz := rng.randf_range(-d / 4, d / 4)
-		k.box("wall-stone", Vector2(cx, cz), 0.9, 0.9, h, h + rh + rng.randf_range(0.4, 1.6), 1.5, 1.5, Color(0.6, 0.55, 0.5))
-	# A dormer on the street side.
-	if along and w >= 6 and rng.randf() < 0.45:
-		var dz := d / 4
-		var dy := h + rh * 0.35
-		k.walls(kw, Vector2(0, dz), 1.8, 1.4, dy - 0.2, dy + 1.4, 1.8, 1.8, cw)
-		var s3 := k.xf
-		k.xf = k.xf * Transform3D(Basis(Vector3.UP, PI / 2), Vector3.ZERO)
-		k.gable("roof-tiles", kw, Vector2(-dz, 0), 1.6, 2.0, dy + 1.4, 0.9, 0.2, ROOF_T, 1.8, 1.8, cr, cw)
-		k.xf = s3
-		if rng.randf() < 0.5:
-			k.pane("win", Vector3(0, dy + 0.6, dz + 0.71), Vector3.BACK, 0.6, 0.8)
-	# Lit windows, centred on the window of each wall tile.
-	for f in floors:
-		for side in 4:
-			var span := w if side % 2 == 0 else d
-			var n := int(round(span / TILE))
+		if detail:
+			k.pinnacle("stone", Vector2(0, d / 2 + 0.2), 0.35, h + rh - 0.4, 2.6, cw)
+			k.pinnacle("stone", Vector2(0, -d / 2 - 0.2), 0.3, h + rh - 0.4, 1.8, cw)
+	elif roll < 0.85:
+		# Steep mansard with gabled dormers.
+		rh = rng.randf_range(4.0, 6.0)
+		k.hip("slate", Vector2.ZERO, w, d, h, rh, 0.3, 4.0, cr)
+		if detail:
+			var nd := maxi(1, int(w / 3.6))
+			for j in nd:
+				var dx := -w / 2 + (j + 0.5) * w / nd
+				var s3 := k.xf
+				k.xf = k.xf * Transform3D(Basis(Vector3.UP, PI / 2), Vector3.ZERO)
+				k.walls(kw, Vector2(-(d / 2 - 0.9), dx), 1.6, 1.8, h, h + 2.2, 1.8, STOREY, cw)
+				k.gable("slate", kw, Vector2(-(d / 2 - 0.9), dx), 1.8, 2.0, h + 2.2, 1.6, 0.15, 2.0, 1.8, STOREY, cr, cw)
+				k.xf = s3
+				if rng.randf() < 0.3:
+					k.pane("win", Vector3(dx, h + 1.1, d / 2 - 0.05), Vector3.BACK, 0.7, 1.2)
+	else:
+		# Ridge along the street with a tall pointed cross-gable over the middle.
+		rh = d / 2 * 0.95
+		k.gable("slate", kw, Vector2.ZERO, w, d, h, rh, 0.4, 4.0, twd, STOREY, cr, cw)
+		if detail and w >= 5.5:
+			var s4 := k.xf
+			k.xf = k.xf * Transform3D(Basis(Vector3.UP, PI / 2), Vector3.ZERO)
+			k.walls(kw, Vector2(-d / 4, 0), d / 2, 2.8, h, h + 1.2, 2.8, STOREY, cw)
+			k.gable("slate", kw, Vector2(-d / 4, 0), d / 2, 2.8, h + 1.2, 3.4, 0.25, 3.0, 2.8, STOREY, cr, cw)
+			k.xf = s4
+			k.pinnacle("stone", Vector2(0, d / 2), 0.3, h + 4.2, 1.8, cw)
+	if detail:
+		# Chimney stacks on the party walls, with pots.
+		for s: float in [-1.0, 1.0]:
+			if rng.randf() < 0.75:
+				var cz := rng.randf_range(-d / 4, d / 6)
+				var top := h + rh * 0.75 + rng.randf_range(0.5, 2.0)
+				k.box("brick", Vector2(s * (w / 2 - 0.4), cz), 0.8, 1.8, h, top, 1.6, 1.6, cw * 0.8)
+				for p in 3:
+					k.cylinder("brick", Vector2(s * (w / 2 - 0.4), cz - 0.6 + p * 0.6), 0.16, top, top + 0.5, 6, 1, 1, Color(0.6, 0.45, 0.4))
+		# A bay window rising through the upper floors.
+		if floors >= 3 and w >= 5 and rng.randf() < 0.35:
+			var bw := 2.4
+			k.walls(kw, Vector2(0, d / 2 + 0.45), bw, 0.9, STOREY, h - STOREY * 0.4, 1.2, STOREY, cw)
+			k.hip("slate", Vector2(0, d / 2 + 0.45), bw, 0.9, h - STOREY * 0.4, 0.8, 0.1, 2.0, cr)
+			for f in range(1, floors):
+				if rng.randf() < 0.35:
+					k.pane("win", Vector3(0, f * STOREY + STOREY * 0.55, d / 2 + 0.92), Vector3.BACK, 0.8, 1.6)
+		# A corner turret.
+		if corner and rng.randf() < 0.55:
+			k.turret(kw, "slate", Vector2(w / 2 - 0.4, d / 2 - 0.4), 1.9, STOREY, h + 2.0, 6.5, 2.0, STOREY, cw, cr)
+		# Lit windows on the street front.
+		var n := int(round(w / twf))
+		for f in range(1 if shop else 0, floors):
 			for j in n:
-				if rng.randf() > 0.16:
-					continue
-				var u := -span / 2 + (j + 0.5) * span / n
-				var y := f * STOREY + STOREY * 0.48
-				var p: Vector3
-				var nv: Vector3
-				match side:
-					0: p = Vector3(u, y, d / 2); nv = Vector3.BACK
-					1: p = Vector3(w / 2, y, -u); nv = Vector3.RIGHT
-					2: p = Vector3(-u, y, -d / 2); nv = Vector3.FORWARD
-					_: p = Vector3(-w / 2, y, u); nv = Vector3.LEFT
-				k.pane("win", p, nv, 0.62, 0.95)
+				if rng.randf() < 0.18:
+					k.pane("win", Vector3(-w / 2 + (j + 0.5) * twf, f * STOREY + STOREY * 0.56, d / 2), Vector3.BACK, 0.62, 1.25)
+		if shop and rng.randf() < 0.6:
+			k.pane("win", Vector3(-w / 2 + twf * 0.62, STOREY * 0.48, d / 2), Vector3.BACK, twf * 0.38, STOREY * 0.5)
 	k.xf = saved
 	houses += 1
 
-func _try_house(k: Kit, c: Vector2, ang: float, w: float, d: float, floors: int) -> bool:
-	if not is_free(c, ang, w / 2 + 0.15, d / 2 + 0.15):
+func _try_house(k: Kit, c: Vector2, ang: float, w: float, d: float, floors: int, corner := false) -> bool:
+	if not is_free(c, ang, w / 2 - 0.05, d / 2 - 0.05):
 		return false
-	house(k, c, ang, w, d, floors)
-	mark(c, ang, w / 2 + 0.15, d / 2 + 0.15, 2)
+	gothic_house(k, c, ang, w, d, floors, c.length() < DETAIL, corner)
+	mark(c, ang, w / 2, d / 2, 2)
 	return true
 
-## Line every street with houses facing it, then fill the backs of the blocks.
+## Line every street with terraces, wall to wall, facing it; then the yards behind.
 func _build_houses(k: Kit) -> void:
 	for s in streets:
 		var a: Vector2 = s[0]
@@ -366,424 +360,288 @@ func _build_houses(k: Kit) -> void:
 		var ang := dir.angle()
 		for side: float in [-1.0, 1.0]:
 			var n := Vector2(-dir.y, dir.x) * side
-			var t := rng.randf_range(0.0, 3.0)
+			var t := 0.0
+			var first := true
 			while t < len:
-				var w := TILE * rng.randi_range(2, 3)
-				var d := TILE * rng.randi_range(3, 4)
-				var c := a + dir * (t + w / 2) + n * (sw / 2 + 1.3 + d / 2)
-				var inside := inside_wall(c, 6.0)
-				var near_town := pow(c.x / (WALL_A + 110), 2) + pow(c.y / (WALL_B + 90), 2) < 1.0
-				var keep := inside or (near_town and rng.randf() < 0.55) or rng.randf() < 0.05
-				if keep and (inside or not inside_wall(c, -8.0)):
-					var floors := rng.randi_range(2, 3) if inside else rng.randi_range(1, 2)
-					# The house faces the street: its +z must point back at the street.
-					var face := ang + (PI if side > 0 else 0.0)
-					_try_house(k, c, face, w, d, floors)
-				if inside and rng.randf() < 0.85:
-					var d2 := TILE * 2
-					var c2 := c + n * (d / 2 + 1.0 + d2 / 2)
-					_try_house(k, c2, ang + (PI if side > 0 else 0.0), w, d2, rng.randi_range(1, 2))
-				t += w + (0.2 if inside else rng.randf_range(1.0, 8.0))
-	# Block interiors: scan a grid twice (the second offset), each house turned to face its nearest street.
-	for pass_i in 2:
-		_infill(k, pass_i * 1.75)
-
-func _infill(k: Kit, off: float) -> void:
-	var z := -WALL_B + off
-	while z < WALL_B:
-		var x := -WALL_A + off
-		while x < WALL_A:
-			var c := Vector2(x, z) + Vector2(rng.randf_range(-1, 1), rng.randf_range(-1, 1))
-			x += 3.5
-			if not inside_wall(c, 10.0) or cell(c) != 0:
-				continue
-			var ang := _street_angle(c)
-			var w := TILE * 2
-			var d := TILE * rng.randi_range(2, 3)
-			if not _try_house(k, c, ang, w, d, rng.randi_range(1, 3)) and rng.randf() < 0.04:
-				trees.append([Vector3(c.x, 0, c.y), rng.randf_range(3.0, 4.5), _leaf()])
-				mark(c, 0.0, 2, 2, 4)
-		z += 3.5
-
-
-## The direction of the nearest street, turned so a house there faces it.
-func _street_angle(p: Vector2) -> float:
-	var best := INF
-	var ang := 0.0
-	for s in streets:
-		var a: Vector2 = s[0]
-		var b: Vector2 = s[1]
-		var q := Geometry2D.get_closest_point_to_segment(p, a, b)
-		var dd := q.distance_squared_to(p)
-		if dd < best:
-			best = dd
-			var dir := (b - a).normalized()
-			var side := signf(Vector2(-dir.y, dir.x).dot(p - q))
-			ang = dir.angle() + (PI if side > 0 else 0.0)
-	return ang
-
-
-# ---------------------------------------------------------------- the wall
-
-func _build_wall(k: Kit) -> void:
-	var segs := 64
-	var pts := []
-	for i in segs + 1:
-		var a := TAU * i / segs
-		pts.append(Vector2(cos(a) * WALL_A, sin(a) * WALL_B))
-	var gates: Array[Vector2] = []
-	for i in segs:
-		var p0: Vector2 = pts[i]
-		var p1: Vector2 = pts[i + 1]
-		var mid := (p0 + p1) / 2
-		# A gap where a road passes: gate towers stand either side.
-		var gate := false
-		for s in streets:
-			if s[2] >= 6.0 and Geometry2D.segment_intersects_segment(p0, p1, s[0], s[1]) != null:
-				gate = true
-		if gate:
-			var near_gate := false
-			for gp in gates:
-				if gp.distance_to(mid) < 30.0:
-					near_gate = true
-			if not near_gate:
-				gates.append(mid)
-				for q in [p0, p1]:
-					_tower(k, q, 6.5, 19.0)
+				var w: float = [4.6, 5.4, 6.2, 7.0][rng.randi_range(0, 3)]
+				var d := rng.randf_range(10.0, 14.0)
+				var c := a + dir * (t + w / 2) + n * (sw / 2 + 0.1 + d / 2)
+				var floors := rng.randi_range(3, 5) if c.length() < 220 else rng.randi_range(3, 4)
+				var face := ang + (PI if side > 0 else 0.0)
+				var ok := _try_house(k, c, face, w, d, floors, first or t + w >= len - 6)
+				first = false
+				t += w if ok else 1.5
+	# Back yards: sheds and workshops, a tree now and then.
+	for i in 14000:
+		var c := Vector2(rng.randf_range(-(NI + 0.5) * PX, (NI + 0.5) * PX), rng.randf_range(-(NJ + 0.5) * PZ, (NJ + 0.5) * PZ))
+		if cell(c) != 0:
 			continue
-		var d := (p1 - p0)
-		var n := d.normalized().orthogonal() * 1.6
-		k.wall("wall-stone", p0 + n, p1 + n, 0.0, 9.0, 4.0, 4.0, Color(0.78, 0.74, 0.68))
-		k.wall("wall-stone", p1 - n, p0 - n, 0.0, 9.0, 4.0, 4.0, Color(0.7, 0.66, 0.6))
-		k.quad("wall-stone", Vector3(p0.x + n.x, 9, p0.y + n.y), Vector3(p1.x + n.x, 9, p1.y + n.y), Vector3(p1.x - n.x, 9, p1.y - n.y), Vector3(p0.x - n.x, 9, p0.y - n.y), Vector2(0, 0), Vector2(d.length() / 4, 0), Vector2(d.length() / 4, 0.8), Vector2(0, 0.8), Color(0.6, 0.58, 0.55))
-		# Crenellations on the outer edge.
-		var cn := int(d.length() / 2.4)
-		for j in cn:
-			var q: Vector2 = p0.lerp(p1, (j + 0.5) / cn) + n * 0.7
-			if j % 2 == 0:
-				k.box("wall-stone", q, 1.2, 0.8, 9.0, 10.3, 2, 2, Color(0.72, 0.7, 0.65))
-		mark(mid, d.angle(), d.length() / 2 + 0.5, 2.5, 2)
-		var by_gate := false
-		for gp in gates:
-			if gp.distance_to(p0) < 24.0:
-				by_gate = true
-		if i % 4 == 0 and not by_gate:
-			_tower(k, p0, 5.0, 15.0)
+		var ang := snappedf(rng.randf_range(-PI, PI), PI / 2)
+		if rng.randf() < 0.7:
+			_try_house(k, c, ang, rng.randf_range(3.5, 6.0), rng.randf_range(3.0, 5.0), rng.randi_range(1, 2))
+		elif c.length() < DETAIL and is_free(c, 0, 2, 2):
+			trees.append([Vector3(c.x, 0, c.y), rng.randf_range(2.5, 3.5), _leaf()])
+			mark(c, 0, 2, 2, 4)
 
-func _tower(k: Kit, c: Vector2, r: float, h: float) -> void:
-	k.cylinder("wall-stone", c, r, 0.0, h, 14, 4.0, 4.0, Color(0.78, 0.74, 0.68))
-	k.cone("roof-tiles", c, r + 0.8, h, r * 1.9, 14, ROOF_T, Color(0.85, 0.7, 0.6))
-	for j in 3:
-		var a := rng.randf() * TAU
-		if rng.randf() < 0.5:
-			k.pane("win", Vector3(c.x + cos(a) * r, h * 0.62, c.y + sin(a) * r), Vector3(cos(a), 0, sin(a)), 0.6, 1.0)
-	mark(c, 0.0, r + 1, r + 1, 2)
+func _leaf() -> Color:
+	var t := rng.randf_range(0.6, 1.0)
+	return Color(0.3 * t, 0.36 * t, 0.28 * t)
 
 
 # ---------------------------------------------------------------- landmarks
 
-func _at(k: Kit, id: String, ang := 0.0) -> Vector2:
-	var c: Vector2 = PLACES[id].pos
-	k.xf = Transform3D(Basis(Vector3.UP, -ang), Vector3(c.x, 0, c.y))
-	return c
+## Bruno's models: godot/assets/models/<id>.glb replaces the drawn landmark when it exists.
+func _model(id: String) -> Node3D:
+	var path := "res://assets/models/%s.glb" % id
+	if ResourceLoader.exists(path):
+		return (load(path) as PackedScene).instantiate()
+	return null
 
-func _label(id: String, h: float) -> void:
-	var c: Vector2 = PLACES[id].pos
-	labels.append({"text": PLACES[id].name, "col": Color(PLACES[id].col), "pos": Vector3(c.x, h, c.y)})
-	lights.append({"pos": Vector3(c.x, 8.0, c.y + 6.0), "col": Color(PLACES[id].col), "energy": 6.0, "range": 34.0})
+func _label(id: String, c: Vector2) -> void:
+	labels.append({"text": PLACES[id].name, "col": Color(PLACES[id].col), "pos": Vector3(c.x, PLACES[id].h, c.y)})
+	lights.append({"pos": Vector3(c.x, 10.0, c.y + BZ / 2 + 2), "col": Color(PLACES[id].col), "energy": 9.0, "range": 40.0})
 
-func _build_landmarks(k: Kit) -> void:
-	var stone := Color(0.8, 0.77, 0.7)
-	var slate := Color(0.55, 0.58, 0.65)
-	# Saint-Roch: nave, aisles, transept, apse, twin west towers with spires, a crossing spire.
-	var c := _at(k, "church", 0.08)
-	var g := "glow:church"
-	k.walls("wall-stone", Vector2(0, 0), 16, 56, 0, 22, 4, 4, stone)
-	k.gable("roof-tiles", "wall-stone", Vector2(0, 0), 56, 16, 22, 11, 0.8, ROOF_T, 4, 4, slate, stone)
-	for s: float in [-1.0, 1.0]:
-		k.walls("wall-stone", Vector2(s * 12, 2), 8, 46, 0, 11, 4, 4, stone)
-		k.hip("roof-tiles", Vector2(s * 12, 2), 8, 46, 11, 3.5, 0.6, ROOF_T, slate)
-		for j in 6:
-			k.pane(g, Vector3(s * 8.05, 15, -18 + j * 7), Vector3(s, 0, 0), 1.6, 5.0)
-	var sv := k.xf
-	k.xf = k.xf * Transform3D(Basis(Vector3.UP, PI / 2), Vector3.ZERO)
-	k.walls("wall-stone", Vector2(10, 0), 14, 44, 0, 22, 4, 4, stone)
-	k.gable("roof-tiles", "wall-stone", Vector2(10, 0), 44, 14, 22, 10, 0.8, ROOF_T, 4, 4, slate, stone)
-	k.xf = sv
-	k.cylinder("wall-stone", Vector2(0, -30), 8, 0, 20, 12, 4, 4, stone)
-	k.cone("roof-tiles", Vector2(0, -30), 8.6, 20, 9, 12, ROOF_T, slate)
-	for s: float in [-1.0, 1.0]:
-		k.box("wall-stone", Vector2(s * 7, 30), 9, 9, 0, 40, 4, 4, stone)
-		k.pyramid("roof-tiles", Vector2(s * 7, 30), 9.6, 9.6, 40, 20, ROOF_T, slate)
-		k.pane(g, Vector3(s * 7, 30, 34.6), Vector3.BACK, 2.0, 4.0)
-	k.pane(g, Vector3(0, 16, 28.1), Vector3.BACK, 5.0, 5.0)
-	k.pane(g, Vector3(0, 5, 28.1), Vector3.BACK, 3.0, 6.0)
-	k.box("wall-stone", Vector2(0, -10), 7, 7, 22, 40, 4, 4, stone)
-	k.pyramid("roof-tiles", Vector2(0, -10), 7.6, 7.6, 40, 30, ROOF_T, slate)
-	mark(c, 0.08, 22, 40, 2)
-	plaza(c + Vector2(0, 46), 40, 22, k)
-	_label("church", 74)
-	# The square: paving, a fountain and the scaffold.
-	c = _at(k, "square")
-	k.xf = Transform3D.IDENTITY
-	plaza(c, 52, 40, k)
-	k.cylinder("wall-stone", c + Vector2(-8, 0), 4.5, 0, 1.0, 16, 3, 3, stone)
-	k.disc("water", c + Vector2(-8, 0), 4.2, 0.9, 16, 6)
-	k.cylinder("wall-stone", c + Vector2(-8, 0), 0.6, 0, 3.5, 8, 2, 2, stone)
-	k.disc("glow:square", c + Vector2(-8, 0), 1.2, 3.5, 8, 2)
-	k.box("wood", c + Vector2(12, -4), 8, 6, 0, 2.2, 3, 3)
-	k.box("wood", c + Vector2(10.5, -4), 0.5, 0.5, 2.2, 8.5, 3, 3)
-	k.box("wood", c + Vector2(12, -4), 3.5, 0.4, 8.2, 8.7, 3, 3)
-	_label("square", 14)
-	# First Player: the town hall and its belfry, clock faces lit.
-	c = _at(k, "first")
-	k.walls("wall-stone", Vector2.ZERO, 26, 12, 0, 12, 4, 4, stone)
-	k.gable("roof-tiles", "wall-stone", Vector2.ZERO, 26, 12, 12, 6, 0.6, ROOF_T, 4, 4, slate, stone)
-	k.box("wall-stone", Vector2(0, 0), 7, 7, 12, 34, 4, 4, stone)
-	k.pyramid("roof-tiles", Vector2(0, 0), 7.6, 7.6, 34, 10, ROOF_T, slate)
-	for nv in [Vector3.BACK, Vector3.FORWARD, Vector3.LEFT, Vector3.RIGHT]:
-		k.pane("glow:first", Vector3(0, 29, 0) + nv * 3.5, nv, 3.6, 3.6)
-	for j in 6:
-		k.pane("win", Vector3(-10 + j * 4, 6, 6.0), Vector3.BACK, 1.0, 2.2)
-	mark(c, 0, 14, 7, 2)
-	_label("first", 48)
-	# Market hall: a big hipped roof on timber posts, stalls under awnings.
-	c = _at(k, "market", 0.05)
-	plaza(c, 46, 30, k)
-	k.xf = Transform3D(Basis(Vector3.UP, -0.05), Vector3(c.x, 0, c.y))
-	for x in range(-12, 13, 6):
-		for z in [-7, 7]:
-			k.box("wood", Vector2(x, z), 0.7, 0.7, 0, 5.5, 2, 2)
-	k.hip("roof-tiles", Vector2.ZERO, 28, 16, 5.5, 6.5, 1.0, ROOF_T, Color(0.85, 0.65, 0.5))
-	for j in 5:
-		var sc := Vector2(-12 + j * 6, 12)
-		k.box("wood", sc, 3.4, 2.0, 0, 1.0, 2, 2)
-		k.gable("cloth-a" if j % 2 == 0 else "cloth-b", "wood", sc, 3.8, 2.6, 2.2, 0.6, 0.1, 2, 2, 2)
-		k.box("wood", sc + Vector2(-1.6, 1), 0.2, 0.2, 0, 2.2, 1, 1)
-		k.box("wood", sc + Vector2(1.6, 1), 0.2, 0.2, 0, 2.2, 1, 1)
-	k.pane("glow:market", Vector3(0, 4.2, 8.1), Vector3.BACK, 16, 0.6)
-	_label("market", 18)
-	# Academy: a stone institute round a court, a portico and a dome.
-	c = _at(k, "academy", -0.06)
-	k.walls("wall-stone", Vector2.ZERO, 40, 24, 0, 15, 4, 4, Color(0.86, 0.84, 0.8))
-	k.hip("roof-tiles", Vector2.ZERO, 40, 24, 15, 5, 0.6, ROOF_T, slate)
-	k.cylinder("wall-stone", Vector2(0, -2), 8, 15, 22, 16, 4, 4, Color(0.86, 0.84, 0.8))
-	k.cone("roof-tiles", Vector2(0, -2), 8.5, 22, 5.5, 16, ROOF_T, slate)
-	k.cylinder("wall-stone", Vector2(0, -2), 1.4, 27, 31, 8, 2, 2)
-	k.cone("glow:academy", Vector2(0, -2), 1.8, 31, 2.5, 8, 2)
-	for j in 6:
-		k.cylinder("wall-stone", Vector2(-10 + j * 4, 15), 0.8, 0, 12, 8, 2, 4, Color(0.9, 0.88, 0.84))
-	k.box("wall-stone", Vector2(0, 14), 24, 4, 12, 13.5, 4, 4)
-	var sv2 := k.xf
-	k.gable("roof-tiles", "wall-stone", Vector2(0, 14), 24, 4.4, 13.5, 3.5, 0.2, ROOF_T, 4, 4, slate, stone)
-	k.xf = sv2
-	for f in 3:
-		for j in 8:
-			k.pane("glow:academy" if (j + f) % 3 == 0 else "win", Vector3(-17.5 + j * 5, 2.5 + f * 4.5, 12.05), Vector3.BACK, 1.2, 2.4)
-	mark(c, -0.06, 21, 17, 2)
-	_label("academy", 40)
-	# Hospital: four wings round a court, a chapel at the back.
-	c = _at(k, "hospital", 0.04)
-	for wing in [[Vector2(0, -18), 50.0, 10.0], [Vector2(0, 18), 50.0, 10.0], [Vector2(-20, 0), 10.0, 26.0], [Vector2(20, 0), 10.0, 26.0]]:
-		var wc: Vector2 = wing[0]
-		var ww: float = wing[1]
-		var wd: float = wing[2]
-		k.walls("wall-timber" if wc.y != 0 else "wall-stone", wc, ww, wd, 0, 12, 3, 3, Color(0.92, 0.9, 0.86))
-		k.hip("roof-tiles", wc, ww, wd, 12, 5, 0.7, ROOF_T, slate)
-	for j in 14:
-		k.pane("glow:hospital", Vector3(-23 + j * 3.5, 4.5 + 3 * (j % 2), 23.05), Vector3.BACK, 0.8, 1.4)
-	k.flat("grass", Vector2.ZERO, 30, 26, 0.12, 8)
-	k.cylinder("wall-stone", Vector2(0, 0), 2.5, 0, 1.2, 10, 2, 2)
-	mark(c, 0.04, 26, 24, 2)
-	_label("hospital", 26)
-	# Odéon: a theatre with a colonnade.
-	c = _at(k, "odeon", -0.1)
-	k.walls("wall-stone", Vector2.ZERO, 30, 24, 0, 16, 4, 4, Color(0.88, 0.82, 0.78))
-	k.hip("roof-tiles", Vector2.ZERO, 30, 24, 16, 6, 0.6, ROOF_T, slate)
-	for j in 8:
-		k.cylinder("wall-stone", Vector2(-12.25 + j * 3.5, 14), 0.8, 0, 13, 8, 2, 4)
-	k.box("wall-stone", Vector2(0, 14), 28, 4, 13, 14.5, 4, 4)
-	k.gable("roof-tiles", "wall-stone", Vector2(0, 14), 28, 4.4, 14.5, 4.0, 0.2, ROOF_T, 4, 4, slate, stone)
-	for j in 4:
-		k.pane("glow:odeon", Vector3(-9 + j * 6, 3.5, 12.05), Vector3.BACK, 2.2, 4.5)
-	mark(c, -0.1, 16, 17, 2)
-	_label("odeon", 30)
-	# Dark Alley: a narrow lane between tall leaning houses, one lamp.
-	c = _at(k, "alley", 0.5)
-	k.xf = Transform3D.IDENTITY
-	var dir := Vector2(cos(0.5), sin(0.5))
-	var nrm := dir.orthogonal()
-	street([c - dir * 28, c + dir * 28], 2.6, k, Color(0.55, 0.5, 0.5))
-	for side: float in [-1.0, 1.0]:
-		var t := -26.0
-		while t < 26.0:
-			var w := TILE * 2
-			var hc := c + dir * (t + w / 2) + nrm * side * (1.3 + 0.4 + 4.5)
-			var face := dir.angle() + (PI if side > 0 else 0.0)
-			house(k, hc, face, w, 9, 4, true)
-			mark(hc, face, w / 2 + 0.2, 4.7, 2)
-			t += w + 0.1
-	k.box("wood", c, 0.3, 0.3, 0, 4.5, 1, 1)
-	k.box("glow:alley", c, 0.9, 0.9, 4.5, 5.4, 1, 1)
-	_label("alley", 22)
-	# Graveyard: a walled yard, a chapel, headstones, cypresses.
-	c = _at(k, "cemetery", 0.12)
-	for s: float in [-1.0, 1.0]:
-		k.box("wall-stone", Vector2(s * 36, 0), 1.2, 52, 0, 2.6, 3, 3)
-	k.box("wall-stone", Vector2(0, -26), 72, 1.2, 0, 2.6, 3, 3)
-	k.box("wall-stone", Vector2(-21, 26), 30, 1.2, 0, 2.6, 3, 3)
-	k.box("wall-stone", Vector2(21, 26), 30, 1.2, 0, 2.6, 3, 3)
-	k.flat("grass", Vector2.ZERO, 72, 52, 0.12, 8, Color(0.6, 0.65, 0.55))
-	var sv3 := k.xf
-	k.xf = k.xf * Transform3D(Basis(Vector3.UP, PI / 2), Vector3(0, 0, 0))
-	k.walls("wall-stone", Vector2(14, 0), 18, 10, 0, 8, 3, 3, stone)
-	k.gable("roof-tiles", "wall-stone", Vector2(14, 0), 18, 10, 8, 5, 0.5, ROOF_T, 3, 3, slate, stone)
-	k.xf = sv3
-	k.box("wall-stone", Vector2(0, -6), 3.5, 3.5, 0, 16, 3, 3, stone)
-	k.pyramid("roof-tiles", Vector2(0, -6), 4, 4, 16, 6, ROOF_T, slate)
-	k.pane("glow:cemetery", Vector3(0, 4, -5.95 + 2.2), Vector3.BACK, 1.6, 3.0)
-	for i in 70:
-		var hp := Vector2(rng.randf_range(-32, 32), rng.randf_range(-22, 22))
-		if hp.distance_to(Vector2(0, -10)) < 12:
+func _yard(k: Kit, c: Vector2, w: float, d: float, kind: String) -> void:
+	k.flat(kind, c, w, d, 0.22, 5.0 if kind == "pave" else 8.0, Color(0.75, 0.75, 0.75))
+
+func _build_landmarks(root: Node3D, k: Kit) -> void:
+	var st := Color(0.78, 0.8, 0.82)
+	var sl := Color(0.75, 0.78, 0.85)
+	for id in PLACES:
+		var c := block_center(PLACES[id].block)
+		mark(c, 0, BX / 2, BZ / 2, 4)
+		_label(id, c)
+		var m := _model(id)
+		if m != null:
+			m.position = Vector3(c.x, 0, c.y)
+			root.add_child(m)
 			continue
-		k.box("wall-stone", hp, 0.9, 0.3, 0, rng.randf_range(0.8, 1.5), 1, 1, Color(0.7, 0.7, 0.68))
-	for i in 12:
-		var tp := Vector2(rng.randf_range(-33, 33), rng.randf_range(-23, 23))
-		k.cylinder("wood", tp, 0.2, 0, 1.2, 5, 1, 1)
-		k.cone("leaf", tp, 1.3, 1.0, rng.randf_range(6, 9), 7, 2, Color(0.55, 0.65, 0.5))
-	mark(c, 0.12, 37, 27, 2)
-	_label("cemetery", 22)
-	# Slaughterhouse: long sheds round a yard of pens, a tall chimney.
-	c = _at(k, "slaughter", -0.5)
-	for s: float in [-1.0, 1.0]:
-		k.walls("wall-timber", Vector2(0, s * 12), 44, 9, 0, 6, 3, 3, Color(0.7, 0.62, 0.58))
-		k.gable("roof-tiles", "wall-timber", Vector2(0, s * 12), 44, 9, 6, 3.5, 0.6, ROOF_T, 3, 3, Color(0.6, 0.45, 0.4))
-		for j in 6:
-			k.pane("glow:slaughter", Vector3(-18 + j * 7, 2.5, s * 12 + s * 4.55), Vector3(0, 0, s), 1.4, 1.2)
-	for j in 6:
-		k.box("wood", Vector2(-15 + j * 6, 0), 5, 0.2, 0, 1.2, 2, 2)
-	k.cylinder("wall-stone", Vector2(20, 0), 1.6, 0, 22, 10, 2, 3, Color(0.6, 0.45, 0.4))
-	mark(c, -0.5, 23, 17, 2)
-	_label("slaughter", 26)
-	# Docks: a stone quay, warehouses, a crane, moored barges.
-	c = _at(k, "docks", -0.15)
-	k.box("wall-stone", Vector2.ZERO, 70, 12, 0, 1.0, 4, 4, Color(0.7, 0.68, 0.64), "cobbles")
-	for j in 2:
-		var wc := Vector2(-22 + j * 30, -14)
-		k.walls("wall-timber", wc, 18, 12, 0, 9, 3, 3, Color(0.75, 0.7, 0.62))
-		k.gable("roof-tiles", "wall-timber", wc, 18, 12, 9, 4.5, 0.6, ROOF_T, 3, 3)
-		k.pane("glow:docks", Vector3(wc.x, 3, wc.y + 6.05), Vector3.BACK, 3.5, 4.0)
-	k.box("wood", Vector2(20, 2), 1.0, 1.0, 1, 14, 2, 2)
-	k.box("wood", Vector2(24, 2), 9, 0.7, 13, 13.8, 2, 2)
-	k.box("wood", Vector2(28, 2), 0.1, 0.1, 6, 13, 1, 1)
-	for j in 8:
-		k.box("wood", Vector2(-30 + j * 3.2, 3 + (j % 2) * 1.6), 1.4, 1.4, 1, 2.4, 1, 1)
-	for j in 2:
-		var bc := Vector2(-18 + j * 26, 12)
-		k.box("wood", bc, 16, 4.5, -0.3, 1.2, 2, 2)
-		k.box("wood", bc + Vector2(-4, 0), 4, 3, 1.2, 2.6, 2, 2)
-	mark(c, -0.15, 37, 22, 2)
-	_label("docks", 20)
-	# Morgue: a low stone house with a small lantern turret.
-	c = _at(k, "morgue", 0.1)
-	k.walls("wall-stone", Vector2.ZERO, 18, 12, 0, 8, 3, 3, Color(0.72, 0.76, 0.76))
-	k.hip("roof-tiles", Vector2.ZERO, 18, 12, 8, 4, 0.6, ROOF_T, slate)
-	k.cylinder("wall-stone", Vector2.ZERO, 1.6, 10, 13, 8, 2, 2)
-	k.cone("roof-tiles", Vector2.ZERO, 2.0, 13, 2.5, 8, ROOF_T, slate)
-	k.pane("glow:morgue", Vector3(0, 2.5, 6.05), Vector3.BACK, 2.0, 3.5)
-	k.pane("glow:morgue", Vector3(-5, 4.5, 6.05), Vector3.BACK, 1.0, 1.6)
-	k.pane("glow:morgue", Vector3(5, 4.5, 6.05), Vector3.BACK, 1.0, 1.6)
-	mark(c, 0.1, 10, 7, 2)
-	_label("morgue", 18)
+		k.xf = Transform3D(Basis.IDENTITY, Vector3(c.x, 0, c.y))
+		var g: String = "glow:" + id
+		match id:
+			"church":
+				_yard(k, Vector2.ZERO, BX, BZ, "pave")
+				# Nave along x, aisles, buttresses with pinnacles, a west tower and spire, a rose window, an apse.
+				k.walls("stone", Vector2(2, 0), 34, 11, 0, 20, 3.4, 4.0, st)
+				k.gable("slate", "stone", Vector2(2, 0), 34, 11, 20, 9, 0.4, 4, 3.4, 4, sl, st)
+				for s: float in [-1.0, 1.0]:
+					k.walls("stone", Vector2(2, s * 8.5), 34, 6, 0, 10, 3.4, 4.0, st)
+					k.hip("slate", Vector2(2, s * 8.5), 34, 6, 10, 2.5, 0.3, 4, sl)
+					for j in 6:
+						var bxp := -12.0 + j * 5.6
+						k.box("stone", Vector2(bxp, s * 11.8), 1.0, 1.4, 0, 14, 2, 2, st)
+						k.pinnacle("stone", Vector2(bxp, s * 11.8), 0.8, 14, 3.5, st)
+						k.pane(g, Vector3(bxp + 2.8, 14.5, s * 5.55), Vector3(0, 0, s), 1.4, 5.0)
+				k.box("stone", Vector2(-18, 0), 10, 10, 0, 34, 3.4, 4.0, st)
+				for cx: float in [-1.0, 1.0]:
+					for cz: float in [-1.0, 1.0]:
+						k.pinnacle("stone", Vector2(-18 + cx * 4.6, cz * 4.6), 1.0, 34, 6, st)
+				k.pyramid("slate", Vector2(-18, 0), 8.4, 8.4, 34, 38, 4, sl)
+				k.pane(g, Vector3(-23.05, 22, 0), Vector3.LEFT, 5.5, 5.5)
+				k.pane(g, Vector3(-23.05, 6, 0), Vector3.LEFT, 3.0, 7.0)
+				k.turret("stone", "slate", Vector2(19, 0), 5.5, 0, 18, 7, 3.4, 4, st, sl)
+			"first":
+				_yard(k, Vector2.ZERO, BX, BZ, "pave")
+				# A clock tower: tall square shaft, lit faces, pinnacles and a spire, a hall at its foot.
+				k.box("stone", Vector2(0, 0), 9, 9, 0, 46, 3.0, 4.0, st)
+				k.box("stone", Vector2(0, 0), 10.5, 10.5, 46, 53, 3.0, 3.5, st)
+				for nv in [Vector3.BACK, Vector3.FORWARD, Vector3.LEFT, Vector3.RIGHT]:
+					k.pane(g, Vector3(0, 49.5, 0) + nv * 5.25, nv, 5.0, 5.0)
+				for cx: float in [-1.0, 1.0]:
+					for cz: float in [-1.0, 1.0]:
+						k.pinnacle("stone", Vector2(cx * 4.9, cz * 4.9), 1.0, 53, 5, st)
+				k.pyramid("slate", Vector2.ZERO, 9.5, 9.5, 53, 20, 4, sl)
+				k.walls("stone", Vector2(0, 10), 30, 9, 0, 12, 3.4, 4, st)
+				k.gable("slate", "stone", Vector2(0, 10), 30, 9, 12, 6, 0.4, 4, 3.4, 4, sl, st)
+				for j in 7:
+					k.pane("win", Vector3(-12 + j * 4, 7, 14.55), Vector3.BACK, 1.0, 2.6)
+			"square":
+				_yard(k, Vector2.ZERO, BX, BZ, "pave")
+				k.flat("grass", Vector2.ZERO, BX - 14, BZ - 14, 0.25, 8, Color(0.6, 0.65, 0.6))
+				k.box("stone", Vector2(0, 0), 3, 3, 0, 3, 2, 2, st)
+				k.cylinder("iron", Vector2(0, 0), 0.6, 3, 7, 8, 1, 1)
+				k.box(g, Vector2(0, 0), 1.2, 1.2, 7, 8.2, 1, 1)
+				# The scaffold.
+				k.box("wood", Vector2(10, -6), 7, 6, 0, 2.4, 2, 2)
+				k.box("wood", Vector2(8, -6), 0.5, 0.5, 2.4, 9, 1, 1)
+				k.box("wood", Vector2(9.6, -6), 3.6, 0.4, 8.6, 9.0, 1, 1)
+				k.box("iron", Vector2(11.1, -6), 0.08, 0.08, 6.0, 8.6, 1, 1)
+				for j in 8:
+					var a := TAU * j / 8
+					trees.append([Vector3(c.x + cos(a) * 14, 0, c.y + sin(a) * 10), 3.2, _leaf()])
+			"market":
+				_yard(k, Vector2.ZERO, BX, BZ, "pave")
+				# An iron-and-glass hall on iron columns, a raised glass lantern along the ridge.
+				for x in range(-18, 19, 6):
+					for z: float in [-12.0, 12.0]:
+						k.box("iron", Vector2(x, z), 0.6, 0.6, 0, 9, 1, 1)
+				k.hip("glass", Vector2.ZERO, 40, 26, 9, 7, 0.6, 6, Color(0.9, 0.95, 1.0))
+				k.walls("iron", Vector2.ZERO, 40.4, 26.4, 8.4, 9.0, 2, 2)
+				k.box("glass", Vector2.ZERO, 8, 26, 16, 18.5, 4, 4)
+				k.pane(g, Vector3(0, 4, 12.0), Vector3.BACK, 30, 2.5)
+				for j in 6:
+					k.box("wood", Vector2(-15 + j * 6, 4), 3.5, 2, 0, 1.0, 1, 1)
+			"academy":
+				_yard(k, Vector2.ZERO, BX, BZ, "grass")
+				# A gothic college round a quad, a gate tower with four turrets on the front.
+				for wing in [[Vector2(0, -13), 42.0, 9.0], [Vector2(0, 13), 42.0, 9.0], [Vector2(-17, 0), 8.0, 18.0], [Vector2(17, 0), 8.0, 18.0]]:
+					var wc: Vector2 = wing[0]
+					var ww: float = wing[1]
+					var wd: float = wing[2]
+					k.walls("stone", wc, ww, wd, 0, 13.6, _tw(ww), STOREY, st)
+					k.hip("slate", wc, ww, wd, 13.6, 5, 0.3, 4, sl)
+				for j in 11:
+					k.pane(g if j % 3 == 0 else "win", Vector3(-19 + j * 3.8, 5 + (j % 2) * 3.4, 17.55), Vector3.BACK, 0.8, 1.8)
+				k.box("stone", Vector2(0, 13), 9, 11, 0, 30, 3, 4, st)
+				for cx: float in [-1.0, 1.0]:
+					for cz: float in [-1.0, 1.0]:
+						k.turret("stone", "slate", Vector2(cx * 4.5, 13 + cz * 5.5), 1.4, 0, 33, 5, 2, 4, st, sl)
+				k.pane(g, Vector3(0, 22, 18.55), Vector3.BACK, 3.0, 5.0)
+			"hospital":
+				_yard(k, Vector2.ZERO, BX, BZ, "pave")
+				for wing in [[Vector2(0, -13), 44.0, 10.0], [Vector2(0, 13), 44.0, 10.0], [Vector2(-18, 0), 8.0, 16.0], [Vector2(18, 0), 8.0, 16.0]]:
+					var wc: Vector2 = wing[0]
+					var ww: float = wing[1]
+					var wd: float = wing[2]
+					k.walls("brick", wc, ww, wd, 0, 17, _tw(ww), STOREY, Color(0.85, 0.8, 0.78))
+					k.hip("slate", wc, ww, wd, 17, 6, 0.3, 4, sl)
+				for f in 5:
+					for j in 12:
+						if rng.randf() < 0.45:
+							k.pane(g, Vector3(-20 + j * 3.6, 1.9 + f * STOREY, 18.05), Vector3.BACK, 0.65, 1.3)
+				k.box("brick", Vector2(0, 18), 8, 3, 0, 22, 2, 4, Color(0.85, 0.8, 0.78))
+				k.pyramid("slate", Vector2(0, 18), 8, 3.4, 22, 6, 4, sl)
+			"odeon":
+				_yard(k, Vector2.ZERO, BX, BZ, "pave")
+				k.walls("stone", Vector2(0, -3), 36, 26, 0, 20, 3.4, 4, st)
+				k.hip("slate", Vector2(0, -3), 36, 26, 20, 7, 0.4, 4, sl)
+				for j in 5:
+					var ax := -12.0 + j * 6
+					k.box("stone", Vector2(ax, 12), 1.2, 1.2, 0, 11, 2, 2, st)
+					k.pinnacle("stone", Vector2(ax, 12), 1.0, 11, 3.5, st)
+				k.box("stone", Vector2(0, 12), 26, 1.6, 9, 11, 3, 3, st)
+				for j in 4:
+					k.pane(g, Vector3(-9 + j * 6, 4.5, 10.05), Vector3.BACK, 3.0, 6.5)
+				k.pane(g, Vector3(0, 15, 10.05), Vector3.BACK, 6.0, 4.0)
+			"alley":
+				# A narrow lane through the block between tall, crooked houses.
+				k.xf = Transform3D.IDENTITY
+				_yard(k, c, BX, BZ, "pave")
+				k.flat("street", c, 3.0, BZ, 0.26, 6, Color(0.5, 0.5, 0.55))
+				for side: float in [-1.0, 1.0]:
+					var z := -BZ / 2
+					while z < BZ / 2 - 3:
+						var w := rng.randf_range(4.0, 5.5)
+						var hc := c + Vector2(side * (1.5 + 6.5), z + w / 2)
+						var face := PI / 2 + (PI if side < 0 else 0.0)
+						gothic_house(k, hc, face, w, 13, rng.randi_range(4, 6), true)
+						z += w
+				k.box("iron", c + Vector2(0, 2), 0.25, 0.25, 0, 5.5, 1, 1)
+				k.box(g, c + Vector2(0, 2), 0.9, 0.9, 5.5, 6.5, 1, 1)
+			"cemetery":
+				_yard(k, Vector2.ZERO, BX, BZ, "grass")
+				for s: float in [-1.0, 1.0]:
+					k.box("iron", Vector2(s * (BX / 2 - 0.5), 0), 0.2, BZ - 1, 0, 2.4, 1, 1)
+					k.box("iron", Vector2(0, s * (BZ / 2 - 0.5)), BX - 1, 0.2, 0, 2.4, 1, 1)
+				k.walls("stone", Vector2(0, -9), 9, 15, 0, 9, 3, 4, st)
+				var s1 := k.xf
+				k.xf = k.xf * Transform3D(Basis(Vector3.UP, PI / 2), Vector3.ZERO)
+				k.gable("slate", "stone", Vector2(9, 0), 15, 9, 9, 6.5, 0.3, 4, 3, 4, sl, st)
+				k.xf = s1
+				k.box("stone", Vector2(0, -1), 3, 3, 0, 15, 2, 3, st)
+				k.pyramid("slate", Vector2(0, -1), 3.4, 3.4, 15, 7, 3, sl)
+				k.pane(g, Vector3(0, 4, 0.55), Vector3.BACK, 1.4, 3.0)
+				for j in 90:
+					var hp := Vector2(rng.randf_range(-BX / 2 + 2, BX / 2 - 2), rng.randf_range(-BZ / 2 + 2, BZ / 2 - 2))
+					if absf(hp.x) < 7 and hp.y < 2:
+						continue
+					k.box("stone", hp, 0.9, 0.3, 0, rng.randf_range(0.9, 1.8), 1, 1, Color(0.7, 0.7, 0.72))
+				for j in 7:
+					trees.append([Vector3(c.x + rng.randf_range(-20, 20), 0, c.y + rng.randf_range(-15, 15)), 3.0, Color(0.2, 0.22, 0.2)])
+			"slaughter":
+				_yard(k, Vector2.ZERO, BX, BZ, "pave")
+				for s: float in [-1.0, 1.0]:
+					k.walls("brick", Vector2(0, s * 11), 42, 10, 0, 8, 3.2, 4, Color(0.7, 0.62, 0.6))
+					k.gable("slate", "brick", Vector2(0, s * 11), 42, 10, 8, 5, 0.4, 4, 3.2, 4, sl, Color(0.7, 0.62, 0.6))
+					for j in 7:
+						k.pane(g, Vector3(-18 + j * 6, 3, s * 16.05), Vector3(0, 0, s), 1.4, 1.6)
+				k.cylinder("brick", Vector2(17, 0), 2.0, 0, 34, 10, 2, 4, Color(0.6, 0.5, 0.48))
+				for j in 6:
+					k.box("wood", Vector2(-14 + j * 5, 0), 4, 0.2, 0, 1.3, 1, 1)
+			"docks":
+				# On the north embankment: warehouses on the quay, cranes over the water, barges.
+				k.xf = Transform3D.IDENTITY
+				var qz := river_z(c.x) - RIVER_W / 2
+				var qc := Vector2(c.x, qz - 26)
+				for j in 3:
+					var wc := qc + Vector2(-30 + j * 30, 0)
+					k.walls("brick", wc, 24, 16, 0, 15, _tw(24), STOREY, Color(0.75, 0.68, 0.62))
+					var s5 := k.xf
+					k.xf = Transform3D(Basis(Vector3.UP, -PI / 2), Vector3(wc.x, 0, wc.y))
+					k.gable("slate", "brick", Vector2.ZERO, 16, 24, 15, 7, 0.4, 4, 3.2, STOREY, sl, Color(0.75, 0.68, 0.62))
+					k.xf = s5
+					k.pane(g, Vector3(wc.x, 4, wc.y + 8.05), Vector3.BACK, 4.0, 6.0)
+					mark(wc, 0, 12, 8, 2)
+				for j in 2:
+					var cp := Vector2(c.x - 20 + j * 40, qz + 1)
+					k.box("wood", cp, 1.2, 1.2, 0, 16, 1, 1)
+					k.box("wood", cp + Vector2(0, 5), 0.8, 11, 15, 16, 1, 1)
+					k.box("iron", cp + Vector2(0, 10), 0.08, 0.08, 6, 15, 1, 1)
+					var bc := Vector2(c.x - 26 + j * 46, qz + 10)
+					k.box("wood", bc, 26, 7, -1.4, 0.6, 2, 2)
+					k.box("wood", bc + Vector2(-6, 0), 6, 4.5, 0.6, 2.4, 2, 2)
+			"morgue":
+				k.xf = Transform3D.IDENTITY
+				var mz := river_z(c.x) - RIVER_W / 2 - 26
+				var mc := Vector2(c.x, mz)
+				k.walls("stone", mc, 18, 12, 0, 9, 3, 4, Color(0.7, 0.75, 0.76))
+				k.hip("slate", mc, 18, 12, 9, 5, 0.3, 4, sl)
+				k.turret("stone", "slate", mc + Vector2(8, 5), 1.6, 0, 13, 5, 2, 4, Color(0.7, 0.75, 0.76), sl)
+				k.pane(g, Vector3(mc.x, 2.5, mc.y + 6.05), Vector3.BACK, 2.2, 4.0)
+				k.pane(g, Vector3(mc.x - 5, 5, mc.y + 6.05), Vector3.BACK, 1.0, 2.0)
+				k.pane(g, Vector3(mc.x + 5, 5, mc.y + 6.05), Vector3.BACK, 1.0, 2.0)
+				mark(mc, 0, 10, 7, 2)
 	k.xf = Transform3D.IDENTITY
-	# Keep the landmarks' surroundings open before the houses go in.
-	for id in ["academy", "hospital", "odeon", "morgue", "slaughter"]:
-		var p: Vector2 = PLACES[id].pos
-		mark(p + Vector2(0, 26), 0.0, 14, 5, 4)
 
 
-# ---------------------------------------------------------------- the country
+# ---------------------------------------------------------------- lamps and trees
 
-func _leaf() -> Color:
-	var t := rng.randf_range(0.55, 1.0)
-	return Color(0.32 * t, 0.42 * t, 0.24 * t)
-
-func _build_country(k: Kit) -> void:
-	# Fields: a patchwork of tilted plots on a coarse grid, with hedges of trees along some edges.
-	var step := 70.0
-	var x := -HALF
-	while x < HALF:
-		var z := -HALF
-		while z < HALF:
-			var c := Vector2(x + step / 2 + rng.randf_range(-10, 10), z + step / 2 + rng.randf_range(-10, 10))
-			var w := step * rng.randf_range(0.75, 0.95)
-			var d := step * rng.randf_range(0.6, 0.95)
-			var ang := rng.randf_range(-0.25, 0.25)
-			if pow(c.x / (WALL_A + 150), 2) + pow(c.y / (WALL_B + 130), 2) > 1.0 and is_free(c, ang, w / 2, d / 2):
-				var t := rng.randf_range(0.38, 0.6)
-				var tint: Color = [Color(t, t, t * 0.85), Color(t * 0.8, t, t * 0.7), Color(t, t * 0.9, t * 0.7)][rng.randi_range(0, 2)]
-				var saved := k.xf
-				k.xf = Transform3D(Basis(Vector3.UP, -ang), Vector3(c.x, 0, c.y))
-				if rng.randf() < 0.75:
-					k.flat("field", Vector2.ZERO, w, d, 0.05, rng.randf_range(10, 16), tint)
-				k.xf = saved
-				mark(c, ang, w / 2, d / 2, 4)
-				# Hedgerow along one or two edges.
-				var dir := Vector2(cos(ang), sin(ang))
-				var nrm := dir.orthogonal()
-				for e in rng.randi_range(0, 2):
-					var off := nrm * (d / 2 + 3) * (1.0 if e == 0 else -1.0)
-					var n := int(w / 6)
-					for j in n:
-						if rng.randf() < 0.75:
-							var p := c + off + dir * (-w / 2 + j * w / n)
-							trees.append([Vector3(p.x, 0, p.y), rng.randf_range(3.0, 5.0), _leaf()])
-				# A farm now and then.
-				if rng.randf() < 0.1:
-					var fc := c + nrm * (d / 2 + 12)
-					if is_free(fc, ang, 10, 8):
-						house(k, fc, ang, 12, 9, 1)
-						mark(fc, ang, 8, 6, 2)
-			z += step
-		x += step
-	# Woods and lone trees on what is left.
-	for i in 5000:
-		var p := Vector2(rng.randf_range(-HALF, HALF), rng.randf_range(-HALF, HALF))
-		if inside_wall(p, -20.0):
+func _build_lamps(root: Node3D, k: Kit) -> void:
+	var lit := 0
+	lamps.sort_custom(func(a: Vector3, b: Vector3) -> bool: return a.length_squared() < b.length_squared())
+	for p: Vector3 in lamps:
+		var c := Vector2(p.x, p.z)
+		if cell(c) == 2:
 			continue
-		if cell(p) == 0 and (rng.randf() < 0.5 or p.length() > 380):
-			trees.append([Vector3(p.x, 0, p.y), rng.randf_range(3.0, 6.0), _leaf()])
-			mark(p, 0.0, 2, 2, 4)
-	# A windmill on a rise to the north-west.
-	var wm := Vector2(-330, -260)
-	k.xf = Transform3D.IDENTITY
-	k.cylinder("wall-stone", wm, 5, 0, 13, 12, 3, 3, Color(0.8, 0.78, 0.72))
-	k.cone("roof-tiles", wm, 5.6, 13, 5, 12, ROOF_T)
-	k.xf = Transform3D(Basis(Vector3.UP, 0.4), Vector3(wm.x, 0, wm.y))
-	for a in 4:
-		var s2 := k.xf
-		k.xf = k.xf * Transform3D(Basis(Vector3.BACK, a * PI / 2 + 0.3), Vector3(0, 12, 5.8))
-		k.box("wood", Vector2(0, 0), 1.2, 0.3, 0, 11, 2, 2)
-		k.xf = s2
-	k.xf = Transform3D.IDENTITY
-
+		k.box("iron", c, 0.22, 0.22, p.y, p.y + 4.6, 1, 1)
+		k.box("gas", c, 0.6, 0.6, p.y + 4.6, p.y + 5.3, 1, 1)
+		k.pyramid("iron", c, 0.8, 0.8, p.y + 5.3, 0.5, 1)
+		if lit < 90:
+			var o := OmniLight3D.new()
+			o.light_color = Color("#ffc27a")
+			o.light_energy = 2.2
+			o.omni_range = 14.0
+			o.position = p + Vector3(0, 5.0, 0)
+			root.add_child(o)
+			lit += 1
 
 func _build_trees(root: Node3D) -> void:
+	if trees.is_empty():
+		return
 	var crown := SphereMesh.new()
 	crown.radius = 1.0
-	crown.height = 1.7
+	crown.height = 1.8
 	crown.radial_segments = 8
 	crown.rings = 4
 	var trunk := CylinderMesh.new()
-	trunk.top_radius = 0.12
-	trunk.bottom_radius = 0.2
+	trunk.top_radius = 0.1
+	trunk.bottom_radius = 0.18
 	trunk.height = 1.0
 	trunk.radial_segments = 5
 	var lm := StandardMaterial3D.new()
-	lm.vertex_color_use_as_albedo = true
+	lm.albedo_color = Color(0.3, 0.36, 0.28)
 	lm.roughness = 1.0
-	lm.albedo_texture = mats["grass"].albedo_texture
-	lm.uv1_scale = Vector3(0.5, 0.5, 0.5)
+	lm.metallic_specular = 0.1
 	crown.material = lm
 	trunk.material = mats["wood"]
 	var mc := MultiMesh.new()
@@ -798,16 +656,15 @@ func _build_trees(root: Node3D) -> void:
 	for i in trees.size():
 		var p: Vector3 = trees[i][0]
 		var s: float = trees[i][1]
-		var b := Basis.from_scale(Vector3(s, s * rng.randf_range(0.9, 1.25), s)).rotated(Vector3.UP, rng.randf() * TAU)
-		mc.set_instance_transform(i, Transform3D(b, p + Vector3(0, s * 1.55, 0)))
+		mc.set_instance_transform(i, Transform3D(Basis.from_scale(Vector3(s, s * 1.2, s)), p + Vector3(0, s * 2.0, 0)))
 		mc.set_instance_color(i, trees[i][2])
-		mt.set_instance_transform(i, Transform3D(Basis.from_scale(Vector3(s * 0.6, s * 1.2, s * 0.6)), p + Vector3(0, s * 0.6, 0)))
+		mt.set_instance_transform(i, Transform3D(Basis.from_scale(Vector3(s * 0.6, s * 1.6, s * 0.6)), p + Vector3(0, s * 0.8, 0)))
 	var a := MultiMeshInstance3D.new()
 	a.multimesh = mc
 	root.add_child(a)
-	var b2 := MultiMeshInstance3D.new()
-	b2.multimesh = mt
-	root.add_child(b2)
+	var b := MultiMeshInstance3D.new()
+	b.multimesh = mt
+	root.add_child(b)
 
 
 # ---------------------------------------------------------------- build
@@ -818,27 +675,20 @@ func build(root: Node3D) -> void:
 	occ.fill(0)
 	_make_mats()
 	var k := Kit.new(mats)
-	var ground := MeshInstance3D.new()
-	var pm := PlaneMesh.new()
-	pm.size = Vector2(6000, 6000)
-	ground.mesh = pm
-	var gm: StandardMaterial3D = mats["grass"].duplicate()
-	gm.uv1_scale = Vector3(6000.0 / 30, 6000.0 / 30, 1)
-	gm.albedo_color = Color(0.55, 0.62, 0.45)
-	ground.material_override = gm
-	root.add_child(ground)
+	# The ground: paving either side of the river, out past the fog.
+	var x := -2000.0
+	while x < 2000.0:
+		var x2 := x + 10.0
+		var za := river_z(x) - RIVER_W / 2
+		var zb := river_z(x2) - RIVER_W / 2
+		var gc := Color(0.5, 0.5, 0.52)
+		k.quad("pave", Vector3(x, 0, -2000), Vector3(x2, 0, -2000), Vector3(x2, 0, zb), Vector3(x, 0, za), Vector2(x, -2000) / 6, Vector2(x2, -2000) / 6, Vector2(x2, zb) / 6, Vector2(x, za) / 6, gc)
+		k.quad("pave", Vector3(x, 0, za + RIVER_W), Vector3(x2, 0, zb + RIVER_W), Vector3(x2, 0, 2000), Vector3(x, 0, 2000), Vector2(x, za + RIVER_W) / 6, Vector2(x2, zb + RIVER_W) / 6, Vector2(x2, 2000) / 6, Vector2(x, 2000) / 6, gc)
+		x = x2
 	_build_river(k)
-	var segs := 64
-	for i in segs:
-		var a0 := TAU * i / segs
-		var a1 := TAU * (i + 1) / segs
-		var p0 := Vector2(cos(a0) * WALL_A, sin(a0) * WALL_B)
-		var p1 := Vector2(cos(a1) * WALL_A, sin(a1) * WALL_B)
-		k.tri("cobbles", Vector3(0, 0.04, 0), Vector3(p1.x, 0.04, p1.y), Vector3(p0.x, 0.04, p0.y), Vector2.ZERO, p1 / 9.0, p0 / 9.0, Color(0.5, 0.47, 0.42))
-	_build_landmarks(k)
+	_build_landmarks(root, k)
 	_build_streets(k)
-	_build_wall(k)
 	_build_houses(k)
-	_build_country(k)
+	_build_lamps(root, k)
 	k.finish(root)
 	_build_trees(root)

@@ -5,14 +5,15 @@ extends Node3D
 var town: Town
 var cam_rig: Node3D
 var cam: Camera3D
-var target := Vector3(0, 0, 10)
-var yaw := deg_to_rad(18.0)
-var pitch := deg_to_rad(-36.0)
-var dist := 360.0
+var target := Vector3(10, 0, 20)
+var yaw := deg_to_rad(-28.0)
+var pitch := deg_to_rad(-38.0)
+var dist := 480.0
 var turning := false
 var panning := false
 var label_layer: CanvasLayer
 var label_nodes := []
+var rain: GPUParticles3D
 
 
 func _ready() -> void:
@@ -44,67 +45,89 @@ func _build_world() -> void:
 	var env := Environment.new()
 	var sky := Sky.new()
 	var sm := ProceduralSkyMaterial.new()
-	sm.sky_top_color = Color("#0b1222")
-	sm.sky_horizon_color = Color("#4a3a44")
-	sm.sky_curve = 0.12
-	sm.ground_horizon_color = Color("#2a2430")
-	sm.ground_bottom_color = Color("#0d0d12")
+	sm.sky_top_color = Color("#5d646e")
+	sm.sky_horizon_color = Color("#8a8f96")
+	sm.sky_curve = 0.2
+	sm.ground_horizon_color = Color("#6c7076")
+	sm.ground_bottom_color = Color("#3a3d42")
 	sm.sun_angle_max = 0.0
 	sky.sky_material = sm
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = 0.65
+	env.ambient_light_energy = 1.35
+	env.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	env.tonemap_exposure = 1.05
+	env.tonemap_exposure = 1.1
 	env.glow_enabled = true
-	env.glow_intensity = 0.6
-	env.glow_bloom = 0.05
+	env.glow_intensity = 0.55
+	env.glow_hdr_threshold = 1.1
 	env.ssao_enabled = true
-	env.ssao_radius = 2.5
-	env.ssao_intensity = 2.0
+	env.ssao_radius = 3.0
+	env.ssao_intensity = 2.2
+	# Wet streets: screen-space reflections of the lamps and windows.
+	env.ssr_enabled = true
+	env.ssr_max_steps = 48
+	env.ssr_fade_in = 0.15
+	env.ssr_fade_out = 2.0
 	env.fog_enabled = true
 	env.fog_mode = Environment.FOG_MODE_DEPTH
-	env.fog_light_color = Color("#2c2836")
+	env.fog_light_color = Color("#7d838b")
 	env.fog_density = 1.0
-	env.fog_depth_begin = 420.0
-	env.fog_depth_end = 1500.0
-	env.fog_depth_curve = 1.4
+	env.fog_depth_begin = 380.0
+	env.fog_depth_end = 1150.0
+	env.fog_depth_curve = 1.3
 	env.adjustment_enabled = true
-	env.adjustment_saturation = 0.92
+	env.adjustment_saturation = 0.6
+	env.adjustment_contrast = 1.05
 	we.environment = env
 	add_child(we)
-	# Moonlight, cold and high, casting the shadows.
-	var moon := DirectionalLight3D.new()
-	moon.light_color = Color("#c4c9de")
-	moon.light_energy = 1.05
-	moon.shadow_enabled = true
-	moon.directional_shadow_max_distance = 1100.0
-	moon.rotation_degrees = Vector3(-42, -35, 0)
-	add_child(moon)
-	# The last of the sunset, low from the west, warm.
-	var dusk := DirectionalLight3D.new()
-	dusk.light_color = Color("#ff9a5c")
-	dusk.light_energy = 0.45
-	dusk.rotation_degrees = Vector3(-12, 100, 0)
-	add_child(dusk)
+	# Overcast daylight: soft, from high up, with blurred shadows.
+	var sun := DirectionalLight3D.new()
+	sun.light_color = Color("#c9d0d8")
+	sun.light_energy = 1.0
+	sun.shadow_enabled = true
+	sun.shadow_blur = 4.0
+	sun.directional_shadow_max_distance = 1200.0
+	sun.rotation_degrees = Vector3(-62, -30, 0)
+	add_child(sun)
 	cam_rig = Node3D.new()
 	add_child(cam_rig)
 	cam = Camera3D.new()
-	cam.fov = 34
-	cam.near = 1.0
+	cam.fov = 24
+	cam.near = 2.0
 	cam.far = 6000.0
 	cam_rig.add_child(cam)
-	var ink := MeshInstance3D.new()
-	var q := QuadMesh.new()
-	q.size = Vector2(2, 2)
-	ink.mesh = q
-	var im := ShaderMaterial.new()
-	im.shader = load("res://town/ink.gdshader")
-	ink.material_override = im
-	ink.extra_cull_margin = 16384
-	ink.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	cam.add_child(ink)
+	_build_rain()
+
+
+## A light drizzle: thin slanted streaks in a box that follows the camera's target.
+func _build_rain() -> void:
+	rain = GPUParticles3D.new()
+	rain.amount = 6000
+	rain.lifetime = 1.6
+	rain.preprocess = 2.0
+	rain.visibility_aabb = AABB(Vector3(-400, -60, -400), Vector3(800, 400, 800))
+	var pm := ParticleProcessMaterial.new()
+	pm.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	pm.emission_box_extents = Vector3(260, 2, 220)
+	pm.direction = Vector3(0.15, -1, 0.05)
+	pm.spread = 2.0
+	pm.initial_velocity_min = 110.0
+	pm.initial_velocity_max = 130.0
+	pm.gravity = Vector3.ZERO
+	rain.process_material = pm
+	var streak := QuadMesh.new()
+	streak.size = Vector2(0.04, 2.2)
+	var rm := StandardMaterial3D.new()
+	rm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	rm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	rm.albedo_color = Color(0.82, 0.86, 0.92, 0.16)
+	rm.billboard_mode = BaseMaterial3D.BILLBOARD_FIXED_Y
+	rm.cull_mode = BaseMaterial3D.CULL_DISABLED
+	streak.material = rm
+	rain.draw_pass_1 = streak
+	add_child(rain)
 
 
 func _build_labels() -> void:
@@ -154,6 +177,8 @@ func _process(delta: float) -> void:
 
 func _update_camera() -> void:
 	cam_rig.position = target
+	if rain != null:
+		rain.position = target + Vector3(0, 150, 0)
 	cam_rig.rotation = Vector3(pitch, yaw, 0)
 	cam.position = Vector3(0, 0, dist)
 
@@ -165,10 +190,10 @@ func _unhandled_input(e: InputEvent) -> void:
 		elif e.button_index == MOUSE_BUTTON_MIDDLE or e.button_index == MOUSE_BUTTON_LEFT:
 			panning = e.pressed
 		elif e.button_index == MOUSE_BUTTON_WHEEL_UP and e.pressed:
-			dist = maxf(25.0, dist * 0.9)
+			dist = maxf(60.0, dist * 0.9)
 			_update_camera()
 		elif e.button_index == MOUSE_BUTTON_WHEEL_DOWN and e.pressed:
-			dist = minf(1400.0, dist / 0.9)
+			dist = minf(1100.0, dist / 0.9)
 			_update_camera()
 	elif e is InputEventMouseMotion:
 		if turning:
@@ -199,10 +224,10 @@ func _save(path: String) -> void:
 func _shots() -> void:
 	await get_tree().create_timer(1.0).timeout
 	await _save("res://../tests/town-1.png")
-	_view(Vector3(10, 0, -30), 30, -30, 170)
+	_view(Vector3(40, 0, -60), -20, -32, 230)
 	await _save("res://../tests/town-2.png")
-	_view(Vector3(10, 0, 160), -20, -28, 150)
+	_view(Vector3(80, 0, 150), -15, -30, 260)
 	await _save("res://../tests/town-3.png")
-	_view(Vector3(0, 0, 0), 0, -62, 760)
+	_view(Vector3(0, 0, 40), 0, -70, 900)
 	await _save("res://../tests/town-4.png")
 	get_tree().quit()

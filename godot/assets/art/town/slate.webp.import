@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://kgjgusuan64j"
-path.s3tc="res://.godot/imported/field.webp-1c4c0649e6cbc19582cd9bc10f43bd6e.s3tc.ctex"
+uid="uid://1t7xlox7svuy"
+path.s3tc="res://.godot/imported/slate.webp-830b9e35f80b8cf7a60bfbdeecefeccc.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/town/field.webp"
-dest_files=["res://.godot/imported/field.webp-1c4c0649e6cbc19582cd9bc10f43bd6e.s3tc.ctex"]
+source_file="res://assets/art/town/slate.webp"
+dest_files=["res://.godot/imported/slate.webp-830b9e35f80b8cf7a60bfbdeecefeccc.s3tc.ctex"]
 
 [params]
 

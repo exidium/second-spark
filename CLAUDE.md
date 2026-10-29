@@ -49,8 +49,8 @@ npm run godot:table               # the archived table
 tools/gdcheck.sh res://town/town.gd   # parse-check a script without hanging
 ```
 - `town/kit.gd`: mesh kit (walls, gable/hip roofs, pyramids, cylinders, cones, discs, glowing panes), one SurfaceTool per material, `xf` places what comes next. Faces must wind so Godot sees them front-on from their normal side; `tri()` handles it.
-- `town/town.gd`: the town from seed 1819, metres, +z south. Occupancy grid (1 m: 1 street, 2 built, 3 water, 4 kept open) decides where houses fit. Landmarks in `PLACES` (name, colour, position) and `_build_landmarks()`; mark their ground so houses stay off.
-- `town/town_main.gd`: environment (dusk sky, moon, warm west light, SSAO, fog), camera, landmark names, shot mode. `town/ink.gdshader`: pen lines on a full-screen quad.
+- `town/town.gd`: the city from seed 1819 (D170), metres, +z south. A grid of blocks (`BX`, `BZ`, `SW`), streets lined with gothic terraces (`gothic_house()`), yards filled with sheds, the river (`river_z()`) with embankments and bridges, gas lamps, landmarks in `PLACES` (name, colour, block) built in `_build_landmarks()`. Occupancy grid (1 m: 1 street, 2 built, 3 water, 4 kept open) decides where houses fit. A model at `godot/assets/models/<place id>.glb` replaces that landmark.
+- `town/town_main.gd`: rainy London environment (grey sky, fog, SSR, soft shadows), rain particles, camera (FOV 24, pitch -38), landmark names, shot mode. `town/ink.gdshader`: pen lines, currently unused.
 - Textures in `art/town/` (512px webp, mipmaps on in their `.import`), prompts in `docs/prompts/all-images.md` (Town).
 - `scripts/rules/game.gd`: the rules (port of `src/engine.js`), no drawing. Keep it in step with `engine.js` while both exist.
 - GDScript traps: lambdas capture locals by value; `:=` can't infer types from Dictionary or Array values or untyped loop variables (type them: `for s: float in [...]`); don't name a method `free`; new `class_name`s need `godot --headless --path godot --import` before a parse check; in shot mode wait on `process_frame`, not `frame_post_draw`.

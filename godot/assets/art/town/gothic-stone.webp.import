@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dhcp5c46rvjge"
-path.s3tc="res://.godot/imported/wall-stone.webp-30ca1ef615e9d3b190d327aed3117f2a.s3tc.ctex"
+uid="uid://bwwgvbl1tc1rt"
+path.s3tc="res://.godot/imported/gothic-stone.webp-aefc9f64bbfd75c93128b97c06938dff.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/town/wall-stone.webp"
-dest_files=["res://.godot/imported/wall-stone.webp-30ca1ef615e9d3b190d327aed3117f2a.s3tc.ctex"]
+source_file="res://assets/art/town/gothic-stone.webp"
+dest_files=["res://.godot/imported/gothic-stone.webp-aefc9f64bbfd75c93128b97c06938dff.s3tc.ctex"]
 
 [params]
 

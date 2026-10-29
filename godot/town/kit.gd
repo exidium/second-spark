@@ -168,6 +168,18 @@ func disc(k: String, c: Vector2, r: float, y: float, segs: int, ts: float, col :
 		tri(k, Vector3(c.x, y, c.y), Vector3(p1.x, y, p1.y), Vector3(p0.x, y, p0.y), c / ts, p1 / ts, p0 / ts, col)
 
 
+## A slim pinnacle or finial: a small square shaft and a tall point.
+func pinnacle(k: String, c: Vector2, w: float, y: float, h: float, col := Color.WHITE) -> void:
+	box(k, c, w, w, y, y + h * 0.35, 1.0, 1.0, col)
+	pyramid(k, c, w * 1.15, w * 1.15, y + h * 0.35, h * 0.65, 1.0, col)
+
+
+## A round turret with a conical spire.
+func turret(kw: String, kr: String, c: Vector2, r: float, y0: float, y1: float, spire: float, tw: float, th: float, col_w := Color.WHITE, col_r := Color.WHITE) -> void:
+	cylinder(kw, c, r, y0, y1, 10, tw, th, col_w)
+	cone(kr, c, r * 1.12, y1, spire, 10, 2.0, col_r)
+
+
 ## A glowing pane facing n (a lit window, a clock face).
 func pane(k: String, p: Vector3, n: Vector3, sw: float, sh: float) -> void:
 	var side := Vector3(n.z, 0, -n.x).normalized() * sw / 2

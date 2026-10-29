@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bxfomi6cgmh0t"
-path.s3tc="res://.godot/imported/cobbles.webp-44a060d43e911e08dfff75cac8ef1d06.s3tc.ctex"
+uid="uid://dwvjdkvhg2d7f"
+path.s3tc="res://.godot/imported/flagstones.webp-8ccfeaaf22a09a9fac9eb932cb535d46.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/town/cobbles.webp"
-dest_files=["res://.godot/imported/cobbles.webp-44a060d43e911e08dfff75cac8ef1d06.s3tc.ctex"]
+source_file="res://assets/art/town/flagstones.webp"
+dest_files=["res://.godot/imported/flagstones.webp-8ccfeaaf22a09a9fac9eb932cb535d46.s3tc.ctex"]
 
 [params]
 

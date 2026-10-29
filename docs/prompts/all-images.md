@@ -1064,48 +1064,42 @@ Texture of weathered dark wooden planks, vertical boards with nails, rot and gri
 Top-down texture of the dark murky river Seine at night: deep green-black water with faint ripples and a few pale reflections, oily and still. Pixel art, chunky visible pixels, limited dark muted palette, low contrast, night-time gloom of Paris in 1819. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows. No text, no people, no border, no vignette. Canvas 64 by 64 pixels.
 ```
 
-## Town (7) · the textures of the Godot town (D169)
+## Town (8) · the textures of the Godot city (D169, D170)
 
-Illustrated, not pixel art. Two candidates each, the pick checked tiled 2 x 2, then `art/town/<file>.webp` at 512px.
+Gothic, grey and wet. Two candidates each, the pick checked tiled 2 x 2, then `art/town/<file>.webp` at 512px. `water.webp` and `grass.webp` are kept from D169.
 
-### roof-tiles → `roof-tiles.png`
-
-```
-Old clay roof tiles in overlapping rows, weathered rust-brown and dark terracotta, some darker mossy tiles, ink outlines on every tile row. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
-```
-
-### wall-timber → `wall-timber.png`
+### gothic-stone → `gothic-stone.png`
 
 ```
-Facade of a half-timbered medieval house, exactly one storey high: dark oak beams in a frame with one diagonal brace on each side, pale grimy plaster between, one small window with dark leaded panes and wooden shutters in the middle. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
+Facade of a gothic Victorian town house, exactly one storey high and one bay wide: sooty dark grey ashlar stone, one tall narrow pointed-arch window in the middle with dark leaded glass and a carved stone hood mould, a thin string course along the bottom. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
 ```
 
-### wall-stone → `wall-stone.png`
+### gothic-brick → `gothic-brick.png`
 
 ```
-Wall of rough cut limestone blocks of mixed sizes, grey-ochre, ink outlines on each block, a little moss. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
+Facade of a gothic Victorian terrace house, exactly one storey high and one bay wide: dark soot-stained red-brown brick, one tall narrow pointed-arch window in the middle with a pale stone surround and dark glass, a thin stone band along the bottom. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
 ```
 
-### cobbles → `cobbles.png`
+### gothic-shop → `gothic-shop.png`
 
 ```
-Top-down view of a worn cobbled street, small rounded grey-brown stones with dirt between them, ink outlines. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
+Ground floor of a gothic Victorian shop, exactly one storey high and one bay wide: dark green painted timber shopfront with a pointed-arch doorway on the left and a tall small-paned display window, a blank dark fascia above, stone piers on both sides. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
 ```
 
-### grass → `grass.png`
+### slate → `slate.png`
 
 ```
-Top-down view of dark meadow grass, short hatched pen strokes in muted olive and dark green, a few tiny flowers. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
+Dark wet blue-grey slate roof tiles in neat overlapping rows, a little moss and soot, wet sheen. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
 ```
 
-### field → `field.png`
+### wet-cobbles → `wet-cobbles.png`
 
 ```
-Top-down view of a ploughed farm field with straight parallel furrows running horizontally, muted ochre and brown earth with thin green crop rows, pen hatching. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
+Top-down view of a wet dark granite cobbled street at dusk in the rain, small rounded setts, glossy puddles in the joints. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
 ```
 
-### water → `water.png`
+### flagstones → `flagstones.png`
 
 ```
-Top-down view of a calm dark river, muted slate blue-green water with fine ink ripple lines drawn in horizontal strokes. Hand-drawn illustration texture in the style of a detailed fantasy town map: fine brown pen-and-ink linework with muted watercolour wash, slightly dark and moody, earthy desaturated palette. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even lighting. No text, no people, no border, no vignette. Square image.
+Top-down view of wet grey stone pavement flagstones, large rectangular slabs, dark joints, rain-darkened. Stylised realistic game texture, painterly, like a polished low-poly diorama render: clean readable shapes, subtle detail, grey rainy Victorian London mood, desaturated cool palette, damp and sooty. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows, even overcast lighting. No text, no people, no border, no vignette. Square image.
 ```

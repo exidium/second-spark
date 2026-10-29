@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://okw00r4mh672"
-path.s3tc="res://.godot/imported/wall-timber.webp-20350e8940ea28f5c8e64fbadb8528d0.s3tc.ctex"
+uid="uid://b6tfv6o1sebuy"
+path.s3tc="res://.godot/imported/gothic-shop.webp-5df6614c87f877b0432ee6cee550dee4.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/art/town/wall-timber.webp"
-dest_files=["res://.godot/imported/wall-timber.webp-20350e8940ea28f5c8e64fbadb8528d0.s3tc.ctex"]
+source_file="res://assets/art/town/gothic-shop.webp"
+dest_files=["res://.godot/imported/gothic-shop.webp-5df6614c87f877b0432ee6cee550dee4.s3tc.ctex"]
 
 [params]
 
