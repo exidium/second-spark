@@ -275,11 +275,23 @@ static func body(g: Game, p: Dictionary, own: bool, opts: Dictionary, cb: Dictio
 ## A player's board in 2D, on the same painted face as your board on the table (D163): lab spaces (with a meeple
 ## on each one used today), decomposition, stores, jars, operating table and supplies. Positions come from
 ## the zone constants in board.gd, so the two always match. Used for the rivals' laboratories.
-static func board2d(g: Game, p: Dictionary, w: float) -> Control:
-	var tex: Texture2D = Style.art("ui/player-board.png")
-	var h: float = w * tex.get_height() / tex.get_width()
-	var u: float = w / Board.MAT_W
+## With show_lab false (rivals) the board starts after the Laboratory zone: their lab actions are not shown.
+static func board2d(g: Game, p: Dictionary, w: float, show_lab := false) -> Control:
+	var full: Texture2D = Style.art("ui/player-board.png")
 	var x0: float = Board.MAT_X - Board.MAT_W / 2
+	var span: float = Board.MAT_W
+	var tex: Texture2D = full
+	if not show_lab:
+		var cut := -4.0 - x0                # world units cut off on the left
+		var at := AtlasTexture.new()
+		at.atlas = full
+		var px_per_u: float = full.get_width() / Board.MAT_W
+		at.region = Rect2(cut * px_per_u, 0, full.get_width() - cut * px_per_u, full.get_height())
+		tex = at
+		x0 += cut
+		span -= cut
+	var u: float = w / span
+	var h: float = Board.MAT_D * u
 	var z0: float = -Board.MAT_D / 2
 	var root := Control.new()
 	root.custom_minimum_size = Vector2(w, h)
@@ -298,10 +310,11 @@ static func board2d(g: Game, p: Dictionary, w: float) -> Control:
 		l.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
 		l.add_theme_constant_override("outline_size", 0 if col == Style.PAPER_INK else 4)
 		return l
-	for hd in [["Laboratory", -5.65], ["Decomposition", -1.75], ["Stores", Board.STORE_X], ["Jars", Board.JAR_X], ["Operating table", Board.TABLE_X], ["Supplies", 7.7]]:
-		put.call(text.call(hd[0], 15, Style.BRASS, Style.display), hd[1], Board.HEAD_Z)
+	for hd in [["Laboratory" if show_lab else "", -5.65], ["Decomposition", -1.75], ["Stores", Board.STORE_X], ["Jars", Board.JAR_X], ["Operating table", Board.TABLE_X], ["Supplies", 7.7]]:
+		if hd[0] != "":
+			put.call(text.call(hd[0], 15, Style.BRASS, Style.display), hd[1], Board.HEAD_Z)
 	# Laboratory spaces: a parchment card each, a meeple on it if used today.
-	for k in g.D.LABSPOTS.size():
+	for k in (g.D.LABSPOTS.size() if show_lab else 0):
 		var sp: Dictionary = g.D.LABSPOTS[k]
 		var c: Vector2 = Board.LAB_CARDS[k]
 		var card := Style.panel(Style.PAPER, Color("#8a6a3a"), 4)

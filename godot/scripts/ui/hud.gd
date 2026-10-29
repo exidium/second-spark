@@ -213,6 +213,7 @@ func _fade(top_dark: bool) -> TextureRect:
 
 func _rivals_strip(S: Dictionary) -> VBoxContainer:
 	var v := Style.vbox(8)
+	v.alignment = BoxContainer.ALIGNMENT_CENTER    # the portraits sit in the middle of the strip, top to bottom
 	for i in S.players.size():
 		var p: Dictionary = S.players[i]
 		var turn: bool = (S.phase == "day" and S.cur == i) or (i == 0 and my_turn)

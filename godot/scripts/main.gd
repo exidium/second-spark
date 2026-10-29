@@ -1387,7 +1387,7 @@ func open_rival(i: int) -> void:
 	hv.add_child(hud.stat_rows(p))
 	head.add_child(hv)
 	v.add_child(head)
-	v.add_child(LabView.board2d(g, p, 1240))
+	v.add_child(LabView.board2d(g, p, 1240))   # without the lab actions
 	var m := Modal.open(ui, {"title": "%s’s Laboratory" % p.name, "content": v, "width": 1300, "buttons": [{"label": "Close", "primary": true, "value": 1}]})
 	await m.done
 

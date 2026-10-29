@@ -513,3 +513,6 @@ The D159 board is replaced. One wide board runs along the front of the table, le
 - On your turn your meeples at home glow in a slow loop until you click one; the chosen one then glows steadily.
 - A rival's laboratory is their board in 2D on the same painted face as yours (lab cards with a meeple where used today, decomposition chips with red rims where they rot next, stores, jars, operating table, gold, police, card backs), under their portrait, character text and stat bars. The body part boxes, the points table, the parts legend and the repeated resources line are gone.
 - The top bar runs the full width; it no longer has Laboratory or Your character (the operating table on your board opens the laboratory, your portrait opens your character). End the night shows there at night.
+
+**D164. Rivals centred in the strip; no lab actions on a rival's board.** (Bruno: "vertically centralize the rivals." and "remove the laboratory actions from rivals. No need for them to be there...")
+The portrait cards sit in the vertical middle of the right strip. A rival's laboratory popup shows their board from Decomposition onwards: the four lab action cards are cut off, so the rest is drawn larger.
