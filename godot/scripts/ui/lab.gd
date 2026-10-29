@@ -177,25 +177,35 @@ static func switch_box(g: Game, p: Dictionary, on_throw: Callable) -> VBoxContai
 	return v
 
 
-static func points_table(g: Game) -> VBoxContainer:
-	var v := Style.vbox(2)
+## VP for each part: muscle by stage, skin by stage, alive. Also printed on your board.
+static func points_grid(g: Game, fs := 15) -> GridContainer:
 	var grid := GridContainer.new()
 	grid.columns = 10
 	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 0)
 	var hdr := ["Part", "I", "II", "III", "IV", "I", "II", "III", "IV", "Alive"]
 	for k in hdr.size():
-		var col: Color = Style.MUSCLE if k in [1, 2, 3, 4] else Style.SKIN if k in [5, 6, 7, 8] else Style.MUTED
-		grid.add_child(Style.label(hdr[k], 14, col, Style.display))
+		var col: Color = Style.MUSCLE.lightened(0.2) if k in [1, 2, 3, 4] else Style.SKIN if k in [5, 6, 7, 8] else Style.MUTED
+		var l := Style.label(hdr[k], fs - 1, col, Style.display)
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		grid.add_child(l)
 	for part in [["Head", "head"], ["Torso", "torso"], ["Arm", "arm"], ["Leg", "leg"]]:
 		var P: Dictionary = g.D.PARTS[part[1]]
-		grid.add_child(Style.label(part[0], 15, Style.PARCH, Style.display))
-		for x in P.vpS:
-			grid.add_child(Style.label(str(x), 15, Style.PARCH))
-		for x in P.vpC:
-			grid.add_child(Style.label(str(x), 15, Style.PARCH))
-		grid.add_child(Style.label(str(P.alive), 15, Style.ALIVE))
+		grid.add_child(Style.label(part[0], fs, Style.PARCH, Style.display))
+		for x in P.vpS + P.vpC:
+			var l := Style.label(str(x), fs, Style.PARCH)
+			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			grid.add_child(l)
+		var a := Style.label(str(P.alive), fs, Style.ALIVE)
+		a.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		grid.add_child(a)
+	return grid
+
+
+static func points_table(g: Game) -> VBoxContainer:
+	var v := Style.vbox(2)
 	v.add_child(Style.label("Muscle (start), then skin (complete), by the stage of the oldest material.", 13, Style.MUTED))
-	v.add_child(grid)
+	v.add_child(points_grid(g))
 	v.add_child(Style.wrap("Each step scores VP by the stage of the oldest material you use (I is freshest). Animal costs 1 VP (2 if 3 or more). Alive points count at the end of the game.", 13, Style.MUTED, 300))
 	return v
 

@@ -3,7 +3,7 @@ extends Node
 ## node for every human decision and every animation; this node answers with the 3D board, the side panel and popups.
 
 const SIDE_W := 452
-const SHRINK := 2            # the 3D board renders at half resolution for the pixel look
+const RENDER := 1.5          # the 3D board renders at 1/1.5 of the screen resolution and is scaled up without smoothing
 const WHERE := {"preserve": "Use it: offered at the Market when you sell preserved flesh.", "steady": "Use it: at night, tick Steady Hands in your laboratory, then build.",
 	"guest": "Use it: offered when you lecture at the Academy.", "daisy": "Use it: offered when you resolve a cadaver.", "dissect": "Use it: offered when you resolve a stage I or II cadaver.",
 	"electro": "Use it: offered when you resolve a stage I to III cadaver (needs a charged jar).", "transfusion": "Use it: offered at Give Blood in your lab.",
@@ -26,6 +26,9 @@ var hud: Hud
 var info: PanelContainer
 var info_text: RichTextLabel
 var toast_layer: Control
+var tag_layer: Control
+var tag_nodes := []         # [tag dict, Control] for each 2D label over the table
+var tag_k := 0.0
 var title_screen: Control
 var turn_open := false
 var busy := false
@@ -37,6 +40,7 @@ var shot_mode := false
 var autoplay := false
 var _auto_t := 0.0
 var _auto_steps := 0
+var _mid_shot := false
 
 
 func _ready() -> void:
@@ -80,12 +84,12 @@ func _build_game_layout() -> void:
 			c.queue_free()
 	board_box = SubViewportContainer.new()
 	board_box.stretch = true
-	board_box.stretch_shrink = SHRINK
 	board_box.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	board_box.anchor_right = 1.0
-	board_box.anchor_bottom = 1.0
-	board_box.offset_right = -SIDE_W
+	board_box.scale = Vector2(RENDER, RENDER)
 	ui.add_child(board_box)
+	_fit_board()
+	if not ui.resized.is_connected(_fit_board):
+		ui.resized.connect(_fit_board)
 	board_vp = SubViewport.new()
 	board_vp.physics_object_picking = true
 	board_vp.msaa_3d = Viewport.MSAA_DISABLED
@@ -98,6 +102,8 @@ func _build_game_layout() -> void:
 	board.slot_clicked.connect(_on_slot_clicked)
 	board.meeple_clicked.connect(_on_kind_selected)
 	board.hover_changed.connect(_on_hover)
+	board.mat_clicked.connect(_on_mat_clicked)
+	board.tags_changed.connect(_rebuild_tags)
 
 	hud = Hud.new()
 	hud.anchor_left = 1.0
@@ -115,6 +121,12 @@ func _build_game_layout() -> void:
 	toast_layer.anchor_bottom = 1.0
 	toast_layer.offset_right = -SIDE_W
 	ui.add_child(toast_layer)
+	tag_layer = Control.new()
+	tag_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tag_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	toast_layer.add_child(tag_layer)
+	toast_layer.move_child(tag_layer, 0)
+	_rebuild_tags()
 
 	info = Style.panel(Color(Style.INK, 0.94), Style.LINE2, 10)
 	info.position = Vector2(16, 16)
@@ -126,10 +138,72 @@ func _build_game_layout() -> void:
 	info.visible = false
 	toast_layer.add_child(info)
 	var hint := Style.label("Right-drag turns the table. The wheel zooms.", 13, Color(Style.PARCH_DIM, 0.8))
-	hint.anchor_top = 1.0
-	hint.anchor_bottom = 1.0
-	hint.position = Vector2(16, -26)
+	hint.anchor_left = 1.0
+	hint.anchor_right = 1.0
+	hint.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	hint.offset_right = -16
+	hint.offset_top = 8
 	toast_layer.add_child(hint)
+
+
+func _fit_board() -> void:
+	if board_box == null or not is_instance_valid(board_box):
+		return
+	board_box.position = Vector2.ZERO
+	board_box.size = Vector2(maxf(64.0, ui.size.x - SIDE_W), ui.size.y) / RENDER
+
+
+func _on_mat_clicked(what: String) -> void:
+	if what == "lab":
+		open_lab()
+	elif what == "cards":
+		open_hand()
+
+
+## Labels over the table are plain 2D text, so they stay sharp while the board itself is pixelated.
+func _rebuild_tags() -> void:
+	if tag_layer == null:
+		return
+	for c in tag_layer.get_children():
+		c.queue_free()
+	tag_nodes.clear()
+	for t in board.tags:
+		var c: Control
+		if t.kind == "points":
+			c = LabView.points_grid(g, t.size)
+		else:
+			c = Style.label(t.text, t.size, t.color, Style.display if t.font == "display" else Style.body)
+			c.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+			c.add_theme_constant_override("outline_size", 5)
+		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tag_layer.add_child(c)
+		tag_nodes.append([t, c])
+	tag_k = 0.0
+	_place_tags()
+
+
+func _place_tags() -> void:
+	if board == null or not is_instance_valid(board) or tag_layer == null:
+		return
+	var k := board.zoom_k()
+	var resize := absf(k - tag_k) > 0.02
+	if resize:
+		tag_k = k
+	for pair in tag_nodes:
+		var t: Dictionary = pair[0]
+		var c: Control = pair[1]
+		var vis: bool = (t.node == null or t.node.is_visible_in_tree()) and not board.cam.is_position_behind(t.pos)
+		c.visible = vis
+		if not vis:
+			continue
+		if resize:
+			if c is Label:
+				c.add_theme_font_size_override("font_size", maxi(11, roundi(t.size * k)))
+				c.reset_size()
+			else:
+				c.scale = Vector2(k, k)
+		var sz: Vector2 = c.size * c.scale
+		c.position = (board.world_to_screen(t.pos) * RENDER - sz / 2).round()
 
 
 func _on_hover(bb: String) -> void:
@@ -381,7 +455,7 @@ func rival_moved(i: int, key: String, kind: String, lines: Array) -> void:
 	toast_layer.add_child(t)
 	move_toasts[i] = t
 	await get_tree().process_frame
-	var at: Vector2 = board.key_screen_pos(i, key) * SHRINK
+	var at: Vector2 = board.key_screen_pos(i, key) * RENDER
 	var pos := at - Vector2(t.size.x / 2, t.size.y + 12)
 	pos.x = clampf(pos.x, 8, toast_layer.size.x - t.size.x - 8)
 	pos.y = clampf(pos.y, 8, toast_layer.size.y - t.size.y - 8)
@@ -1334,6 +1408,7 @@ func show_end() -> void:
 const AUTO_AVOID := ["Cancel", "Close", "Keep working", "Never mind", "Refuse", "Stay put", "Leave", "Skip", "Abandon", "Keep playing"]
 
 func _process(delta: float) -> void:
+	_place_tags()
 	if not autoplay or g == null or g.S.is_empty() or g.S.phase == "end":
 		return
 	_auto_t += delta
@@ -1345,6 +1420,9 @@ func _process(delta: float) -> void:
 		_auto_modal(modals[-1])
 		return
 	if turn_open and not busy:
+		if g.S.round >= 6 and not _mid_shot:
+			_mid_shot = true
+			_save("res://../tests/godot-autoplay-mid.png")
 		var keys := g.all_keys().filter(func(k): return _legal(k, ""))
 		if keys.size():
 			_auto_steps += 1

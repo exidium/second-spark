@@ -191,21 +191,6 @@ func stat_rows(p: Dictionary) -> VBoxContainer:
 	return v
 
 
-func _res_tile(icon_name: String, value: String, label_text: String, col := Style.PARCH) -> VBoxContainer:
-	var v := Style.vbox(0)
-	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var h := Style.hbox(3)
-	h.alignment = BoxContainer.ALIGNMENT_CENTER
-	h.add_child(Style.icon(icon_name, 22))
-	h.add_child(Style.title(value, 19, col))
-	v.add_child(h)
-	var l := Style.label(label_text, 12, Style.MUTED, Style.display)
-	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	v.add_child(l)
-	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	return v
-
-
 func _you_panel(p: Dictionary) -> PanelContainer:
 	var sec := _section("")
 	var v: VBoxContainer = sec[1]
@@ -219,36 +204,6 @@ func _you_panel(p: Dictionary) -> PanelContainer:
 	head.add_child(nv)
 	v.add_child(head)
 	v.add_child(stat_rows(p))
-	var res := Style.hbox(4)
-	res.add_child(_res_tile("coin", str(p.coin), "Francs"))
-	res.add_child(_res_tile("jar", "%d/%d" % [g.charged(p), p.jars.size()], "Jars"))
-	res.add_child(_res_tile("ice", str(p.ice), "Ice"))
-	res.add_child(_res_tile("police", "%d/2" % p.police, "Police", Style.CRIM if p.police else Style.PARCH))
-	# The Cards tile: its tooltip lists your hand (one of the few places with a tooltip).
-	var cb := Button.new()
-	cb.custom_minimum_size = Vector2(64, 50)
-	cb.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	var ct := _res_tile("cards", str(p.hand.size()), "Cards")
-	ct.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	cb.add_child(ct)
-	cb.tooltip_text = "Cards in hand\n" + ("\n".join(p.hand.map(func(c): return "%s (%s): %s" % [c.name, c.kind, c.text])) if p.hand.size() else "No cards yet. Research at the Academy, atone at Saint-Roch.")
-	cb.pressed.connect(func(): action.emit("hand", null))
-	res.add_child(cb)
-	v.add_child(res)
-	# Your laboratory at a glance: the operating table, the decay grid, the Laboratory button.
-	var lab := Style.hbox(10)
-	var fig_btn := Button.new()
-	fig_btn.flat = true
-	fig_btn.custom_minimum_size = Vector2(76, 114)
-	var fig := LabView.figure(g, p, Vector2(76, 114))
-	fig.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	fig_btn.add_child(fig)
-	fig_btn.pressed.connect(func(): action.emit("lab", null))
-	fig_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	lab.add_child(fig_btn)
-	var lv := Style.vbox(4)
-	lv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lv.add_child(LabView.decay_grid(g, p, true))
 	var bh := Style.hbox(6)
 	var night: bool = g.S.phase == "lab"
 	var lb := Style.button("Laboratory", night, 15)
@@ -259,9 +214,7 @@ func _you_panel(p: Dictionary) -> PanelContainer:
 		var eb := Style.button("End the night", false, 15)
 		eb.pressed.connect(func(): action.emit("endlab", null))
 		bh.add_child(eb)
-	lv.add_child(bh)
-	lab.add_child(lv)
-	v.add_child(lab)
+	v.add_child(bh)
 	return sec[0]
 
 

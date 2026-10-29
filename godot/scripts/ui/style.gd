@@ -33,6 +33,13 @@ static func init() -> void:
 		return
 	display = load("res://assets/fonts/Amarante-Regular.ttf")
 	body = load("res://assets/fonts/EBGaramond.ttf")
+	# Smooth, lightly hinted text: the pixel look is for the board and the art, never the words.
+	for f in [display, body]:
+		if f is FontFile:
+			f.antialiasing = TextServer.FONT_ANTIALIASING_GRAY
+			f.hinting = TextServer.HINTING_LIGHT
+			f.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_AUTO
+			f.generate_mipmaps = true
 
 
 static func make_theme() -> Theme:
