@@ -41,7 +41,7 @@ All four JS files are concatenated into one IIFE by `build.py`, so they share sc
 ## Godot version (the real game from now on, D158)
 `godot/` is the Godot 4.7 game: same rules, same art, pixel look. The web page stays as the reference until Bruno approves the Godot version.
 ```
-python3 tools/make_board_textures.py   # redraws art/ui/player-board.png and floor-stone.png (mirror board.gd's zone constants)
+python3 tools/make_board_textures.py   # redraws art/ui/player-board.png (mirror board.gd's zone constants)
 node tools/export_godot_data.js   # after any change to src/data.js or art/: writes godot/data/game.json, copies art
 godot --path godot                # play
 npm run godot:sim                 # 20 AI-only games, headless

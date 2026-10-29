@@ -134,15 +134,15 @@ func _mat(c: Color, rough := 0.8) -> StandardMaterial3D:
 
 
 func _build_table() -> void:
-	# A stone floor with no edge: it runs off under the lamp in every direction and the dark swallows it.
+	# Old Paris cobbles with no edge: it runs off under the lamp in every direction and the dark swallows it.
 	var floor := MeshInstance3D.new()
 	var fp := PlaneMesh.new()
 	fp.size = Vector2(FLOOR_W, FLOOR_W)
 	floor.mesh = fp
 	var fm := _mat(Color.WHITE, 0.9)
-	fm.albedo_texture = Style.art("ui/floor-stone.png")
+	fm.albedo_texture = Style.art("ui/floor-cobbles.png")
 	fm.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
-	fm.uv1_scale = Vector3(FLOOR_W / 4.0, FLOOR_W / 4.0, 1)
+	fm.uv1_scale = Vector3(FLOOR_W / 4.5, FLOOR_W / 4.5, 1)
 	floor.material_override = fm
 	floor.position = Vector3(0.3, -0.005, 2.4)
 	add_child(floor)
