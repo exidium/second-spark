@@ -1011,3 +1011,55 @@ A whole anatomical human heart, dark oxblood red with purple veins and a pale si
 A human heart torn in two, the halves pulled apart with a ragged dark split between them, dark oxblood red with purple veins. Detailed dithered pixel art game icon: visible checkerboard dithering, hard-edged pixels, no anti-aliasing, no gradients. Muted gothic palette, about 16 colours, a thin dark outline. The icon alone, centred, large, on a flat pure black background (RGB 0,0,0) with nothing else, no shadow on the ground, no frame. Canvas 64 by 64 pixels, square. Do not include: text, letters, numbers, border, card, background scenery, multiple objects, blur.
 ```
 
+
+## City (8) · the streets, houses, river and landmarks of the Godot table (D167, D168)
+
+Seamless tiles. Three candidates each, the pick checked tiled 2 x 2, then `art/city/<file>` at 128px and 32 colours (`art/ui/floor-cobbles.png` at 256px).
+
+### Street cobbles → `floor-cobbles.png`
+
+```
+Seamless tileable texture, viewed straight from above, flat orthographic, no perspective, no shadows cast from one direction. Pixel art, chunky visible pixels, limited palette. Rough old Paris street paving from the early 1800s: uneven rounded granite cobblestones (pavés) of irregular sizes set in worn rows, deep dark gaps filled with grime and mud, some stones chipped, cracked or sunk, puddle stains, a little straw and soot. Damp, filthy and old. Dark muted palette: charcoal, slate grey, cold brown earth, faint wet highlights on stone tops. Low contrast overall and dark, it sits under a game board at night. Edges must tile seamlessly in both directions. No text, no objects, no people, no border, no vignette. Canvas 64 by 64 pixels.
+```
+
+### facade-plaster → `facade-plaster.png`
+
+```
+Facade texture of an old Parisian town house, exactly one storey high: soot-stained cream-grey lime plaster with cracks and damp streaks, one tall narrow window in the middle with closed dark wooden shutters and a small iron balcony rail, a thin stone string course at the bottom. Pixel art, chunky visible pixels, limited dark muted palette, low contrast, night-time gloom of Paris in 1819. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows. No text, no people, no border, no vignette. Canvas 64 by 64 pixels.
+```
+
+### facade-brick → `facade-brick.png`
+
+```
+Facade texture of an old grimy brick tenement wall, exactly one storey high: dark red-brown bricks with soot, crumbling mortar, one tall narrow dark window with a stone lintel and sill in the middle. Pixel art, chunky visible pixels, limited dark muted palette, low contrast, night-time gloom of Paris in 1819. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows. No text, no people, no border, no vignette. Canvas 64 by 64 pixels.
+```
+
+### shopfront → `shopfront.png`
+
+```
+Ground floor shop front of an old Paris building, front view: dark painted wooden shop front with a recessed door on the left and a small-paned display window on the right, a plain dark sign board above with no letters, stone piers on both sides. Pixel art, chunky visible pixels, limited dark muted palette, low contrast, night-time gloom of Paris in 1819. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows. No text, no people, no border, no vignette. Canvas 64 by 64 pixels.
+```
+
+### roof-slate → `roof-slate.png`
+
+```
+Roof texture: worn dark blue-grey slate tiles in overlapping rows, some broken and mossy, streaks of soot and rain. Pixel art, chunky visible pixels, limited dark muted palette, low contrast, night-time gloom of Paris in 1819. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows. No text, no people, no border, no vignette. Canvas 64 by 64 pixels.
+```
+
+### stone-wall → `stone-wall.png`
+
+```
+Wall texture: large rough cut grey limestone blocks, mossy, stained by river damp and soot, dark mortar joints. Pixel art, chunky visible pixels, limited dark muted palette, low contrast, night-time gloom of Paris in 1819. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows. No text, no people, no border, no vignette. Canvas 64 by 64 pixels.
+```
+
+### planks → `planks.png`
+
+```
+Texture of weathered dark wooden planks, vertical boards with nails, rot and grime, gaps between boards. Pixel art, chunky visible pixels, limited dark muted palette, low contrast, night-time gloom of Paris in 1819. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows. No text, no people, no border, no vignette. Canvas 64 by 64 pixels.
+```
+
+### water → `water.png`
+
+```
+Top-down texture of the dark murky river Seine at night: deep green-black water with faint ripples and a few pale reflections, oily and still. Pixel art, chunky visible pixels, limited dark muted palette, low contrast, night-time gloom of Paris in 1819. Seamless tileable texture, edges must tile in both directions. Flat, front-on orthographic, no perspective, no cast shadows. No text, no people, no border, no vignette. Canvas 64 by 64 pixels.
+```

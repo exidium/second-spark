@@ -52,6 +52,9 @@ var sun: DirectionalLight3D
 var spot: SpotLight3D
 var env: Environment
 var lamps: Array[OmniLight3D] = []
+var city: City
+var place_lamps: Array[OmniLight3D] = []   # each place's own coloured light, low by day, bright at night
+const PLACE_LAMP := Vector2(0.6, 2.4)
 var cam_rig: Node3D
 var cam: Camera3D
 var yaw := 0.0
@@ -69,6 +72,8 @@ func setup(game: Game) -> void:
 		_build_place(l)
 	_build_lab_places()
 	_build_rows()
+	city = City.new()
+	city.build(self, places, rows)
 	_build_mat()
 	_update_camera()
 
@@ -86,7 +91,7 @@ func _build_world() -> void:
 	env.background_color = Style.INK
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color("#2a2638")
-	env.ambient_light_energy = 0.16
+	env.ambient_light_energy = 0.22
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.glow_enabled = true
 	env.glow_intensity = 0.5
@@ -95,13 +100,13 @@ func _build_world() -> void:
 	env.fog_mode = Environment.FOG_MODE_DEPTH
 	env.fog_light_color = Style.INK
 	env.fog_density = 1.0
-	env.fog_depth_begin = 24.0
-	env.fog_depth_end = 42.0
+	env.fog_depth_begin = 22.0
+	env.fog_depth_end = 40.0
 	we.environment = env
 	add_child(we)
 	sun = DirectionalLight3D.new()
 	sun.light_color = Color("#8fa3c9")
-	sun.light_energy = 0.12
+	sun.light_energy = 0.35   # cold moonlight, so the city around the lamp still shows its shapes
 	sun.shadow_enabled = false
 	sun.rotation_degrees = Vector3(-55, 30, 0)
 	add_child(sun)
@@ -134,7 +139,7 @@ func _mat(c: Color, rough := 0.8) -> StandardMaterial3D:
 
 
 func _build_table() -> void:
-	# Old Paris cobbles with no edge: it runs off under the lamp in every direction and the dark swallows it.
+	# Old Paris cobbles with no edge: the streets of the city (city.gd) run off in every direction and the fog swallows them.
 	var floor := MeshInstance3D.new()
 	var fp := PlaneMesh.new()
 	fp.size = Vector2(FLOOR_W, FLOOR_W)
@@ -142,20 +147,10 @@ func _build_table() -> void:
 	var fm := _mat(Color.WHITE, 0.9)
 	fm.albedo_texture = Style.art("ui/floor-cobbles.png")
 	fm.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
-	fm.uv1_scale = Vector3(FLOOR_W / 4.5, FLOOR_W / 4.5, 1)
+	fm.uv1_scale = Vector3(FLOOR_W / 1.6, FLOOR_W / 1.6, 1)
 	floor.material_override = fm
-	floor.position = Vector3(0.3, -0.005, 2.4)
+	floor.position = Vector3(0.3, City.FLOOR_Y, 2.4)
 	add_child(floor)
-	var board := MeshInstance3D.new()
-	var plane := PlaneMesh.new()
-	plane.size = Vector2(BOARD_W, BOARD_H)
-	board.mesh = plane
-	var mat := _mat(Color.WHITE, 0.95)
-	mat.albedo_texture = Style.art("ui/board.jpg")
-	mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
-	board.material_override = mat
-	board.position.y = 0.002
-	add_child(board)
 
 
 ## A crisp 2D label that main.gd keeps over a point of the table (text on the 3D board would be pixelated).
@@ -175,15 +170,16 @@ func _make_place(id: String, name: String, pos: Vector3, keys: Array, sci: Array
 	cyl.bottom_radius = cyl.top_radius
 	cyl.height = 0.05
 	disc.mesh = cyl
-	var dm := _mat(Color(0.07, 0.06, 0.09, 0.85))
+	var pc: Color = Style.PLACE_COL.get(id, Style.SPARK)
+	var dm := _mat(Color(0.07, 0.06, 0.09, 0.85).lerp(pc, 0.12))
 	dm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	dm.emission_enabled = true
-	dm.emission = Style.SPARK
+	dm.emission = pc
 	dm.emission_energy_multiplier = 0.0
 	disc.material_override = dm
 	disc.position.y = 0.03
 	root.add_child(disc)
-	_tag("place:" + id, name, pos + Vector3(0, 0.7, 0), root, 20, Style.PARCH, "display", "label", true)
+	_tag("place:" + id, name, pos + Vector3(0, 0.7, 0), root, 20, pc, "display", "label", true)
 	var slots := []
 	var rings := []
 	for k in n:
@@ -203,12 +199,12 @@ func _make_place(id: String, name: String, pos: Vector3, keys: Array, sci: Array
 	area.mouse_entered.connect(func(): _hover(id))
 	area.mouse_exited.connect(func(): _unhover(id))
 	var lamp := OmniLight3D.new()
-	lamp.light_color = Color("#ffb35a")
-	lamp.light_energy = 0.0
-	lamp.omni_range = 2.2
+	lamp.light_color = pc
+	lamp.light_energy = PLACE_LAMP.x
+	lamp.omni_range = 2.4
 	lamp.position = Vector3(0, 0.8, 0)
 	root.add_child(lamp)
-	lamps.append(lamp)
+	place_lamps.append(lamp)
 	# A red cross shown when the place is closed today.
 	var cross := Node3D.new()
 	for a in [45, -45]:
@@ -226,7 +222,7 @@ func _make_place(id: String, name: String, pos: Vector3, keys: Array, sci: Array
 		cross.add_child(bar)
 	cross.visible = false
 	root.add_child(cross)
-	return {"root": root, "disc": dm, "rings": rings, "slots": slots, "radius": cyl.top_radius, "cross": cross, "keys": keys}
+	return {"root": root, "disc": dm, "rings": rings, "slots": slots, "radius": cyl.top_radius, "cross": cross, "keys": keys, "lamp": lamp}
 
 
 ## One action space: a ring (gold when only a scientist may go) and its click target.
@@ -1189,12 +1185,17 @@ func sync() -> void:
 func set_night(on: bool) -> void:
 	night = on
 	var tw := create_tween().set_parallel(true)
-	tw.tween_property(sun, "light_energy", 0.05 if on else 0.12, 1.6)
+	tw.tween_property(sun, "light_energy", 0.18 if on else 0.35, 1.6)
 	tw.tween_property(spot, "light_energy", 7.0 if on else 14.0, 1.6)
 	tw.tween_property(spot, "light_color", Color("#9fb0e8") if on else Color("#ffd49a"), 1.6)
-	tw.tween_property(env, "ambient_light_energy", 0.1 if on else 0.16, 1.6)
+	tw.tween_property(env, "ambient_light_energy", 0.14 if on else 0.22, 1.6)
 	for lamp in lamps:
 		tw.tween_property(lamp, "light_energy", 2.2 if on else 0.0, 1.8)
+	for lamp in place_lamps:
+		tw.tween_property(lamp, "light_energy", PLACE_LAMP.y if on else PLACE_LAMP.x, 1.8)
+	for lamp in city.gas_lamps:
+		tw.tween_property(lamp, "light_energy", 1.4 if on else 0.35, 1.8)
+	tw.tween_property(city.win_night, "emission_energy_multiplier", 1.6 if on else 0.0, 2.4)
 
 
 # ---------------------------------------------------------------- camera

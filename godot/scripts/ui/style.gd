@@ -21,6 +21,10 @@ const MUSCLE := Color("#c0443a")
 const SKIN := Color("#e2c26a")
 const ALIVE := Color("#7cc4ff")
 const DMG := Color("#f2d24b")
+# Each place's own colour: its name, its light, its glowing windows (D168).
+const PLACE_COL := {"cemetery": Color("#8fbf6a"), "square": Color("#e0605a"), "slaughter": Color("#b5503f"), "church": Color("#e6c15a"),
+	"market": Color("#e8964a"), "first": Color("#ece4cf"), "morgue": Color("#5fc4b8"), "hospital": Color("#bcd8f0"),
+	"academy": Color("#7cc4ff"), "docks": Color("#f08a3c"), "alley": Color("#b48ae0"), "odeon": Color("#d98cc0")}
 const MAT_COL := {"muscle": Color("#c0443a"), "organ": Color("#9b5aa8"), "blood": Color("#8c1c22"), "bone": Color("#e7dcc4"), "animal": Color("#a7744a")}
 
 static var display: Font

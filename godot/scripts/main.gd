@@ -189,7 +189,7 @@ func _rebuild_tags() -> void:
 				# A dark nameplate, so the name reads over the busy map.
 				l.remove_theme_constant_override("outline_size")
 				var pc := PanelContainer.new()
-				var sb := Style.box(Color(Style.INK, 0.82), Color(Style.BRASS, 0.55), 1, 4)
+				var sb := Style.box(Color(Style.INK, 0.82), Color(t.color, 0.6), 1, 4)
 				sb.content_margin_left = 7
 				sb.content_margin_right = 7
 				sb.content_margin_top = 0
