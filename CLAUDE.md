@@ -41,6 +41,7 @@ All four JS files are concatenated into one IIFE by `build.py`, so they share sc
 ## Godot version (the real game from now on, D158)
 `godot/` is the Godot 4.7 game: same rules, same art, pixel look. The web page stays as the reference until Bruno approves the Godot version.
 ```
+python3 tools/make_board_textures.py   # redraws art/ui/player-board.png and table-wood.png (mirror board.gd's zone constants)
 node tools/export_godot_data.js   # after any change to src/data.js or art/: writes godot/data/game.json, copies art
 godot --path godot                # play
 npm run godot:sim                 # 20 AI-only games, headless
@@ -50,6 +51,6 @@ tools/gdcheck.sh res://scripts/main.gd   # parse-check a script without hanging
 - `scripts/rules/game.gd`: the rules (port of `src/engine.js`), no drawing. Human choices and animations go through the presenter (`null_presenter.gd` lists every method). Keep it in step with `engine.js` while both exist.
 - `scripts/main.gd`: the presenter and controller: title, layout, every popup, your turn, the night, the end, autoplay and screenshot modes (`-- --shot`, `-- --shot-title`, add `--size=2560x1400` for another window size).
 - `scripts/view/board.gd`: the 3D table and your wide player board in front of it (`_build_mat`, `sync_mat`: lab spaces, decomposition, stores, jars, operating table; dials to its left, loose gold, police and cards to its right), synced from the state with animations. Drawn at 1.5 screen pixels per board pixel at any window size (`RENDER`, `_fit_board` in `main.gd`) for the pixel look. Never put text in 3D: add a `_tag()` and `main.gd` draws it as a crisp 2D label over that point (`_rebuild_tags`, `_place_tags`).
-- `scripts/ui/`: `style.gd` (tokens, fonts, widgets), `cards.gd` (card faces), `modal.gd` (popups), `hud.gd` (side column), `lab.gd` (laboratory), `meeple_icon.gd`.
+- `scripts/ui/`: `style.gd` (tokens, fonts, widgets), `cards.gd` (card faces), `modal.gd` (popups), `hud.gd` (top bar, rivals and people strip, chronicle bar, drawn over the table), `lab.gd` (laboratory), `meeple_icon.gd`.
 - GDScript traps: lambdas capture locals by value (a button can't hold its own popup: use `_close_from`); `:=` can't infer types from Dictionary values; new `class_name`s need `godot --headless --path godot --import` before a parse check.
 - Same conventions as the web page: no em dashes, no italics, minimum 11px type, no tooltips: thresholds, cards and every zone of your board explain themselves in the hover panel, like places.

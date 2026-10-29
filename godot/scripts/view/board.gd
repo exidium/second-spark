@@ -19,14 +19,14 @@ const CARD_STEP := 0.62
 # Which state row lies beside which place.
 const ROWS := {"academy": "researchRow", "church": "humanityRow", "docks": "docks", "hospital": "hosp", "square": "square"}
 # Your player board, a smaller board in front of the map.
-const MAT_X := -0.7       # your board runs from x -7.4 to 6.0; the dials sit to its left, the loose piles to its right
-const MAT_W := 13.4
+const MAT_X := 0.95       # your board runs from x -7.4 to 9.3; the dials sit to its left
+const MAT_W := 16.7
 const MAT_D := 3.9
 const MAT_Z := BOARD_H / 2 + 0.95 + MAT_D / 2
 const MAT_Y := 0.1
 const TABLE_W := 20.4
 const FIG := Vector2(1.8, 2.7)      # the operating table art is 160 x 240
-const CAM_DIST := 23.0
+const CAM_DIST := 21.0
 const ROW_RIM := {"researchRow": "#9fd0ff", "humanityRow": "#cda65c", "docks": "#d6675f", "hosp": "#b9ac93", "square": "#b4423c"}
 
 var g: Game
@@ -119,6 +119,18 @@ func _build_table() -> void:
 	table.mesh = box
 	table.material_override = _mat(Color("#3a2618"))
 	table.position = Vector3(0, -0.36, (front + back) / 2)
+	table.material_override = _mat(Color("#1c110a"))
+	var top := MeshInstance3D.new()
+	var tp := PlaneMesh.new()
+	tp.size = Vector2(TABLE_W, front - back)
+	top.mesh = tp
+	var wm := _mat(Color.WHITE, 0.7)
+	wm.albedo_texture = Style.art("ui/table-wood.png")
+	wm.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
+	wm.uv1_scale = Vector3(TABLE_W / 3.0, (front - back) / 3.0, 1)
+	top.material_override = wm
+	top.position = Vector3(0, -0.005, (front + back) / 2)
+	add_child(top)
 	add_child(table)
 	var board := MeshInstance3D.new()
 	var plane := PlaneMesh.new()
@@ -334,9 +346,27 @@ func _refresh_glow() -> void:
 
 # ---------------------------------------------------------------- meeples
 
-func _make_meeple(color: Color, kind: String) -> Node3D:
+## Each player's meeples stand on a base of their own shape, so they read apart even without colour:
+## you a disc, rivals a square, a hexagon and a triangle.
+const BASE_SIDES := [32, 4, 6, 3]
+
+func _make_meeple(color: Color, kind: String, who := 0) -> Node3D:
 	var m := Node3D.new()
-	var mat := _mat(color, 0.55)
+	var mat := _mat(color, 0.5)
+	mat.emission_enabled = true
+	mat.emission = color
+	mat.emission_energy_multiplier = 0.18
+	var base := MeshInstance3D.new()
+	var bc := CylinderMesh.new()
+	bc.top_radius = 0.2 if kind == "assistant" else 0.24
+	bc.bottom_radius = bc.top_radius + 0.01
+	bc.height = 0.035
+	bc.radial_segments = BASE_SIDES[who % 4]
+	base.mesh = bc
+	base.position.y = 0.017
+	var bm0 := _mat(color.darkened(0.45), 0.6)
+	base.material_override = bm0
+	m.add_child(base)
 	var s := 1.0 if kind == "assistant" else 1.25
 	var body := MeshInstance3D.new()
 	var bm := CylinderMesh.new()
@@ -399,7 +429,7 @@ func _home_spot(i: int, kind: String, n: int) -> Vector3:
 func _meeple(i: int, kind: String, n: int) -> Node3D:
 	var id := "%d:%s:%d" % [i, kind, n]
 	if not meeples.has(id):
-		var m := _make_meeple(Color(g.S.players[i].color), kind)
+		var m := _make_meeple(Color(g.S.players[i].color), kind, i)
 		m.set_meta("player", i)
 		m.set_meta("kind", kind)
 		m.set_meta("state", "home")
@@ -725,7 +755,8 @@ const TABLE_X := 4.65
 const DIALS := {"hum": -1.25, "rep": 0.0, "exp": 1.25}
 const DIAL_X := -8.2
 const DIAL_R := 0.52
-const PILES := {"coin": Vector2(6.9, -0.95), "police": Vector2(8.2, -0.95), "cards": Vector2(7.55, 0.85)}
+const PILES := {"coin": Vector2(6.95, -0.88), "police": Vector2(8.45, -0.9), "cards": Vector2(7.7, 0.75)}
+const CARD_SLOTS := [6.75, 7.4, 8.05, 8.7]   # placeholders printed on the board (tools/make_board_textures.py)
 const HEAD_Z := -1.68
 
 func _bx(x: float, z: float, y := 0.0) -> Vector3:
@@ -773,9 +804,16 @@ func _build_mat() -> void:
 	frame.material_override = _mat(Color("#24170f"))
 	frame.position = Vector3(MAT_X, (MAT_Y + 0.02) / 2 - 0.01, MAT_Z)
 	add_child(frame)
-	_panel3d(_mp(MAT_X, 0, -0.01), Vector2(MAT_W, MAT_D), Color("#3a3042"), Color("#8a6a3a"))
+	var board_face := MeshInstance3D.new()
+	var fp := PlaneMesh.new()
+	fp.size = Vector2(MAT_W, MAT_D)
+	board_face.mesh = fp
+	var fm := _mat(Color.WHITE, 0.85)
+	fm.albedo_texture = Style.art("ui/player-board.png")
+	board_face.material_override = fm
+	board_face.position = _mp(MAT_X, 0, 0.013)
+	add_child(board_face)
 	# Laboratory: four spaces, each a small card with its ring. They behave like a place on the map.
-	_panel3d(_bx(-5.65, 0.2), Vector2(3.3, 3.25), Color("#2a2330"), Color("#5a4e62"))
 	_tag("mat:lab", "Laboratory", _bx(-5.65, HEAD_Z), null, 17, Style.BRASS)
 	var root := Node3D.new()
 	add_child(root)
@@ -798,11 +836,9 @@ func _build_mat() -> void:
 	places["lab"] = {"root": root, "disc": dm, "rings": rings, "slots": slots, "radius": 0.8, "cross": Node3D.new(), "keys": keys}
 	_zone_area(_bx(-5.65, 0.2), Vector2(3.3, 3.25), "labzone")
 	# Decomposition track: four stage columns, red bars where materials rot.
-	_panel3d(_bx(-1.75, 0.2), Vector2(4.45, 3.25), Color("#2a2330"), Color("#5a4e62"))
 	_tag("mat:decay", "Decomposition", _bx(-1.75, HEAD_Z), null, 17, Style.BRASS)
 	var stages := ["I", "II", "III", "IV"]
 	for k in 4:
-		_panel3d(_bx(DECAY_COLS[k], 0.2, 0.016), Vector2(0.95, 3.1), Color("#241c33"), Color("#4b3f5e"))
 		_tag("mat:st%d" % k, stages[k], _bx(DECAY_COLS[k], -1.2), null, 16, Style.PARCH_DIM)
 	for k in 2:
 		var bar := MeshInstance3D.new()
@@ -819,16 +855,12 @@ func _build_mat() -> void:
 	_tag("mat:stores", "Stores", _bx(STORE_X, HEAD_Z), null, 17, Style.BRASS)
 	var store_names := {"ice": "Ice", "preserved": "Preserved", "bone": "Bone"}
 	for k in STORES:
-		_panel3d(_bx(STORE_X, STORES[k]), Vector2(1.5, 0.98), Color("#2a2330"), Color("#5a4e62"))
 		_tag("mat:s" + k, store_names[k], _bx(STORE_X, STORES[k] - 0.33), null, 13, Style.MUTED, "body")
 		_zone_area(_bx(STORE_X, STORES[k]), Vector2(1.5, 0.98), k)
 	# Leyden jars: four slots.
 	_tag("mat:jars", "Jars", _bx(JAR_X, HEAD_Z), null, 17, Style.BRASS)
-	for z in JAR_Z:
-		_panel3d(_bx(JAR_X, z), Vector2(0.62, 0.66), Color("#1d1922"), Color("#6b5a3a"))
 	_zone_area(_bx(JAR_X, 0.2), Vector2(0.8, 3.25), "jar")
 	# Operating table.
-	_panel3d(_bx(TABLE_X, 0.2), Vector2(2.7, 3.25), Color("#2a2330"), Color("#5a4e62"))
 	_tag("mat:or", "Operating table", _bx(TABLE_X, HEAD_Z), null, 17, Style.BRASS)
 	_zone_area(_bx(TABLE_X, 0.2), Vector2(2.7, 3.25), "lab")
 	# Dials, on the table to the left of the board.
@@ -856,6 +888,7 @@ func _build_mat() -> void:
 		_tag("dial:n" + k, names[k], c + Vector3(0, 0.05, -0.18), null, 11, Style.MUTED, "body")
 		var dk: String = k
 		_zone_area(c, Vector2(DIAL_R * 2, DIAL_R * 2), "dial:" + dk)
+	_tag("mat:sup", "Supplies", _bx(7.7, HEAD_Z), null, 17, Style.BRASS)
 	for k in PILES:
 		_zone_area(_mp(PILES[k].x, PILES[k].y), Vector2(1.4, 1.2) if k != "cards" else Vector2(2.6, 1.2), k)
 	var lamp := OmniLight3D.new()
@@ -1057,8 +1090,8 @@ func sync_mat() -> void:
 	for j in mini(p.coin, 15):
 		var layer: int = j / 9
 		var q: int = j % 9
-		_piece(coin, gold, Vector3(cp.x - 0.3 + (q % 3) * 0.22 + layer * 0.1, 0.02 + layer * 0.04, MAT_Z + cp.y - 0.22 + (q / 3) * 0.22 + layer * 0.1), j >= mat_seen.get("coin", 0), 0.03 * j)
-	_tag("dyn:coin", "%d gold" % p.coin, Vector3(cp.x, 0.05, MAT_Z + cp.y + 0.55), null, 15, Style.PARCH)
+		_piece(coin, gold, Vector3(cp.x - 0.3 + (q % 3) * 0.22 + layer * 0.1, MAT_Y + 0.02 + layer * 0.04, MAT_Z + cp.y - 0.22 + (q / 3) * 0.22 + layer * 0.1), j >= mat_seen.get("coin", 0), 0.03 * j)
+	_tag("dyn:coin", "%d gold" % p.coin, Vector3(cp.x, MAT_Y + 0.05, MAT_Z + cp.y + 0.6), null, 15, Style.PARCH)
 	var spot := CylinderMesh.new()
 	spot.top_radius = 0.17
 	spot.bottom_radius = 0.17
@@ -1071,31 +1104,31 @@ func sync_mat() -> void:
 	seen.police = p.police
 	var pp: Vector2 = PILES.police
 	for j in 2:
-		var bp := Vector3(pp.x - 0.22 + j * 0.44, 0.0, MAT_Z + pp.y)
-		_piece(spot, _mat(Color("#2a1f18")), bp, false)
+		var bp := Vector3(pp.x - 0.22 + j * 0.44, MAT_Y, MAT_Z + pp.y)
 		if j < p.police:
 			_piece(badge, _glow(Style.CRIM, 0.5), bp + Vector3(0, 0.03, 0), j >= mat_seen.get("police", 0))
-	_tag("dyn:police", "police %d/2" % p.police, Vector3(pp.x, 0.05, MAT_Z + pp.y + 0.55), null, 15, Style.CRIM if p.police else Style.PARCH)
+	_tag("dyn:police", "police %d/2" % p.police, Vector3(pp.x, MAT_Y + 0.05, MAT_Z + pp.y + 0.45), null, 15, Style.CRIM if p.police else Style.PARCH)
 	var nh: int = p.hand.size()
 	seen.cards = nh
 	var hp: Vector2 = PILES.cards
 	for j in nh:
 		var cn := make_card(p.hand[j])
 		mat_dyn.add_child(cn)
-		var to := Vector3(hp.x - 0.25 * (nh - 1) + j * 0.5, 0.02 + j * 0.004, MAT_Z + hp.y)
-		cn.rotation_degrees = Vector3(0, -4 + j * 2, 0)
+		var sx: float = CARD_SLOTS[j] if nh <= 4 else CARD_SLOTS[0] + j * (CARD_SLOTS[3] - CARD_SLOTS[0]) / float(nh - 1)
+		var to := Vector3(sx, MAT_Y + 0.02 + j * 0.004, MAT_Z + hp.y)
+		cn.rotation_degrees = Vector3.ZERO
 		cn.position = to
 		if j >= mat_seen.get("cards", 0):
 			cn.position = to + Vector3(0, 1.4, -1.0)
 			_fly(cn, to, 0.5, 0.1 * j, 0.6, cn.rotation_degrees)
-	_tag("dyn:cards", "no cards yet" if nh == 0 else "%d card%s" % [nh, "" if nh == 1 else "s"], Vector3(hp.x, 0.05, MAT_Z + hp.y + 0.62), null, 14, Style.MUTED if nh == 0 else Style.PARCH, "body")
+	_tag("dyn:cards", "no cards yet" if nh == 0 else "%d card%s" % [nh, "" if nh == 1 else "s"], Vector3(hp.x, MAT_Y + 0.05, MAT_Z + hp.y + 0.62), null, 14, Style.MUTED if nh == 0 else Style.PARCH, "body")
 	mat_seen = seen
 	tags_changed.emit()
 
 ## Where a card or cadaver you take lands.
 func mat_target(row: String) -> Vector3:
 	if row in ["researchRow", "humanityRow"]:
-		return Vector3(PILES.cards.x, 0.4, MAT_Z + PILES.cards.y)
+		return Vector3(PILES.cards.x, MAT_Y + 0.4, MAT_Z + PILES.cards.y)
 	return _bx(-1.75, 0.0, 0.4)
 
 
@@ -1130,7 +1163,7 @@ func set_night(on: bool) -> void:
 # ---------------------------------------------------------------- camera
 
 func _update_camera() -> void:
-	cam_rig.position = Vector3(0, 0, 2.6)
+	cam_rig.position = Vector3(0.3, 0, 3.05)
 	cam_rig.rotation = Vector3(pitch, yaw, 0)
 	cam.position = Vector3(0, 0, dist)
 

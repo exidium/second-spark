@@ -2,7 +2,7 @@ extends Node
 ## Second Spark in Godot. Boots the title screen, then runs a game: the rules (scripts/rules/game.gd) ask this
 ## node for every human decision and every animation; this node answers with the 3D board, the side panel and popups.
 
-const SIDE_W := 452
+const SIDE_W := Hud.RIVAL_W   # only the rivals strip sits beside the board; the rest of the HUD floats over the table
 const RENDER := 1.5          # the 3D board renders at 1/1.5 of the screen resolution and is scaled up without smoothing
 const WHERE := {"preserve": "Use it: offered at the Market when you sell preserved flesh.", "steady": "Use it: at night, tick Steady Hands in your laboratory, then build.",
 	"guest": "Use it: offered when you lecture at the Academy.", "daisy": "Use it: offered when you resolve a cadaver.", "dissect": "Use it: offered when you resolve a stage I or II cadaver.",
@@ -29,6 +29,7 @@ var toast_layer: Control
 var tag_layer: Control
 var tag_nodes := []         # [tag dict, Control] for each 2D label over the table
 var tag_k := 0.0
+var info_fade: Tween
 var title_screen: Control
 var turn_open := false
 var busy := false
@@ -110,11 +111,15 @@ func _build_game_layout() -> void:
 	board.mat_clicked.connect(_on_mat_clicked)
 	board.tags_changed.connect(_rebuild_tags)
 
+	tag_layer = Control.new()
+	tag_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tag_layer.anchor_right = 1.0
+	tag_layer.anchor_bottom = 1.0
+	tag_layer.offset_right = -SIDE_W
+	tag_layer.clip_contents = true
+	ui.add_child(tag_layer)
+
 	hud = Hud.new()
-	hud.anchor_left = 1.0
-	hud.anchor_right = 1.0
-	hud.anchor_bottom = 1.0
-	hud.offset_left = -SIDE_W
 	ui.add_child(hud)
 	hud.setup(g)
 	hud.kind_selected.connect(_on_kind_selected)
@@ -126,15 +131,10 @@ func _build_game_layout() -> void:
 	toast_layer.anchor_bottom = 1.0
 	toast_layer.offset_right = -SIDE_W
 	ui.add_child(toast_layer)
-	tag_layer = Control.new()
-	tag_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tag_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	toast_layer.add_child(tag_layer)
-	toast_layer.move_child(tag_layer, 0)
 	_rebuild_tags()
 
 	info = Style.panel(Color(Style.INK, 0.94), Style.LINE2, 10)
-	info.position = Vector2(16, 16)
+	info.position = Vector2(16, Hud.TOP_H + 12)
 	info.custom_minimum_size.x = 360
 	info.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	info_text = Style.rich("", 16, 340)
@@ -142,13 +142,7 @@ func _build_game_layout() -> void:
 	info.add_child(info_text)
 	info.visible = false
 	toast_layer.add_child(info)
-	var hint := Style.label("Right-drag turns the table. The wheel zooms.", 13, Color(Style.PARCH_DIM, 0.8))
-	hint.anchor_left = 1.0
-	hint.anchor_right = 1.0
-	hint.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	hint.offset_right = -16
-	hint.offset_top = 8
-	toast_layer.add_child(hint)
+	info_fade = null
 
 
 func _fit_board() -> void:
@@ -236,10 +230,19 @@ func _place_tags() -> void:
 		c.position = (board.world_to_screen(t.pos) * board_box.scale.x - sz / 2).round()
 
 
+## The hover panel shows at once and fades out within 4 seconds.
 func _on_hover(bb: String) -> void:
+	if info_fade != null and info_fade.is_valid():
+		info_fade.kill()
 	info.visible = bb != ""
 	info_text.text = bb
 	info.reset_size()
+	info.modulate.a = 1.0
+	if bb != "":
+		info_fade = info.create_tween()
+		info_fade.tween_interval(3.2)
+		info_fade.tween_property(info, "modulate:a", 0.0, 0.8)
+		info_fade.tween_callback(func(): info.visible = false)
 
 
 # ================================================================ title screen
@@ -429,11 +432,13 @@ func sleep(ms: float) -> void:
 
 func toast(text: String) -> void:
 	var t := _toast_panel("[center]%s[/center]" % text, Style.BRASS)
+	t.modulate.a = 0.0
 	toast_layer.add_child(t)
 	await get_tree().process_frame
-	t.position = Vector2((toast_layer.size.x - t.size.x) / 2, toast_layer.size.y - t.size.y - 70)
+	t.position = Vector2((toast_layer.size.x - t.size.x) / 2, toast_layer.size.y - t.size.y - Hud.LOG_H - 30)
+	t.modulate.a = 1.0
 	var tw := t.create_tween()
-	tw.tween_interval(3.5)
+	tw.tween_interval(3.2)
 	tw.tween_property(t, "modulate:a", 0.0, 0.8)
 	tw.tween_callback(t.queue_free)
 
@@ -454,7 +459,7 @@ func your_turn_toast() -> void:
 	var t := _toast_panel("[b][color=#9fd0ff]Your turn[/color][/b], pick a meeple, then a location.", Style.SPARK)
 	toast_layer.add_child(t)
 	await get_tree().process_frame
-	var target := Vector2((toast_layer.size.x - t.size.x) / 2, toast_layer.size.y - t.size.y - 44)
+	var target := Vector2((toast_layer.size.x - t.size.x) / 2, toast_layer.size.y - t.size.y - Hud.LOG_H - 14)
 	t.position = target + Vector2(0, 20)
 	t.modulate.a = 0.0
 	var tw := t.create_tween()
@@ -488,12 +493,16 @@ func rival_moved(i: int, key: String, kind: String, lines: Array) -> void:
 	var at: Vector2 = board.key_screen_pos(i, key) * board_box.scale.x
 	var pos := at - Vector2(t.size.x / 2, t.size.y + 12)
 	pos.x = clampf(pos.x, 8, toast_layer.size.x - t.size.x - 8)
-	pos.y = clampf(pos.y, 8, toast_layer.size.y - t.size.y - 8)
+	pos.y = clampf(pos.y, Hud.TOP_H + 8, toast_layer.size.y - t.size.y - Hud.LOG_H - 8)
 	t.position = pos + Vector2(0, 10)
 	t.modulate.a = 0
 	var tw := t.create_tween().set_parallel(true)
 	tw.tween_property(t, "modulate:a", 1.0, 0.2)
 	tw.tween_property(t, "position", pos, 0.25)
+	# Gone within 4 seconds, like every other note over the table.
+	tw.chain().tween_interval(3.0)
+	tw.chain().tween_property(t, "modulate:a", 0.0, 0.8)
+	tw.chain().tween_callback(t.queue_free)
 
 func _move_action(key: String, lines: Array) -> String:
 	# The action, in the infinitive, from the chronicle line of that move.
