@@ -1521,6 +1521,10 @@ func _auto_modal(m: Modal) -> void:
 func _screenshot_run() -> void:
 	pace = 0.3
 	while not turn_open:
+		# Answer any popup that comes before your first move (an encounter, a choice), as autoplay does.
+		var modals := ui.get_children().filter(func(c): return c is Modal and not c.is_queued_for_deletion())
+		if modals.size():
+			_auto_modal(modals[-1])
 		await get_tree().create_timer(0.2).timeout
 	await get_tree().create_timer(1.5).timeout
 	await _save("res://../tests/godot-1-start.png")

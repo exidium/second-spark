@@ -516,3 +516,6 @@ The D159 board is replaced. One wide board runs along the front of the table, le
 
 **D164. Rivals centred in the strip; no lab actions on a rival's board.** (Bruno: "vertically centralize the rivals." and "remove the laboratory actions from rivals. No need for them to be there...")
 The portrait cards sit in the vertical middle of the right strip. A rival's laboratory popup shows their board from Decomposition onwards: the four lab action cards are cut off, so the rest is drawn larger.
+
+**D165. One lamp over the table.** (Bruno: "can you add a light? Like... centralized spot light with a good fade on sides (penumbra)? Make it more eerie...")
+A warm spotlight hangs over the middle of the table (map and your board), with a soft wide edge that fades into darkness; the room light (sun and ambient) is turned far down and cooled, so the corners of the table sink into the dark. At night the lamp dims and turns cold blue while the place lanterns light up. Also: screenshot mode answers any popup before your first move, as autoplay does, so it no longer stalls on a Day 1 encounter.

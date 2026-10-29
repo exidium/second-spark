@@ -49,6 +49,7 @@ var picked := false      # your turn: your meeples at home pulse until you click
 var pulse_t := 0.0
 
 var sun: DirectionalLight3D
+var spot: SpotLight3D
 var env: Environment
 var lamps: Array[OmniLight3D] = []
 var cam_rig: Node3D
@@ -84,19 +85,32 @@ func _build_world() -> void:
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Style.INK
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color("#3a3446")
-	env.ambient_light_energy = 0.9
+	env.ambient_light_color = Color("#2a2638")
+	env.ambient_light_energy = 0.16
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.glow_enabled = true
 	env.glow_intensity = 0.5
 	we.environment = env
 	add_child(we)
 	sun = DirectionalLight3D.new()
-	sun.light_color = Color("#f2d9a6")
-	sun.light_energy = 1.25
-	sun.shadow_enabled = true
+	sun.light_color = Color("#8fa3c9")
+	sun.light_energy = 0.12
+	sun.shadow_enabled = false
 	sun.rotation_degrees = Vector3(-55, 30, 0)
 	add_child(sun)
+	# One lamp hanging over the middle of the table: a warm pool of light that fades into the dark at the edges.
+	spot = SpotLight3D.new()
+	spot.light_color = Color("#ffd49a")
+	spot.light_energy = 14.0
+	spot.spot_range = 40.0
+	spot.spot_angle = 34.0
+	spot.spot_angle_attenuation = 3.0
+	spot.spot_attenuation = 0.6
+	spot.shadow_enabled = true
+	spot.shadow_blur = 2.0
+	spot.position = Vector3(0.3, 15.0, 2.4)
+	spot.rotation_degrees = Vector3(-90, 0, 0)
+	add_child(spot)
 	cam_rig = Node3D.new()
 	add_child(cam_rig)
 	cam = Camera3D.new()
@@ -1177,9 +1191,10 @@ func sync() -> void:
 func set_night(on: bool) -> void:
 	night = on
 	var tw := create_tween().set_parallel(true)
-	tw.tween_property(sun, "light_energy", 0.12 if on else 1.25, 1.6)
-	tw.tween_property(sun, "light_color", Color("#7b8cc9") if on else Color("#f2d9a6"), 1.6)
-	tw.tween_property(env, "ambient_light_energy", 0.25 if on else 0.9, 1.6)
+	tw.tween_property(sun, "light_energy", 0.05 if on else 0.12, 1.6)
+	tw.tween_property(spot, "light_energy", 7.0 if on else 14.0, 1.6)
+	tw.tween_property(spot, "light_color", Color("#9fb0e8") if on else Color("#ffd49a"), 1.6)
+	tw.tween_property(env, "ambient_light_energy", 0.1 if on else 0.16, 1.6)
 	for lamp in lamps:
 		tw.tween_property(lamp, "light_energy", 2.2 if on else 0.0, 1.8)
 
