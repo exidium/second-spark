@@ -519,3 +519,6 @@ The portrait cards sit in the vertical middle of the right strip. A rival's labo
 
 **D165. One lamp over the table.** (Bruno: "can you add a light? Like... centralized spot light with a good fade on sides (penumbra)? Make it more eerie...")
 A warm spotlight hangs over the middle of the table (map and your board), with a soft wide edge that fades into darkness; the room light (sun and ambient) is turned far down and cooled, so the corners of the table sink into the dark. At night the lamp dims and turns cold blue while the place lanterns light up. Also: screenshot mode answers any popup before your first move, as autoplay does, so it no longer stalls on a Day 1 encounter.
+
+**D166. The table becomes an endless stone floor.** (Bruno: "caxn you switch the tabl ebelow to infine stones?")
+The wooden table box is gone. The map and your board now lie on a 400 x 400 plane of tiling flagstones (`art/ui/floor-stone.png`, from `tools/make_board_textures.py`: staggered courses of warm grey stones, dark mortar, worn blotches, a few hairline cracks; one tile covers 4 units). No edge is ever in view: the lamp's pool fades the stones into darkness, and a depth fog in the background colour (from 24 to 42 units) melts the far floor away when you zoom out. `table-wood.png` is removed.

@@ -3,7 +3,7 @@
 
   art/ui/player-board.png  the face of your board: stone wall, zone frames, decay columns, stores, jar boxes,
                            operating slab, gold tray, police spots and card placeholders.
-  art/ui/table-wood.png    a tiling dark wood for the table top.
+  art/ui/floor-stone.png   a tiling stone floor that runs off under the board in every direction.
 
 The zone rectangles mirror the constants at the top of the board section in godot/scripts/view/board.gd
 (MAT_X, MAT_W, MAT_D, LAB_CARDS, DECAY_COLS, STORES, JAR_Z, TABLE_X, PILES). Change both together, then run
@@ -135,26 +135,44 @@ img = np.clip(img, 0, 255).astype(np.uint8)
 board = Image.fromarray(img).resize((W * 2, H * 2), Image.NEAREST)
 board.save(os.path.join(ROOT, 'art/ui/player-board.png'))
 
-# ---------------------------------------------------------------- table wood (tiles seamlessly)
+# ---------------------------------------------------------------- stone floor (tiles seamlessly)
 T = 128
 yy, xx = np.mgrid[0:T, 0:T].astype(float)
-n_planks = 4
-ph = T // n_planks
-plank = (yy // ph).astype(int)
-tone = np.array([0.86, 1.0, 0.92, 1.06])[plank]
-grain = 0.5 + 0.5 * np.sin(2 * math.pi * (yy * 3 / T) + 1.6 * np.sin(2 * math.pi * xx / T + plank * 1.7) + 0.6 * np.sin(2 * math.pi * 3 * xx / T + plank))
-fine = 0.5 + 0.5 * np.sin(2 * math.pi * (yy * 11 / T) + 0.9 * np.sin(2 * math.pi * 2 * xx / T + plank * 2.3))
-v = tone * (0.78 + 0.16 * grain + 0.08 * fine)
-wood = hexc('#2e1c12')[None, None, :] * v[..., None] + rng.normal(0, 2.5, (T, T, 1))
-wood[(yy % ph) == 0] *= 0.35                       # gaps between planks
-for p in range(n_planks):                         # one butt joint per plank, staggered
-    x = (p * 37 + 20) % T
-    wood[p * ph:(p + 1) * ph, x] *= 0.4
-for _ in range(3):                                # knots
-    cx, cy = rng.integers(0, T, 2)
-    d = np.hypot(((xx - cx + T / 2) % T) - T / 2, ((yy - cy + T / 2) % T) - T / 2)
-    wood[d < 3.5] *= 0.55
-    wood[(d >= 3.5) & (d < 5)] *= 0.8
-wood = np.clip(wood, 0, 255).astype(np.uint8)
-Image.fromarray(wood).resize((T * 2, T * 2), Image.NEAREST).save(os.path.join(ROOT, 'art/ui/table-wood.png'))
-print('player-board.png', board.size, 'table-wood.png', (T * 2, T * 2))
+stone_img = np.zeros((T, T, 3))
+rows = 4
+rh = T // rows
+base = hexc('#3a3734')
+for r in range(rows):
+    off = (r * 23) % T                              # staggered courses, like laid flagstones
+    widths = [40, 28, 36, 24] if r % 2 == 0 else [30, 42, 22, 34]
+    x = off
+    for i, w in enumerate(widths):
+        tone = rng.uniform(0.78, 1.12)
+        tint = np.array([rng.uniform(-6, 6), rng.uniform(-4, 4), rng.uniform(-6, 2)])
+        for dx in range(w):
+            cx = (x + dx) % T
+            col = base * tone + tint
+            stone_img[r * rh:(r + 1) * rh, cx] = col
+        x += w
+    # mortar between courses and stones
+    stone_img[r * rh] = hexc('#141416')
+    stone_img[r * rh + 1] *= 0.7
+    x = off
+    for w in widths:
+        stone_img[r * rh:(r + 1) * rh, x % T] = hexc('#141416')
+        stone_img[r * rh:(r + 1) * rh, (x + 1) % T] *= 0.75
+        x += w
+# worn surface: soft blotches plus grain
+blot = 0.5 + 0.5 * np.sin(2 * math.pi * xx * 2 / T + 1.3 * np.sin(2 * math.pi * yy * 3 / T)) * np.sin(2 * math.pi * yy * 2 / T + 0.8)
+stone_img *= (0.9 + 0.12 * blot)[..., None]
+stone_img += rng.normal(0, 4.0, (T, T, 1))
+for _ in range(6):                                  # a few hairline cracks
+    x, y = rng.integers(0, T, 2).astype(float)
+    a = rng.uniform(0, 2 * math.pi)
+    for k in range(int(rng.integers(6, 16))):
+        stone_img[int(y) % T, int(x) % T] *= 0.55
+        a += rng.uniform(-0.6, 0.6)
+        x += math.cos(a); y += math.sin(a)
+stone_img = np.clip(stone_img, 0, 255).astype(np.uint8)
+Image.fromarray(stone_img).resize((T * 2, T * 2), Image.NEAREST).save(os.path.join(ROOT, 'art/ui/floor-stone.png'))
+print('player-board.png', board.size, 'floor-stone.png', (T * 2, T * 2))

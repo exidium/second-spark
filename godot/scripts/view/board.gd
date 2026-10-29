@@ -24,7 +24,7 @@ const MAT_W := 16.7
 const MAT_D := 3.9
 const MAT_Z := BOARD_H / 2 + 0.95 + MAT_D / 2
 const MAT_Y := 0.1
-const TABLE_W := 20.4
+const FLOOR_W := 400.0  # the stone floor, wide enough that its edge is never seen
 const FIG := Vector2(1.8, 2.7)      # the operating table art is 160 x 240
 const CAM_DIST := 21.0
 const ROW_RIM := {"researchRow": "#9fd0ff", "humanityRow": "#cda65c", "docks": "#d6675f", "hosp": "#b9ac93", "square": "#b4423c"}
@@ -90,6 +90,13 @@ func _build_world() -> void:
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.glow_enabled = true
 	env.glow_intensity = 0.5
+	# Far stones melt into the background, so the floor never shows a horizon.
+	env.fog_enabled = true
+	env.fog_mode = Environment.FOG_MODE_DEPTH
+	env.fog_light_color = Style.INK
+	env.fog_density = 1.0
+	env.fog_depth_begin = 24.0
+	env.fog_depth_end = 42.0
 	we.environment = env
 	add_child(we)
 	sun = DirectionalLight3D.new()
@@ -127,27 +134,18 @@ func _mat(c: Color, rough := 0.8) -> StandardMaterial3D:
 
 
 func _build_table() -> void:
-	var table := MeshInstance3D.new()
-	var box := BoxMesh.new()
-	var front := MAT_Z + MAT_D / 2 + 0.6
-	var back := -BOARD_H / 2 - 1.0
-	box.size = Vector3(TABLE_W, 0.7, front - back)
-	table.mesh = box
-	table.material_override = _mat(Color("#3a2618"))
-	table.position = Vector3(0, -0.36, (front + back) / 2)
-	table.material_override = _mat(Color("#1c110a"))
-	var top := MeshInstance3D.new()
-	var tp := PlaneMesh.new()
-	tp.size = Vector2(TABLE_W, front - back)
-	top.mesh = tp
-	var wm := _mat(Color.WHITE, 0.7)
-	wm.albedo_texture = Style.art("ui/table-wood.png")
-	wm.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
-	wm.uv1_scale = Vector3(TABLE_W / 3.0, (front - back) / 3.0, 1)
-	top.material_override = wm
-	top.position = Vector3(0, -0.005, (front + back) / 2)
-	add_child(top)
-	add_child(table)
+	# A stone floor with no edge: it runs off under the lamp in every direction and the dark swallows it.
+	var floor := MeshInstance3D.new()
+	var fp := PlaneMesh.new()
+	fp.size = Vector2(FLOOR_W, FLOOR_W)
+	floor.mesh = fp
+	var fm := _mat(Color.WHITE, 0.9)
+	fm.albedo_texture = Style.art("ui/floor-stone.png")
+	fm.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
+	fm.uv1_scale = Vector3(FLOOR_W / 4.0, FLOOR_W / 4.0, 1)
+	floor.material_override = fm
+	floor.position = Vector3(0.3, -0.005, 2.4)
+	add_child(floor)
 	var board := MeshInstance3D.new()
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(BOARD_W, BOARD_H)

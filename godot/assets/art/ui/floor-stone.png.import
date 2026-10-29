@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://duocrye18plrf"
-path="res://.godot/imported/table-wood.png-73c3b174aa0ebe48d9dc53cdbe05e503.ctex"
+uid="uid://hn7pb55bk4wo"
+path="res://.godot/imported/floor-stone.png-21e447b8e0ded622b327ec772354e3e5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/ui/table-wood.png"
-dest_files=["res://.godot/imported/table-wood.png-73c3b174aa0ebe48d9dc53cdbe05e503.ctex"]
+source_file="res://assets/art/ui/floor-stone.png"
+dest_files=["res://.godot/imported/floor-stone.png-21e447b8e0ded622b327ec772354e3e5.ctex"]
 
 [params]
 
