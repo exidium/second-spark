@@ -203,7 +203,7 @@ func _you_panel(p: Dictionary) -> PanelContainer:
 	nv.add_child(Style.label("%s · %d VP built · %d of 6 alive" % [C.role, p.vp, g.alive_count(p)], 14, Style.PARCH_DIM))
 	head.add_child(nv)
 	v.add_child(head)
-	v.add_child(stat_rows(p))
+	v.add_child(Style.label("Humanity %s · Reputation %d · Expertise %d" % [("%+d" % p.hum) if p.hum else "0", p.rep, p.exp], 14, Style.PARCH_DIM))
 	var bh := Style.hbox(6)
 	var night: bool = g.S.phase == "lab"
 	var lb := Style.button("Laboratory", night, 15)

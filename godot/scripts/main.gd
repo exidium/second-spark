@@ -169,6 +169,8 @@ func _fit_board() -> void:
 func _on_mat_clicked(what: String) -> void:
 	if what == "lab":
 		open_lab()
+	elif what == "labzone":
+		_on_place_clicked("lab")
 	elif what == "cards":
 		open_hand()
 
@@ -187,7 +189,7 @@ func _rebuild_tags() -> void:
 		else:
 			var l := Style.label(t.text, t.size, t.color, Style.display if t.font == "display" else Style.body)
 			l.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
-			l.add_theme_constant_override("outline_size", 5)
+			l.add_theme_constant_override("outline_size", 0 if t.color == Style.PAPER_INK else 5)
 			c = l
 			if t.get("plate", false):
 				# A dark nameplate, so the name reads over the busy map.

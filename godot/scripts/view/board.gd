@@ -19,12 +19,14 @@ const CARD_STEP := 0.62
 # Which state row lies beside which place.
 const ROWS := {"academy": "researchRow", "church": "humanityRow", "docks": "docks", "hospital": "hosp", "square": "square"}
 # Your player board, a smaller board in front of the map.
-const MAT_W := 12.6
-const MAT_D := 3.6
-const MAT_Z := BOARD_H / 2 + 2.95
+const MAT_X := -0.7       # your board runs from x -7.4 to 6.0; the dials sit to its left, the loose piles to its right
+const MAT_W := 13.4
+const MAT_D := 3.9
+const MAT_Z := BOARD_H / 2 + 0.95 + MAT_D / 2
 const MAT_Y := 0.1
+const TABLE_W := 20.4
 const FIG := Vector2(1.8, 2.7)      # the operating table art is 160 x 240
-const CAM_DIST := 20.5
+const CAM_DIST := 23.0
 const ROW_RIM := {"researchRow": "#9fd0ff", "humanityRow": "#cda65c", "docks": "#d6675f", "hosp": "#b9ac93", "square": "#b4423c"}
 
 var g: Game
@@ -113,7 +115,7 @@ func _build_table() -> void:
 	var box := BoxMesh.new()
 	var front := MAT_Z + MAT_D / 2 + 0.6
 	var back := -BOARD_H / 2 - 1.0
-	box.size = Vector3(BOARD_W + 1.8, 0.7, front - back)
+	box.size = Vector3(TABLE_W, 0.7, front - back)
 	table.mesh = box
 	table.material_override = _mat(Color("#3a2618"))
 	table.position = Vector3(0, -0.36, (front + back) / 2)
@@ -161,32 +163,7 @@ func _make_place(id: String, name: String, pos: Vector3, keys: Array, sci: Array
 	for k in n:
 		var off := (k - (n - 1) / 2.0) * 0.32
 		slots.append(pos + Vector3(off, 0.06, 0))
-		var ring := MeshInstance3D.new()
-		var tm := TorusMesh.new()
-		tm.inner_radius = 0.09
-		tm.outer_radius = 0.12
-		ring.mesh = tm
-		var rm := _mat(Color("#c9a24a") if sci[k] else Style.PARCH)
-		rm.emission_enabled = true
-		rm.emission = rm.albedo_color
-		rm.emission_energy_multiplier = 0.25
-		ring.material_override = rm
-		ring.position = Vector3(off, 0.065, 0)
-		root.add_child(ring)
-		rings.append(rm)
-		var ra := Area3D.new()
-		var rs := CollisionShape3D.new()
-		var rc := CylinderShape3D.new()
-		rc.radius = 0.15
-		rc.height = 0.7
-		rs.shape = rc
-		rs.position = Vector3(off, 0.35, 0)
-		ra.add_child(rs)
-		root.add_child(ra)
-		var key: String = keys[k]
-		ra.input_event.connect(func(_c, e, _p, _n, _s): if _is_click(e): slot_clicked.emit(key))
-		ra.mouse_entered.connect(func(): _hover(key))
-		ra.mouse_exited.connect(func(): _unhover(key))
+		rings.append(_add_ring(root, Vector3(off, 0.065, 0), sci[k], keys[k]))
 	var area := Area3D.new()
 	var shape := CollisionShape3D.new()
 	var cs := CylinderShape3D.new()
@@ -226,6 +203,35 @@ func _make_place(id: String, name: String, pos: Vector3, keys: Array, sci: Array
 	return {"root": root, "disc": dm, "rings": rings, "slots": slots, "radius": cyl.top_radius, "cross": cross, "keys": keys}
 
 
+## One action space: a ring (gold when only a scientist may go) and its click target.
+func _add_ring(root: Node3D, off: Vector3, sci: bool, key: String) -> StandardMaterial3D:
+	var ring := MeshInstance3D.new()
+	var tm := TorusMesh.new()
+	tm.inner_radius = 0.09
+	tm.outer_radius = 0.12
+	ring.mesh = tm
+	var rm := _mat(Color("#c9a24a") if sci else Style.PARCH)
+	rm.emission_enabled = true
+	rm.emission = rm.albedo_color
+	rm.emission_energy_multiplier = 0.25
+	ring.material_override = rm
+	ring.position = off
+	root.add_child(ring)
+	var ra := Area3D.new()
+	var rs := CollisionShape3D.new()
+	var rc := CylinderShape3D.new()
+	rc.radius = 0.15
+	rc.height = 0.7
+	rs.shape = rc
+	rs.position = off + Vector3(0, 0.3, 0)
+	ra.add_child(rs)
+	root.add_child(ra)
+	ra.input_event.connect(func(_c, e, _p, _n, _s): if _is_click(e): slot_clicked.emit(key))
+	ra.mouse_entered.connect(func(): _hover(key))
+	ra.mouse_exited.connect(func(): _unhover(key))
+	return rm
+
+
 func _build_place(l: Dictionary) -> void:
 	var pos: Dictionary = g.D.BOARD_POS[l.id]
 	var keys := []
@@ -238,20 +244,9 @@ func _build_place(l: Dictionary) -> void:
 		places[l.id].root.visible = false
 
 
-## Your laboratory is a place on the map; each rival has a small lab mat by their home row.
+## Your laboratory's four spaces are on your board (_build_mat); each rival has a small lab mat by their home row.
 func _build_lab_places() -> void:
-	var keys := []
-	var sci := []
-	for s in g.D.LABSPOTS:
-		keys.append("lab." + s.id)
-		sci.append(s.get("sci", 0) == 1)
-	var pos: Vector3 = map_to_world(g.D.LAB_POS.x, g.D.LAB_POS.y)
-	places["lab"] = _make_place("lab", "Your laboratory", pos, keys, sci)
-	var lab_slots := {}
-	for k in keys.size():
-		lab_slots[g.D.LABSPOTS[k].id] = places.lab.slots[k]
-	labs[0] = lab_slots
-	homes[0] = Vector3(-2.6, 0.0, BOARD_H / 2 + 0.55)
+	homes[0] = Vector3(-6.6, 0.0, BOARD_H / 2 + 0.5)
 	for i in range(1, 4):
 		var base := Vector3(-6.4 + (i - 1) * 5.4, 0.0, -BOARD_H / 2 - 0.5)
 		homes[i] = base
@@ -716,14 +711,25 @@ func sync_rows() -> void:
 func _mp(x: float, z: float, y := 0.0) -> Vector3:
 	return Vector3(x, MAT_Y + y, MAT_Z + z)
 
-# Zone centres on your board (x along the board, z towards you).
-const Z_OR := -4.85        # operating room
-const Z_DECAY := -1.35     # decomposition table, first cell column at DECAY_X0
-const DECAY_X0 := -2.45
-const DECAY_CW := 0.72
-const DECAY_ROWS := [-0.75, -0.18, 0.39, 0.96]
-const Z_POINTS := 2.15
-const SUP := {"coin": Vector2(4.35, -0.95), "jar": Vector2(5.55, -0.95), "ice": Vector2(4.35, 0.35), "police": Vector2(5.55, 0.35), "cards": Vector2(4.95, 1.35)}
+# Board zones, in board coordinates (x along the board, z towards you). Laid out like a real player board:
+# laboratory spaces, the decomposition track, the stores, the jars, the operating table.
+const LAB_CARDS := [Vector2(-6.45, -0.55), Vector2(-4.85, -0.55), Vector2(-6.45, 0.95), Vector2(-4.85, 0.95)]
+const DECAY_COLS := [-3.35, -2.3, -1.2, -0.15]
+const DECAY_ROWS := [-0.8, -0.2, 0.4, 1.0]
+const ROT_BARS := [-1.75, 0.4]          # blood rots after II, everything rots after IV
+const STORES := {"ice": -0.95, "preserved": 0.15, "bone": 1.25}
+const STORE_X := 1.6
+const JAR_X := 2.95
+const JAR_Z := [-1.0, -0.2, 0.6, 1.4]
+const TABLE_X := 4.65
+const DIALS := {"hum": -1.25, "rep": 0.0, "exp": 1.25}
+const DIAL_X := -8.2
+const DIAL_R := 0.52
+const PILES := {"coin": Vector2(6.9, -0.95), "police": Vector2(8.2, -0.95), "cards": Vector2(7.55, 0.85)}
+const HEAD_Z := -1.68
+
+func _bx(x: float, z: float, y := 0.0) -> Vector3:
+	return _mp(x, z, y)
 
 func _panel3d(center: Vector3, size: Vector2, col: Color, rim := Color(0, 0, 0, 0)) -> void:
 	if rim.a > 0:
@@ -758,48 +764,105 @@ func _zone_area(center: Vector3, size: Vector2, what: String) -> void:
 			hover_key = ""
 			hover_changed.emit(""))
 
-## The board itself: a wooden frame, a dark printed face, one inset panel per zone, and the printed words.
+## The board itself: a wooden frame, a dark face, one inset panel per zone; the dials on its left.
 func _build_mat() -> void:
 	var frame := MeshInstance3D.new()
 	var fb := BoxMesh.new()
 	fb.size = Vector3(MAT_W + 0.3, MAT_Y + 0.02, MAT_D + 0.3)
 	frame.mesh = fb
 	frame.material_override = _mat(Color("#24170f"))
-	frame.position = Vector3(0, (MAT_Y + 0.02) / 2 - 0.01, MAT_Z)
+	frame.position = Vector3(MAT_X, (MAT_Y + 0.02) / 2 - 0.01, MAT_Z)
 	add_child(frame)
-	_panel3d(_mp(0, 0, -0.01), Vector2(MAT_W, MAT_D), Color("#3a3042"), Color("#8a6a3a"))
-	_panel3d(_mp(Z_OR, 0.1), Vector2(2.5, 3.1), Color("#2a2330"), Color("#5a4e62"))
-	_panel3d(_mp(Z_DECAY, 0.12), Vector2(3.95, 3.05), Color("#2a2330"), Color("#5a4e62"))
-	_panel3d(_mp(Z_POINTS, 0.12), Vector2(3.0, 3.05), Color("#2a2330"), Color("#5a4e62"))
-	_panel3d(_mp(4.95, 0.12), Vector2(2.4, 3.05), Color("#2a2330"), Color("#5a4e62"))
-	_tag("mat:or", "Operating room", _mp(Z_OR, -1.62), null, 17, Style.BRASS)
-	_tag("mat:decay", "Decomposition table", _mp(Z_DECAY, -1.62), null, 17, Style.BRASS)
-	_tag("mat:points", "Points per part", _mp(Z_POINTS, -1.62), null, 17, Style.BRASS)
-	_tag("mat:sup", "Supplies", _mp(4.95, -1.62), null, 17, Style.BRASS)
-	# The decomposition table's printed grid: stage numerals and material names.
+	_panel3d(_mp(MAT_X, 0, -0.01), Vector2(MAT_W, MAT_D), Color("#3a3042"), Color("#8a6a3a"))
+	# Laboratory: four spaces, each a small card with its ring. They behave like a place on the map.
+	_panel3d(_bx(-5.65, 0.2), Vector2(3.3, 3.25), Color("#2a2330"), Color("#5a4e62"))
+	_tag("mat:lab", "Laboratory", _bx(-5.65, HEAD_Z), null, 17, Style.BRASS)
+	var root := Node3D.new()
+	add_child(root)
+	var keys := []
+	var rings := []
+	var slots := []
+	labs[0] = {}
+	for k in g.D.LABSPOTS.size():
+		var sp: Dictionary = g.D.LABSPOTS[k]
+		var c: Vector2 = LAB_CARDS[k]
+		_panel3d(_bx(c.x, c.y, 0.016), Vector2(1.45, 1.3), Color("#d9c8a3"), Color("#8a6a3a"))
+		_tag("mat:lab" + sp.id, sp.name, _bx(c.x, c.y - 0.36), null, 15, Style.PAPER_INK, "display")
+		var key: String = "lab." + sp.id
+		var at_pos := _bx(c.x, c.y + 0.22, 0.05)
+		keys.append(key)
+		slots.append(at_pos)
+		labs[0][sp.id] = at_pos
+		rings.append(_add_ring(root, at_pos, sp.get("sci", 0) == 1, key))
+	var dm := _mat(Color.BLACK)   # no disc, but _refresh_glow expects one
+	places["lab"] = {"root": root, "disc": dm, "rings": rings, "slots": slots, "radius": 0.8, "cross": Node3D.new(), "keys": keys}
+	_zone_area(_bx(-5.65, 0.2), Vector2(3.3, 3.25), "labzone")
+	# Decomposition track: four stage columns, red bars where materials rot.
+	_panel3d(_bx(-1.75, 0.2), Vector2(4.45, 3.25), Color("#2a2330"), Color("#5a4e62"))
+	_tag("mat:decay", "Decomposition", _bx(-1.75, HEAD_Z), null, 17, Style.BRASS)
 	var stages := ["I", "II", "III", "IV"]
 	for k in 4:
-		_tag("mat:st%d" % k, stages[k], _mp(DECAY_X0 + k * DECAY_CW, -1.2), null, 15, Style.MUTED)
-	var mats := ["muscle", "organ", "blood", "animal"]
-	for r in 4:
-		_tag("mat:m" + mats[r], g.D.MAT_N[mats[r]], _mp(DECAY_X0 - 0.85, DECAY_ROWS[r]), null, 14, Style.MAT_COL[mats[r]].lightened(0.45), "body")
-		for k in 4:
-			var rot: bool = k == 3 or (mats[r] == "blood" and k == 1)
-			_panel3d(_mp(DECAY_X0 + k * DECAY_CW, DECAY_ROWS[r]), Vector2(DECAY_CW - 0.08, 0.5), Color("#1d1922"), Color("#a8443a") if rot else Color("#4b4152"))
-	_tag("mat:pointsgrid", "", _mp(Z_POINTS, 0.15), null, 14, Style.PARCH, "body", "points")
-	var names := {"coin": "Gold", "jar": "Leiden jars", "ice": "Ice", "police": "Police", "cards": "Cards"}
-	for k in SUP:
-		_tag("mat:n" + k, names[k], _mp(SUP[k].x, SUP[k].y + 0.5), null, 13, Style.MUTED, "body")
-	_zone_area(_mp(Z_OR, 0.1), Vector2(2.5, 3.1), "lab")
-	_zone_area(_mp(Z_DECAY, 0.12), Vector2(3.95, 3.05), "decay")
-	_zone_area(_mp(Z_POINTS, 0.12), Vector2(3.0, 3.05), "points")
-	for k in SUP:
-		_zone_area(_mp(SUP[k].x, SUP[k].y + 0.1), Vector2(1.15, 1.0) if k != "cards" else Vector2(2.3, 0.9), k)
+		_panel3d(_bx(DECAY_COLS[k], 0.2, 0.016), Vector2(0.95, 3.1), Color("#241c33"), Color("#4b3f5e"))
+		_tag("mat:st%d" % k, stages[k], _bx(DECAY_COLS[k], -1.2), null, 16, Style.PARCH_DIM)
+	for k in 2:
+		var bar := MeshInstance3D.new()
+		var bb := BoxMesh.new()
+		bb.size = Vector3(0.07, 0.02, 3.0)
+		bar.mesh = bb
+		bar.material_override = _glow(Style.CRIM, 0.5)
+		bar.position = _bx(ROT_BARS[k], 0.2, 0.035)
+		add_child(bar)
+	_tag("mat:rot1", "blood rots", _bx(ROT_BARS[0], 1.62), null, 12, Style.CRIM, "body")
+	_tag("mat:rot2", "all rot", _bx(ROT_BARS[1], 1.62), null, 12, Style.CRIM, "body")
+	_zone_area(_bx(-1.75, 0.2), Vector2(4.45, 3.25), "decay")
+	# Stores: ice, preserved flesh, bone.
+	_tag("mat:stores", "Stores", _bx(STORE_X, HEAD_Z), null, 17, Style.BRASS)
+	var store_names := {"ice": "Ice", "preserved": "Preserved", "bone": "Bone"}
+	for k in STORES:
+		_panel3d(_bx(STORE_X, STORES[k]), Vector2(1.5, 0.98), Color("#2a2330"), Color("#5a4e62"))
+		_tag("mat:s" + k, store_names[k], _bx(STORE_X, STORES[k] - 0.33), null, 13, Style.MUTED, "body")
+		_zone_area(_bx(STORE_X, STORES[k]), Vector2(1.5, 0.98), k)
+	# Leyden jars: four slots.
+	_tag("mat:jars", "Jars", _bx(JAR_X, HEAD_Z), null, 17, Style.BRASS)
+	for z in JAR_Z:
+		_panel3d(_bx(JAR_X, z), Vector2(0.62, 0.66), Color("#1d1922"), Color("#6b5a3a"))
+	_zone_area(_bx(JAR_X, 0.2), Vector2(0.8, 3.25), "jar")
+	# Operating table.
+	_panel3d(_bx(TABLE_X, 0.2), Vector2(2.7, 3.25), Color("#2a2330"), Color("#5a4e62"))
+	_tag("mat:or", "Operating table", _bx(TABLE_X, HEAD_Z), null, 17, Style.BRASS)
+	_zone_area(_bx(TABLE_X, 0.2), Vector2(2.7, 3.25), "lab")
+	# Dials, on the table to the left of the board.
+	var names := {"hum": "Humanity", "rep": "Reputation", "exp": "Expertise"}
+	for k in DIALS:
+		var c := Vector3(DIAL_X, MAT_Y, MAT_Z + DIALS[k])
+		var rim := MeshInstance3D.new()
+		var rc := CylinderMesh.new()
+		rc.top_radius = DIAL_R + 0.05
+		rc.bottom_radius = DIAL_R + 0.07
+		rc.height = MAT_Y + 0.03
+		rim.mesh = rc
+		rim.material_override = _mat(Style.BRASS, 0.35)
+		rim.position = Vector3(c.x, (MAT_Y + 0.03) / 2 - 0.01, c.z)
+		add_child(rim)
+		var face := MeshInstance3D.new()
+		var fc := CylinderMesh.new()
+		fc.top_radius = DIAL_R
+		fc.bottom_radius = DIAL_R
+		fc.height = 0.01
+		face.mesh = fc
+		face.material_override = _mat(Color("#1d1922"))
+		face.position = c + Vector3(0, 0.03, 0)
+		add_child(face)
+		_tag("dial:n" + k, names[k], c + Vector3(0, 0.05, -0.18), null, 11, Style.MUTED, "body")
+		var dk: String = k
+		_zone_area(c, Vector2(DIAL_R * 2, DIAL_R * 2), "dial:" + dk)
+	for k in PILES:
+		_zone_area(_mp(PILES[k].x, PILES[k].y), Vector2(1.4, 1.2) if k != "cards" else Vector2(2.6, 1.2), k)
 	var lamp := OmniLight3D.new()
 	lamp.light_color = Color("#ffb35a")
 	lamp.light_energy = 0.0
-	lamp.omni_range = 4.5
-	lamp.position = _mp(-1.5, 0.0, 1.6)
+	lamp.omni_range = 5.5
+	lamp.position = _mp(MAT_X, 0.0, 1.8)
 	add_child(lamp)
 	lamps.append(lamp)
 	mat_dyn = Node3D.new()
@@ -809,19 +872,33 @@ func _mat_info(what: String) -> String:
 	if g.S.is_empty():
 		return ""
 	var p: Dictionary = g.S.players[0]
+	if what.begins_with("dial:"):
+		var k := what.substr(5)
+		if k == "hum":
+			return "[b]Humanity %+d[/b]\nGained by atoning and kind choices, lost by dark deeds. It counts at the end of the game." % p.hum
+		var tips: Dictionary = Hud.EXP_TIPS if k == "exp" else Hud.REP_TIPS
+		var v: int = p.exp if k == "exp" else p.rep
+		var lines := []
+		for t in tips:
+			lines.append("[color=%s]%s[/color]" % ["#9fd0ff" if v >= t else "#8e8393", tips[t]])
+		return "[b]%s %d[/b]\n%s" % ["Expertise" if k == "exp" else "Reputation", v, "\n".join(lines)]
 	match what:
+		"labzone":
+			return "[b]Your laboratory[/b]\nFour spaces of your own. Each can be used once a day. Gold rings are for your scientist only."
 		"lab":
-			return "[b]Operating room[/b]\nMuscle %d · skin %d · alive %d · damage %d. %d VP built.\nClick to open your laboratory." % [g.on_table(p).size() - g.complete_count(p), g.complete_count(p) - g.alive_count(p), g.alive_count(p), g.dmg_total(p), p.vp]
+			return "[b]Operating table[/b]\nMuscle %d · skin %d · alive %d · damage %d. %d VP built.\nClick to open your laboratory." % [g.on_table(p).size() - g.complete_count(p), g.complete_count(p) - g.alive_count(p), g.alive_count(p), g.dmg_total(p), p.vp]
 		"decay":
-			return "[b]Decomposition table[/b]\nEach dawn materials age one stage. Red cells rot at the next dawn. Bone never rots (max 12).\nBone %d · Preserved %d/9%s" % [p.bone, p.preserved, (" · Ice: no decay for %d dawn%s" % [p.ice, "" if p.ice == 1 else "s"]) if p.ice else ""]
-		"points":
-			return "[b]Points per part[/b]\nEach step scores VP by the stage of the oldest material you use (I is freshest). Alive points count at the end of the game."
-		"coin":
-			return "[b]Gold[/b]\n%s." % Style.fr(p.coin)
-		"jar":
-			return "[b]Leiden jars[/b]\n%d of %d charged. Each charged jar rolls 2 shock dice when you throw the switch." % [g.charged(p), p.jars.size()]
+			return "[b]Decomposition[/b]\nEach dawn your materials move one stage to the right. Blood rots after stage II, everything rots after stage IV. Bone never rots."
 		"ice":
 			return "[b]Ice[/b]\n%d. Each ice stops your materials decaying for one dawn." % p.ice
+		"preserved":
+			return "[b]Preserved flesh[/b]\n%d of 9. Preserve spare muscle and organs at night; sell them at the Market." % p.preserved
+		"bone":
+			return "[b]Bone[/b]\n%d of 12. Bone never rots. Sell it at the Market." % p.bone
+		"jar":
+			return "[b]Leyden jars[/b]\n%d of %d charged, 4 at most. Each charged jar rolls 2 shock dice when you throw the switch." % [g.charged(p), p.jars.size()]
+		"coin":
+			return "[b]Gold[/b]\n%s." % Style.fr(p.coin)
 		"police":
 			return "[b]Police[/b]\n%d of 2 badges. At 2 the police arrest your people." % p.police
 		"cards":
@@ -853,6 +930,11 @@ func _glow(c: Color, e := 0.0, alpha := 1.0) -> StandardMaterial3D:
 		m.emission_energy_multiplier = e
 	return m
 
+func _cube_mesh() -> BoxMesh:
+	var cube := BoxMesh.new()
+	cube.size = Vector3(0.1, 0.1, 0.1)
+	return cube
+
 ## Rebuilds the pieces on your board from the state. Pieces that are new since the last sync drop in.
 func sync_mat() -> void:
 	var p: Dictionary = g.S.players[0]
@@ -860,8 +942,9 @@ func sync_mat() -> void:
 		c.queue_free()
 	tags = tags.filter(func(t): return not t.id.begins_with("dyn:"))
 	var seen := {}
-	# Operating room: the table and each part in its state, stacked like the 2D figure.
-	var fc := _mp(Z_OR, 0.12, 0.02)
+	var cube := _cube_mesh()
+	# Operating table: the table and each part in its state, stacked like the 2D figure.
+	var fc := _bx(TABLE_X, 0.25, 0.02)
 	var layers := [["body/table.png", false]]
 	for s in g.D.SLOT6:
 		var t = p.table[s]
@@ -886,24 +969,83 @@ func sync_mat() -> void:
 		if t != null and t.dmg:
 			var c: Array = g.D.BODY_CENTRES[s]
 			_tag("dyn:dmg:" + s, "ϟ" if t.dmg == 1 else "ϟϟ", fc + Vector3(-FIG.x / 2 + FIG.x * c[0] / 100.0, 0.05, -FIG.y / 2 + FIG.y * c[1] / 100.0), null, 22, Style.DMG)
-	# Decomposition table: one cube per material, up to six in a cell, the count beside them.
+	# Decomposition: in each stage column one row per material, a cube each (up to five), the count beside them.
 	var mats := ["muscle", "organ", "blood", "animal"]
-	var cube := BoxMesh.new()
-	cube.size = Vector3(0.11, 0.11, 0.11)
 	for r in 4:
 		var cm := _mat(Style.MAT_COL[mats[r]], 0.6)
 		for k in 4:
 			var n: int = p.mats[mats[r]][k]
 			var key := "%s%d" % [mats[r], k]
 			seen[key] = n
-			var cc := _mp(DECAY_X0 + k * DECAY_CW, DECAY_ROWS[r], 0.075)
-			for j in mini(n, 6):
-				var off := Vector3(-0.24 + (j % 3) * 0.14, 0, -0.08 + (j / 3) * 0.16)
-				_piece(cube, cm, cc + off, j >= mat_seen.get(key, 0), 0.04 * j)
+			var cc := _bx(DECAY_COLS[k], DECAY_ROWS[r], 0.07)
+			for j in mini(n, 5):
+				_piece(cube, cm, cc + Vector3(-0.36 + j * 0.12, 0, 0), j >= mat_seen.get(key, 0), 0.04 * j)
 			if n:
-				_tag("dyn:n" + key, str(n), cc + Vector3(0.22, 0.05, 0), null, 17, Style.PARCH)
-	_tag("dyn:bone", "Bone %d · Preserved %d/9%s" % [p.bone, p.preserved, (" · Ice %d" % p.ice) if p.ice else ""], _mp(Z_DECAY, 1.42), null, 14, Style.PARCH_DIM, "body")
-	# Gold: coins in stacks of six.
+				_tag("dyn:n" + key, str(n), cc + Vector3(0.3, 0.05, 0), null, 16, Style.MAT_COL[mats[r]].lightened(0.5))
+	# Stores.
+	var ice := BoxMesh.new()
+	ice.size = Vector3(0.16, 0.13, 0.16)
+	seen.ice = p.ice
+	for j in mini(p.ice, 5):
+		_piece(ice, _glow(Color("#bfe6ff"), 0.4, 0.75), _bx(STORE_X - 0.5 + j * 0.2, STORES.ice + 0.12, 0.07), j >= mat_seen.get("ice", 0), 0.05 * j)
+	_tag("dyn:ice", str(p.ice), _bx(STORE_X + 0.55, STORES.ice + 0.12, 0.1), null, 17, Style.PARCH)
+	var flesh := _mat(Style.MAT_COL.muscle.darkened(0.2), 0.6)
+	seen.preserved = p.preserved
+	for j in mini(p.preserved, 9):
+		_piece(cube, flesh, _bx(STORE_X - 0.55 + (j % 5) * 0.12, STORES.preserved + 0.06 + (j / 5) * 0.13, 0.06), j >= mat_seen.get("preserved", 0), 0.03 * j)
+	_tag("dyn:pres", "%d/9" % p.preserved, _bx(STORE_X + 0.5, STORES.preserved + 0.12, 0.1), null, 15, Style.PARCH)
+	var bone := _mat(Style.MAT_COL.bone, 0.6)
+	seen.bone = p.bone
+	for j in mini(p.bone, 12):
+		_piece(cube, bone, _bx(STORE_X - 0.55 + (j % 6) * 0.12, STORES.bone + 0.06 + (j / 6) * 0.13, 0.06), j >= mat_seen.get("bone", 0), 0.03 * j)
+	_tag("dyn:bone", "%d/12" % p.bone, _bx(STORE_X + 0.5, STORES.bone + 0.12, 0.1), null, 15, Style.PARCH)
+	# Leyden jars: glass, brass cap, a blue core when charged.
+	var glass := CylinderMesh.new()
+	glass.top_radius = 0.1
+	glass.bottom_radius = 0.11
+	glass.height = 0.36
+	var core := CylinderMesh.new()
+	core.top_radius = 0.06
+	core.bottom_radius = 0.06
+	core.height = 0.27
+	var cap := CylinderMesh.new()
+	cap.top_radius = 0.065
+	cap.bottom_radius = 0.075
+	cap.height = 0.06
+	for j in p.jars.size():
+		var key := "jar%d" % j
+		seen[key] = 2 if p.jars[j] else 1
+		var fresh: bool = mat_seen.get(key, 0) == 0
+		var jp := _bx(JAR_X, JAR_Z[mini(j, 3)])
+		_piece(glass, _glow(Color("#c9d8e8"), 0.0, 0.35), jp + Vector3(0, 0.19, 0), fresh)
+		_piece(cap, _mat(Style.BRASS, 0.3), jp + Vector3(0, 0.4, 0), fresh)
+		_piece(core, _glow(Style.ALIVE, 2.2) if p.jars[j] else _mat(Color("#3a3446")), jp + Vector3(0, 0.16, 0), fresh)
+	_tag("dyn:jar", "%d/%d" % [g.charged(p), p.jars.size()], _bx(JAR_X, 1.88, 0.1), null, 15, Style.SPARK if g.charged(p) else Style.PARCH)
+	# Dials: a ring of ticks, lit up to your value, thresholds in blue; the value in the middle.
+	var tick := BoxMesh.new()
+	tick.size = Vector3(0.035, 0.02, 0.09)
+	var big := BoxMesh.new()
+	big.size = Vector3(0.06, 0.02, 0.14)
+	for k in DIALS:
+		var c := Vector3(DIAL_X, MAT_Y + 0.045, MAT_Z + DIALS[k])
+		var lo := -10 if k == "hum" else 0
+		var hi := 10 if k == "hum" else 30
+		var v: int = p.hum if k == "hum" else (p.exp if k == "exp" else p.rep)
+		var tips: Dictionary = {} if k == "hum" else (Hud.EXP_TIPS if k == "exp" else Hud.REP_TIPS)
+		var on_col: Color = (Style.CRIM if v < 0 else Style.VERD) if k == "hum" else (Style.SPARK if k == "exp" else Style.BRASS)
+		for t in range(lo, hi + 1):
+			var lit: bool = (t < 0 and t >= v) or (t > 0 and t <= v) if k == "hum" else (t > 0 and t <= v)
+			var mark: bool = tips.has(t) or (k == "hum" and t == 0)
+			var col: Color = on_col if lit else (Color("#3d6e99") if mark else Color("#4b4152"))
+			var ang: float = deg_to_rad(-150.0 + 300.0 * float(t - lo) / float(hi - lo))
+			var n := MeshInstance3D.new()
+			n.mesh = big if mark else tick
+			n.material_override = _glow(col, 0.6 if lit else 0.0)
+			n.position = c + Vector3(sin(ang), 0, -cos(ang)) * (DIAL_R - 0.1)
+			n.rotation.y = -ang
+			mat_dyn.add_child(n)
+		_tag("dyn:dial" + k, ("%+d" % v) if (k == "hum" and v) else str(v), c + Vector3(0, 0.02, 0.12), null, 20, on_col.lightened(0.2) if v else Style.PARCH)
+	# Loose on the table to the right: gold, police badges, your cards.
 	var coin := CylinderMesh.new()
 	coin.top_radius = 0.12
 	coin.bottom_radius = 0.12
@@ -911,82 +1053,50 @@ func sync_mat() -> void:
 	var gold := _glow(Color("#d9a93a"), 0.15)
 	gold.metallic = 0.8
 	seen.coin = p.coin
+	var cp: Vector2 = PILES.coin
 	for j in mini(p.coin, 15):
 		var layer: int = j / 9
 		var q: int = j % 9
-		var at_pos := _mp(SUP.coin.x - 0.4 + (q % 3) * 0.2 + layer * 0.1, SUP.coin.y - 0.2 + (q / 3) * 0.2 + layer * 0.1, 0.02 + layer * 0.04)
-		_piece(coin, gold, at_pos, j >= mat_seen.get("coin", 0), 0.03 * j)
-	_tag("dyn:coin", str(p.coin), _mp(SUP.coin.x + 0.42, SUP.coin.y, 0.2), null, 20, Style.PARCH)
-	# Leiden jars: glass, brass cap, a blue core when charged.
-	var glass := CylinderMesh.new()
-	glass.top_radius = 0.075
-	glass.bottom_radius = 0.085
-	glass.height = 0.3
-	var core := CylinderMesh.new()
-	core.top_radius = 0.045
-	core.bottom_radius = 0.045
-	core.height = 0.22
-	var cap := CylinderMesh.new()
-	cap.top_radius = 0.05
-	cap.bottom_radius = 0.06
-	cap.height = 0.05
-	var nj: int = p.jars.size()
-	for j in nj:
-		var x: float = SUP.jar.x - 0.18 * (nj - 1) + j * 0.36 * (1.0 if nj < 4 else 0.75)
-		var key := "jar%d" % j
-		seen[key] = 2 if p.jars[j] else 1
-		var fresh: bool = mat_seen.get(key, 0) == 0
-		_piece(glass, _glow(Color("#c9d8e8"), 0.0, 0.35), _mp(x, SUP.jar.y, 0.15), fresh)
-		_piece(cap, _mat(Style.BRASS, 0.3), _mp(x, SUP.jar.y, 0.32), fresh)
-		_piece(core, _glow(Style.ALIVE, 2.2) if p.jars[j] else _mat(Color("#3a3446")), _mp(x, SUP.jar.y, 0.13), fresh)
-	_tag("dyn:jar", "%d/%d" % [g.charged(p), nj], _mp(SUP.jar.x, SUP.jar.y + 0.28, 0.1), null, 17, Style.SPARK if g.charged(p) else Style.PARCH)
-	# Ice: pale translucent blocks.
-	var ice := BoxMesh.new()
-	ice.size = Vector3(0.17, 0.14, 0.17)
-	seen.ice = p.ice
-	for j in mini(p.ice, 6):
-		_piece(ice, _glow(Color("#bfe6ff"), 0.4, 0.75), _mp(SUP.ice.x - 0.3 + (j % 3) * 0.22, SUP.ice.y - 0.08 + (j / 3) * 0.22, 0.07), j >= mat_seen.get("ice", 0), 0.05 * j)
-	_tag("dyn:ice", str(p.ice), _mp(SUP.ice.x + 0.42, SUP.ice.y, 0.2), null, 20, Style.PARCH)
-	# Police: two badge spots, a red badge on each one you have.
+		_piece(coin, gold, Vector3(cp.x - 0.3 + (q % 3) * 0.22 + layer * 0.1, 0.02 + layer * 0.04, MAT_Z + cp.y - 0.22 + (q / 3) * 0.22 + layer * 0.1), j >= mat_seen.get("coin", 0), 0.03 * j)
+	_tag("dyn:coin", "%d gold" % p.coin, Vector3(cp.x, 0.05, MAT_Z + cp.y + 0.55), null, 15, Style.PARCH)
 	var spot := CylinderMesh.new()
-	spot.top_radius = 0.15
-	spot.bottom_radius = 0.15
+	spot.top_radius = 0.17
+	spot.bottom_radius = 0.17
 	spot.height = 0.01
 	var badge := CylinderMesh.new()
-	badge.top_radius = 0.14
-	badge.bottom_radius = 0.14
+	badge.top_radius = 0.16
+	badge.bottom_radius = 0.16
 	badge.height = 0.04
 	badge.radial_segments = 6
 	seen.police = p.police
+	var pp: Vector2 = PILES.police
 	for j in 2:
-		var bp := _mp(SUP.police.x - 0.2 + j * 0.4, SUP.police.y, 0.0)
-		_piece(spot, _mat(Color("#3a3240")), bp, false)
+		var bp := Vector3(pp.x - 0.22 + j * 0.44, 0.0, MAT_Z + pp.y)
+		_piece(spot, _mat(Color("#2a1f18")), bp, false)
 		if j < p.police:
 			_piece(badge, _glow(Style.CRIM, 0.5), bp + Vector3(0, 0.03, 0), j >= mat_seen.get("police", 0))
-	_tag("dyn:police", "%d/2" % p.police, _mp(SUP.police.x, SUP.police.y + 0.28, 0.1), null, 17, Style.CRIM if p.police else Style.PARCH)
-	# Cards: your hand as a small fan, face up.
+	_tag("dyn:police", "police %d/2" % p.police, Vector3(pp.x, 0.05, MAT_Z + pp.y + 0.55), null, 15, Style.CRIM if p.police else Style.PARCH)
 	var nh: int = p.hand.size()
 	seen.cards = nh
+	var hp: Vector2 = PILES.cards
 	for j in nh:
 		var cn := make_card(p.hand[j])
-		cn.scale = Vector3(0.75, 1, 0.75)
 		mat_dyn.add_child(cn)
-		var to := _mp(SUP.cards.x - 0.22 * (nh - 1) + j * 0.44, SUP.cards.y, 0.02 + j * 0.004)
+		var to := Vector3(hp.x - 0.25 * (nh - 1) + j * 0.5, 0.02 + j * 0.004, MAT_Z + hp.y)
 		cn.rotation_degrees = Vector3(0, -4 + j * 2, 0)
 		cn.position = to
 		if j >= mat_seen.get("cards", 0):
 			cn.position = to + Vector3(0, 1.4, -1.0)
 			_fly(cn, to, 0.5, 0.1 * j, 0.6, cn.rotation_degrees)
-	if nh == 0:
-		_tag("dyn:cards", "No cards yet", _mp(SUP.cards.x, SUP.cards.y), null, 14, Style.MUTED, "body")
+	_tag("dyn:cards", "no cards yet" if nh == 0 else "%d card%s" % [nh, "" if nh == 1 else "s"], Vector3(hp.x, 0.05, MAT_Z + hp.y + 0.62), null, 14, Style.MUTED if nh == 0 else Style.PARCH, "body")
 	mat_seen = seen
 	tags_changed.emit()
 
-## Where a card or cadaver you take lands on your board.
+## Where a card or cadaver you take lands.
 func mat_target(row: String) -> Vector3:
 	if row in ["researchRow", "humanityRow"]:
-		return _mp(SUP.cards.x, SUP.cards.y, 0.4)
-	return _mp(Z_DECAY, 0.0, 0.4)
+		return Vector3(PILES.cards.x, 0.4, MAT_Z + PILES.cards.y)
+	return _bx(-1.75, 0.0, 0.4)
 
 
 # ---------------------------------------------------------------- day, night, closed places
@@ -1020,7 +1130,7 @@ func set_night(on: bool) -> void:
 # ---------------------------------------------------------------- camera
 
 func _update_camera() -> void:
-	cam_rig.position = Vector3(0, 0, 2.55)
+	cam_rig.position = Vector3(0, 0, 2.6)
 	cam_rig.rotation = Vector3(pitch, yaw, 0)
 	cam.position = Vector3(0, 0, dist)
 
