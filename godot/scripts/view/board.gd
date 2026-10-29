@@ -45,6 +45,8 @@ var legal: Callable     # key -> bool, while it is your turn
 var selected_kind := "assistant"
 var hover_key := ""
 var night := false
+var picked := false      # your turn: your meeples at home pulse until you click one
+var pulse_t := 0.0
 
 var sun: DirectionalLight3D
 var env: Environment
@@ -326,6 +328,8 @@ func _info_for(key: String) -> String:
 # ---------------------------------------------------------------- your turn
 
 func set_interactive(on: bool, kind: String, legal_fn: Callable) -> void:
+	if on and not interactive:
+		picked = false
 	interactive = on
 	selected_kind = kind
 	legal = legal_fn
@@ -356,6 +360,7 @@ func _make_meeple(color: Color, kind: String, who := 0) -> Node3D:
 	mat.emission_enabled = true
 	mat.emission = color
 	mat.emission_energy_multiplier = 0.18
+	m.set_meta("mat", mat)
 	var base := MeshInstance3D.new()
 	var bc := CylinderMesh.new()
 	bc.top_radius = 0.2 if kind == "assistant" else 0.24
@@ -417,6 +422,7 @@ func _make_meeple(color: Color, kind: String, who := 0) -> Node3D:
 	m.add_child(area)
 	area.input_event.connect(func(_c, e, _p, _n, _s):
 		if _is_click(e) and m.get_meta("player") == 0 and m.get_meta("state") == "home":
+			picked = true
 			meeple_clicked.emit(m.get_meta("kind")))
 	return m
 
@@ -465,6 +471,24 @@ func _lift_selected() -> void:
 			continue
 		var up: bool = interactive and m.get_meta("kind") == selected_kind and m == _first_home(0, selected_kind)
 		create_tween().tween_property(m, "position:y", 0.18 if up else 0.0, 0.15)
+
+## Your turn, before you pick: your meeples at home glow in a slow loop. After the pick, the chosen one glows steadily.
+func _process(delta: float) -> void:
+	pulse_t += delta
+	var wave := 0.5 + 0.5 * sin(pulse_t * 4.0)
+	var chosen = _first_home(0, selected_kind) if interactive else null
+	for id in meeples:
+		var m: Node3D = meeples[id]
+		if m.get_meta("player") != 0:
+			continue
+		var mat: StandardMaterial3D = m.get_meta("mat")
+		var e := 0.18
+		if interactive and m.get_meta("state") == "home":
+			if not picked:
+				e = 0.25 + 1.6 * wave
+			elif m == chosen:
+				e = 1.1
+		mat.emission_energy_multiplier = e
 
 func _first_home(i: int, kind: String):
 	for n in 4:

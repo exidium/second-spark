@@ -608,6 +608,7 @@ func human_turn():
 func _on_kind_selected(kind: String) -> void:
 	if g == null or not turn_open:
 		return
+	board.picked = true
 	var p: Dictionary = g.S.players[0]
 	if p.left[kind]:
 		p.sel = kind
@@ -1162,7 +1163,7 @@ func open_lab() -> void:
 		"buttons": [{"label": "Close", "value": null}, {"label": "End the night", "primary": true, "value": "end"}] if night else [{"label": "Close", "primary": true, "value": null}]})
 	var v = await lab_modal.done
 	lab_modal = null
-	if v == "end":
+	if v is String and v == "end":
 		_end_night_request()
 
 func _lab_content() -> Control:
@@ -1383,12 +1384,10 @@ func open_rival(i: int) -> void:
 	head.add_child(Style.picture(Style.art("characters/character-%s.png" % p.char), Vector2(80, 120)))
 	var hv := Style.vbox(6)
 	hv.add_child(Style.rich("[b]%s[/b], %s. [color=#b9ac93]%s[/color]" % [C.name, C.role.to_lower(), C.text], 16, 560))
-	hv.add_child(Style.label("%d VP built · %s · %d/%d jars · %d police · ice %d · %d research and %d humanity cards" % [p.vp, Style.fr(p.coin), g.charged(p), p.jars.size(), p.police, p.ice,
-		p.hand.filter(func(h): return h.kind == "research").size(), p.hand.filter(func(h): return h.kind == "humanity").size()], 15, Style.PARCH_DIM))
 	hv.add_child(hud.stat_rows(p))
 	head.add_child(hv)
 	v.add_child(head)
-	v.add_child(LabView.body(g, p, false, {}, {}))
+	v.add_child(LabView.board2d(g, p, 1240))
 	var m := Modal.open(ui, {"title": "%s’s Laboratory" % p.name, "content": v, "width": 1300, "buttons": [{"label": "Close", "primary": true, "value": 1}]})
 	await m.done
 
@@ -1542,8 +1541,17 @@ func _screenshot_run() -> void:
 	open_lab()
 	await get_tree().create_timer(1.0).timeout
 	await _save("res://../tests/godot-5-lab.png")
+	for c in ui.get_children():
+		if c is Modal:
+			c.close(1)
+	await get_tree().create_timer(0.5).timeout
+	open_rival(1)
+	await get_tree().create_timer(2.5).timeout
+	await _save("res://../tests/godot-6-rival.png")
 	get_tree().quit()
 
 func _save(path: String) -> void:
-	await RenderingServer.frame_post_draw
+	# Two ordinary frames, not frame_post_draw: that signal sometimes never comes while a popup is open.
+	await get_tree().process_frame
+	await get_tree().process_frame
 	get_viewport().get_texture().get_image().save_png(ProjectSettings.globalize_path(path))

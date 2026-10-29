@@ -270,3 +270,95 @@ static func body(g: Game, p: Dictionary, own: bool, opts: Dictionary, cb: Dictio
 	c3.add_child(points_table(g))
 	cols.add_child(c3)
 	return root
+
+
+## A player's board in 2D, on the same painted face as your board on the table (D163): lab spaces (with a meeple
+## on each one used today), decomposition, stores, jars, operating table and supplies. Positions come from
+## the zone constants in board.gd, so the two always match. Used for the rivals' laboratories.
+static func board2d(g: Game, p: Dictionary, w: float) -> Control:
+	var tex: Texture2D = Style.art("ui/player-board.png")
+	var h: float = w * tex.get_height() / tex.get_width()
+	var u: float = w / Board.MAT_W
+	var x0: float = Board.MAT_X - Board.MAT_W / 2
+	var z0: float = -Board.MAT_D / 2
+	var root := Control.new()
+	root.custom_minimum_size = Vector2(w, h)
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var bg := Style.picture(tex, Vector2(w, h), false)
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	root.add_child(bg)
+	var put := func(c: Control, x: float, z: float) -> void:
+		root.add_child(c)
+		c.reset_size()
+		var sz: Vector2 = c.size.max(c.custom_minimum_size)
+		c.position = Vector2((x - x0) * u, (z - z0) * u) - sz / 2
+	var text := func(t: String, size: int, col: Color, font: Font = null) -> Label:
+		var l := Style.label(t, size, col, font)
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+		l.add_theme_constant_override("outline_size", 0 if col == Style.PAPER_INK else 4)
+		return l
+	for hd in [["Laboratory", -5.65], ["Decomposition", -1.75], ["Stores", Board.STORE_X], ["Jars", Board.JAR_X], ["Operating table", Board.TABLE_X], ["Supplies", 7.7]]:
+		put.call(text.call(hd[0], 15, Style.BRASS, Style.display), hd[1], Board.HEAD_Z)
+	# Laboratory spaces: a parchment card each, a meeple on it if used today.
+	for k in g.D.LABSPOTS.size():
+		var sp: Dictionary = g.D.LABSPOTS[k]
+		var c: Vector2 = Board.LAB_CARDS[k]
+		var card := Style.panel(Style.PAPER, Color("#8a6a3a"), 4)
+		card.custom_minimum_size = Vector2(1.45 * u, 1.3 * u)
+		var cv := Style.vbox(2)
+		cv.alignment = BoxContainer.ALIGNMENT_CENTER
+		cv.add_child(text.call(sp.name, 14, Style.PAPER_INK, Style.display))
+		if p.labUsed.has(sp.id):
+			var fig := MeepleIcon.new()
+			fig.kind = p.labUsed[sp.id]
+			fig.color = Color(p.color)
+			fig.custom_minimum_size = Vector2(20, 24)
+			fig.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+			cv.add_child(fig)
+		card.add_child(cv)
+		put.call(card, c.x, c.y)
+	# Decomposition: a coloured chip with the count in each filled cell; a red rim where it rots next dawn.
+	var stages := ["I", "II", "III", "IV"]
+	var mats := ["muscle", "organ", "blood", "animal"]
+	for k in 4:
+		put.call(text.call(stages[k], 14, Style.PARCH_DIM, Style.display), Board.DECAY_COLS[k], -1.2)
+		for r in 4:
+			var n: int = p.mats[mats[r]][k]
+			if n == 0:
+				continue
+			var rot: bool = k == 3 or (mats[r] == "blood" and k == 1)
+			var chip := PanelContainer.new()
+			chip.add_theme_stylebox_override("panel", Style.box(Color(Style.MAT_COL[mats[r]], 0.75), Style.CRIM if rot else Color(0, 0, 0, 0.6), 2 if rot else 1, 0))
+			chip.custom_minimum_size = Vector2(0.8 * u, 0.42 * u)
+			var cl: Label = text.call("%d %s" % [n, mats[r]], 13, Style.PARCH)
+			cl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			chip.add_child(cl)
+			put.call(chip, Board.DECAY_COLS[k], Board.DECAY_ROWS[r])
+	# Stores.
+	put.call(text.call("Ice %d" % p.ice, 14, Style.PARCH), Board.STORE_X, Board.STORES.ice)
+	put.call(text.call("Preserved %d/9" % p.preserved, 14, Style.PARCH), Board.STORE_X, Board.STORES.preserved)
+	put.call(text.call("Bone %d/12" % p.bone, 14, Style.PARCH), Board.STORE_X, Board.STORES.bone)
+	# Jars: a jar in each owned slot, bright when charged.
+	for j in mini(p.jars.size(), 4):
+		var ic := Style.icon("jar", int(0.5 * u))
+		ic.modulate = Color(1.3, 1.5, 1.8) if p.jars[j] else Color(0.55, 0.55, 0.6)
+		put.call(ic, Board.JAR_X, Board.JAR_Z[j])
+	# Operating table.
+	put.call(figure(g, p, Board.FIG * u), Board.TABLE_X, 0.25)
+	# Supplies: gold, police badges, cards.
+	var gold := Style.hbox(4)
+	gold.add_child(Style.icon("coin", 22))
+	gold.add_child(text.call(str(p.coin), 18, Style.PARCH, Style.display))
+	put.call(gold, Board.PILES.coin.x, Board.PILES.coin.y)
+	for j in 2:
+		var pi := Style.icon("police", 22)
+		pi.modulate = Color.WHITE if j < p.police else Color(0.3, 0.3, 0.3, 0.6)
+		put.call(pi, Board.PILES.police.x - 0.22 + j * 0.44, Board.PILES.police.y)
+	var nh: int = p.hand.size()
+	for j in mini(nh, 4):
+		var back := Style.picture(Style.art("frames/card-tall-back.png"), Vector2(0.56 * u, 0.76 * u), false)
+		put.call(back, Board.CARD_SLOTS[j], Board.PILES.cards.y)
+	var nr: int = p.hand.filter(func(c): return c.kind == "research").size()
+	put.call(text.call("%d research · %d humanity" % [nr, nh - nr], 13, Style.PARCH_DIM), Board.PILES.cards.x, Board.PILES.cards.y + 0.6)
+	return root

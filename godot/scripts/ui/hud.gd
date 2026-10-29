@@ -32,13 +32,13 @@ func setup(game: Game) -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	top = _strip()
 	top.anchor_right = 1.0
-	top.offset_right = -RIVAL_W
 	top.offset_bottom = TOP_H
 	rivals = _strip()
 	rivals.anchor_left = 1.0
 	rivals.anchor_right = 1.0
 	rivals.anchor_bottom = 1.0
 	rivals.offset_left = -RIVAL_W
+	rivals.offset_top = TOP_H
 	log_bar = _strip()
 	log_bar.anchor_top = 1.0
 	log_bar.anchor_right = 1.0
@@ -70,14 +70,7 @@ func refresh(turn_open: bool) -> void:
 	var S: Dictionary = g.S
 	var p: Dictionary = S.players[0]
 	top.add_child(_top_bar(S, p))
-	var col := Style.vbox(10)
-	col.add_child(_rivals_strip(S))
-	var sp := Control.new()
-	sp.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	sp.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(sp)
-	col.add_child(_people_box(p))
-	rivals.add_child(col)
+	rivals.add_child(_rivals_strip(S))
 	log_bar.add_child(_log(S))
 	log_bar.offset_top = -(320 if log_open else LOG_H)
 
@@ -132,11 +125,8 @@ func _top_bar(S: Dictionary, p: Dictionary) -> HBoxContainer:
 	sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	sp.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	h.add_child(sp)
-	var night: bool = S.phase == "lab"
-	h.add_child(_btn("Laboratory", "lab", night))
-	if night:
-		h.add_child(_btn("End the night", "endlab"))
-	h.add_child(_btn("Your character", "character"))
+	if S.phase == "lab":
+		h.add_child(_btn("End the night", "endlab", true))
 	h.add_child(_btn("Help", "help"))
 	h.add_child(_btn("New game", "newgame"))
 	return h
@@ -202,110 +192,86 @@ func stat_rows(p: Dictionary) -> VBoxContainer:
 	return v
 
 
-## Your people: one button per meeple, the ones at home pick who goes out next.
-func _people_box(p: Dictionary) -> VBoxContainer:
-	var S: Dictionary = g.S
-	var v := Style.vbox(4)
-	var head := ""
-	if my_turn:
-		head = "Your move"
-	elif S.phase == "day":
-		head = S.players[S.cur].name.split(" ")[-1] + " moves"
-	else:
-		head = "Your people"
-	var hl := Style.title(head, 14, Style.SPARK if my_turn else Style.PARCH_DIM)
-	hl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	v.add_child(hl)
-	var row := Style.vbox(4)
-	var where := {"scientist": [], "assistant": []}
-	for key in S.occ:
-		if S.occ[key].p == 0:
-			where[S.occ[key].kind].append(g.LOC[key.split(".")[0]].name)
-	for s in p.labUsed:
-		where[p.labUsed[s]].append(g.LABSPOT[s].name)
-	for kind in ["scientist", "assistant"]:
-		var totaln: int = g.sci_total(p) if kind == "scientist" else g.asst_total(p)
-		var home: int = p.left[kind]
-		totaln = maxi(totaln, home + where[kind].size())
-		for k in totaln:
-			var at_home := k < home
-			var b := Button.new()
-			b.custom_minimum_size = Vector2(RIVAL_W - 14, 48)
-			b.disabled = not (my_turn and at_home)
-			b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-			var sel: bool = at_home and p.sel == kind
-			b.add_theme_stylebox_override("normal", Style.box(Color("#1d2a36") if sel else Style.PANEL, Style.SPARK if sel else Style.LINE, 1, 2))
-			b.add_theme_stylebox_override("disabled", Style.box(Style.PANEL if at_home else Color(0, 0, 0, 0), Style.LINE if at_home else Style.LINE2, 1, 2))
-			var bv := Style.vbox(0)
-			bv.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-			bv.alignment = BoxContainer.ALIGNMENT_CENTER
-			bv.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			var fig := MeepleIcon.new()
-			fig.kind = kind
-			fig.color = Color(p.color) if at_home else Color(Style.PARCH, 0.25)
-			fig.custom_minimum_size = Vector2(22, 26)
-			fig.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-			bv.add_child(fig)
-			var txt: String = kind.capitalize() if at_home else (where[kind][k - home] if k - home < where[kind].size() else "Out")
-			var l := Style.label(txt, 11, Style.PARCH if at_home else Style.MUTED, Style.display)
-			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			l.clip_text = true
-			l.custom_minimum_size.x = RIVAL_W - 18
-			bv.add_child(l)
-			b.add_child(bv)
-			var kk: String = kind
-			b.pressed.connect(func(): kind_selected.emit(kk))
-			row.add_child(b)
-	v.add_child(row)
-	return v
+## Rivals: a narrow strip of portraits. The name sits on a dark fade at the top, humanity, expertise and
+## reputation on a fade at the bottom; the rival whose turn it is gets a thick rim. Click for their laboratory.
+func _fade(top_dark: bool) -> TextureRect:
+	var gt := GradientTexture2D.new()
+	var gr := Gradient.new()
+	gr.set_color(0, Color(0, 0, 0, 0.5) if top_dark else Color(0, 0, 0, 0))
+	gr.set_color(1, Color(0, 0, 0, 0) if top_dark else Color(0, 0, 0, 0.6))
+	gt.gradient = gr
+	gt.fill_from = Vector2(0, 0)
+	gt.fill_to = Vector2(0, 1)
+	gt.width = 4
+	gt.height = 64
+	var t := TextureRect.new()
+	t.texture = gt
+	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	t.stretch_mode = TextureRect.STRETCH_SCALE
+	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return t
 
-
-## Rivals: a narrow strip of portraits, humanity, expertise and reputation on top; click for their laboratory.
 func _rivals_strip(S: Dictionary) -> VBoxContainer:
 	var v := Style.vbox(8)
-	for i in range(1, S.players.size()):
+	for i in S.players.size():
 		var p: Dictionary = S.players[i]
-		var turn: bool = S.phase == "day" and S.cur == i
+		var turn: bool = (S.phase == "day" and S.cur == i) or (i == 0 and my_turn)
 		var col := Color(p.color)
 		var b := Button.new()
 		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		b.custom_minimum_size = Vector2(RIVAL_W - 14, 138)
-		b.add_theme_stylebox_override("normal", Style.box(Style.PANEL, col if turn else Color(col, 0.5), 3 if turn else 1, 2))
-		b.add_theme_stylebox_override("hover", Style.box(Color("#2e2735"), col, 2, 2))
-		b.add_theme_stylebox_override("pressed", Style.box(Color("#2e2735"), col, 2, 2))
-		var bv := Style.vbox(2)
-		bv.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		bv.offset_left = 3
-		bv.offset_right = -3
-		bv.offset_top = 3
-		bv.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		b.custom_minimum_size = Vector2(RIVAL_W - 14, 124)
+		b.clip_contents = true
+		b.add_theme_stylebox_override("normal", Style.box(Style.PANEL, col if turn else Color(col, 0.5), 3 if turn else 1, 0))
+		b.add_theme_stylebox_override("hover", Style.box(Style.PANEL, col, 2, 0))
+		b.add_theme_stylebox_override("pressed", Style.box(Style.PANEL, col, 2, 0))
+		var pic := Style.picture(Style.art("characters/character-%s.png" % p.char), Vector2(10, 10))
+		pic.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		b.add_child(pic)
+		var top_fade := _fade(true)
+		top_fade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		top_fade.anchor_bottom = 0.5
+		b.add_child(top_fade)
+		var bottom_fade := _fade(false)
+		bottom_fade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		bottom_fade.anchor_top = 0.55
+		b.add_child(bottom_fade)
+		var nl := Style.label(p.name.split(" ")[-1] if i > 0 else p.name, 14, Color.WHITE, Style.display)
+		nl.clip_text = true
+		nl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		nl.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+		nl.offset_top = 2
+		nl.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.6))
+		nl.add_theme_constant_override("outline_size", 3)
+		b.add_child(nl)
 		var st := Style.hbox(2)
 		st.alignment = BoxContainer.ALIGNMENT_CENTER
 		st.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		st.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+		st.offset_top = -36
+		st.offset_bottom = -2
 		for s in [["heart-broken" if p.hum < 0 else "heart", ("%+d" % p.hum) if p.hum else "0"], ["expertise", str(p.exp)], ["reputation", str(p.rep)]]:
 			var sh := Style.vbox(0)
 			sh.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			var ic := Style.icon(s[0], 16)
+			var ic := Style.icon(s[0], 15)
 			ic.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 			sh.add_child(ic)
-			var n := Style.title(s[1], 13)
+			var n := Style.title(s[1], 13, Color.WHITE)
 			n.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			n.custom_minimum_size.x = 24
+			n.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
+			n.add_theme_constant_override("outline_size", 3)
 			sh.add_child(n)
 			st.add_child(sh)
-		bv.add_child(st)
-		var pic := Style.picture(Style.art("characters/character-%s.png" % p.char), Vector2(RIVAL_W - 20, 66))
-		pic.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		bv.add_child(pic)
-		var nl := Style.label(p.name.split(" ")[-1], 13, col, Style.display)
-		nl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		nl.clip_text = true
-		bv.add_child(nl)
-		b.add_child(bv)
-		var ii := i
-		b.pressed.connect(func(): action.emit("rival", ii))
+		b.add_child(st)
+		var ii: int = i
+		b.pressed.connect(func(): action.emit("rival" if ii > 0 else "character", ii))
 		v.add_child(b)
+		if i == 0:
+			var sep := ColorRect.new()
+			sep.color = Style.LINE2
+			sep.custom_minimum_size = Vector2(0, 1)
+			sep.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			v.add_child(sep)
 	return v
 
 
