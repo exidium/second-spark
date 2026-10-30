@@ -7,8 +7,8 @@ extends Node3D
 const MAP := 1.0                       # the map is 1 m across: board percent 0..100
 const MINI := 0.075                    # a miniature's longest side, in metres
 const PLACES := Town.PLACES            # names, colours, board positions and facings, shared with the town
-const SIT := Vector3(0, 0.5, 0.98)     # your eyes, at the south edge of the table
-const LOOK := Vector3(0, 0, -0.2)      # looking down over the map
+const SIT := Vector3(0, 0.92, 0.78)    # your eyes, high over the south edge: a steeper look down, the map fills the screen (D178)
+const LOOK := Vector3(0, 0, 0.03)      # the map's middle, a little north
 
 var cam: Camera3D
 var minis := {}                        # id -> {node, base_y, body}
@@ -44,7 +44,7 @@ func _ready() -> void:
 	_tag()
 	_vignette()
 	cam = Camera3D.new()
-	cam.fov = 55
+	cam.fov = 50
 	cam.near = 0.02
 	cam.far = 30
 	add_child(cam)

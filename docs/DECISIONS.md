@@ -608,3 +608,6 @@ Three candidates came from Nano Banana (`gemini-3.1-flash-image`) for a seamless
 - Room: two candles (flickering, with shadows), a specimen jar, a brass bell, a note and a quill, a bone pawn, a vignette, otherwise dark. No keeper across the table (removed at Bruno's request).
 - Animation: the candles light one by one, then the miniatures pop up from the map south to north. Hovering lifts and tilts a miniature and shows its name on a paper tag. A click leans the camera in over it and hops the pawn there; right-click or Esc sits back. The camera breathes slightly.
 - Light: candle shadows need `shadow_bias` 0.004 and normal bias 0.3, or the pieces (centimetres tall) lose their shadows; screenshots force a draw (`RenderingServer.force_draw`) because a window behind others does not redraw. `-- --shot` saves tests/cabin-1..3.png.
+
+**D178. The cabin's view looks down more steeply and the map fills most of the screen.** (Bruno: "make the view port less inclined. the table should occupy a bigger part of the table.")
+- The seat moves from 0.5 m up and 0.98 m back to 0.92 m up and 0.78 m back, looking at the map's middle; field of view 50. The whole map is in view, about 80% of the screen height. A first try straight from above (1.02 m up, 0.5 m back) cut off the south edge and flattened the miniatures.
