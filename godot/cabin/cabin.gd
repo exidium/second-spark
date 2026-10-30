@@ -222,7 +222,7 @@ func _village() -> void:
 	var rounds: Array[Transform3D] = []
 	var cones: Array[Transform3D] = []
 	for t: Dictionary in data.trees:
-		var s := float(t.s) * 1.45           # trees a little larger too
+		var s := float(t.s) * 1.885          # trees larger (D180: 1.45, then 30% more)
 		var at := on_map(Vector2(float(t.x), float(t.y)))
 		var b := Basis(Vector3.UP, randf() * TAU)
 		trunks.append(Transform3D(b * Basis.from_scale(Vector3.ONE * s), at + Vector3(0, 0.003 * s, 0)))

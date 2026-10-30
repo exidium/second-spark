@@ -237,13 +237,13 @@ while len(trees) < args.trees and tries < 200000:
             continue
     else:
         x, y = rnd.randrange(W), rnd.randrange(H)
-    if blocked[y, x] or not clear_footprint(x, y, 0.0, 7, 7):   # a crown is up to 13 px across
+    if blocked[y, x] or not clear_footprint(x, y, 0.0, 9, 9):   # a crown is up to 17 px across
         continue
-    if not free(x, y, 9):
+    if not free(x, y, 11):
         continue
     trees.append({"x": round(x / W * 100, 2), "y": round(y / H * 100, 2), "s": round(rnd.uniform(0.75, 1.3), 2),
                   "kind": rnd.choice(("round", "round", "cone"))})
-    placed.append((x, y, 9))
+    placed.append((x, y, 11))
 
 json.dump({"houses": houses, "trees": trees}, open("godot/assets/cabin/village.json", "w"), indent=0)
 print(f"{len(houses)} houses, {len(trees)} trees")
