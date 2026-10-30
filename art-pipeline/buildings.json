@@ -1,0 +1,130 @@
+{
+ "negative": "background scenery, city, street, ground plane beyond the base, fog, smoke, night, dramatic lighting, cast shadows, glow, people, carriages, text, labels, watermark, frame, multiple separate buildings, cropped, cut off, photorealistic, fine ornament",
+ "views": {
+  "front": "Using the attached concept as the exact reference, draw the same building, unchanged in shape, proportions, colours and details, as a technical front elevation for a 3D modeller. Orthographic, no perspective at all: the camera is at ground level and points straight at the front (the side with the main entrance), so only the front face is visible, no side walls and no roof top surfaces, like an architect's elevation drawing. Perfectly centred, the whole building and its base visible, on the same plain flat mid-grey background, same low-poly flat shaded look, soft even lighting, no cast shadows. Square 1:1.",
+  "left": "Using the attached concept as the exact reference, draw the same building, unchanged in shape, proportions, colours and details, as a technical left side elevation for a 3D modeller. Orthographic, no perspective at all: the camera is at ground level and points straight at the left side, so the front of the building is at the right edge of this view, only the left face is visible, no front wall and no roof top surfaces, like an architect's elevation drawing. Perfectly centred, the whole building and its base visible, on the same plain flat mid-grey background, same low-poly flat shaded look, soft even lighting, no cast shadows. Square 1:1.",
+  "top": "Using the attached concept as the exact reference, draw the same building, unchanged in shape, proportions, colours and details, as a technical roof plan for a 3D modeller. Orthographic, seen straight down from directly above: only the roofs, the tops of towers and the top of the base are visible, no walls visible at all, the front of the building at the bottom of the image, like an architect's roof plan. Perfectly centred, the whole building and its base visible, on the same plain flat mid-grey background, same low-poly flat shaded look, soft even lighting, no cast shadows. Square 1:1."
+ },
+ "buildings": [
+  {
+   "id": "cemetery",
+   "name": "Graveyard",
+   "kind": "landmark",
+   "prompt": "Concept art of a single isolated game building: a walled graveyard with a small stone chapel, rows of tombstones, two mausoleums and three bare black trees, all on a flat square cobbled base, with an iron gate on the front side. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "square",
+   "name": "Public Square",
+   "kind": "landmark",
+   "prompt": "Concept art of a single isolated game building: a cobbled town square on a flat square base with a wooden scaffold and a tall guillotine with a dark red frame and a steel blade, a few wooden barrels and a lamppost, the scaffold steps facing the front. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "slaughter",
+   "name": "Slaughterhouse",
+   "kind": "landmark",
+   "prompt": "Concept art of a single isolated game building: three long low stone slaughterhouse sheds side by side with dark slate roofs, wide doors facing the front, and wooden animal pens in front of them, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "church",
+   "name": "Saint-Roch",
+   "kind": "landmark",
+   "prompt": "Concept art of a single isolated game building: a baroque church with a tall square bell tower, a pediment facade with pilasters facing the front, and a wide flight of steps, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "first",
+   "name": "First Player",
+   "kind": "landmark",
+   "prompt": "Concept art of a single isolated game building: a Gothic cathedral with twin square towers and a rose window on the front, a tall nave with flying buttresses and a small spire, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "morgue",
+   "name": "Morgue",
+   "kind": "landmark",
+   "prompt": "Concept art of a single isolated game building: a low grim stone morgue, a single-storey block with one arched door on the front, small barred windows and a flat slate roof, standing on a stone quay edge, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "market",
+   "name": "Market",
+   "kind": "landmark",
+   "prompt": "Concept art of a single isolated game building: a long open market hall, a slate roof on thin iron pillars with no walls, rows of wooden market stalls with awnings underneath, the long side facing the front, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "hospital",
+   "name": "Hospital",
+   "kind": "landmark",
+   "prompt": "Concept art of a single isolated game building: a wide two-storey hospital built around an open square courtyard with a few trees, a small chapel with a cross on the roof at one front corner, and an arched gate in the middle of the front side, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "academy",
+   "name": "Academy",
+   "kind": "landmark",
+   "prompt": "Concept art of a single isolated game building: a neoclassical academy with a colonnade of columns across the front, a triangular pediment and a central dome with a faint cold blue glass lantern on top, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "docks",
+   "name": "Docks",
+   "kind": "landmark",
+   "prompt": "Concept art of a single isolated game building: a stone quay with a tall wooden harbour crane, two flat barges moored along the front edge, stacked crates, barrels and coils of rope, and a small customs hut at the back, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "alley",
+   "name": "Dark Alley",
+   "kind": "landmark",
+   "prompt": "Concept art of a single isolated game building: one crooked leaning five-storey house with a sagging slate roof, boarded windows, a single dark doorway on the front and a dead lantern beside it, flanked by two short stubs of alley wall, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "odeon",
+   "name": "Odéon",
+   "kind": "landmark",
+   "prompt": "Concept art of a single isolated game building: a theatre with a columned portico on the front, a wide flight of steps, a flat-topped block behind with a shallow slate roof, and two lampposts at the foot of the steps, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "house-1",
+   "name": "Narrow stone town house",
+   "kind": "house",
+   "prompt": "Concept art of a single isolated game building: a tall narrow Parisian town house of five storeys in pale dirty stone, two windows wide with wooden shutters, a shop door and small shop window on the ground floor at the front, a steep slate roof with two dormers and chimney pots, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "house-2",
+   "name": "Half-timbered gabled house",
+   "kind": "house",
+   "prompt": "Concept art of a single isolated game building: an old Gothic half-timbered house of four storeys, each upper floor jutting out over the one below, dark umber timber frame with grey plaster between, a very steep pointed gable facing the front, small leaded windows, a low arched door, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "house-3",
+   "name": "Wide plaster apartment block",
+   "kind": "house",
+   "prompt": "Concept art of a single isolated game building: a wide four-storey apartment house in grey plaster, three windows wide, a large arched carriage gate in the middle of the ground floor at the front, thin iron balconies on the second floor, a steep slate mansard roof with three dormers and a row of chimney pots, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "house-4",
+   "name": "Corner house with turret",
+   "kind": "house",
+   "prompt": "Concept art of a single isolated game building: a Gothic corner house of four storeys in dark stone, a round turret on its front left corner rising above the roof with a pointed conical slate roof, narrow pointed-arch windows, a steep slate roof with one dormer, a door at the front, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "house-5",
+   "name": "Stepped gable stone house",
+   "kind": "house",
+   "prompt": "Concept art of a single isolated game building: a narrow Gothic stone house of four storeys with a tall stepped gable facing the front, pointed-arch windows with stone tracery, two small stone pinnacles at the top corners of the gable, a pointed-arch doorway, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "house-6",
+   "name": "Poor sooty tenement",
+   "kind": "house",
+   "prompt": "Concept art of a single isolated game building: a poor crooked three-storey tenement of soot-stained brown brick, slightly leaning, patched plaster, a rickety wooden balcony on the first floor at the front, a lean-to wooden shed on one side, a sagging slate roof with a crooked chimney, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "house-7",
+   "name": "Merchant warehouse house",
+   "kind": "house",
+   "prompt": "Concept art of a single isolated game building: a tall thin merchant house of five storeys in grey stone, a steep gable facing the front with a wooden hoist beam sticking out at the top, a column of wooden loading doors one above the other in the middle of the front, small windows either side, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  },
+  {
+   "id": "house-8",
+   "name": "Low tavern house",
+   "kind": "house",
+   "prompt": "Concept art of a single isolated game building: a low two-storey tavern house, wide and squat, a ground floor of rough stone with two big arched openings at the front, a plaster upper floor with small windows, a hanging wooden sign with no lettering on an iron bracket, a steep slate roof with a big chimney stack, on a flat square base. Seen from a three-quarter front view slightly from above, centred, filling most of the frame, on a plain flat mid-grey background with no ground beyond the base, no surroundings and no other objects. Low-poly stylised 3D look, flat shaded surfaces, clean simple geometry, clear silhouette, no fine detail. Soft even studio lighting from all sides, no cast shadows, no fog, no glow, no night. Architecture of Paris in 1819: pale dirty stone and grey plaster, steep dark slate roofs, dormer windows, chimney pots. Muted palette of slate grey, bone, dark umber and tarnished brass. Square 1:1."
+  }
+ ]
+}

@@ -32,13 +32,21 @@ def parse_sheet():
 def aspect_of(prompt):
     m = re.search(r'Canvas (\d+) by (\d+) pixels', prompt); return ASPECT.get((int(m.group(1)), int(m.group(2))), '1:1') if m else '1:1'
 
-def call(prompt, ref, key):
+def call(prompt, ref, key, style_prefix=True, seed=None, aspect=None):
+    """ref: None, one path, or a list of paths (sent in order). style_prefix adds the 'same style' sentence used by the
+    card sheet; the art pipeline's view prompts carry their own wording and pass False."""
     parts = []
-    if ref:
-        parts.append({'inline_data': {'mime_type': 'image/png' if ref.suffix == '.png' else 'image/jpeg', 'data': base64.b64encode(ref.read_bytes()).decode()}})
+    refs = [] if not ref else (list(ref) if isinstance(ref, (list, tuple)) else [ref])
+    for r in refs:
+        r = Path(r)
+        parts.append({'inline_data': {'mime_type': 'image/png' if r.suffix == '.png' else 'image/jpeg', 'data': base64.b64encode(r.read_bytes()).decode()}})
+    if refs and style_prefix:
         prompt = 'Same style and palette as the attached image. ' + prompt
     parts.append({'text': prompt})
-    body = {'contents': [{'parts': parts}], 'generationConfig': {'responseModalities': ['IMAGE'], 'imageConfig': {'aspectRatio': aspect_of(prompt)}}}
+    gen = {'responseModalities': ['IMAGE'], 'imageConfig': {'aspectRatio': aspect or aspect_of(prompt)}}
+    if seed is not None:
+        gen['seed'] = int(seed)
+    body = {'contents': [{'parts': parts}], 'generationConfig': gen}
     req = urllib.request.Request(API + f'?key={key}', data=json.dumps(body).encode(), headers={'Content-Type': 'application/json'})
     for attempt in range(4):
         try:
