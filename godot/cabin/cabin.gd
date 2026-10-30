@@ -19,6 +19,7 @@ const LOOK := Vector3(0, 0, 0.03)      # the map's middle, a little north
 
 var cam: Camera3D
 var minis := {}                        # id -> {node, base_y, body}
+var village: Node3D                    # the houses and trees (D180), folded flat until the intro
 var hovered := ""
 var leaning := ""
 var pawn: Node3D
@@ -46,6 +47,7 @@ func _ready() -> void:
 	_table()
 	_map()
 	_miniatures()
+	_village()
 	_pawn()
 	_props()
 	_tag()
@@ -197,6 +199,60 @@ func _miniatures() -> void:
 		holder.scale = Vector3(1, 0.001, 1)   # folded flat until the intro pops it up
 		minis[id] = {"node": holder, "height": box.size.y * s}
 
+## Houses and trees on the map (D180): white blocks with a pitched roof beside the roads, simple trees in the open.
+## Positions come from `art-pipeline/village.py` (village.json, map percent). One MultiMesh per part.
+func _village() -> void:
+	village = Node3D.new()
+	add_child(village)
+	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/cabin/village.json"))
+	var walls: Array[Transform3D] = []
+	var roofs: Array[Transform3D] = []
+	for h: Dictionary in data.houses:
+		var s := float(h.s)
+		var w := 0.0095 * s                 # across the ridge
+		var l := w * float(h.long)          # along the ridge
+		var wall_h := 0.0065 * s
+		var roof_h := 0.0055 * s
+		# The ridge runs along the road: local z turned to the road's direction on the map.
+		var b := Basis(Vector3.UP, PI / 2 - float(h.ang))
+		var at := on_map(Vector2(float(h.x), float(h.y)))
+		walls.append(Transform3D(b * Basis.from_scale(Vector3(w, wall_h, l)), at + Vector3(0, wall_h / 2, 0)))
+		roofs.append(Transform3D(b * Basis.from_scale(Vector3(w * 1.18, roof_h, l * 1.1)), at + Vector3(0, wall_h + roof_h / 2, 0)))
+	var trunks: Array[Transform3D] = []
+	var rounds: Array[Transform3D] = []
+	var cones: Array[Transform3D] = []
+	for t: Dictionary in data.trees:
+		var s := float(t.s)
+		var at := on_map(Vector2(float(t.x), float(t.y)))
+		var b := Basis(Vector3.UP, randf() * TAU)
+		trunks.append(Transform3D(b * Basis.from_scale(Vector3.ONE * s), at + Vector3(0, 0.003 * s, 0)))
+		if t.kind == "cone":
+			cones.append(Transform3D(b * Basis.from_scale(Vector3.ONE * s), at + Vector3(0, 0.0105 * s, 0)))
+		else:
+			rounds.append(Transform3D(b * Basis.from_scale(Vector3(1, 0.9, 1) * s), at + Vector3(0, 0.0095 * s, 0)))
+	var prism := PrismMesh.new()
+	prism.size = Vector3.ONE
+	var canopy_mat := _col_mat(Color("#4d5638"), 0.9)
+	_multi(_box(Vector3.ONE), _col_mat(Color("#e4dccb"), 0.85), walls)
+	_multi(prism, _col_mat(Color("#5b4a3e"), 0.8), roofs)
+	_multi(_cyl(0.0008, 0.0011, 0.006, 6), _col_mat(Color("#4a3424"), 0.9), trunks)
+	_multi(_sphere(0.0048), canopy_mat, rounds)
+	_multi(_cyl(0.0, 0.0045, 0.012, 8), canopy_mat, cones)
+	village.scale = Vector3(1, 0.001, 1)   # folded flat until the intro
+
+func _multi(mesh: Mesh, mat: Material, xs: Array[Transform3D]) -> void:
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = mesh
+	mm.instance_count = xs.size()
+	for i in xs.size():
+		mm.set_instance_transform(i, xs[i])
+	var mi := MultiMeshInstance3D.new()
+	mi.multimesh = mm
+	mi.material_override = mat
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	village.add_child(mi)
+
 func _aabb(n: Node3D) -> AABB:
 	var box := AABB()
 	var first := true
@@ -339,6 +395,10 @@ func _intro() -> void:
 	for i in candles.size():
 		var c: Array = candles[i]
 		tw.tween_method(func(v: float) -> void: c[4] = v, 0.0, 1.0, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	# The village rises with the candle light, before the landmarks.
+	var vt := create_tween()
+	vt.tween_interval(0.9)
+	vt.tween_property(village, "scale", Vector3.ONE, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	var order: Array = minis.keys()
 	order.sort_custom(func(a: String, b: String) -> bool:
 		return (minis[a].node as Node3D).position.z > (minis[b].node as Node3D).position.z)
