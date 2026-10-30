@@ -372,9 +372,10 @@ func street(k: Kit, a: Vector2, b: Vector2, w: float, lit := false) -> void:
 	var step := 6.0
 	var t := 0.0
 	var run_start := -1.0
-	while t <= len + 0.01:
+	while true:
+		var at_end := t >= len - 0.001
 		var mid := a + d * minf(t + step / 2, len)
-		var dry := t < len and not in_water(mid) and mid.length() < BUILT
+		var dry := not at_end and not in_water(mid) and mid.length() < BUILT
 		if dry and run_start < 0:
 			run_start = t
 		if (not dry or t >= len) and run_start >= 0:
@@ -396,7 +397,9 @@ func street(k: Kit, a: Vector2, b: Vector2, w: float, lit := false) -> void:
 							lamps.append(Vector3(p.x, 0.2, p.y))
 						u += 26.0
 			run_start = -1.0
-		t += step
+		if at_end:
+			break
+		t = minf(t + step, len)   # the last step stops at the end, so short segments are drawn too
 
 func _build_roads(k: Kit) -> void:
 	for r in ROADS:
@@ -404,46 +407,141 @@ func _build_roads(k: Kit) -> void:
 		for i in pts.size() - 1:
 			street(k, P(pts[i]), P(pts[i + 1]), r[1], true)
 
-## Districts: a warped grid of quarters, each with its own street angle and block size; lanes clipped to it.
-func _build_districts(k: Kit) -> void:
-	var D := 210.0
-	var m := int(ceil(BUILT / D)) + 1
-	var pts := {}
-	for i in range(-m, m + 1):
-		for j in range(-m, m + 1):
-			pts[Vector2i(i, j)] = Vector2(i * D, j * D) + Vector2(rng.randf_range(-0.28, 0.28), rng.randf_range(-0.28, 0.28)) * D
-	for i in range(-m, m):
-		for j in range(-m, m):
-			var quad := PackedVector2Array([pts[Vector2i(i, j)], pts[Vector2i(i + 1, j)], pts[Vector2i(i + 1, j + 1)], pts[Vector2i(i, j + 1)]])
-			var c := (quad[0] + quad[1] + quad[2] + quad[3]) / 4
-			if c.length() > BUILT + D:
-				continue
-			# Streets along the quarter's edges.
-			for e in 4:
-				var a := quad[e]
-				var b := quad[(e + 1) % 4]
-				if e < 2 or i == -m or j == -m:
-					street(k, a, b, 8.0, rng.randf() < 0.5)
-			# Lanes inside, on the quarter's own grid.
-			var ang := rng.randf_range(0, PI / 2)
-			var ax := Vector2(cos(ang), sin(ang))
-			var az := ax.orthogonal()
-			var sx := rng.randf_range(42, 64)
-			var sz := rng.randf_range(42, 64)
-			var r := D * 0.9
-			var u := -r + rng.randf_range(0, sx)
-			while u < r:
-				_clipped_street(k, c + ax * u - az * r, c + ax * u + az * r, quad, rng.randf_range(5.5, 7.5))
-				u += sx
-			var v := -r + rng.randf_range(0, sz)
-			while v < r:
-				_clipped_street(k, c + az * v - ax * r, c + az * v + ax * r, quad, rng.randf_range(5.5, 7.5))
-				v += sz
+## Paris before Haussmann (D175): the Grands Boulevards as a tree-lined ring on the line of the old wall, quays along
+## every bank, small squares, then medieval lanes that wander off the streets already there and end on another street
+## (a T-junction) or in a dead end. Dense and crooked inside the ring, sparser and straighter in the faubourgs outside.
+const RING := 470.0
 
-func _clipped_street(k: Kit, a: Vector2, b: Vector2, poly: PackedVector2Array, w: float) -> void:
-	for seg in Geometry2D.clip_polyline_with_polygon(PackedVector2Array([a, b]), poly):
-		if seg.size() >= 2:
-			street(k, seg[0], seg[seg.size() - 1], w, rng.randf() < 0.3)
+func _ring_r(a: float) -> float:
+	return RING + 38.0 * sin(3.0 * a + 1.0) + 22.0 * sin(5.0 * a + 2.0)
+
+func _inside_ring(p: Vector2) -> bool:
+	return p.length() < _ring_r(p.angle())
+
+func _build_paris(k: Kit) -> void:
+	_build_boulevards(k)
+	_build_quays(k)
+	_build_placettes(k)
+	_build_lanes(k)
+
+func _build_boulevards(k: Kit) -> void:
+	var n := 96
+	for i in n:
+		var a0 := TAU * i / n
+		var a1 := TAU * (i + 1) / n
+		var p0 := Vector2(cos(a0), sin(a0)) * _ring_r(a0)
+		var p1 := Vector2(cos(a1), sin(a1)) * _ring_r(a1)
+		var before := streets.size()
+		street(k, p0, p1, 24.0, true)
+		for si in range(before, streets.size()):   # a row of trees on each side of the carriageway
+			var a: Vector2 = streets[si][0]
+			var b: Vector2 = streets[si][1]
+			var d := (b - a).normalized()
+			var nn := d.orthogonal()
+			var u := 4.0
+			while u < a.distance_to(b):
+				for sd: float in [-1.0, 1.0]:
+					var t := a + d * u + nn * sd * 8.5
+					trees.append([Vector3(t.x, 0.2, t.y), rng.randf_range(2.4, 3.0), _leaf()])
+				u += 9.0
+
+func _build_quays(k: Kit) -> void:
+	for poly in WATER:
+		var pts: Array = poly
+		for i in pts.size():
+			var a := P(pts[i])
+			var b := P(pts[(i + 1) % pts.size()])
+			var d := (b - a).normalized()
+			var nn := d.orthogonal()
+			if in_water((a + b) / 2 + nn * 3.0):
+				nn = -nn
+			street(k, a + nn * 7.0, b + nn * 7.0, 12.0, true)
+
+func _build_placettes(k: Kit) -> void:
+	var done := []
+	for attempt in 4000:
+		if done.size() >= 16:
+			break
+		var c := Vector2(rng.randf_range(-560, 560), rng.randf_range(-560, 560))
+		if not _inside_ring(c) or not is_free(c, 0, 12, 12):
+			continue
+		var far := true
+		for q: Vector2 in done:
+			if q.distance_to(c) < 140.0:
+				far = false
+		for id in PLACES:
+			if P(PLACES[id].pos).distance_to(c) < 90.0:
+				far = false
+		if not far:
+			continue
+		var ang := rng.randf_range(0, PI)
+		var hw := rng.randf_range(9, 14)
+		var hd := rng.randf_range(8, 12)
+		k.xf = Transform3D(Basis(Vector3.UP, -ang), Vector3(c.x, 0, c.y))
+		_yard(k, Vector2.ZERO, hw * 2, hd * 2, "pave")
+		k.xf = Transform3D.IDENTITY
+		mark(c, ang, hw, hd, 4)
+		trees.append([Vector3(c.x, 0.2, c.y), rng.randf_range(3.0, 3.8), _leaf()])
+		lamps.append(Vector3(c.x + hw - 1.5, 0.2, c.y))
+		done.append(c)
+
+## True when the next `dist` metres from p along d have no street, water or open ground.
+func _clear_ahead(p: Vector2, d: Vector2, dist: float) -> bool:
+	var u := 2.0
+	while u <= dist:
+		if cell(p + d * u) != 0:
+			return false
+		u += 2.0
+	return true
+
+func _build_lanes(k: Kit) -> void:
+	var made := 0
+	for attempt in 26000:
+		var s: Array = streets[rng.randi() % streets.size()]
+		var a: Vector2 = s[0]
+		var b: Vector2 = s[1]
+		var w: float = s[2]
+		var d0 := (b - a).normalized()
+		var side := 1.0 if rng.randf() < 0.5 else -1.0
+		var dir := d0.orthogonal() * side
+		var root := a + (b - a) * rng.randf_range(0.15, 0.85)
+		var start := root + dir * (w / 2 + 1.0)
+		if start.length() > BUILT - 30 or cell(start) != 0:
+			continue
+		var inner := _inside_ring(start)
+		var spacing := rng.randf_range(44, 64) if inner else rng.randf_range(60, 90)
+		if not _clear_ahead(start, dir, spacing):
+			continue
+		var turn := 0.16 if inner else 0.06
+		var lw := rng.randf_range(4.5, 6.5) if inner else rng.randf_range(6.0, 8.0)
+		var pts := [root, start]
+		var cur := start
+		var dd := dir.rotated(rng.randf_range(-0.25, 0.25))
+		var walked := 0.0
+		var max_len := rng.randf_range(70, 240) if inner else rng.randf_range(120, 320)
+		while walked < max_len:
+			dd = dd.rotated(rng.randf_range(-turn, turn))
+			var nxt := cur + dd * 8.0
+			var ahead := cell(cur + dd * 11.0)
+			if ahead == 1:   # meets a street: a T-junction
+				pts.append(cur + dd * 11.0)
+				break
+			if ahead != 0 or nxt.length() > BUILT - 10:
+				break   # water, a square, a landmark: a dead end
+			# Too close alongside another street: stop rather than run parallel to it.
+			var nn := dd.orthogonal()
+			if walked > 12.0 and (cell(nxt + nn * 13.0) == 1 or cell(nxt - nn * 13.0) == 1):
+				break
+			pts.append(nxt)
+			cur = nxt
+			walked += 8.0
+		if walked < 20.0:
+			continue
+		var lit := rng.randf() < (0.25 if inner else 0.15)
+		for pi in pts.size() - 1:
+			street(k, pts[pi], pts[pi + 1], lw, lit)
+		made += 1
+	print("TOWN lanes: %d" % made)
 
 
 # ---------------------------------------------------------------- houses
@@ -657,6 +755,8 @@ func _build_houses(k: Kit) -> void:
 			while t < len:
 				var w: float = [4.6, 5.4, 6.2, 7.0, 7.8][rng.randi_range(0, 4)]
 				var d := rng.randf_range(9.0, 13.0)
+				if _inside_ring(a):   # old Paris: deep narrow houses
+					d = rng.randf_range(12.0, 17.0)
 				var c := a + dir * (t + w / 2) + n * (sw / 2 + 0.1 + d / 2)
 				var q := quarter_of(c)
 				var floors := rng.randi_range(q.floors.x, q.floors.y)
@@ -664,6 +764,12 @@ func _build_houses(k: Kit) -> void:
 				var ok := _try_house(k, c, face, w, d, floors, first or t + w >= len - 6)
 				first = false
 				t += w if ok else 1.5
+	# Inside the ring, back buildings fill the blocks round small courtyards, at the angle of the nearest street front.
+	for i in 40000:
+		var c := Vector2(rng.randf_range(-RING - 60, RING + 60), rng.randf_range(-RING - 60, RING + 60))
+		if not _inside_ring(c) or cell(c) != 0:
+			continue
+		_try_house(k, c, _street_angle_near(c), rng.randf_range(6.0, 10.0), rng.randf_range(6.0, 10.0), rng.randi_range(3, 4))
 	for i in 30000:
 		var c := Vector2(rng.randf_range(-BUILT, BUILT), rng.randf_range(-BUILT, BUILT))
 		if c.length() > BUILT or cell(c) != 0:
@@ -674,6 +780,20 @@ func _build_houses(k: Kit) -> void:
 		elif c.length() < DETAIL and rng.randf() < 0.3 and is_free(c, 0, 2, 2):
 			trees.append([Vector3(c.x, 0, c.y), rng.randf_range(2.5, 3.5), _leaf()])
 			mark(c, 0, 2, 2, 4)
+
+## The angle of the street nearest to p (within 30 m), so a back building lines up with its block.
+func _street_angle_near(p: Vector2) -> float:
+	var best := INF
+	var ang := rng.randf_range(-PI, PI)
+	for r: float in [6.0, 12.0, 20.0, 30.0]:
+		for k8 in 8:
+			var q := p + Vector2.from_angle(TAU * k8 / 8) * r
+			if cell(q) == 1 and r < best:
+				best = r
+				ang = (q - p).angle() + PI / 2
+		if best < INF:
+			break
+	return ang
 
 func _leaf() -> Color:
 	var t := rng.randf_range(0.5, 0.9)
@@ -1023,7 +1143,7 @@ func build(root: Node3D) -> void:
 	_load_house_models()
 	_build_landmarks(root, k)
 	_build_roads(k)
-	_build_districts(k)
+	_build_paris(k)
 	_build_houses(k)
 	_build_lamps(root, k)
 	k.finish(root)

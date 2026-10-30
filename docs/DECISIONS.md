@@ -585,3 +585,13 @@ Three candidates came from Nano Banana (`gemini-3.1-flash-image`) for a seamless
 - The model houses have no lit windows (the drawn houses had glowing panes); the streets are darker than before.
 - Square: its concept is edited with Nano Banana to remove the surrounding houses (the old one kept as `concept-v2-houses.png`), then Prism 3.1 and Smart Low Poly again: 3,177 triangles, 18 x 18 m, 9 m to the top of the guillotine.
 - `town_main.gd`: the build line counts model houses, and shot mode prints the frame rate over 60 frames.
+
+**D175. The streets are laid out like Paris before Haussmann.** (Bruno: "Can we do the map differently?", then for the street layout: "something like Paris.")
+- `_build_districts()` (a warped grid of quarters with straight lanes) is replaced by `_build_paris()`, keeping the river, islands, bridges, main roads and landmark spots:
+  - the Grands Boulevards: a 24 m ring about 470 m out (`RING`, slightly wavy), on the line of the old city wall, with a row of trees on each side;
+  - quays: a 12 m lit street along every bank;
+  - 16 small squares (placettes) inside the ring, each with a tree and a lamp;
+  - medieval lanes (`_build_lanes()`): each starts off a street already there, walks in 8 m steps turning a little each time, and ends on another street (a T-junction), at water or a square (a dead end), or when it would run alongside another street. Inside the ring they are 4.5 to 6.5 m wide, 44 to 64 m apart and crooked; outside, in the faubourgs, 6 to 8 m wide, sparser and straighter. About 1,100 lanes.
+- Inside the ring houses are deeper (12 to 17 m) and back buildings fill the blocks round courtyards, lined up with the nearest street (`_street_angle_near()`).
+- Fixed in `street()`: its loop stopped before the end of a segment, so a segment shorter than about 12 m was never drawn and longer ones lost their last few metres.
+- `art-pipeline/out/ground.png` still shows the old regular blocks; it no longer matches the town.
