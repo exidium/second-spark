@@ -1,0 +1,6 @@
+{
+ "about": "3D models made through the 3D AI Studio MCP (D173): Prism 3.1 from out/<id>/concept.png, then Smart Low Poly 3.0 to the building's triangle target, then finish.py (turn, origin, height in metres) into godot/assets/models/<id>.glb. Task ids are in Bruno's 3D AI Studio dashboard, project 'Second Spark'.",
+ "models": {
+  "church": {"prism": "41a6294f-180f-4d3c-829f-3d2790522757", "low_poly": "38e51053-08e9-4608-b3b0-6198a085ccc5", "triangles": 5945, "turn": -90, "size_m": [46.0, 50.9, 55.0]}
+ }
+}

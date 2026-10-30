@@ -232,4 +232,9 @@ func _shots() -> void:
 	await _save("res://../tests/town-3.png")
 	_view(Vector3(0, 0, 0), 0, -72, 1150)
 	await _save("res://../tests/town-4.png")
+	var spot := OS.get_environment("TOWN_SHOT_AT")   # a landmark id: a close view of it as town-5
+	if spot != "":
+		var p := Town.P(Town.PLACES[spot].pos)
+		_view(Vector3(p.x, 0, p.y), 0, -30, 220)
+		await _save("res://../tests/town-5.png")
 	get_tree().quit()
