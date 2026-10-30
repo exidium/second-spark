@@ -212,3 +212,211 @@
     "code": 402,
     "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
 2026-10-30 11:31:22  house-8    views     ok top.png (425 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:05:50  square     views     FAILED front.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 12:05:50  square     views     FAILED left.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 12:05:50  square     views     FAILED top.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 12:12:24  square     views     ok front.png (472 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:12:24  square     views     front.png copies the concept (difference 9.5), try 2
+2026-10-30 12:12:34  square     views     ok front.png (393 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:12:34  square     views     front.png copies the concept (difference 9.0), try 3
+2026-10-30 12:12:35  square     views     FAILED front.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 12:12:53  square     views     ok front.png (543 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:12:53  square     views     front.png copies the concept (difference 6.8), try 2
+2026-10-30 12:13:03  square     views     ok front.png (533 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:13:03  square     views     front.png copies the concept (difference 5.2), try 3
+2026-10-30 12:13:13  square     views     ok front.png (490 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:13:13  square     views     front.png copies the concept (difference 4.2), try 4
+2026-10-30 12:13:24  slaughter  views     ok front.png (477 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:13:24  slaughter  views     front.png copies the concept (difference 1.0), try 2
+2026-10-30 12:13:33  slaughter  views     ok front.png (438 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:13:33  slaughter  views     front.png copies the concept (difference 1.8), try 3
+2026-10-30 12:13:43  slaughter  views     ok front.png (457 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:13:43  slaughter  views     front.png copies the concept (difference 1.0), try 4
+2026-10-30 12:13:52  market     views     ok front.png (422 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:14:02  hospital   views     ok front.png (497 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:14:02  hospital   views     front.png copies the concept (difference 1.1), try 2
+2026-10-30 12:14:13  hospital   views     ok front.png (496 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:14:13  hospital   views     front.png copies the concept (difference 1.3), try 3
+2026-10-30 12:14:22  hospital   views     ok front.png (517 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:14:22  hospital   views     front.png copies the concept (difference 1.1), try 4
+2026-10-30 12:14:32  academy    views     ok front.png (498 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:14:32  academy    views     front.png copies the concept (difference 1.2), try 2
+2026-10-30 12:14:41  academy    views     ok front.png (501 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:14:41  academy    views     front.png copies the concept (difference 1.1), try 3
+2026-10-30 12:14:51  academy    views     ok front.png (502 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:14:51  academy    views     front.png copies the concept (difference 1.1), try 4
+2026-10-30 12:15:01  docks      views     ok front.png (501 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:15:01  docks      views     front.png copies the concept (difference 1.1), try 2
+2026-10-30 12:15:12  docks      views     ok front.png (445 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:15:12  docks      views     front.png copies the concept (difference 1.3), try 3
+2026-10-30 12:15:23  docks      views     ok front.png (469 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:15:23  docks      views     front.png copies the concept (difference 7.2), try 4
+2026-10-30 12:15:32  alley      views     ok front.png (436 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:15:32  alley      views     front.png copies the concept (difference 7.7), try 2
+2026-10-30 12:15:41  alley      views     ok front.png (387 KB, 8 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:15:41  alley      views     front.png copies the concept (difference 6.1), try 3
+2026-10-30 12:15:52  alley      views     ok front.png (438 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:15:52  alley      views     front.png copies the concept (difference 1.0), try 4
+2026-10-30 12:16:03  odeon      views     ok front.png (482 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:16:03  odeon      views     front.png copies the concept (difference 1.1), try 2
+2026-10-30 12:16:12  odeon      views     ok front.png (400 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:16:12  odeon      views     front.png copies the concept (difference 4.8), try 3
+2026-10-30 12:16:22  odeon      views     ok front.png (478 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:16:22  odeon      views     front.png copies the concept (difference 1.9), try 4
+2026-10-30 12:16:32  house-1    views     ok front.png (379 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:16:32  house-1    views     front.png copies the concept (difference 7.4), try 2
+2026-10-30 12:16:42  house-1    views     ok front.png (404 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:16:42  house-1    views     front.png copies the concept (difference 5.0), try 3
+2026-10-30 12:16:53  house-1    views     ok front.png (413 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:16:53  house-1    views     front.png copies the concept (difference 1.0), try 4
+2026-10-30 12:17:04  house-2    views     ok front.png (448 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:17:04  house-2    views     front.png copies the concept (difference 12.4), try 2
+2026-10-30 12:17:13  house-2    views     ok front.png (467 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:17:13  house-2    views     front.png copies the concept (difference 5.2), try 3
+2026-10-30 12:17:22  house-2    views     ok front.png (454 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:17:22  house-2    views     front.png copies the concept (difference 3.0), try 4
+2026-10-30 12:17:32  house-3    views     ok front.png (468 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:17:32  house-3    views     front.png copies the concept (difference 1.1), try 2
+2026-10-30 12:17:43  house-3    views     ok front.png (469 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:17:43  house-3    views     front.png copies the concept (difference 1.1), try 3
+2026-10-30 12:17:52  house-3    views     ok front.png (454 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:17:52  house-3    views     front.png copies the concept (difference 8.6), try 4
+2026-10-30 12:18:04  house-4    views     ok front.png (432 KB, 12 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:18:04  house-4    views     front.png copies the concept (difference 1.0), try 2
+2026-10-30 12:18:15  house-4    views     ok front.png (438 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:18:15  house-4    views     front.png copies the concept (difference 6.3), try 3
+2026-10-30 12:18:25  house-4    views     ok front.png (454 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:18:25  house-4    views     front.png copies the concept (difference 5.6), try 4
+2026-10-30 12:18:35  house-5    views     ok front.png (449 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:18:35  house-5    views     front.png copies the concept (difference 0.9), try 2
+2026-10-30 12:18:45  house-5    views     ok front.png (437 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:18:45  house-5    views     front.png copies the concept (difference 5.4), try 3
+2026-10-30 12:18:55  house-5    views     ok front.png (449 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:18:55  house-5    views     front.png copies the concept (difference 10.6), try 4
+2026-10-30 12:19:06  house-6    views     ok front.png (470 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:19:06  house-6    views     front.png copies the concept (difference 0.9), try 2
+2026-10-30 12:19:17  house-6    views     ok front.png (417 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:19:17  house-6    views     front.png copies the concept (difference 7.1), try 3
+2026-10-30 12:19:28  house-6    views     ok front.png (470 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:19:28  house-6    views     front.png copies the concept (difference 0.9), try 4
+2026-10-30 12:19:37  house-7    views     ok front.png (423 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:19:37  house-7    views     front.png copies the concept (difference 5.2), try 2
+2026-10-30 12:19:48  house-7    views     ok front.png (423 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:19:48  house-7    views     front.png copies the concept (difference 7.5), try 3
+2026-10-30 12:19:59  house-7    views     ok front.png (340 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:19:59  house-7    views     front.png copies the concept (difference 8.7), try 4
+2026-10-30 12:20:08  house-8    views     ok front.png (467 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:20:08  house-8    views     front.png copies the concept (difference 1.0), try 2
+2026-10-30 12:20:19  house-8    views     ok front.png (457 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:20:19  house-8    views     front.png copies the concept (difference 1.9), try 3
+2026-10-30 12:20:28  house-8    views     ok front.png (433 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 12:20:28  house-8    views     front.png copies the concept (difference 10.5), try 4
+2026-10-30 12:20:39  square     views     ok left.png (378 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:20:49  morgue     views     ok left.png (477 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:21:00  market     views     ok left.png (484 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:21:14  hospital   views     ok left.png (543 KB, 14 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:21:14  hospital   views     left.png copies the concept (difference 1.1), try 2
+2026-10-30 12:21:24  hospital   views     ok left.png (533 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:21:24  hospital   views     left.png copies the concept (difference 5.0), try 3
+2026-10-30 12:21:35  hospital   views     ok left.png (542 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:21:35  hospital   views     left.png copies the concept (difference 1.1), try 4
+2026-10-30 12:21:46  academy    views     ok left.png (554 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:21:46  academy    views     left.png copies the concept (difference 2.7), try 2
+2026-10-30 12:21:57  academy    views     ok left.png (547 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:21:57  academy    views     left.png copies the concept (difference 9.1), try 3
+2026-10-30 12:22:08  academy    views     ok left.png (542 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:22:08  academy    views     left.png copies the concept (difference 1.4), try 4
+2026-10-30 12:22:21  docks      views     ok left.png (554 KB, 13 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:22:21  docks      views     left.png copies the concept (difference 9.2), try 2
+2026-10-30 12:22:31  docks      views     ok left.png (552 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:22:31  docks      views     left.png copies the concept (difference 7.5), try 3
+2026-10-30 12:22:45  docks      views     ok left.png (563 KB, 14 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:22:45  docks      views     left.png copies the concept (difference 7.4), try 4
+2026-10-30 12:22:55  alley      views     ok left.png (491 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:22:55  alley      views     left.png copies the concept (difference 7.6), try 2
+2026-10-30 12:23:05  alley      views     ok left.png (428 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:23:06  alley      views     left.png copies the concept (difference 8.8), try 3
+2026-10-30 12:23:15  alley      views     ok left.png (469 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:23:15  alley      views     left.png copies the concept (difference 9.1), try 4
+2026-10-30 12:23:29  odeon      views     ok left.png (461 KB, 14 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:23:40  house-1    views     ok left.png (469 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:23:40  house-1    views     left.png copies the concept (difference 3.3), try 2
+2026-10-30 12:24:00  house-1    views     ok left.png (450 KB, 20 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:24:00  house-1    views     left.png copies the concept (difference 3.0), try 3
+2026-10-30 12:24:11  house-1    views     ok left.png (466 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:24:11  house-1    views     left.png copies the concept (difference 1.4), try 4
+2026-10-30 12:24:20  house-2    views     ok left.png (528 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:24:20  house-2    views     left.png copies the concept (difference 3.2), try 2
+2026-10-30 12:24:31  house-2    views     ok left.png (515 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:24:31  house-2    views     left.png copies the concept (difference 4.7), try 3
+2026-10-30 12:24:41  house-2    views     ok left.png (494 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:24:41  house-2    views     left.png copies the concept (difference 3.3), try 4
+2026-10-30 12:24:51  house-3    views     ok left.png (442 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:24:51  house-3    views     left.png copies the concept (difference 10.7), try 2
+2026-10-30 12:25:00  house-3    views     ok left.png (441 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:25:12  house-4    views     ok left.png (485 KB, 12 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:25:12  house-4    views     left.png copies the concept (difference 5.7), try 2
+2026-10-30 12:25:21  house-4    views     ok left.png (446 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:25:21  house-4    views     left.png copies the concept (difference 8.7), try 3
+2026-10-30 12:25:35  house-4    views     ok left.png (515 KB, 14 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:25:35  house-4    views     left.png copies the concept (difference 5.5), try 4
+2026-10-30 12:25:51  house-5    views     ok left.png (522 KB, 16 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:25:51  house-5    views     left.png copies the concept (difference 11.8), try 2
+2026-10-30 12:26:02  house-5    views     ok left.png (424 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:26:12  house-6    views     ok left.png (490 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:26:12  house-6    views     left.png copies the concept (difference 4.6), try 2
+2026-10-30 12:26:22  house-6    views     ok left.png (538 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:26:22  house-6    views     left.png copies the concept (difference 1.8), try 3
+2026-10-30 12:26:31  house-6    views     ok left.png (507 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:26:31  house-6    views     left.png copies the concept (difference 4.7), try 4
+2026-10-30 12:26:42  house-7    views     ok left.png (429 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:26:42  house-7    views     left.png copies the concept (difference 11.2), try 2
+2026-10-30 12:26:54  house-7    views     ok left.png (424 KB, 12 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:26:54  house-7    views     left.png copies the concept (difference 10.8), try 3
+2026-10-30 12:27:06  house-7    views     ok left.png (433 KB, 12 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:27:06  house-7    views     left.png copies the concept (difference 10.8), try 4
+2026-10-30 12:27:18  house-8    views     ok left.png (528 KB, 12 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:27:19  house-8    views     left.png copies the concept (difference 8.6), try 2
+2026-10-30 12:27:33  house-8    views     ok left.png (502 KB, 15 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:27:34  house-8    views     left.png copies the concept (difference 8.6), try 3
+2026-10-30 12:27:48  house-8    views     ok left.png (496 KB, 14 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 12:27:48  house-8    views     left.png copies the concept (difference 9.3), try 4
+2026-10-30 12:28:18  house-1    turnaround ok front.png from turnaround.png (10 s, outline difference 11.7)
+2026-10-30 12:28:18  house-1    turnaround ok left.png from turnaround.png (10 s, outline difference 11.1)
+2026-10-30 12:28:36  academy    turnaround ok front.png from turnaround.png (9 s, outline difference 19.1)
+2026-10-30 12:28:36  academy    turnaround ok left.png from turnaround.png (9 s, outline difference 18.4)
+2026-10-30 12:28:46  alley      turnaround ok front.png from turnaround.png (10 s, outline difference 17.0)
+2026-10-30 12:28:46  alley      turnaround ok left.png from turnaround.png (10 s, outline difference 17.6)
+2026-10-30 12:28:58  docks      turnaround ok front.png from turnaround.png (12 s, outline difference 17.4)
+2026-10-30 12:28:58  docks      turnaround ok left.png from turnaround.png (12 s, outline difference 17.6)
+2026-10-30 12:29:09  hospital   turnaround ok front.png from turnaround.png (11 s, outline difference 18.2)
+2026-10-30 12:29:09  hospital   turnaround ok left.png from turnaround.png (11 s, outline difference 18.6)
+2026-10-30 12:29:20  house-2    turnaround ok front.png from turnaround.png (12 s, outline difference 17.4)
+2026-10-30 12:29:20  house-2    turnaround ok left.png from turnaround.png (12 s, outline difference 17.8)
+2026-10-30 12:29:31  house-3    turnaround ok front.png from turnaround.png (10 s, outline difference 16.3)
+2026-10-30 12:29:42  house-4    turnaround ok front.png from turnaround.png (11 s, outline difference 12.5)
+2026-10-30 12:29:42  house-4    turnaround ok left.png from turnaround.png (11 s, outline difference 12.4)
+2026-10-30 12:29:54  house-5    turnaround ok front.png from turnaround.png (12 s, outline difference 16.4)
+2026-10-30 12:30:06  house-6    turnaround ok front.png from turnaround.png (12 s, outline difference 11.9)
+2026-10-30 12:30:06  house-6    turnaround ok left.png from turnaround.png (12 s, outline difference 13.1)
+2026-10-30 12:30:16  house-7    turnaround ok front.png from turnaround.png (9 s, outline difference 11.1)
+2026-10-30 12:30:16  house-7    turnaround ok left.png from turnaround.png (9 s, outline difference 12.5)
+2026-10-30 12:30:26  house-8    turnaround ok front.png from turnaround.png (11 s, outline difference 22.5)
+2026-10-30 12:30:26  house-8    turnaround ok left.png from turnaround.png (11 s, outline difference 21.4)
+2026-10-30 12:30:37  odeon      turnaround ok front.png from turnaround.png (10 s, outline difference 21.6)
+2026-10-30 12:30:46  slaughter  turnaround ok front.png from turnaround.png (10 s, outline difference 14.9)
+2026-10-30 12:30:56  square     turnaround ok front.png from turnaround.png (9 s, outline difference 18.9)
+2026-10-30 12:31:23  house-3    turnaround ok front.png from turnaround.png (9 s, outline difference 18.2)
+2026-10-30 12:31:23  house-3    turnaround ok left.png from turnaround.png (9 s, outline difference 17.7)

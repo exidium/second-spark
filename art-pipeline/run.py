@@ -5,6 +5,7 @@ the 3D models himself from them.
   python3 art-pipeline/run.py all                   concept image of every building in buildings.json
   python3 art-pipeline/run.py cemetery              one building's concept
   python3 art-pipeline/run.py all --step views      front, left and top views (only after the concepts are approved)
+  python3 art-pipeline/run.py all --step turnaround   front and left cut from one side-by-side sheet, where views failed
   python3 art-pipeline/run.py all --step sheet      one sheet per building, and out/concepts.png with every concept
   add --force to regenerate files that exist (with --step views: --view top to redo a single view)
 
@@ -20,7 +21,7 @@ ROOT = HERE.parent
 OUT = HERE / 'out'
 LOG = HERE / 'log.txt'
 VIEWS = ['front', 'left', 'top']
-STEPS = ['concept', 'views', 'sheet']
+STEPS = ['concept', 'views', 'turnaround', 'sheet']
 COPY_LIMIT = 12.5   # a view whose outlines are this close to the concept kept its three-quarter camera
 TRIES = 3
 FONT = ROOT / 'godot' / 'assets' / 'fonts' / 'Amarante-Regular.ttf'
@@ -125,6 +126,45 @@ def step_views(b, d, force, only=None):
     return ok
 
 
+TURNAROUND = ('Using the attached concept as the exact reference, draw a model turnaround sheet of the same building, unchanged in '
+              'shape, proportions, colours and details, in two panels side by side on one plain flat mid-grey background. Left '
+              'panel: the front elevation, camera on the ground facing the front (the side with the main entrance) square-on. '
+              'Right panel: the left side elevation, camera on the ground facing the left side square-on, so the front is at '
+              'the right edge of that panel. Both orthographic with no perspective, no top surfaces visible, roofs only as '
+              'outlines, both at the same scale on the same ground line, each panel showing everything that stands on the base. '
+              'Rendered exactly like the concept in full colour, same low-poly flat shaded look, soft even lighting, no cast '
+              'shadows. No text, no labels, no divider line.')
+
+
+def step_turnaround(b, d, force, only=None):
+    """Fallback when single views keep the concept's camera: one 16:9 sheet with both elevations, cut in two."""
+    need = [v for v in ('front', 'left') if force or not (d / f'{v}.png').exists() or copied(d, v)]
+    if not need:
+        print('  front and left are fine, skip')
+        return True
+    t0 = time.time()
+    try:
+        img = gen_gemini.call(TURNAROUND + ' Do not include: ' + DATA['negative'] + ', perspective, three-quarter view.',
+                              [d / 'concept.png'], key(), style_prefix=False, aspect='16:9')
+    except Exception as e:  # noqa: BLE001
+        log(b['id'], 'turnaround', f'FAILED (model {gen_gemini.MODEL}): {str(e)[:160]}')
+        return False
+    (d / 'turnaround.png').write_bytes(img)
+    sheet = Image.open(d / 'turnaround.png').convert('RGB')
+    w, h = sheet.size
+    bg = sheet.getpixel((4, 4))
+    for i, v in enumerate(('front', 'left')):
+        if v not in need:
+            continue
+        half = sheet.crop((i * w // 2, 0, (i + 1) * w // 2, h))
+        side = max(half.size)
+        sq = Image.new('RGB', (side, side), bg)
+        sq.paste(half, ((side - half.width) // 2, (side - half.height) // 2))
+        sq.save(d / f'{v}.png')
+        log(b['id'], 'turnaround', f'ok {v}.png from turnaround.png ({time.time() - t0:.0f} s, outline difference {difference(d / "concept.png", d / f"{v}.png"):.1f})')
+    return True
+
+
 def step_sheet(b, d, force, only=None):
     files = [d / 'concept.png'] + [d / f'{v}.png' for v in VIEWS]
     if not files[0].exists():
@@ -180,7 +220,7 @@ def main():
     if a.target != 'all' and a.target not in ids:
         sys.exit(f'unknown id {a.target}; known: {", ".join(ids)}')
     todo = DATA['buildings'] if a.target == 'all' else [b for b in DATA['buildings'] if b['id'] == a.target]
-    fn = {'concept': step_concept, 'views': step_views, 'sheet': step_sheet}[a.step]
+    fn = {'concept': step_concept, 'views': step_views, 'turnaround': step_turnaround, 'sheet': step_sheet}[a.step]
     for b in todo:
         d = OUT / b['id']
         d.mkdir(parents=True, exist_ok=True)
