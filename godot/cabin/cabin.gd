@@ -1,7 +1,7 @@
 extends Node3D
 ## The cabin (D177): the game as a map on a wooden table in a dark room, lit by two candles, after Inscryption.
 ## The landmarks are carved miniatures standing on the map.
-## Hover a landmark to lift it and read its tag; click it to lean in and send your pawn there; right-click or Esc to
+## Hover a landmark or its name plate to lift it and tip the plate up; click it to lean in and send your pawn there; right-click or Esc to
 ## sit back. `-- --shot` saves tests/cabin-1..3.png and quits.
 
 const MAP := 1.0                       # the map is 1 m across: board percent 0..100
@@ -26,8 +26,6 @@ var pawn: Node3D
 var pawn_at := Vector3(0.12, 0, 0.58)  # on the table, before the map
 var candles := []                      # [OmniLight3D, flame Node3D, base energy, seed, lit 0..1]
 var candle_own := []                   # each candle's small light on its own wax (D181)
-var tag: PanelContainer
-var tag_label: Label
 var cam_from := Transform3D()
 var cam_to := Transform3D()
 var cam_t := 1.0
@@ -51,7 +49,6 @@ func _ready() -> void:
 	_village()
 	_pawn()
 	_props()
-	_tag()
 	_vignette()
 	cam = Camera3D.new()
 	cam.fov = 50
@@ -196,7 +193,54 @@ func _miniatures() -> void:
 		body.set_meta("id", id)
 		holder.add_child(body)
 		holder.scale = Vector3(1, 0.001, 1)   # folded flat until the intro pops it up
-		minis[id] = {"node": holder, "height": box.size.y * s}
+		var plate := _name_plate(id, holder.position + Vector3(0, 0, r + PLATE_GAP))
+		minis[id] = {"node": holder, "height": box.size.y * s, "plate": plate[0], "plate_mat": plate[1]}
+
+## A name plate (D182): a thin aged brass plate lying on the map just south of the landmark's base, the name
+## engraved in dark letters, readable from your seat. Its hinge is its front edge: on hover the back rises and the
+## plate stands up facing you, like a sign on a desk.
+const PLATE_GAP := 0.004                  # between the base and the plate's back edge
+const PLATE_DEPTH := 0.022
+const LETTER := 0.0088                    # metres of plate per letter
+
+func _name_plate(id: String, back: Vector3) -> Array:
+	var name := String(PLACES[id].name)
+	var w := name.length() * LETTER + 0.018
+	var pivot := Node3D.new()
+	pivot.position = back + Vector3(0, 0.0012, PLATE_DEPTH)   # the hinge, at the front edge
+	add_child(pivot)
+	var mat := _col_mat(Color("#c09a58"), 0.45, 0.3)
+	mat.emission_enabled = true
+	mat.emission = Color("#ffcf8a")
+	mat.emission_energy_multiplier = 0.0
+	var plate := _mesh(_box(Vector3(w, 0.0016, PLATE_DEPTH)), mat, Vector3(0, 0, -PLATE_DEPTH / 2), pivot)
+	plate.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	# A darker rim: a slightly larger plate just under it.
+	_mesh(_box(Vector3(w + 0.002, 0.0012, PLATE_DEPTH + 0.002)), _col_mat(Color("#3e2c18"), 0.6, 0.5), Vector3(0, -0.0003, -PLATE_DEPTH / 2), pivot)
+	var lb := Label3D.new()
+	lb.text = name.to_upper()
+	lb.font = font
+	lb.font_size = 64
+	lb.pixel_size = 0.00018
+	lb.modulate = Color("#24170c")
+	lb.outline_size = 0
+	lb.shaded = true
+	lb.double_sided = false
+	lb.rotation_degrees = Vector3(-90, 0, 0)
+	lb.position = Vector3(0, 0.00085, -PLATE_DEPTH / 2 + 0.0004)
+	pivot.add_child(lb)
+	# Hovering the plate counts as hovering the landmark.
+	var body := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var bs := BoxShape3D.new()
+	bs.size = Vector3(w, 0.006, PLATE_DEPTH)
+	shape.shape = bs
+	shape.position = Vector3(0, 0.003, -PLATE_DEPTH / 2)
+	body.add_child(shape)
+	body.set_meta("id", id)
+	pivot.add_child(body)
+	pivot.scale = Vector3(0.001, 1, 0.001)   # hidden until the intro sets it down
+	return [pivot, mat]
 
 ## Houses and trees on the map (D180): white blocks with a pitched roof beside the roads, simple trees in the open.
 ## Positions come from `art-pipeline/village.py` (village.json, map percent). One MultiMesh per part.
@@ -342,10 +386,29 @@ func _candle(pos: Vector3, size: float, turn_deg: float, energy: float) -> void:
 	candles.append([light, flame, energy, randf() * 100.0, 0.0])
 
 func _props() -> void:
-	_candle(Vector3(-0.68, 0, 0.18), 1.05, 30, 0.55)
-	_candle(Vector3(0.72, 0, -0.42), 1.3, -50, 0.45)
-	# Bruno's Leyden jar where the specimen jar stood, and his scalpel by the map.
-	_prop("res://assets/cabin/props/leiden.glb", Vector3(-0.72, 0, -0.38), 20)
+	# One candle (D182), a little stronger now it lights the table alone.
+	_candle(Vector3(-0.68, 0, 0.18), 1.15, 30, 1.1)
+	# Bruno's Leyden jar where the specimen jar stood, its upper body glass (D182), and his scalpel by the map.
+	var jar := _prop("res://assets/cabin/props/leiden_glass.glb", Vector3(-0.72, 0, -0.38), 20)
+	var glass := _col_mat(Color(0.82, 0.88, 0.84, 0.16), 0.04)
+	glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	glass.cull_mode = BaseMaterial3D.CULL_DISABLED
+	glass.specular_mode = BaseMaterial3D.SPECULAR_SCHLICK_GGX
+	glass.rim_enabled = true
+	glass.rim = 0.6
+	glass.rim_tint = 0.3
+	for c in jar.find_children("*", "MeshInstance3D", true, false):
+		var mi := c as MeshInstance3D
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		for i in mi.mesh.get_surface_count():
+			var m := mi.mesh.surface_get_material(i)
+			if m != null and m.resource_name == "glass":
+				mi.set_surface_override_material(i, glass)
+			elif m is BaseMaterial3D:
+				# The foil and the rest are seen from inside too, through the glass.
+				var inside := (m as BaseMaterial3D).duplicate() as BaseMaterial3D
+				inside.cull_mode = BaseMaterial3D.CULL_DISABLED
+				mi.set_surface_override_material(i, inside)
 	_prop("res://assets/cabin/props/scalpel.glb", Vector3(-0.6, 0, 0.44), 62)
 	# A brass bell.
 	var bell := Vector3(0.62, 0, 0.36)
@@ -358,32 +421,6 @@ func _props() -> void:
 	note.rotation_degrees.y = -12
 	var quill := _mesh(_cyl(0.002, 0.004, 0.22, 6), _col_mat(Color("#e8e2d4"), 0.6), Vector3(0.5, 0.004, 0.5))
 	quill.rotation_degrees = Vector3(0, 30, 88)
-
-# ---------------------------------------------------------------- the paper tag
-
-func _tag() -> void:
-	var layer := CanvasLayer.new()
-	add_child(layer)
-	tag = PanelContainer.new()
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color("#d6c9a8")
-	sb.border_color = Color("#3a2c1f")
-	sb.set_border_width_all(1)
-	sb.content_margin_left = 12
-	sb.content_margin_right = 12
-	sb.content_margin_top = 4
-	sb.content_margin_bottom = 6
-	sb.shadow_color = Color(0, 0, 0, 0.6)
-	sb.shadow_size = 6
-	tag.add_theme_stylebox_override("panel", sb)
-	tag_label = Label.new()
-	tag_label.add_theme_font_override("font", font)
-	tag_label.add_theme_font_size_override("font_size", 22)
-	tag_label.add_theme_color_override("font_color", Color("#2a1e14"))
-	tag.add_child(tag_label)
-	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tag.modulate.a = 0.0
-	layer.add_child(tag)
 
 func _vignette() -> void:
 	var layer := CanvasLayer.new()
@@ -405,9 +442,8 @@ void fragment() {
 	var mat := ShaderMaterial.new()
 	mat.shader = sh
 	rect.material = mat
-	# Drawn over the 3D view (layer 1), under the tag.
+	# Drawn over the 3D view.
 	layer.layer = 1
-	tag.get_parent().layer = 2
 	layer.add_child(rect)
 
 
@@ -445,6 +481,7 @@ func _intro() -> void:
 		var pt := create_tween()
 		pt.tween_interval(1.2 + delay)
 		pt.tween_property(n, "scale", Vector3.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		pt.tween_property(minis[id].plate, "scale", Vector3.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		delay += 0.13
 	var done := create_tween()
 	done.tween_interval(1.2 + delay + 0.5)
@@ -472,7 +509,6 @@ func _process(delta: float) -> void:
 	cam.transform = tr
 	if intro_done and not shot_mode:
 		_update_hover()
-	_place_tag()
 
 func _update_hover() -> void:
 	var mp := get_viewport().get_mouse_position()
@@ -484,7 +520,7 @@ func _update_hover() -> void:
 		id = String((hit.collider as Node).get_meta("id"))
 	set_hover(id)
 
-## Lift a landmark a little, tilt it, show its tag; drop the last one.
+## Lift a landmark a little, tilt it, tip its name plate up; drop the last one.
 func set_hover(id: String) -> void:
 	if id == hovered:
 		return
@@ -493,36 +529,36 @@ func set_hover(id: String) -> void:
 		var tw := create_tween().set_parallel()
 		tw.tween_property(old, "position:y", 0.0, 0.2)
 		tw.tween_property(old, "rotation:z", 0.0, 0.2)
+		_plate_hover(hovered, false)
 	hovered = id
-	var fade := create_tween()
-	fade.tween_property(tag, "modulate:a", 1.0 if id != "" else 0.0, 0.15)
 	if id == "":
 		return
-	tag_label.text = String(PLACES[id].name)
 	var n: Node3D = minis[id].node
 	var tw2 := create_tween().set_parallel()
 	tw2.tween_property(n, "position:y", 0.012, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tw2.tween_property(n, "rotation:z", deg_to_rad(4.0), 0.18)
+	_plate_hover(id, true)
 
-func _place_tag() -> void:
-	if hovered == "":
-		return
-	var n: Node3D = minis[hovered].node
-	var top := n.position + Vector3(0, float(minis[hovered].height) + 0.025, 0)
-	var sp := cam.unproject_position(top)
-	tag.position = sp - Vector2(tag.size.x / 2, tag.size.y + 6)
-	tag.rotation = deg_to_rad(-2.0)
+## The name plate stands up on its front edge, facing you, and catches the light; it drops back flat when you leave.
+func _plate_hover(id: String, on: bool) -> void:
+	var pv: Node3D = minis[id].plate
+	var mat: StandardMaterial3D = minis[id].plate_mat
+	var tw := create_tween().set_parallel()
+	if on:
+		tw.tween_property(pv, "rotation:x", deg_to_rad(62.0), 0.32).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(pv, "position:y", 0.004, 0.2)
+		tw.tween_property(mat, "emission_energy_multiplier", 0.35, 0.2)
+	else:
+		tw.tween_property(pv, "rotation:x", 0.0, 0.25).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+		tw.tween_property(pv, "position:y", 0.0, 0.2)
+		tw.tween_property(mat, "emission_energy_multiplier", 0.0, 0.25)
 
 ## Lean in over a landmark and hop the pawn onto it.
 func go_to(id: String) -> void:
 	leaning = id
 	_move_camera(_lean_view(id))
 	var n: Node3D = minis[id].node
-	var r := 0.0
-	for c in n.find_children("*", "MeshInstance3D", true, false):
-		var cm := (c as MeshInstance3D).mesh
-		if cm is CylinderMesh:
-			r = (cm as CylinderMesh).bottom_radius
+	var r := RING * 0.92
 	var dest := n.position + Vector3(r + 0.018, 0, r * 0.4)
 	var start := pawn.position
 	var tw := create_tween()
@@ -575,7 +611,10 @@ func _shots() -> void:
 		cam_from = Transform3D(Basis(), Vector3(e[0], e[1], e[2])).looking_at(Vector3(t[0], t[1], t[2]), Vector3.UP)
 		cam_to = cam_from
 		await _save("res://../tests/cabin-%s.png" % (parts[2] if parts.size() > 2 else "look"))
-	set_hover("first")
+	cam_t = 1.0
+	cam_from = Transform3D(Basis(), Vector3(-0.3, 0.2, 0.42)).looking_at(on_map(SPOTS.church) + Vector3(0, 0, 0.04), Vector3.UP)
+	cam_to = cam_from
+	set_hover("church")
 	await get_tree().create_timer(0.5).timeout
 	await _save("res://../tests/cabin-2.png")
 	set_hover("")

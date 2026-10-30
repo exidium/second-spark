@@ -90,10 +90,20 @@ SPOTS = {
     "market": (28.3, 66.9), "docks": (51.0, 68.4), "hospital": (47.3, 32.6), "slaughter": (66.4, 22.8),
     "first": (91.3, 11.3), "academy": (89.3, 37.4), "morgue": (82.7, 59.3), "alley": (90.0, 82.9),
 }
+# Each landmark's name plate (D182) lies south of its base: keep it clear too. Names as in town.gd PLACES.
+NAMES = {
+    "square": "Public Square", "cemetery": "Graveyard", "hospital": "Hospital", "morgue": "Morgue",
+    "slaughter": "Slaughterhouse", "first": "First Player", "academy": "Academy", "market": "Market",
+    "church": "Saint-Roch", "docks": "Docks", "alley": "Dark Alley", "odeon": "Odeon",
+}
 yy, xx = np.mgrid[0:H, 0:W]
 rings = np.zeros((H, W), bool)
-for px, py in SPOTS.values():
-    rings |= np.hypot(xx - px * W / 100, yy - py * H / 100) < 66
+for k, (px, py) in SPOTS.items():
+    cx, cy = px * W / 100, py * H / 100
+    rings |= np.hypot(xx - cx, yy - cy) < 66
+    half = (len(NAMES[k]) * 0.0088 + 0.018) * W / 2 + 6          # plate width in px, plus a margin
+    top, bottom = cy + (0.0396 + 0.004) * W - 4, cy + (0.0396 + 0.004 + 0.022) * W + 6
+    rings |= (np.abs(xx - cx) < half) & (yy > top) & (yy < bottom)
 # The roads, traced by hand along their middle (pixels on map03). A house or tree keeps CLEAR px from every one.
 ROADS = [
     [(155,108),(220,120),(265,152),(305,148),(345,140)],
