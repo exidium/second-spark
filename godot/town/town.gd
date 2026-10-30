@@ -90,6 +90,11 @@ var lights := []                     # {pos: Vector3, col, energy, range}
 var trees := []                      # [Vector3 pos, float size, Color]
 var lamps := []                      # Vector3 lamp bases
 var houses := 0
+var model_houses := 0
+# Bruno's house models (D174): godot/assets/models/house-N.glb, each {mesh, size}, and the transforms placed per kind.
+var house_kinds := []
+var house_xf := []
+const MODEL_HOUSES_WITHIN := 640.0   # model houses on the whole board (+-600 m) and a little round it; beyond, drawn (cheaper, in the fog)
 
 
 static func P(b: Vector2) -> Vector2:
@@ -470,6 +475,10 @@ func quarter_of(c: Vector2) -> Dictionary:
 ## A tall Paris house in its own frame: frontage w along x, depth d, the street on +z. Walls, roof and lights
 ## come from its quarter; a steep mansard with dormers, a pointed gable, or a ridge with a cross-gable.
 func gothic_house(k: Kit, c: Vector2, ang: float, w: float, d: float, floors: int, detail: bool, corner := false) -> void:
+	if not house_kinds.is_empty() and absf(c.x) < MODEL_HOUSES_WITHIN and absf(c.y) < MODEL_HOUSES_WITHIN:
+		_model_house(c, ang, w, d, floors)
+		houses += 1
+		return
 	var q := quarter_of(c)
 	var saved := k.xf
 	k.xf = Transform3D(Basis(Vector3.UP, -ang), Vector3(c.x, 0, c.y))
@@ -557,6 +566,73 @@ func gothic_house(k: Kit, c: Vector2, ang: float, w: float, d: float, floors: in
 			k.pane(q.win, Vector3(-w / 2 + twf * 0.62, STOREY * 0.48, d / 2), Vector3.BACK, twf * 0.38, STOREY * 0.5)
 	k.xf = saved
 	houses += 1
+
+## Load the house models once: the mesh of each and its size in metres (finish.py puts the origin on the ground).
+func _load_house_models() -> void:
+	for i in range(1, 9):
+		var path := "res://assets/models/house-%d.glb" % i
+		if not ResourceLoader.exists(path):
+			continue
+		var scene := (load(path) as PackedScene).instantiate()
+		var mis := scene.find_children("*", "MeshInstance3D", true, false)
+		if mis.is_empty():
+			scene.free()
+			continue
+		var mi := mis[0] as MeshInstance3D
+		var mesh: Mesh = mi.mesh.duplicate()
+		for sfc in mesh.get_surface_count():   # a grey tint per house through the instance colour, like the drawn walls
+			var m := mesh.surface_get_material(sfc)
+			if m is StandardMaterial3D:
+				var sm := (m as StandardMaterial3D).duplicate() as StandardMaterial3D
+				sm.vertex_color_use_as_albedo = true
+				mesh.surface_set_material(sfc, sm)
+		house_kinds.append({"mesh": mesh, "size": mesh.get_aabb().size, "xf": mi.transform})
+		house_xf.append([])
+		scene.free()
+
+## A model house on the lot: the kind whose width-to-height suits the lot best (one of the closest three), stretched to
+## the lot's frontage and depth and to its storeys plus a roof.
+func _model_house(c: Vector2, ang: float, w: float, d: float, floors: int) -> void:
+	var h := floors * STOREY + 5.0
+	var order := range(house_kinds.size())
+	order.sort_custom(func(a: int, b: int) -> bool:
+		var sa: Vector3 = house_kinds[a].size
+		var sb: Vector3 = house_kinds[b].size
+		return absf(sa.x / sa.y - w / h) < absf(sb.x / sb.y - w / h))
+	var i: int = order[rng.randi_range(0, mini(2, order.size() - 1))]
+	var sz: Vector3 = house_kinds[i].size
+	# Each model stands on its concept's plinth, about 2% of its height and wider than its walls: sink the plinth into the
+	# street and widen the house a little so the walls meet the neighbours'.
+	var basis := Basis(Vector3.UP, -ang) * Basis.from_scale(Vector3(w * 1.08 / sz.x, h / sz.y, d * 1.08 / sz.z))
+	var t := rng.randf_range(0.7, 1.0)
+	house_xf[i].append([Transform3D(basis, Vector3(c.x, -0.025 * h, c.y)) * house_kinds[i].xf, Color(t, t, t * rng.randf_range(0.96, 1.04))])
+	model_houses += 1
+
+## One MultiMesh per house kind and 200 m tile, so the camera skips the tiles it does not see.
+func _build_house_models(root: Node3D) -> void:
+	for i in house_kinds.size():
+		var tiles := {}
+		for e: Array in house_xf[i]:
+			var o: Vector3 = (e[0] as Transform3D).origin
+			var key := Vector2i(floori(o.x / 200.0), floori(o.z / 200.0))
+			if not tiles.has(key):
+				tiles[key] = []
+			tiles[key].append(e)
+		for key: Vector2i in tiles:
+			_house_tile(root, i, tiles[key])
+
+func _house_tile(root: Node3D, i: int, list: Array) -> void:
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_colors = true
+	mm.mesh = house_kinds[i].mesh
+	mm.instance_count = list.size()
+	for j in list.size():
+		mm.set_instance_transform(j, list[j][0])
+		mm.set_instance_color(j, list[j][1])
+	var mi := MultiMeshInstance3D.new()
+	mi.multimesh = mm
+	root.add_child(mi)
 
 func _try_house(k: Kit, c: Vector2, ang: float, w: float, d: float, floors: int, corner := false) -> bool:
 	if c.length() > BUILT or not is_free(c, ang, w / 2 - 0.05, d / 2 - 0.05):
@@ -944,10 +1020,12 @@ func build(root: Node3D) -> void:
 	_build_boats(k)
 	_build_land(k)
 	_build_bridges(k)
+	_load_house_models()
 	_build_landmarks(root, k)
 	_build_roads(k)
 	_build_districts(k)
 	_build_houses(k)
 	_build_lamps(root, k)
 	k.finish(root)
+	_build_house_models(root)
 	_build_trees(root)

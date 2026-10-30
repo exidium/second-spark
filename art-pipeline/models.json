@@ -16,11 +16,12 @@
    "texture_px": 1024
   },
   "square": {
-   "prism": "60e479ae-422c-4a0b-afb7-42bc8d7ef628",
-   "low_poly": "da82ed34-bbff-4599-9d2d-8e451e3c276c",
-   "height_m": 20,
+   "prism": "de987c8c-f6e6-42f6-ba19-7ac2665bd18a",
+   "low_poly": "c7aaa862-8f69-4dbb-9e69-57e4e1ff64f5",
+   "height_m": 9,
    "turn": -90,
-   "texture_px": 1024
+   "texture_px": 1024,
+   "note": "v2 from the concept without houses; v1 (with houses) was 60e479ae / da82ed34"
   },
   "slaughter": {
    "prism": "a0294469-b989-4476-be18-01b1f82a670c",

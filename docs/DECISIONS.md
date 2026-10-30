@@ -577,4 +577,11 @@ Three candidates came from Nano Banana (`gemini-3.1-flash-image`) for a seamless
 - `town_main.gd`: `TOWN_SHOT_AT=<place id>` adds a close view of that place as `tests/town-5.png`.
 - All 20 made the same way (Bruno: "go ahead."). Every generated model faced +X, so every one is turned -90 degrees. Triangles: landmarks 2,028 (morgue) to 9,078 (cathedral), houses 278 to 843. Textures are capped at 512 px for houses and 1024 px for landmarks and saved as JPEG: the 20 files total 12 MB.
 - The cathedral is lowered from 80 to 60 m to the spire (58 x 94 m): at 80 m it was 77 x 126 m and swallowed its block. Each landmark's clear plot now follows its model's own footprint plus a 4 m pavement (`_half_size()` in `town.gd`), instead of a fixed 60 x 48 m.
-- The eight houses are in `godot/assets/models/` but the town does not place them yet; the terraces are still drawn by `gothic_house()`.
+
+**D174. The town's houses are Bruno's eight house models; the Public Square is remade without houses.** (Bruno: "do it 1 and 2", after D173 offered: put the 8 house models into the terraces, and clean up or remake the square without its houses.)
+- Every house lot on the board (within 640 m of the centre on each axis) gets a house model instead of a drawn `gothic_house()`: 8,201 of about 15,400. Beyond that the far city, mostly in fog, stays drawn. `town.gd`: `_load_house_models()`, `_model_house()`, `_build_house_models()`, `_house_tile()`.
+- Per lot: the kind is one of the three whose width-to-height is closest to the lot's frontage over its storeys plus a 5 m roof. The model is stretched to the lot (frontage and depth times 1.08, so the walls meet the neighbours') and to that height, and sunk by 2.5% of its height so the plinth from its concept goes under the street. Each house gets a grey tint through its instance colour (0.7 to 1.0), like the drawn walls.
+- Drawn as one MultiMesh per kind per 200 m tile, so the camera skips tiles it does not see: 60 fps in the first shot view, against 49.5 fps with one MultiMesh per kind.
+- The model houses have no lit windows (the drawn houses had glowing panes); the streets are darker than before.
+- Square: its concept is edited with Nano Banana to remove the surrounding houses (the old one kept as `concept-v2-houses.png`), then Prism 3.1 and Smart Low Poly again: 3,177 triangles, 18 x 18 m, 9 m to the top of the guillotine.
+- `town_main.gd`: the build line counts model houses, and shot mode prints the frame rate over 60 frames.

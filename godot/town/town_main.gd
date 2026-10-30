@@ -27,7 +27,7 @@ func _ready() -> void:
 	town = Town.new()
 	var t0 := Time.get_ticks_msec()
 	town.build(self)
-	print("TOWN built: %d houses, %d trees, %d ms" % [town.houses, town.trees.size(), Time.get_ticks_msec() - t0])
+	print("TOWN built: %d houses (%d models), %d trees, %d ms" % [town.houses, town.model_houses, town.trees.size(), Time.get_ticks_msec() - t0])
 	for l in town.lights:
 		var o := OmniLight3D.new()
 		o.light_color = l.col
@@ -226,6 +226,11 @@ func _save(path: String) -> void:
 func _shots() -> void:
 	await get_tree().create_timer(1.0).timeout
 	await _save("res://../tests/town-1.png")
+	var f0 := Engine.get_process_frames()
+	var ms0 := Time.get_ticks_msec()
+	for i in 60:
+		await get_tree().process_frame
+	print("TOWN %.1f fps over 60 frames (view 1)" % [60000.0 / maxf(1.0, Time.get_ticks_msec() - ms0)])
 	_view(Vector3(-54, 0, -372), 10, -30, 260)
 	await _save("res://../tests/town-2.png")
 	_view(Vector3(36, 0, 360), -25, -30, 300)
