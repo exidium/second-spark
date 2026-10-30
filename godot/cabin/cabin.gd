@@ -209,10 +209,10 @@ func _village() -> void:
 	var roofs: Array[Transform3D] = []
 	for h: Dictionary in data.houses:
 		var s := float(h.s)
-		var w := 0.0095 * s                 # across the ridge
+		var w := 0.0135 * s                 # across the ridge
 		var l := w * float(h.long)          # along the ridge
-		var wall_h := 0.0065 * s
-		var roof_h := 0.0055 * s
+		var wall_h := 0.009 * s
+		var roof_h := 0.0075 * s
 		# The ridge runs along the road: local z turned to the road's direction on the map.
 		var b := Basis(Vector3.UP, PI / 2 - float(h.ang))
 		var at := on_map(Vector2(float(h.x), float(h.y)))
@@ -222,7 +222,7 @@ func _village() -> void:
 	var rounds: Array[Transform3D] = []
 	var cones: Array[Transform3D] = []
 	for t: Dictionary in data.trees:
-		var s := float(t.s)
+		var s := float(t.s) * 1.45           # trees a little larger too
 		var at := on_map(Vector2(float(t.x), float(t.y)))
 		var b := Basis(Vector3.UP, randf() * TAU)
 		trunks.append(Transform3D(b * Basis.from_scale(Vector3.ONE * s), at + Vector3(0, 0.003 * s, 0)))

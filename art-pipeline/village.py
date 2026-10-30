@@ -152,14 +152,14 @@ tries = 0
 while len(houses) < args.houses and tries < 200000:
     tries += 1
     x, y = rnd.randrange(W), rnd.randrange(H)
-    if blocked[y, x] or not (12 <= roads_d[y, x] <= 20):
+    if blocked[y, x] or not (15 <= roads_d[y, x] <= 24):
         continue
-    if not free(x, y, 9):
+    if not free(x, y, 13):
         continue
     houses.append({"x": round(x / W * 100, 2), "y": round(y / H * 100, 2),
                    "ang": round(road_dir(x, y) + rnd.choice((0, math.pi)) + rnd.uniform(-0.12, 0.12), 3),
                    "s": round(rnd.uniform(0.85, 1.2), 2), "long": round(rnd.uniform(1.0, 1.6), 2)})
-    placed.append((x, y, 9))
+    placed.append((x, y, 13))
 
 trees = []
 tries = 0
@@ -176,11 +176,11 @@ while len(trees) < args.trees and tries < 200000:
         x, y = rnd.randrange(W), rnd.randrange(H)
     if blocked[y, x] or roads_d[y, x] < 12:
         continue
-    if not free(x, y, 6):
+    if not free(x, y, 9):
         continue
     trees.append({"x": round(x / W * 100, 2), "y": round(y / H * 100, 2), "s": round(rnd.uniform(0.75, 1.3), 2),
                   "kind": rnd.choice(("round", "round", "cone"))})
-    placed.append((x, y, 6))
+    placed.append((x, y, 9))
 
 json.dump({"houses": houses, "trees": trees}, open("godot/assets/cabin/village.json", "w"), indent=0)
 print(f"{len(houses)} houses, {len(trees)} trees")
