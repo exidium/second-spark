@@ -13,7 +13,7 @@ Every generation is logged to art-pipeline/log.txt. The town ground plan is art-
 """
 import argparse, json, os, sys, time
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont, ImageStat
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
@@ -21,6 +21,8 @@ OUT = HERE / 'out'
 LOG = HERE / 'log.txt'
 VIEWS = ['front', 'left', 'top']
 STEPS = ['concept', 'views', 'sheet']
+COPY_LIMIT = 12.5   # a view whose outlines are this close to the concept kept its three-quarter camera
+TRIES = 3
 FONT = ROOT / 'godot' / 'assets' / 'fonts' / 'Amarante-Regular.ttf'
 
 sys.path.insert(0, str(ROOT / 'tools'))
@@ -72,6 +74,24 @@ def step_concept(b, d, force, only=None):
     return generate(b['id'], 'concept', out, prompt, [], b.get('seed'))
 
 
+def difference(a, b):
+    """Mean difference of the two images' outlines at 64 px, so a paler or line-drawn copy of the concept's camera still
+    counts as a copy: below COPY_LIMIT means the view kept the concept's three-quarter camera."""
+    g = lambda p: Image.open(p).convert('L').resize((128, 128)).filter(ImageFilter.FIND_EDGES).resize((64, 64))
+    return ImageStat.Stat(ImageChops.difference(g(a), g(b))).mean[0]
+
+
+def copied(d, v):
+    return difference(d / 'concept.png', d / f'{v}.png') < COPY_LIMIT
+
+
+STRICT = ('The attached concept is a three-quarter view from above. Do NOT reuse its camera angle. Redraw the building flat '
+          'and square-on, as if the camera stood on the ground far away with a very long lens, facing the {face} directly: '
+          'no top surfaces and no second side are visible, the roofs show only as outlines against the background, the base '
+          'is a thin horizontal line. Keep everything that stands on the base, at the same places and sizes: every building, '
+          'wall, gate, tree, crane, boat, stall and prop. The whole width of the base fills the drawing. ')
+
+
 def step_views(b, d, force, only=None):
     concept = d / 'concept.png'
     if not concept.exists():
@@ -83,8 +103,10 @@ def step_views(b, d, force, only=None):
             continue
         out = d / f'{v}.png'
         if out.exists() and not force:
-            print(f'  {v}.png exists, skip')
-            continue
+            if not copied(d, v):
+                print(f'  {v}.png exists, skip')
+                continue
+            print(f'  {v}.png copies the concept, redo')
         # The left and top views also get the front view, so the footprint and heights stay the same.
         refs = [concept]
         if v != 'front' and (d / 'front.png').exists():
@@ -92,7 +114,14 @@ def step_views(b, d, force, only=None):
         prompt = DATA['views'][v] + ' Do not include: ' + DATA['negative'] + ', perspective, three-quarter view.'
         if len(refs) > 1:
             prompt = 'The first attached image is the concept, the second is the front elevation of the same building. ' + prompt
-        ok = generate(b['id'], 'views', out, prompt, refs) and ok
+        if v != 'top':
+            prompt = STRICT.format(face={'front': 'front (the side with the main entrance)', 'left': 'left side'}[v]) + prompt
+        for t in range(TRIES):
+            done = generate(b['id'], 'views', out, prompt, refs)
+            if not done or not copied(d, v):
+                break
+            log(b['id'], 'views', f'{v}.png copies the concept (difference {difference(d / "concept.png", out):.1f}), try {t + 2}')
+        ok = done and not copied(d, v) and ok
     return ok
 
 

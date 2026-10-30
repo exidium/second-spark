@@ -62,3 +62,153 @@
 2026-10-30 11:11:09  house-6    concept   ok concept.png (455 KB, 9 s, model gemini-3.1-flash-image, refs: none)
 2026-10-30 11:11:18  house-7    concept   ok concept.png (404 KB, 8 s, model gemini-3.1-flash-image, refs: none)
 2026-10-30 11:11:27  house-8    concept   ok concept.png (496 KB, 9 s, model gemini-3.1-flash-image, refs: none)
+2026-10-30 11:16:16  cemetery   views     ok front.png (517 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:16:28  cemetery   views     ok left.png (501 KB, 12 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:16:37  cemetery   views     ok top.png (613 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:16:48  square     views     ok front.png (516 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:16:59  square     views     ok left.png (530 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:17:09  square     views     ok top.png (514 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:17:18  slaughter  views     ok front.png (467 KB, 8 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:17:27  slaughter  views     ok left.png (352 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:17:37  slaughter  views     ok top.png (460 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:17:48  church     views     ok front.png (377 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:17:59  church     views     ok left.png (447 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:18:08  church     views     ok top.png (313 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:18:17  first      views     ok front.png (475 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:18:28  first      views     ok left.png (501 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:18:39  first      views     ok top.png (475 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:18:49  morgue     views     ok front.png (464 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:18:59  morgue     views     ok left.png (511 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:19:09  morgue     views     ok top.png (471 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:19:19  market     views     ok front.png (449 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:19:28  market     views     ok left.png (492 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:19:38  market     views     ok top.png (394 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:19:49  hospital   views     ok front.png (492 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:19:58  hospital   views     ok left.png (539 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:20:10  hospital   views     ok top.png (534 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:20:19  academy    views     ok front.png (482 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:20:41  cemetery   views     ok front.png (499 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:20:41  cemetery   views     front.png copies the concept (difference 2.3), try 2
+2026-10-30 11:20:50  cemetery   views     ok front.png (323 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:21:00  cemetery   views     ok left.png (428 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:21:33  cemetery   views     ok front.png (485 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:21:44  cemetery   views     ok left.png (496 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:21:58  cemetery   views     ok top.png (591 KB, 14 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:22:25  square     views     ok front.png (516 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:22:25  square     views     front.png copies the concept (difference 2.1), try 2
+2026-10-30 11:22:35  square     views     ok front.png (515 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:22:35  square     views     front.png copies the concept (difference 2.4), try 3
+2026-10-30 11:22:44  square     views     ok front.png (413 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:22:54  square     views     ok left.png (466 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:23:06  slaughter  views     ok front.png (501 KB, 12 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:23:06  slaughter  views     front.png copies the concept (difference 9.7), try 2
+2026-10-30 11:23:18  slaughter  views     ok front.png (420 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:23:26  church     views     ok front.png (340 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:23:37  morgue     views     ok front.png (400 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:23:47  morgue     views     ok left.png (491 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:23:58  market     views     ok front.png (438 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:23:58  market     views     front.png copies the concept (difference 10.7), try 2
+2026-10-30 11:24:09  market     views     ok front.png (448 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:24:09  market     views     front.png copies the concept (difference 10.3), try 3
+2026-10-30 11:24:19  market     views     ok front.png (373 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:24:29  market     views     ok left.png (477 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:24:40  hospital   views     ok front.png (500 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:24:40  hospital   views     front.png copies the concept (difference 10.2), try 2
+2026-10-30 11:24:51  hospital   views     ok front.png (439 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:25:02  hospital   views     ok left.png (551 KB, 12 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:25:12  academy    views     ok front.png (502 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:25:12  academy    views     front.png copies the concept (difference 2.4), try 2
+2026-10-30 11:25:22  academy    views     ok front.png (509 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:25:32  academy    views     ok left.png (569 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:25:44  academy    views     ok top.png (432 KB, 13 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:25:54  docks      views     ok front.png (519 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:25:54  docks      views     front.png copies the concept (difference 11.9), try 2
+2026-10-30 11:26:04  docks      views     ok front.png (512 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:26:04  docks      views     front.png copies the concept (difference 8.4), try 3
+2026-10-30 11:26:14  docks      views     ok front.png (509 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:26:25  docks      views     ok left.png (503 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:26:25  docks      views     left.png copies the concept (difference 2.5), try 2
+2026-10-30 11:26:37  docks      views     ok left.png (592 KB, 12 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:26:47  docks      views     ok top.png (474 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:26:57  alley      views     ok front.png (458 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:26:57  alley      views     front.png copies the concept (difference 11.4), try 2
+2026-10-30 11:27:07  alley      views     ok front.png (445 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:27:23  alley      views     ok left.png (513 KB, 16 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:27:33  alley      views     ok top.png (420 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:27:42  odeon      views     ok front.png (415 KB, 9 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:27:57  odeon      views     ok left.png (521 KB, 15 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:28:07  odeon      views     ok top.png (521 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:28:19  house-1    views     ok front.png (395 KB, 12 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:28:19  house-1    views     front.png copies the concept (difference 6.2), try 2
+2026-10-30 11:28:30  house-1    views     ok front.png (409 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:28:30  house-1    views     front.png copies the concept (difference 3.4), try 3
+2026-10-30 11:28:40  house-1    views     ok front.png (433 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:28:40  house-1    views     front.png copies the concept (difference 2.0), try 4
+2026-10-30 11:28:50  house-1    views     ok left.png (418 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:28:50  house-1    views     left.png copies the concept (difference 8.9), try 2
+2026-10-30 11:29:01  house-1    views     ok left.png (414 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:29:02  house-1    views     left.png copies the concept (difference 9.6), try 3
+2026-10-30 11:29:11  house-1    views     ok left.png (306 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:29:11  house-1    views     left.png copies the concept (difference 10.8), try 4
+2026-10-30 11:29:22  house-1    views     ok top.png (426 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:29:33  house-2    views     ok front.png (440 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:29:43  house-2    views     ok left.png (525 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:29:53  house-2    views     ok top.png (447 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:30:03  house-3    views     ok front.png (385 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:30:14  house-3    views     ok left.png (380 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:30:25  house-3    views     ok top.png (422 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png, front.png)
+2026-10-30 11:30:26  house-4    views     FAILED front.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 11:30:26  house-4    views     FAILED left.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 11:30:27  house-4    views     FAILED top.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 11:30:27  house-5    views     FAILED front.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 11:30:37  house-5    views     ok left.png (451 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:30:37  house-5    views     left.png copies the concept (difference 2.2), try 2
+2026-10-30 11:30:47  house-5    views     ok left.png (456 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:30:47  house-5    views     left.png copies the concept (difference 10.2), try 3
+2026-10-30 11:30:49  house-5    views     FAILED left.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 11:30:58  house-5    views     ok top.png (360 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:31:09  house-6    views     ok front.png (467 KB, 11 s, model gemini-3.1-flash-image, refs: concept.png)
+2026-10-30 11:31:10  house-6    views     FAILED left.png (model gemini-3.1-flash-image, refs: concept.png, front.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 11:31:10  house-6    views     FAILED top.png (model gemini-3.1-flash-image, refs: concept.png, front.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 11:31:10  house-7    views     FAILED front.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 11:31:11  house-7    views     FAILED left.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 11:31:11  house-7    views     FAILED top.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 11:31:12  house-8    views     FAILED front.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 11:31:12  house-8    views     FAILED left.png (model gemini-3.1-flash-image, refs: concept.png): HTTP 402: {
+  "error": {
+    "code": 402,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage y
+2026-10-30 11:31:22  house-8    views     ok top.png (425 KB, 10 s, model gemini-3.1-flash-image, refs: concept.png)
