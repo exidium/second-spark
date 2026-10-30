@@ -1,6 +1,145 @@
 {
- "about": "3D models made through the 3D AI Studio MCP (D173): Prism 3.1 from out/<id>/concept.png, then Smart Low Poly 3.0 to the building's triangle target, then finish.py (turn, origin, height in metres) into godot/assets/models/<id>.glb. Task ids are in Bruno's 3D AI Studio dashboard, project 'Second Spark'.",
+ "about": "3D models made through the 3D AI Studio MCP (D173): Prism 3.1 from out/<id>/concept.png, then Smart Low Poly 3.0 to the building's triangle target, then finish.py (turn, origin, height in metres, textures capped at 512 px for houses and 1024 px for landmarks, saved as JPEG) into godot/assets/models/<id>.glb. Task ids are in Bruno's 3D AI Studio dashboard, project 'Second Spark'.",
  "models": {
-  "church": {"prism": "41a6294f-180f-4d3c-829f-3d2790522757", "low_poly": "38e51053-08e9-4608-b3b0-6198a085ccc5", "triangles": 5945, "turn": -90, "size_m": [46.0, 50.9, 55.0]}
+  "church": {
+   "prism": "41a6294f-180f-4d3c-829f-3d2790522757",
+   "low_poly": "38e51053-08e9-4608-b3b0-6198a085ccc5",
+   "turn": -90,
+   "height_m": 55,
+   "texture_px": 1024
+  },
+  "cemetery": {
+   "prism": "2deec0af-f976-4265-827a-b492a9027995",
+   "low_poly": "6f5b0fd8-fa6a-4c5d-843e-0cb9441f067a",
+   "height_m": 22,
+   "turn": -90,
+   "texture_px": 1024
+  },
+  "square": {
+   "prism": "60e479ae-422c-4a0b-afb7-42bc8d7ef628",
+   "low_poly": "da82ed34-bbff-4599-9d2d-8e451e3c276c",
+   "height_m": 20,
+   "turn": -90,
+   "texture_px": 1024
+  },
+  "slaughter": {
+   "prism": "a0294469-b989-4476-be18-01b1f82a670c",
+   "low_poly": "69bf1d9b-ee4d-400e-9ef6-14a26f43d767",
+   "height_m": 20,
+   "turn": -90,
+   "texture_px": 1024
+  },
+  "first": {
+   "prism": "bb66a972-74ab-4e5b-aac6-7bc09187fded",
+   "low_poly": "26219a07-439a-4e56-93ae-e4a831039dca",
+   "height_m": 60,
+   "turn": -90,
+   "texture_px": 1024
+  },
+  "morgue": {
+   "prism": "f93b046f-25ec-4e35-966a-08eab51a9df7",
+   "low_poly": "fb7e8dd5-2029-4d05-9563-9b7c854e66b2",
+   "height_m": 15,
+   "turn": -90,
+   "texture_px": 1024
+  },
+  "market": {
+   "prism": "6c53f025-ec29-4ce9-97ce-7541528714f1",
+   "low_poly": "f7b01bd8-5844-4dfb-b8ca-bae59e7d28a4",
+   "height_m": 21,
+   "turn": -90,
+   "texture_px": 1024
+  },
+  "hospital": {
+   "prism": "57889654-cc29-4cc1-9cad-0d9ed45712ea",
+   "low_poly": "58979703-9c0a-4b99-944f-c881d2b2560e",
+   "height_m": 26,
+   "turn": -90,
+   "texture_px": 1024
+  },
+  "academy": {
+   "prism": "da0731d7-8966-4016-a028-db414fb2bccb",
+   "low_poly": "cd142d78-f6a3-433b-9569-a084244d4214",
+   "height_m": 32,
+   "turn": -90,
+   "texture_px": 1024
+  },
+  "docks": {
+   "prism": "e15cf91c-f0cc-4834-b1bd-e5990212dded",
+   "low_poly": "827c8ebe-abb8-4f99-8e94-6f67c9f361bb",
+   "height_m": 24,
+   "turn": -90,
+   "texture_px": 1024
+  },
+  "alley": {
+   "prism": "d7d23834-fa02-4f7c-8952-70364ef0dba0",
+   "low_poly": "4bb74b06-aef2-4d1e-a88f-bec38c4289d2",
+   "height_m": 24,
+   "turn": -90,
+   "texture_px": 1024
+  },
+  "odeon": {
+   "prism": "1c949987-c41c-4902-aa4f-93bdbfa0bc11",
+   "low_poly": "8ae1f90a-bd5f-409f-91eb-074128e37e0e",
+   "height_m": 32,
+   "turn": -90,
+   "texture_px": 1024
+  },
+  "house-1": {
+   "prism": "8d65bf3b-36d3-49eb-ac4d-b46b9b390dad",
+   "low_poly": "2b5865bb-7f7f-4418-96e6-4663c9e061a7",
+   "height_m": 24,
+   "turn": -90,
+   "texture_px": 512
+  },
+  "house-2": {
+   "prism": "4e080513-72fe-4b3a-9522-93a8248b362d",
+   "low_poly": "53a958da-eb0f-4c3e-8601-2c76a2a8ef0e",
+   "height_m": 21,
+   "turn": -90,
+   "texture_px": 512
+  },
+  "house-3": {
+   "prism": "961a14f2-c690-40da-b30d-ebe1458fff17",
+   "low_poly": "11aa803f-3704-46c6-bdef-8a0ff1d9d2ca",
+   "height_m": 20,
+   "turn": -90,
+   "texture_px": 512
+  },
+  "house-4": {
+   "prism": "85c00952-a881-4763-a984-7da1fdbcd07a",
+   "low_poly": "054b3add-7492-4077-ad9e-eb84bd7d3e5d",
+   "height_m": 26,
+   "turn": -90,
+   "texture_px": 512
+  },
+  "house-5": {
+   "prism": "6e98e372-571b-4369-a4a1-dd5c3b120a75",
+   "low_poly": "32d94f92-b451-4d41-83c1-b694cd97126f",
+   "height_m": 22,
+   "turn": -90,
+   "texture_px": 512
+  },
+  "house-6": {
+   "prism": "f64557d3-9137-4a1f-8d84-5d25e2d8c15d",
+   "low_poly": "a1cf181e-25ac-47db-b349-d01273e3e158",
+   "height_m": 16,
+   "turn": -90,
+   "texture_px": 512
+  },
+  "house-7": {
+   "prism": "626d8f2d-b0fc-425c-887c-fba0a999d9b6",
+   "low_poly": "fce6f7eb-a080-4321-b72a-e9c56458c4e8",
+   "height_m": 23,
+   "turn": -90,
+   "texture_px": 512
+  },
+  "house-8": {
+   "prism": "654fac3a-bb02-4a5f-aed1-d8811a721d9e",
+   "low_poly": "f5117f18-ef1c-47c5-a4cb-f753d442fa72",
+   "height_m": 15,
+   "turn": -90,
+   "texture_px": 512
+  }
  }
 }

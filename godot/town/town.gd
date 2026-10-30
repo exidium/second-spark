@@ -613,6 +613,17 @@ func _model(id: String) -> Node3D:
 		return (load(path) as PackedScene).instantiate()
 	return null
 
+## Half the width (x) and depth (z) of a model's meshes, in metres.
+func _half_size(m: Node3D) -> Vector2:
+	var box := AABB()
+	var first := true
+	for n in m.find_children("*", "MeshInstance3D", true, false):
+		var mi := n as MeshInstance3D
+		var b: AABB = mi.transform * mi.mesh.get_aabb()
+		box = b if first else box.merge(b)
+		first = false
+	return Vector2(maxf(absf(box.position.x), absf(box.end.x)), maxf(absf(box.position.z), absf(box.end.z)))
+
 func _label(id: String, c: Vector2) -> void:
 	labels.append({"text": PLACES[id].name, "col": Color(PLACES[id].col), "pos": Vector3(c.x, PLACES[id].h, c.y)})
 	lights.append({"pos": Vector3(c.x, 12.0, c.y + 14), "col": Color(PLACES[id].col), "energy": 10.0, "range": 48.0})
@@ -667,9 +678,12 @@ func _build_landmarks(root: Node3D, k: Kit) -> void:
 	for id in PLACES:
 		var c := P(PLACES[id].pos)
 		var ang: float = PLACES[id].ang
-		mark(c, ang, 30, 24, 4)
-		_label(id, c)
 		var m := _model(id)
+		var half := Vector2(30, 24)
+		if m != null:   # keep the model's own footprint clear, plus a 4 m pavement round it
+			half = _half_size(m) + Vector2(4, 4)
+		mark(c, ang, half.x, half.y, 4)
+		_label(id, c)
 		if m != null:
 			m.position = Vector3(c.x, 0, c.y)
 			m.rotation.y = -ang

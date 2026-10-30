@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://n72c2juw58et"
-path="res://.godot/imported/church_tripo_node_491bf690-331d-410a-aecd-82808_Metallic-tripo_node_491bf690-331d-410a-aecd-82808_Roughness.png-ff261bb79e4f3938b157bc2dc47efca9.ctex"
+uid="uid://nvcd7nh2lgam"
+path="res://.godot/imported/house-4_tripo_node_5ff4d8f5-5481-4b48-b6da-db8c9_Metallic-tripo_node_5ff4d8f5-5481-4b48-b6da-db8c9_Roughness.jpg-98438030cd465095f277d3cab4bd69bf.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "1f52a6d5ef7e4f860abbea763964eb1f"
+"md5": "24085f4d0185e78b5a3539d0a267490a"
 }
 
 [deps]
 
-source_file="res://assets/models/church_tripo_node_491bf690-331d-410a-aecd-82808_Metallic-tripo_node_491bf690-331d-410a-aecd-82808_Roughness.png"
-dest_files=["res://.godot/imported/church_tripo_node_491bf690-331d-410a-aecd-82808_Metallic-tripo_node_491bf690-331d-410a-aecd-82808_Roughness.png-ff261bb79e4f3938b157bc2dc47efca9.ctex"]
+source_file="res://assets/models/house-4_tripo_node_5ff4d8f5-5481-4b48-b6da-db8c9_Metallic-tripo_node_5ff4d8f5-5481-4b48-b6da-db8c9_Roughness.jpg"
+dest_files=["res://.godot/imported/house-4_tripo_node_5ff4d8f5-5481-4b48-b6da-db8c9_Metallic-tripo_node_5ff4d8f5-5481-4b48-b6da-db8c9_Roughness.jpg-98438030cd465095f277d3cab4bd69bf.ctex"]
 
 [params]
 

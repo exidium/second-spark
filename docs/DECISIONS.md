@@ -575,3 +575,6 @@ Three candidates came from Nano Banana (`gemini-3.1-flash-image`) for a seamless
 - `buildings.json` now carries each building's height (a typical house about 20 m, Saint-Roch's spire 55 m, the cathedral's 80 m) and triangle target (houses 500 to 800, landmarks 2,000 to 8,000).
 - Saint-Roch: 5,945 triangles, 46 x 51 x 55 m, 2.8 MB with 2048 px colour and 1024 px normal and roughness maps.
 - `town_main.gd`: `TOWN_SHOT_AT=<place id>` adds a close view of that place as `tests/town-5.png`.
+- All 20 made the same way (Bruno: "go ahead."). Every generated model faced +X, so every one is turned -90 degrees. Triangles: landmarks 2,028 (morgue) to 9,078 (cathedral), houses 278 to 843. Textures are capped at 512 px for houses and 1024 px for landmarks and saved as JPEG: the 20 files total 12 MB.
+- The cathedral is lowered from 80 to 60 m to the spire (58 x 94 m): at 80 m it was 77 x 126 m and swallowed its block. Each landmark's clear plot now follows its model's own footprint plus a 4 m pavement (`_half_size()` in `town.gd`), instead of a fixed 60 x 48 m.
+- The eight houses are in `godot/assets/models/` but the town does not place them yet; the terraces are still drawn by `gothic_house()`.
