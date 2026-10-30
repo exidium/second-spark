@@ -6,13 +6,13 @@ extends Node3D
 
 const MAP := 1.0                       # the map is 1 m across: board percent 0..100
 const PLACES := Town.PLACES            # names, colours and facings, shared with the town
-const RING := 0.031                    # the inked circles on the drawn map: 32 px of 1024, in metres (D179)
+const RING := 0.043                    # the inked circles on the drawn map: 44 px of 1024, in metres (D179)
 ## Where each landmark's circle is on the drawn map, in map percent (D179, measured from map.png).
 const SPOTS := {
-	"square": Vector2(10.4, 10.6), "cemetery": Vector2(12.9, 28.7), "church": Vector2(12.1, 64.4),
-	"odeon": Vector2(15.8, 88.9), "market": Vector2(29.3, 71.5), "docks": Vector2(53.1, 70.6),
-	"hospital": Vector2(48.9, 33.4), "slaughter": Vector2(70.3, 23.2), "first": Vector2(91.3, 13.1),
-	"academy": Vector2(89.0, 40.7), "morgue": Vector2(84.2, 64.1), "alley": Vector2(93.3, 88.5),
+	"square": Vector2(10.4, 10.2), "cemetery": Vector2(13.9, 27.3), "church": Vector2(12.2, 59.2),
+	"odeon": Vector2(15.7, 83.7), "market": Vector2(28.3, 66.9), "docks": Vector2(51.0, 68.4),
+	"hospital": Vector2(47.3, 32.6), "slaughter": Vector2(66.4, 22.8), "first": Vector2(91.3, 11.3),
+	"academy": Vector2(89.3, 37.4), "morgue": Vector2(82.7, 59.3), "alley": Vector2(90.0, 82.9),
 }
 const SIT := Vector3(0, 0.92, 0.78)    # your eyes, high over the south edge: a steeper look down, the map fills the screen (D178)
 const LOOK := Vector3(0, 0, 0.03)      # the map's middle, a little north

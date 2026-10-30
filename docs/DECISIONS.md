@@ -616,4 +616,5 @@ Three candidates came from Nano Banana (`gemini-3.1-flash-image`) for a seamless
 - Made in Higgsfield from a text-only prompt, no reference image; source `art/source/ui/map.png` (1024 px), copied to `godot/assets/cabin/map.png` (mipmaps on) and `art-pipeline/out/cabin/map-drawn.png`.
 - The circles did not land on the board percentages, so the cabin places each miniature on its circle: `SPOTS` in `cabin.gd`, measured by a ring fit (all radius 31 to 33 px). Each landmark takes the nearest circle to its old spot; the morgue moves from the islands to the right bank, the hospital stays on the island.
 - The circles are 6.2 cm across, so the miniatures shrink to fit: the wooden base fills the ring (`RING`), the ink just showing around it. About 5 cm across instead of 7.5 cm (the cathedral the same size as the rest).
-- Known flaw in the drawing: the bridge left of the lower river has a road on one bank only.
+- Then Bruno edited it for bigger circles and the broken bridge (`art/source/ui/map02.png`, now the cabin map). The edit moved every circle a little, so `SPOTS` were measured again; rings are 40 to 48 px (`RING` 4.3 cm), the miniatures about 6.5 cm across.
+- Known flaws in map02: the road from the left still stops at the lower river's left bank, and the new bridge by the docks reaches the right bank with no road beyond it.
