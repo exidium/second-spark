@@ -24,7 +24,8 @@ var hovered := ""
 var leaning := ""
 var pawn: Node3D
 var pawn_at := Vector3(0.12, 0, 0.58)  # on the table, before the map
-var candles := []                      # [OmniLight3D, flame MeshInstance3D, base energy, seed, lit 0..1]
+var candles := []                      # [OmniLight3D, flame Node3D, base energy, seed, lit 0..1]
+var candle_own := []                   # each candle's small light on its own wax (D181)
 var tag: PanelContainer
 var tag_label: Label
 var cam_from := Transform3D()
@@ -168,22 +169,20 @@ func on_map(b: Vector2) -> Vector3:
 
 func _miniatures() -> void:
 	var base_mat := _col_mat(Color("#3a2a1e"), 0.7)
+	var kit := Landmarks.new()
 	for id: String in PLACES:
-		var path := "res://assets/cabin/%s.glb" % id
-		if not ResourceLoader.exists(path):
-			continue
 		var holder := Node3D.new()
 		holder.position = on_map(SPOTS[id])
 		holder.rotation.y = -float(PLACES[id].ang)
 		add_child(holder)
-		var model := (load(path) as PackedScene).instantiate() as Node3D
+		# Dead simple white models built in code, in centimetres (D181).
+		var model := kit.build(id)
 		var box := _aabb(model)
-		# The wooden base fills the inked circle, the ring just showing around it.
-		var s := RING * 0.92 / 0.62 / maxf(box.size.x, box.size.z)
+		var s := 0.01
 		model.scale = Vector3.ONE * s
 		model.position = Vector3(0, 0.006, 0)
 		holder.add_child(model)
-		var r := maxf(box.size.x, box.size.z) * s * 0.62
+		var r := RING * 0.92                  # the wooden base fills the inked circle, the ring just showing
 		var base := _mesh(_cyl(r, r * 1.04, 0.006, 32), base_mat, Vector3(0, 0.003, 0), holder)
 		base.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 		# A pick box, a little larger than the miniature.
@@ -275,13 +274,35 @@ func _pawn() -> void:
 	_mesh(_sphere(0.009), bone, Vector3(0, 0.043, 0), pawn)
 	pawn.position = pawn_at
 
-func _candle(pos: Vector3, h: float, energy: float) -> void:
-	var wax := _col_mat(Color("#d8cdb4"), 0.6)
-	_mesh(_cyl(0.05, 0.06, 0.012), _col_mat(Color("#5b4a2e"), 0.4, 0.6), pos + Vector3(0, 0.006, 0))   # brass dish
-	_mesh(_cyl(0.022, 0.025, h), wax, pos + Vector3(0, 0.012 + h / 2, 0))
-	_mesh(_cyl(0.026, 0.02, 0.02), wax, pos + Vector3(0.006, 0.012 + h - 0.03, 0.004))                  # a wax drip
-	var flame := _mesh(_sphere(0.007, 0.026), _col_mat(Color("#ffc46b"), 0.5, 0.0, 9.0), pos + Vector3(0, 0.012 + h + 0.016, 0))
-	flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+## Bruno's melted candle (D181), with a flame drawn by `flame.gdshader`, a soft glow round it and a flickering light.
+const WICK := Vector3(0.0005, 0.16, 0.0366)   # the wick's tip on candle.glb, in metres at scale 1
+
+func _prop(path: String, pos: Vector3, turn_deg: float, size := 1.0, shadows := true) -> Node3D:
+	var n := (load(path) as PackedScene).instantiate() as Node3D
+	n.position = pos
+	n.rotation_degrees.y = turn_deg
+	n.scale = Vector3.ONE * size
+	add_child(n)
+	for c in n.find_children("*", "MeshInstance3D", true, false):
+		(c as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON if shadows else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return n
+
+func _candle(pos: Vector3, size: float, turn_deg: float, energy: float) -> void:
+	# The candle itself casts no shadow: the light sits just over its wick and would black out the table round it.
+	var c := _prop("res://assets/cabin/props/candle.glb", pos, turn_deg, size, false)
+	var tip := c.transform * WICK
+	var flame := Node3D.new()
+	flame.position = tip
+	add_child(flame)
+	var q := QuadMesh.new()
+	q.size = Vector2(1, 1)
+	q.center_offset = Vector3(0, 0.5, 0)      # from the wick up
+	var fm := ShaderMaterial.new()
+	fm.shader = load("res://cabin/flame.gdshader")
+	fm.set_shader_parameter("seed", randf() * 100.0)
+	var fq := _mesh(q, fm, Vector3(0, -0.003 * size, 0), flame)
+	fq.scale = Vector3(0.02, 0.032, 1.0) * size
+	fq.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var light := OmniLight3D.new()
 	light.light_color = Color("#ffb060")
 	light.light_energy = 0.0
@@ -291,25 +312,41 @@ func _candle(pos: Vector3, h: float, energy: float) -> void:
 	light.shadow_blur = 1.5
 	light.shadow_bias = 0.004          # the pieces are centimetres tall: the default bias detaches their shadows
 	light.shadow_normal_bias = 0.3
-	light.light_volumetric_fog_energy = 1.5
-	light.position = pos + Vector3(0, 0.012 + h + 0.03, 0)
+	light.light_volumetric_fog_energy = 0.8
+	light.position = tip + Vector3(0, 0.012 * size, 0)   # in the flame; the candle itself is lit by its own small light
 	add_child(light)
+	# A soft contact shadow under the dish, since the candle casts none.
+	var blob_shader := Shader.new()
+	blob_shader.code = "shader_type spatial; render_mode unshaded, depth_draw_never, shadows_disabled;\n" + \
+		"void fragment() { ALBEDO = vec3(0.0); ALPHA = 0.8 * (1.0 - smoothstep(0.18, 0.5, length(UV - 0.5))); }"
+	var sm := ShaderMaterial.new()
+	sm.shader = blob_shader
+	var sp := PlaneMesh.new()
+	sp.size = Vector2(0.2, 0.2) * size
+	var blob := _mesh(sp, sm, c.position + Vector3(0, 0.0015, 0))
+	blob.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# The room lights skip the candle itself (it sits a few centimetres under them and would burn white); a small dim
+	# light of its own, on layer 2 only, shows its wax and dish.
+	for m in c.find_children("*", "MeshInstance3D", true, false):
+		(m as MeshInstance3D).layers = 2
+	light.light_cull_mask = 0xFFFFF & ~2
+	var own := OmniLight3D.new()
+	own.light_color = Color("#ffb060")
+	own.light_energy = 0.0
+	own.omni_range = 0.35
+	own.light_cull_mask = 2
+	own.position = tip + Vector3(0, 0.012 * size, 0.0)
+	add_child(own)
+	candle_own.append(own)
 	flame.scale = Vector3(0.01, 0.01, 0.01)
 	candles.append([light, flame, energy, randf() * 100.0, 0.0])
 
 func _props() -> void:
-	_candle(Vector3(-0.68, 0, 0.18), 0.17, 0.55)
-	_candle(Vector3(0.72, 0, -0.42), 0.24, 0.45)
-	# A specimen jar: glass, a dark thing floating in it, a brass lid.
-	var jar := Vector3(-0.72, 0, -0.38)
-	var glass := _col_mat(Color(0.75, 0.82, 0.7, 0.22), 0.05, 0.0)
-	glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_mesh(_cyl(0.065, 0.065, 0.18, 32), glass, jar + Vector3(0, 0.09, 0))
-	var liquid := _col_mat(Color(0.45, 0.55, 0.3, 0.35), 0.1)
-	liquid.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_mesh(_cyl(0.06, 0.06, 0.14, 32), liquid, jar + Vector3(0, 0.075, 0))
-	_mesh(_sphere(0.032, 0.05), _col_mat(Color("#5a2420"), 0.4), jar + Vector3(0, 0.08, 0)).rotation_degrees = Vector3(20, 0, 35)
-	_mesh(_cyl(0.068, 0.068, 0.018, 32), _col_mat(Color("#5b4a2e"), 0.35, 0.7), jar + Vector3(0, 0.189, 0))
+	_candle(Vector3(-0.68, 0, 0.18), 1.05, 30, 0.55)
+	_candle(Vector3(0.72, 0, -0.42), 1.3, -50, 0.45)
+	# Bruno's Leyden jar where the specimen jar stood, and his scalpel by the map.
+	_prop("res://assets/cabin/props/leiden.glb", Vector3(-0.72, 0, -0.38), 20)
+	_prop("res://assets/cabin/props/scalpel.glb", Vector3(-0.6, 0, 0.44), 62)
 	# A brass bell.
 	var bell := Vector3(0.62, 0, 0.36)
 	var brass := _col_mat(Color("#8a6a32"), 0.3, 0.85)
@@ -418,11 +455,13 @@ func _process(delta: float) -> void:
 	# Candles: flicker, brighter as each flame finishes lighting.
 	for c: Array in candles:
 		var light: OmniLight3D = c[0]
-		var flame: MeshInstance3D = c[1]
+		var flame: Node3D = c[1]
 		var s: float = c[3]
 		var lit: float = c[4]
 		var f := 0.82 + 0.1 * sin(t_total * 7.3 + s) + 0.06 * sin(t_total * 13.1 + s * 2.0) + randf_range(-0.04, 0.04)
 		light.light_energy = float(c[2]) * f * maxf(0.0, lit)
+		var own: OmniLight3D = candle_own[candles.find(c)]
+		own.light_energy = 0.12 * f * maxf(0.0, lit)
 		flame.scale = Vector3(lit, lit * (0.8 + 0.25 * f), lit).max(Vector3.ONE * 0.01)
 	# The camera: ease toward its goal, then breathe.
 	if cam_t < 1.0:
@@ -527,6 +566,15 @@ func _shots() -> void:
 		cam_from = Transform3D(Basis(), Vector3(0, 1.6, 0.01)).looking_at(Vector3.ZERO, Vector3.UP)
 		cam_to = cam_from
 		await _save("res://../tests/cabin-top.png")
+	# CABIN_LOOK="eye x,y,z;target x,y,z[;name]" saves one extra close-up view (tests/cabin-<name>.png).
+	for spec in OS.get_environment("CABIN_LOOK").split("|", false):
+		var parts := spec.split(";")
+		var e := parts[0].split_floats(",")
+		var t := parts[1].split_floats(",")
+		cam_t = 1.0
+		cam_from = Transform3D(Basis(), Vector3(e[0], e[1], e[2])).looking_at(Vector3(t[0], t[1], t[2]), Vector3.UP)
+		cam_to = cam_from
+		await _save("res://../tests/cabin-%s.png" % (parts[2] if parts.size() > 2 else "look"))
 	set_hover("first")
 	await get_tree().create_timer(0.5).timeout
 	await _save("res://../tests/cabin-2.png")
