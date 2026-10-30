@@ -386,8 +386,9 @@ func _candle(pos: Vector3, size: float, turn_deg: float, energy: float) -> void:
 	candles.append([light, flame, energy, randf() * 100.0, 0.0])
 
 func _props() -> void:
-	# One candle (D182), a little stronger now it lights the table alone.
-	_candle(Vector3(-0.68, 0, 0.18), 1.15, 30, 1.1)
+	# Two candles again (D183): front left and back right, each a little stronger than in D181.
+	_candle(Vector3(-0.68, 0, 0.18), 1.15, 30, 0.7)
+	_candle(Vector3(0.72, 0, -0.42), 1.3, -50, 0.6)
 	# Bruno's Leyden jar where the specimen jar stood, its upper body glass (D182), and his scalpel by the map.
 	var jar := _prop("res://assets/cabin/props/leiden_glass.glb", Vector3(-0.72, 0, -0.38), 20)
 	var glass := _col_mat(Color(0.82, 0.88, 0.84, 0.16), 0.04)

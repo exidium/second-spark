@@ -639,3 +639,6 @@ Three candidates came from Nano Banana (`gemini-3.1-flash-image`) for a seamless
 - Name plates (`_name_plate()` in `cabin.gd`): a thin aged brass plate with a dark rim, the name engraved in capitals (Amarante), lying flat on the map just south of each landmark's base, 2.2 cm deep and 8.8 mm wide per letter, readable from the seat. They appear just after their landmark in the intro. The floating paper tag (D177) is gone.
 - Hover (a landmark or its plate): the landmark lifts and tilts as before, and the plate stands up on its front edge to 62 degrees, facing you, with a little warm glow; it drops back flat with a small bounce when the mouse leaves.
 - `village.py` keeps houses and trees off every plate (the village was placed again).
+
+## D183: Two candles again
+Bruno: "add back the second candle. its too dark now". The back-right candle from D181 returns at (0.72, -0.42). With two candles each is a little stronger than in D181 (0.7 front left, 0.6 back right, was 0.55 and 0.45), so the far side of the map reads as well as the near side. D182's single candle at 1.1 is gone.
