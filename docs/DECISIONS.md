@@ -611,3 +611,9 @@ Three candidates came from Nano Banana (`gemini-3.1-flash-image`) for a seamless
 
 **D178. The cabin's view looks down more steeply and the map fills most of the screen.** (Bruno: "make the view port less inclined. the table should occupy a bigger part of the table.")
 - The seat moves from 0.5 m up and 0.98 m back to 0.92 m up and 0.78 m back, looking at the map's middle; field of view 50. The whole map is in view, about 80% of the screen height. A first try straight from above (1.02 m up, 0.5 m back) cut off the south edge and flattened the miniatures.
+
+**D179. The cabin map is Bruno's hand-drawn map: river, roads, bridges and twelve empty circles, nothing else.** (Bruno, over several prompts: "do just the roads and space for landmarks", "more rustic, hand drawn", "No houses and trees please", "make the circles bigger", then "just added a file called map".)
+- Made in Higgsfield from a text-only prompt, no reference image; source `art/source/ui/map.png` (1024 px), copied to `godot/assets/cabin/map.png` (mipmaps on) and `art-pipeline/out/cabin/map-drawn.png`.
+- The circles did not land on the board percentages, so the cabin places each miniature on its circle: `SPOTS` in `cabin.gd`, measured by a ring fit (all radius 31 to 33 px). Each landmark takes the nearest circle to its old spot; the morgue moves from the islands to the right bank, the hospital stays on the island.
+- The circles are 6.2 cm across, so the miniatures shrink to fit: the wooden base fills the ring (`RING`), the ink just showing around it. About 5 cm across instead of 7.5 cm (the cathedral the same size as the rest).
+- Known flaw in the drawing: the bridge left of the lower river has a road on one bank only.

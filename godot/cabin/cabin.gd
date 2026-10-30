@@ -5,8 +5,15 @@ extends Node3D
 ## sit back. `-- --shot` saves tests/cabin-1..3.png and quits.
 
 const MAP := 1.0                       # the map is 1 m across: board percent 0..100
-const MINI := 0.075                    # a miniature's longest side, in metres
-const PLACES := Town.PLACES            # names, colours, board positions and facings, shared with the town
+const PLACES := Town.PLACES            # names, colours and facings, shared with the town
+const RING := 0.031                    # the inked circles on the drawn map: 32 px of 1024, in metres (D179)
+## Where each landmark's circle is on the drawn map, in map percent (D179, measured from map.png).
+const SPOTS := {
+	"square": Vector2(10.4, 10.6), "cemetery": Vector2(12.9, 28.7), "church": Vector2(12.1, 64.4),
+	"odeon": Vector2(15.8, 88.9), "market": Vector2(29.3, 71.5), "docks": Vector2(53.1, 70.6),
+	"hospital": Vector2(48.9, 33.4), "slaughter": Vector2(70.3, 23.2), "first": Vector2(91.3, 13.1),
+	"academy": Vector2(89.0, 40.7), "morgue": Vector2(84.2, 64.1), "alley": Vector2(93.3, 88.5),
+}
 const SIT := Vector3(0, 0.92, 0.78)    # your eyes, high over the south edge: a steeper look down, the map fills the screen (D178)
 const LOOK := Vector3(0, 0, 0.03)      # the map's middle, a little north
 
@@ -164,12 +171,13 @@ func _miniatures() -> void:
 		if not ResourceLoader.exists(path):
 			continue
 		var holder := Node3D.new()
-		holder.position = on_map(PLACES[id].pos)
+		holder.position = on_map(SPOTS[id])
 		holder.rotation.y = -float(PLACES[id].ang)
 		add_child(holder)
 		var model := (load(path) as PackedScene).instantiate() as Node3D
 		var box := _aabb(model)
-		var s := (0.11 if id == "first" else MINI) / maxf(box.size.x, box.size.z)
+		# The wooden base fills the inked circle, the ring just showing around it.
+		var s := RING * 0.92 / 0.62 / maxf(box.size.x, box.size.z)
 		model.scale = Vector3.ONE * s
 		model.position = Vector3(0, 0.006, 0)
 		holder.add_child(model)
@@ -188,7 +196,6 @@ func _miniatures() -> void:
 		holder.add_child(body)
 		holder.scale = Vector3(1, 0.001, 1)   # folded flat until the intro pops it up
 		minis[id] = {"node": holder, "height": box.size.y * s}
-		print("MINI %s at %s box %s scale %.4f" % [id, holder.position, box.size * s, s])
 
 func _aabb(n: Node3D) -> AABB:
 	var box := AABB()
