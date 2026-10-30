@@ -6,10 +6,10 @@ extends RefCounted
 ## Units are metres; the board's centre is the origin, +z is south (towards the camera). Positions are given in
 ## board percent (x right, y down) and converted with P().
 
-const SCALE := 12.0                 # metres per board percent: the board is 1.2 km across
+const SCALE := 5.0                  # metres per board percent: the village is 500 m across (D176; the city was 12)
 const STOREY := 3.3
-const DETAIL := 520.0               # beyond this, houses lose chimneys, windows and extras
-const BUILT := 950.0               # no streets or houses beyond this radius
+const DETAIL := 320.0               # beyond this, houses lose chimneys, windows and extras
+const BUILT := 330.0               # no streets or houses beyond this radius: countryside
 const GRID := 1.0
 const HALF := 1000.0
 const PITCH := 1.25
@@ -67,7 +67,6 @@ const PLACES := {
 	"alley": {"name": "Dark Alley", "col": "#b48ae0", "pos": Vector2(92, 80), "ang": 0.4, "h": 32},
 	"odeon": {"name": "Odéon", "col": "#d98cc0", "pos": Vector2(27, 90), "ang": 0.0, "h": 36},
 }
-const CATHEDRAL := Vector2(45.5, 19)
 # Quarters: the nearest one gives a house its walls, roof, height and window light.
 const QUARTERS := [
 	{"pos": Vector2(48, 40), "walls": {"stucco": 3, "blackstone": 3, "limestone": 2, "stone": 1}, "roofs": {"slate": 4, "fishscale": 2}, "floors": Vector2i(4, 6), "win": "win", "soot": 0.5},
@@ -94,6 +93,9 @@ var model_houses := 0
 # Bruno's house models (D174): godot/assets/models/house-N.glb, each {mesh, size}, and the transforms placed per kind.
 var house_kinds := []
 var house_xf := []
+const RIVER_INSET := 12.0           # metres the board's river is narrowed on each bank
+const SHEDS := 40
+const VILLAGE_HOUSES := 150         # about this many houses, in clusters along the roads
 const MODEL_HOUSES_WITHIN := 640.0   # model houses on the whole board (+-600 m) and a little round it; beyond, drawn (cheaper, in the fog)
 
 
@@ -140,6 +142,7 @@ func _make_mats() -> void:
 	mats["street"] = _tex("wet-cobbles", 0.45, 0.1)
 	mats["pave"] = _tex("flagstones", 0.5, 0.05)
 	mats["grass"] = _tex("grass")
+	mats["meadow"] = _col(Color("#3a4236"), 0.0, 1.0)   # the village ground: plain, no tile seams from far away
 	mats["water"] = _tex("water", 0.15, 0.3)
 	mats["water"].albedo_color = Color(0.62, 0.7, 0.78)
 	mats["iron"] = _col(Color("#15161a"), 0.0, 0.4)
@@ -231,10 +234,13 @@ func _fill_poly(poly: PackedVector2Array, v: int) -> void:
 # ---------------------------------------------------------------- the river and the ground
 
 func _build_water(k: Kit) -> void:
+	var polys: Array[PackedVector2Array] = []
 	for wp in WATER:
-		var poly := PackedVector2Array()
+		var raw := PackedVector2Array()
 		for b in wp:
-			poly.append(P(b))
+			raw.append(P(b))
+		polys.append_array(Geometry2D.offset_polygon(raw, -RIVER_INSET))   # a narrower river for the village
+	for poly in polys:
 		water_polys.append(poly)
 		_fill_poly(poly, 3)
 		# The water surface.
@@ -244,29 +250,19 @@ func _build_water(k: Kit) -> void:
 			var b := poly[tris[t + 1]]
 			var c := poly[tris[t + 2]]
 			k.tri("water", Vector3(a.x, -1.4, a.y), Vector3(b.x, -1.4, b.y), Vector3(c.x, -1.4, c.y), a / 22, b / 22, c / 22, Color(0.95, 1.0, 1.05))
-		# Stone embankments down to the water, a parapet along the top, a quay road behind it.
+		# A low stone bank down to the water.
 		for i in poly.size():
 			var a := poly[i]
 			var b := poly[(i + 1) % poly.size()]
 			if a.length() > BUILT + 200 and b.length() > BUILT + 200:
 				continue
 			k.wall("stone", a, b, -1.6, 0.25, 4, 4, Color(0.55, 0.57, 0.6))
-			var d := (b - a).normalized()
-			var nrm := Vector2(-d.y, d.x)
-			if Geometry2D.is_point_in_polygon(a + d * 2 + nrm * 3, poly):
-				nrm = -nrm
-			var len := a.distance_to(b)
-			k.box("stone", (a + b) / 2 + nrm * 0.5, len, 0.7, 0.25, 1.2, 3, 3, Color(0.62, 0.64, 0.68))
-			var qa := a + nrm * 7.5
-			var qb := b + nrm * 7.5
-			if (a + b).length() / 2 < BUILT:
-				street(k, qa, qb, 12.0, true)
 
 ## Boats on the river: barges and small craft, moored along the quays or out on the water.
 func _build_boats(k: Kit) -> void:
 	var placed := 0
 	var tries := 0
-	while placed < 70 and tries < 4000:
+	while placed < 18 and tries < 4000:
 		tries += 1
 		var c := Vector2(rng.randf_range(-DETAIL, DETAIL), rng.randf_range(-DETAIL, DETAIL))
 		if not in_water(c):
@@ -300,7 +296,7 @@ func is_free_water(c: Vector2, ang: float, hx: float, hz: float) -> bool:
 ## The land surface: one quad per run of dry cells on each grid row.
 func _build_land(k: Kit) -> void:
 	var n := int(2 * HALF / GRID)
-	var gc := Color(0.42, 0.43, 0.46)
+	var gc := Color(1, 1, 1)   # meadow: the village stands in the countryside
 	for zi in n:
 		var z := -HALF + zi * GRID
 		var row := zi * n
@@ -314,16 +310,32 @@ func _build_land(k: Kit) -> void:
 				xi += 1
 			var a := -HALF + x0 * GRID
 			var b := -HALF + xi * GRID
-			k.quad("pave", Vector3(a, 0, z + GRID), Vector3(b, 0, z + GRID), Vector3(b, 0, z), Vector3(a, 0, z), Vector2(a, z + GRID) / 6, Vector2(b, z + GRID) / 6, Vector2(b, z) / 6, Vector2(a, z) / 6, gc)
+			k.quad("meadow", Vector3(a, 0, z + GRID), Vector3(b, 0, z + GRID), Vector3(b, 0, z), Vector3(a, 0, z), Vector2(a, z + GRID) / 16, Vector2(b, z + GRID) / 16, Vector2(b, z) / 16, Vector2(a, z) / 16, gc)
 	# Beyond the grid, plain ground out to the fog.
 	for q in [[-3000.0, -3000.0, 3000.0, -HALF], [-3000.0, HALF, 3000.0, 3000.0], [-3000.0, -HALF, -HALF, HALF], [HALF, -HALF, 3000.0, HALF]]:
-		k.quad("pave", Vector3(q[0], -0.02, q[3]), Vector3(q[2], -0.02, q[3]), Vector3(q[2], -0.02, q[1]), Vector3(q[0], -0.02, q[1]), Vector2(q[0], q[3]) / 6, Vector2(q[2], q[3]) / 6, Vector2(q[2], q[1]) / 6, Vector2(q[0], q[1]) / 6, gc)
+		k.quad("meadow", Vector3(q[0], -0.02, q[3]), Vector3(q[2], -0.02, q[3]), Vector3(q[2], -0.02, q[1]), Vector3(q[0], -0.02, q[1]), Vector2(q[0], q[3]) / 16, Vector2(q[2], q[3]) / 16, Vector2(q[2], q[1]) / 16, Vector2(q[0], q[1]) / 16, gc)
 
 func _build_bridges(k: Kit) -> void:
 	for br in BRIDGES:
 		var a := P(br[0])
 		var b := P(br[1])
-		var w: float = br[2]
+		# The river is narrower than on the board: trim the bridge to the water it crosses, plus 5 m on each bank.
+		var dd := (b - a).normalized()
+		var first := -1.0
+		var last := -1.0
+		var u := 0.0
+		while u <= a.distance_to(b):
+			if in_water(a + dd * u):
+				if first < 0:
+					first = u
+				last = u
+			u += 1.0
+		if first < 0:
+			continue
+		var full := a.distance_to(b)
+		b = a + dd * minf(full, last + 5.0)
+		a = a + dd * maxf(0.0, first - 5.0)
+		var w: float = br[2] * 0.6
 		var d := (b - a).normalized()
 		var ang := d.angle()
 		var len := a.distance_to(b) + 12
@@ -405,85 +417,11 @@ func _build_roads(k: Kit) -> void:
 	for r in ROADS:
 		var pts: Array = r[0]
 		for i in pts.size() - 1:
-			street(k, P(pts[i]), P(pts[i + 1]), r[1], true)
+			street(k, P(pts[i]), P(pts[i + 1]), r[1] * 0.55, true)
 
-## Paris before Haussmann (D175): the Grands Boulevards as a tree-lined ring on the line of the old wall, quays along
-## every bank, small squares, then medieval lanes that wander off the streets already there and end on another street
-## (a T-junction) or in a dead end. Dense and crooked inside the ring, sparser and straighter in the faubourgs outside.
-const RING := 470.0
-
-func _ring_r(a: float) -> float:
-	return RING + 38.0 * sin(3.0 * a + 1.0) + 22.0 * sin(5.0 * a + 2.0)
-
-func _inside_ring(p: Vector2) -> bool:
-	return p.length() < _ring_r(p.angle())
-
-func _build_paris(k: Kit) -> void:
-	_build_boulevards(k)
-	_build_quays(k)
-	_build_placettes(k)
+## The village (D176): the board's roads between the landmarks and bridges, and a few lanes and tracks off them.
+func _build_village(k: Kit) -> void:
 	_build_lanes(k)
-
-func _build_boulevards(k: Kit) -> void:
-	var n := 96
-	for i in n:
-		var a0 := TAU * i / n
-		var a1 := TAU * (i + 1) / n
-		var p0 := Vector2(cos(a0), sin(a0)) * _ring_r(a0)
-		var p1 := Vector2(cos(a1), sin(a1)) * _ring_r(a1)
-		var before := streets.size()
-		street(k, p0, p1, 24.0, true)
-		for si in range(before, streets.size()):   # a row of trees on each side of the carriageway
-			var a: Vector2 = streets[si][0]
-			var b: Vector2 = streets[si][1]
-			var d := (b - a).normalized()
-			var nn := d.orthogonal()
-			var u := 4.0
-			while u < a.distance_to(b):
-				for sd: float in [-1.0, 1.0]:
-					var t := a + d * u + nn * sd * 8.5
-					trees.append([Vector3(t.x, 0.2, t.y), rng.randf_range(2.4, 3.0), _leaf()])
-				u += 9.0
-
-func _build_quays(k: Kit) -> void:
-	for poly in WATER:
-		var pts: Array = poly
-		for i in pts.size():
-			var a := P(pts[i])
-			var b := P(pts[(i + 1) % pts.size()])
-			var d := (b - a).normalized()
-			var nn := d.orthogonal()
-			if in_water((a + b) / 2 + nn * 3.0):
-				nn = -nn
-			street(k, a + nn * 7.0, b + nn * 7.0, 12.0, true)
-
-func _build_placettes(k: Kit) -> void:
-	var done := []
-	for attempt in 4000:
-		if done.size() >= 16:
-			break
-		var c := Vector2(rng.randf_range(-560, 560), rng.randf_range(-560, 560))
-		if not _inside_ring(c) or not is_free(c, 0, 12, 12):
-			continue
-		var far := true
-		for q: Vector2 in done:
-			if q.distance_to(c) < 140.0:
-				far = false
-		for id in PLACES:
-			if P(PLACES[id].pos).distance_to(c) < 90.0:
-				far = false
-		if not far:
-			continue
-		var ang := rng.randf_range(0, PI)
-		var hw := rng.randf_range(9, 14)
-		var hd := rng.randf_range(8, 12)
-		k.xf = Transform3D(Basis(Vector3.UP, -ang), Vector3(c.x, 0, c.y))
-		_yard(k, Vector2.ZERO, hw * 2, hd * 2, "pave")
-		k.xf = Transform3D.IDENTITY
-		mark(c, ang, hw, hd, 4)
-		trees.append([Vector3(c.x, 0.2, c.y), rng.randf_range(3.0, 3.8), _leaf()])
-		lamps.append(Vector3(c.x + hw - 1.5, 0.2, c.y))
-		done.append(c)
 
 ## True when the next `dist` metres from p along d have no street, water or open ground.
 func _clear_ahead(p: Vector2, d: Vector2, dist: float) -> bool:
@@ -496,7 +434,9 @@ func _clear_ahead(p: Vector2, d: Vector2, dist: float) -> bool:
 
 func _build_lanes(k: Kit) -> void:
 	var made := 0
-	for attempt in 26000:
+	for attempt in 3000:
+		if made >= 28:
+			break
 		var s: Array = streets[rng.randi() % streets.size()]
 		var a: Vector2 = s[0]
 		var b: Vector2 = s[1]
@@ -508,17 +448,16 @@ func _build_lanes(k: Kit) -> void:
 		var start := root + dir * (w / 2 + 1.0)
 		if start.length() > BUILT - 30 or cell(start) != 0:
 			continue
-		var inner := _inside_ring(start)
-		var spacing := rng.randf_range(44, 64) if inner else rng.randf_range(60, 90)
+		var spacing := rng.randf_range(50, 80)
 		if not _clear_ahead(start, dir, spacing):
 			continue
-		var turn := 0.16 if inner else 0.06
-		var lw := rng.randf_range(4.5, 6.5) if inner else rng.randf_range(6.0, 8.0)
+		var turn := 0.12
+		var lw := rng.randf_range(4.0, 5.0)
 		var pts := [root, start]
 		var cur := start
 		var dd := dir.rotated(rng.randf_range(-0.25, 0.25))
 		var walked := 0.0
-		var max_len := rng.randf_range(70, 240) if inner else rng.randf_range(120, 320)
+		var max_len := rng.randf_range(40, 120)
 		while walked < max_len:
 			dd = dd.rotated(rng.randf_range(-turn, turn))
 			var nxt := cur + dd * 8.0
@@ -537,7 +476,7 @@ func _build_lanes(k: Kit) -> void:
 			walked += 8.0
 		if walked < 20.0:
 			continue
-		var lit := rng.randf() < (0.25 if inner else 0.15)
+		var lit := rng.randf() < 0.2
 		for pi in pts.size() - 1:
 			street(k, pts[pi], pts[pi + 1], lw, lit)
 		made += 1
@@ -739,9 +678,19 @@ func _try_house(k: Kit, c: Vector2, ang: float, w: float, d: float, floors: int,
 	mark(c, ang, w / 2, d / 2, 2)
 	return true
 
-## Line every street with houses, wall to wall, facing it; then sheds in the yards.
+## Village houses: small clusters of two to five along the roads, with gardens between, up to VILLAGE_HOUSES; then
+## sheds, and trees in the gardens and round the fields.
 func _build_houses(k: Kit) -> void:
-	for s in streets:
+	var order := range(streets.size())
+	for i in order.size():   # shuffle, so the cap does not favour the first roads
+		var j := rng.randi_range(i, order.size() - 1)
+		var tmp: int = order[i]
+		order[i] = order[j]
+		order[j] = tmp
+	for si: int in order:
+		if houses >= VILLAGE_HOUSES:
+			break
+		var s: Array = streets[si]
 		var a: Vector2 = s[0]
 		var b: Vector2 = s[1]
 		var sw: float = s[2]
@@ -750,36 +699,49 @@ func _build_houses(k: Kit) -> void:
 		var ang := dir.angle()
 		for side: float in [-1.0, 1.0]:
 			var n := Vector2(-dir.y, dir.x) * side
-			var t := 0.0
-			var first := true
-			while t < len:
-				var w: float = [4.6, 5.4, 6.2, 7.0, 7.8][rng.randi_range(0, 4)]
-				var d := rng.randf_range(9.0, 13.0)
-				if _inside_ring(a):   # old Paris: deep narrow houses
-					d = rng.randf_range(12.0, 17.0)
-				var c := a + dir * (t + w / 2) + n * (sw / 2 + 0.1 + d / 2)
-				var q := quarter_of(c)
-				var floors := rng.randi_range(q.floors.x, q.floors.y)
+			var t := rng.randf_range(0, 20)
+			var cluster := 0
+			while t < len and houses < VILLAGE_HOUSES:
+				if cluster == 0:
+					if rng.randf() < 0.5:
+						t += rng.randf_range(12, 40)   # a garden or a field between clusters
+						continue
+					cluster = rng.randi_range(2, 5)
+				var w: float = [7.0, 8.0, 9.0, 10.0, 11.0][rng.randi_range(0, 4)]
+				var d := rng.randf_range(8.0, 11.0)
+				var c := a + dir * (t + w / 2) + n * (sw / 2 + 1.5 + d / 2)
+				if c.length() > BUILT - 40:
+					break
 				var face := ang + (PI if side > 0 else 0.0)
-				var ok := _try_house(k, c, face, w, d, floors, first or t + w >= len - 6)
-				first = false
-				t += w if ok else 1.5
-	# Inside the ring, back buildings fill the blocks round small courtyards, at the angle of the nearest street front.
-	for i in 40000:
-		var c := Vector2(rng.randf_range(-RING - 60, RING + 60), rng.randf_range(-RING - 60, RING + 60))
-		if not _inside_ring(c) or cell(c) != 0:
-			continue
-		_try_house(k, c, _street_angle_near(c), rng.randf_range(6.0, 10.0), rng.randf_range(6.0, 10.0), rng.randi_range(3, 4))
-	for i in 30000:
+				var ok := _try_house(k, c, face, w, d, rng.randi_range(2, 4), cluster == 1)
+				t += w if ok else 2.0
+				if ok:
+					cluster -= 1
+	var sheds := 0
+	for i in 4000:   # sheds and barns behind the houses
+		if sheds >= SHEDS:
+			break
 		var c := Vector2(rng.randf_range(-BUILT, BUILT), rng.randf_range(-BUILT, BUILT))
-		if c.length() > BUILT or cell(c) != 0:
+		if c.length() > BUILT - 40 or cell(c) != 0 or not _near(c, 2, 22.0):
 			continue
-		var ang := rng.randf_range(-PI, PI)
-		if rng.randf() < 0.75:
-			_try_house(k, c, ang, rng.randf_range(3.5, 6.0), rng.randf_range(3.0, 5.0), rng.randi_range(1, 2))
-		elif c.length() < DETAIL and rng.randf() < 0.3 and is_free(c, 0, 2, 2):
-			trees.append([Vector3(c.x, 0, c.y), rng.randf_range(2.5, 3.5), _leaf()])
+		if _try_house(k, c, _street_angle_near(c), rng.randf_range(4.0, 7.0), rng.randf_range(3.5, 5.5), 1):
+			sheds += 1
+	for i in 9000:   # gardens, orchards, hedgerow trees
+		var c := Vector2(rng.randf_range(-BUILT - 150, BUILT + 150), rng.randf_range(-BUILT - 150, BUILT + 150))
+		if cell(c) != 0 or not is_free(c, 0, 2, 2):
+			continue
+		var odds := 0.5 if _near(c, 2, 30.0) else 0.12
+		if rng.randf() < odds:
+			trees.append([Vector3(c.x, 0, c.y), rng.randf_range(2.6, 4.2), _leaf()])
 			mark(c, 0, 2, 2, 4)
+
+## True when a cell of value v lies within r metres of p (checked on a ring of 8 points at r/2 and r).
+func _near(p: Vector2, v: int, r: float) -> bool:
+	for rr: float in [r / 2, r]:
+		for k8 in 8:
+			if cell(p + Vector2.from_angle(TAU * k8 / 8) * rr) == v:
+				return true
+	return false
 
 ## The angle of the street nearest to p (within 30 m), so a back building lines up with its block.
 func _street_angle_near(p: Vector2) -> float:
@@ -864,13 +826,6 @@ func _church(k: Kit, sc: float, g: String, st: Color, sl: Color, twin := false) 
 func _build_landmarks(root: Node3D, k: Kit) -> void:
 	var st := Color(0.78, 0.8, 0.82)
 	var sl := Color(0.75, 0.78, 0.85)
-	# The cathedral on the island's north tip: no place of the game, the city's crown.
-	var cc := P(CATHEDRAL)
-	k.xf = Transform3D(Basis(Vector3.UP, -PI / 2 - 0.15), Vector3(cc.x, 0, cc.y))
-	_yard(k, Vector2.ZERO, 70, 46, "pave")
-	_church(k, 1.35, "glow:cathedral", st, sl, true)
-	mark(cc, -PI / 2 - 0.15, 36, 24, 4)
-	lights.append({"pos": Vector3(cc.x, 20, cc.y + 30), "col": Color("#ffd27a"), "energy": 8.0, "range": 60.0})
 	for id in PLACES:
 		var c := P(PLACES[id].pos)
 		var ang: float = PLACES[id].ang
@@ -1143,7 +1098,7 @@ func build(root: Node3D) -> void:
 	_load_house_models()
 	_build_landmarks(root, k)
 	_build_roads(k)
-	_build_paris(k)
+	_build_village(k)
 	_build_houses(k)
 	_build_lamps(root, k)
 	k.finish(root)

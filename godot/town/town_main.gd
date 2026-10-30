@@ -1,6 +1,7 @@
 extends Node3D
 ## The city sandbox (D169): the town at dusk, an orbit camera, and a name over each landmark.
-## Right-drag turns, middle-drag or WASD moves, the wheel zooms. `-- --shot` saves views to tests/ and quits.
+## Right-drag turns, middle-drag or WASD moves, the wheel zooms, F or Home frames every landmark again (the starting view).
+## `-- --shot` saves views to tests/ and quits.
 
 var town: Town
 var cam_rig: Node3D
@@ -14,6 +15,9 @@ var panning := false
 var label_layer: CanvasLayer
 var label_nodes := []
 var rain: GPUParticles3D
+var env: Environment
+var sun: DirectionalLight3D
+var framed := true   # still on the starting view: a resized window frames the landmarks again
 const RAIN := false   # the board is a dry night; the drizzle stays available
 
 
@@ -37,13 +41,17 @@ func _ready() -> void:
 		add_child(o)
 	_build_labels()
 	_update_camera()
+	get_viewport().size_changed.connect(func() -> void:
+		if framed:
+			_frame_landmarks.call_deferred())
+	_frame_landmarks.call_deferred()
 	if "--shot" in OS.get_cmdline_user_args():
 		_shots()
 
 
 func _build_world() -> void:
 	var we := WorldEnvironment.new()
-	var env := Environment.new()
+	env = Environment.new()
 	var sky := Sky.new()
 	var sm := ProceduralSkyMaterial.new()
 	sm.sky_top_color = Color("#141a28")
@@ -84,7 +92,7 @@ func _build_world() -> void:
 	we.environment = env
 	add_child(we)
 	# Moonlight: cool, from high up, with soft shadows.
-	var sun := DirectionalLight3D.new()
+	sun = DirectionalLight3D.new()
 	sun.light_color = Color("#b9c4dc")
 	sun.light_energy = 1.1
 	sun.shadow_enabled = true
@@ -166,6 +174,7 @@ func _process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_D): mv.x += 1
 	if mv != Vector3.ZERO:
 		target += mv.rotated(Vector3.UP, yaw).normalized() * dist * 0.8 * delta
+		framed = false
 		_update_camera()
 	for pair in label_nodes:
 		var l: Dictionary = pair[0]
@@ -183,9 +192,75 @@ func _update_camera() -> void:
 		rain.position = target + Vector3(0, 150, 0)
 	cam_rig.rotation = Vector3(pitch, yaw, 0)
 	cam.position = Vector3(0, 0, dist)
+	# The fog and the shadows follow the camera's distance, so the far view of the whole board stays clear.
+	if env != null:
+		env.fog_depth_begin = maxf(520.0, dist * 0.85)
+		env.fog_depth_end = maxf(1600.0, dist * 2.4)
+	if sun != null:
+		sun.directional_shadow_max_distance = clampf(dist * 1.2, 1200.0, 2200.0)
+
+
+## The starting view: every landmark and its name inside the window, whatever its size. Looks from the south at the
+## usual pitch, centres the landmarks on screen, then takes the closest distance that still fits them all.
+func _frame_landmarks() -> void:
+	var pts: Array[Vector3] = []
+	var mid := Vector3.ZERO
+	for l in town.labels:
+		var top: Vector3 = l.pos
+		pts.append(top)
+		pts.append(Vector3(top.x, 0, top.z))
+		mid += Vector3(top.x, 0, top.z)
+	mid /= town.labels.size()
+	yaw = 0.0
+	pitch = deg_to_rad(-38.0)
+	target = mid
+	var vp := get_viewport().get_visible_rect().size
+	var margin := Vector2(110, 40)   # half a name label, plus a little air
+	for pass_i in 3:
+		var lo := 150.0
+		var hi := 6000.0
+		for it in 30:
+			dist = (lo + hi) / 2
+			_update_camera()
+			if _all_inside(pts, vp, margin):
+				hi = dist
+			else:
+				lo = dist
+		dist = hi
+		_update_camera()
+		# Centre the landmarks on screen: move the target to the ground point under the middle of their screen box.
+		var bmin := Vector2(INF, INF)
+		var bmax := -bmin
+		for p in pts:
+			var sp := cam.unproject_position(p)
+			bmin = bmin.min(sp)
+			bmax = bmax.max(sp)
+		var c := (bmin + bmax) / 2
+		var o := cam.project_ray_origin(c)
+		var n := cam.project_ray_normal(c)
+		if absf(n.y) > 0.001:
+			var hit := o + n * (-o.y / n.y)
+			target = Vector3(hit.x, 0, hit.z)
+	_update_camera()
+	framed = true
+
+func _all_inside(pts: Array[Vector3], vp: Vector2, margin: Vector2) -> bool:
+	for p in pts:
+		if cam.is_position_behind(p):
+			return false
+		var sp := cam.unproject_position(p)
+		if sp.x < margin.x or sp.y < margin.y or sp.x > vp.x - margin.x or sp.y > vp.y - margin.y:
+			return false
+	return true
 
 
 func _unhandled_input(e: InputEvent) -> void:
+	if e is InputEventKey and e.pressed and (e.keycode == KEY_F or e.keycode == KEY_HOME):
+		_frame_landmarks()
+		return
+	if e is InputEventMouseButton or e is InputEventMouseMotion:
+		if (e is InputEventMouseButton and e.pressed) or turning or panning:
+			framed = false
 	if e is InputEventMouseButton:
 		if e.button_index == MOUSE_BUTTON_RIGHT:
 			turning = e.pressed
@@ -195,7 +270,7 @@ func _unhandled_input(e: InputEvent) -> void:
 			dist = maxf(60.0, dist * 0.9)
 			_update_camera()
 		elif e.button_index == MOUSE_BUTTON_WHEEL_DOWN and e.pressed:
-			dist = minf(1100.0, dist / 0.9)
+			dist = minf(4000.0, dist / 0.9)
 			_update_camera()
 	elif e is InputEventMouseMotion:
 		if turning:
@@ -225,8 +300,9 @@ func _save(path: String) -> void:
 
 func _shots() -> void:
 	await get_tree().create_timer(1.0).timeout
-	await _save("res://../tests/town-1.png")
-	var f0 := Engine.get_process_frames()
+	_frame_landmarks()
+	await _save("res://../tests/town-1.png")   # the starting view: every landmark on screen
+	print("TOWN starting view: distance %.0f m" % dist)
 	var ms0 := Time.get_ticks_msec()
 	for i in 60:
 		await get_tree().process_frame

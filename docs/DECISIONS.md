@@ -595,3 +595,8 @@ Three candidates came from Nano Banana (`gemini-3.1-flash-image`) for a seamless
 - Inside the ring houses are deeper (12 to 17 m) and back buildings fill the blocks round courtyards, lined up with the nearest street (`_street_angle_near()`).
 - Fixed in `street()`: its loop stopped before the end of a segment, so a segment shorter than about 12 m was never drawn and longer ones lost their last few metres.
 - `art-pipeline/out/ground.png` still shows the old regular blocks; it no longer matches the town.
+
+**D176. The town became a small village, then the 3D direction was dropped.** (Bruno: "all the landmarks should fit inside the screen", "let's make it a small village" with the board shrunk and about 150 houses, then: "Let's drop the 3d idea. I'm hating it. We need to find a different way to build something that's cooler.")
+- Kept as the last state of the 3D town, tagged `archive/town-3d-d176`: the starting view frames every landmark and its name at any window size (F or Home returns to it; fog and shadows follow the camera distance); the board at 5 m per percent (500 m), the river narrowed 12 m per bank, bridges trimmed to the water, the roads at 55% width, 28 lanes, 150 houses in clusters, 40 sheds, about 1,100 trees on a plain meadow ground.
+- Measured in the starting view: 50 fps with everything on, 60 with shadows off (SSR and SSAO cost about 4 fps each).
+- Next: a different way to show the city, to be chosen with Bruno.
