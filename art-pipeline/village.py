@@ -3,7 +3,7 @@ godot/assets/cabin/village.json as map percent (x, y), facing in radians, and a 
 
 python3 art-pipeline/village.py [--houses N] [--trees N] [--seed S]
 Houses stand beside the roads, ridge along the road; trees in the open ground. Nothing on the river, the roads,
-the rings or the map's edge. A check image goes to art-pipeline/out/cabin/village.png.
+the rings or the map's edge: every house's whole footprint and every tree's crown is checked (D180). A check image goes to art-pipeline/out/cabin/village.png.
 """
 import argparse
 import json
@@ -14,8 +14,8 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--houses", type=int, default=70)
-ap.add_argument("--trees", type=int, default=60)
+ap.add_argument("--houses", type=int, default=140)
+ap.add_argument("--trees", type=int, default=100)
 ap.add_argument("--seed", type=int, default=1819)
 args = ap.parse_args()
 
@@ -94,7 +94,53 @@ yy, xx = np.mgrid[0:H, 0:W]
 rings = np.zeros((H, W), bool)
 for px, py in SPOTS.values():
     rings |= np.hypot(xx - px * W / 100, yy - py * H / 100) < 66
-roads = ink & ~(dist_to(water, 6) < 5) & ~rings & (box(L, 15) > 140)   # not the dark stains
+# The roads, traced by hand along their middle (pixels on map03). A house or tree keeps CLEAR px from every one.
+ROADS = [
+    [(155,108),(220,120),(265,152),(305,148),(345,140)],
+    [(265,152),(230,195),(185,245)],
+    [(405,135),(440,105),(490,104),(530,128),(542,148)],
+    [(595,158),(630,180),(650,197)],
+    [(160,325),(185,370),(235,405),(285,415),(340,450),(400,485),(465,490)],
+    [(235,405),(215,450),(175,500),(145,555)],
+    [(490,380),(485,430),(482,478)],
+    [(335,660),(390,620),(430,590),(478,577)],
+    [(600,570),(660,575),(720,590),(770,605),(805,605)],
+    [(575,555),(590,510),(620,470),(660,430),(700,400),(720,385),(750,330),(790,270),(820,215),(850,160),(890,135)],
+    [(720,385),(760,390),(820,385),(870,382)],
+    [(680,705),(720,700),(745,650),(748,600)],
+    [(830,650),(822,700),(830,760),(860,800),(880,820)],
+    [(275,730),(250,770),(215,800),(190,815)],
+    [(485,730),(450,780),(400,840),(330,900),(270,950),(235,1010)],
+]
+CLEAR = 17
+
+
+def seg_dist(px, py, a, b):
+    ax, ay = a
+    bx, by = b
+    dx, dy = bx - ax, by - ay
+    t = max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)))
+    return math.hypot(px - ax - t * dx, py - ay - t * dy), math.atan2(dy, dx)
+
+
+def nearest_road(x, y):
+    """Distance to the nearest traced road and that road's direction there."""
+    best = (1e9, 0.0)
+    for r in ROADS:
+        for a, b in zip(r, r[1:]):
+            best = min(best, seg_dist(x, y, a, b))
+    return best
+
+
+traced = np.zeros((H, W), bool)
+for r in ROADS:
+    for a, b in zip(r, r[1:]):
+        n = int(math.hypot(b[0] - a[0], b[1] - a[1]))
+        for i in range(n + 1):
+            traced[int(a[1] + (b[1] - a[1]) * i / max(n, 1)), int(a[0] + (b[0] - a[0]) * i / max(n, 1))] = True
+
+# road lines: fainter ink than the rest counts here, the long thin shape filter below drops the specks and stains
+roads = (L < box(L, 8) - 11) & ~(dist_to(water, 6) < 5) & ~rings & (box(L, 15) > 110)
 
 
 def big_parts(mask, min_px):
@@ -115,7 +161,10 @@ def big_parts(mask, min_px):
                     if 0 <= ny < H and 0 <= nx < W and mask[ny, nx] and not seen[ny, nx]:
                         seen[ny, nx] = True
                         stack.append((ny, nx))
-        if len(part) >= min_px:
+        py = [p[0] for p in part]
+        px = [p[1] for p in part]
+        extent = max(max(py) - min(py), max(px) - min(px))
+        if len(part) >= min_px and extent >= 70 and len(part) < extent * 9:   # long and thin, not a blot
             for y, x in part:
                 keep[y, x] = True
     return keep
@@ -123,20 +172,24 @@ def big_parts(mask, min_px):
 
 # close small gaps in the sketchy road lines first, so a road's line holds together as one piece
 joined = roads | np.roll(roads, 1, 0) | np.roll(roads, -1, 0) | np.roll(roads, 1, 1) | np.roll(roads, -1, 1)
-roads = big_parts(joined, 200) & roads
-roads_d = dist_to(roads, 60)
+roads = big_parts(joined, 120) & roads
 water_d = dist_to(water, 40)
 
 # keep out: river and its banks, rings and a ring of space around them, the map's edge
 edge = 40
-blocked = (water_d < 14) | rings | (xx < edge) | (yy < edge) | (xx > W - edge) | (yy > H - edge)
+on_road = (dist_to(traced, CLEAR + 1) <= CLEAR) | (dist_to(roads, 8) < 7)
+blocked = (water_d < 10) | rings | on_road | (xx < edge) | (yy < edge) | (xx > W - edge) | (yy > H - edge)
 
 
-def road_dir(x, y):
-    """Direction along the nearest road: perpendicular to the distance gradient."""
-    gx = roads_d[y, min(x + 3, W - 1)] - roads_d[y, max(x - 3, 0)]
-    gy = roads_d[min(y + 3, H - 1), x] - roads_d[max(y - 3, 0), x]
-    return math.atan2(gx, -gy) if (gx or gy) else 0.0
+def clear_footprint(x, y, ang, half_w, half_l):
+    """Every point of the rectangle (and a little margin) is off the road, water, rings and edge."""
+    c, s_ = math.cos(ang), math.sin(ang)
+    for u in np.linspace(-half_l - 2, half_l + 2, 7):
+        for v in np.linspace(-half_w - 2, half_w + 2, 5):
+            px, py = int(round(x + c * u - s_ * v)), int(round(y + s_ * u + c * v))
+            if not (0 <= px < W and 0 <= py < H) or blocked[py, px]:
+                return False
+    return True
 
 
 rnd = random.Random(args.seed)
@@ -149,16 +202,26 @@ def free(x, y, r):
 
 houses = []
 tries = 0
-while len(houses) < args.houses and tries < 200000:
+while len(houses) < args.houses and tries < 400000:
     tries += 1
     x, y = rnd.randrange(W), rnd.randrange(H)
-    if blocked[y, x] or not (15 <= roads_d[y, x] <= 24):
+    if blocked[y, x]:
+        continue
+    d, road_ang = nearest_road(x, y)
+    if not (CLEAR + 5 <= d <= CLEAR + 30):
         continue
     if not free(x, y, 13):
         continue
-    houses.append({"x": round(x / W * 100, 2), "y": round(y / H * 100, 2),
-                   "ang": round(road_dir(x, y) + rnd.choice((0, math.pi)) + rnd.uniform(-0.12, 0.12), 3),
-                   "s": round(rnd.uniform(0.85, 1.2), 2), "long": round(rnd.uniform(1.0, 1.6), 2)})
+    sz = rnd.uniform(0.85, 1.2)
+    long = rnd.uniform(1.0, 1.6)
+    ang = road_ang + rnd.choice((0, math.pi)) + rnd.uniform(-0.12, 0.12)
+    # the Godot house: 13.8 px across (0.0135 m x s, roof 1.18 wider), long x that along the ridge (roof 1.1 longer)
+    half_w = 13.8 * sz * 1.18 / 2
+    half_l = 13.8 * sz * long * 1.1 / 2
+    if not clear_footprint(x, y, ang, half_w, half_l):
+        continue
+    houses.append({"x": round(x / W * 100, 2), "y": round(y / H * 100, 2), "ang": round(ang, 3),
+                   "s": round(sz, 2), "long": round(long, 2)})
     placed.append((x, y, 13))
 
 trees = []
@@ -174,7 +237,7 @@ while len(trees) < args.trees and tries < 200000:
             continue
     else:
         x, y = rnd.randrange(W), rnd.randrange(H)
-    if blocked[y, x] or roads_d[y, x] < 12:
+    if blocked[y, x] or not clear_footprint(x, y, 0.0, 7, 7):   # a crown is up to 13 px across
         continue
     if not free(x, y, 9):
         continue
@@ -195,6 +258,8 @@ for h in houses:
     x, y, a = h["x"] * W / 100, h["y"] * H / 100, h["ang"]
     c, s = math.cos(a) * 7 * h["long"], math.sin(a) * 7 * h["long"]
     d.line([(x - c, y - s), (x + c, y + s)], fill=(255, 255, 255), width=8)
+for r in ROADS:
+    d.line(r, fill=(255, 220, 0), width=2)
 for t in trees:
     x, y = t["x"] * W / 100, t["y"] * H / 100
     d.ellipse([x - 5, y - 5, x + 5, y + 5], fill=(30, 120, 40))
