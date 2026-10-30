@@ -39,7 +39,7 @@ All four JS files are concatenated into one IIFE by `build.py`, so they share sc
 - **Single file:** `python3 build.py --embed` if someone needs one self-contained HTML (several MB).
 
 ## Godot version (the real game from now on, D158)
-`godot/` is the Godot 4.7 project. Since D169 it opens on the town alone (`godot/town/`); the earlier table, board and HUD are archived in `godot/archive/` (git tag `archive/table-d168`). The web page stays as the reference until Bruno approves the Godot version.
+`godot/` is the Godot 4.7 project. Since D177 it opens on the cabin (`godot/cabin/`: the map on a candle-lit wooden table, carved landmark miniatures; `-- --shot` saves tests/cabin-1..3.png; map from `art-pipeline/cabin_map.py`, miniatures from `art-pipeline/miniature.py`). Before that the town (`godot/town/`, D169 to D176, tag `archive/town-3d-d176`); the earlier table, board and HUD are archived in `godot/archive/` (git tag `archive/table-d168`). The web page stays as the reference until Bruno approves the Godot version.
 ```
 godot --path godot                # the town (right-drag turn, left/middle drag or WASD move, wheel zoom)
 godot --path godot -- --shot      # saves tests/town-1..4.png and quits
