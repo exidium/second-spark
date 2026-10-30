@@ -17,7 +17,8 @@ SRC = (ROOT / 'godot' / 'town' / 'town.gd').read_text(encoding='utf-8')
 FONT = ROOT / 'godot' / 'assets' / 'fonts' / 'Amarante-Regular.ttf'
 SCALE = 12.0            # metres per board percent, as town.gd
 PX = 2.5                # image pixels per metre: the board is 1200 m, the image 3000 px
-STREET = 7.0            # lane between house blocks, metres
+STREET = 30.0           # street between house blocks, metres (D172: half as many houses as the first plan)
+LANE = 16.0             # cross lane between runs of houses, metres
 # Landmark footprints in metres (frontage, depth), as the game draws them.
 LANDMARK = {'cemetery': (56, 42), 'square': (52, 40), 'slaughter': (54, 40), 'church': (50, 40), 'first': (56, 44),
             'morgue': (30, 24), 'market': (50, 34), 'hospital': (54, 42), 'academy': (54, 42), 'docks': (60, 40),
@@ -125,8 +126,8 @@ def main():
                                  'angle': round(math.degrees(ang), 1)})
                 x += w
                 run += 1
-                if run >= rng.randint(6, 10):   # a cross lane every few houses
-                    x += STREET
+                if run >= rng.randint(4, 6):   # a cross lane every few houses
+                    x += LANE
                     run = 0
         z += 2 * row_depth + STREET
     draw_plan(lots)
