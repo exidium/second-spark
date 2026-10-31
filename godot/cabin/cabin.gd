@@ -39,9 +39,9 @@ const ROW_Z := 0.625
 var optable: OperatingTable            # your operating table (D186), 0.7 size since D191
 const LAB_AT := Vector3(-0.5 + OperatingTable.WID * 0.7 / 2, 0, ROW_Z)   # its left edge on the map's (D192)
 const LAB_SCALE := 0.7
-var tray: DecayTray                    # your decomposition tray (D189), flat since D191
-const TRAY_AT := Vector3(-0.5 + OperatingTable.WID * 0.7 + 0.015 + DecayTray.SIZE.x * 0.8 / 2, 0, ROW_Z)   # just right of it (D192)
-const TRAY_SCALE := 0.8
+var tray: DecayTray                    # your decomposition board (D189, after Bruno's concept since D193)
+const TRAY_AT := Vector3(-0.5 + OperatingTable.WID * 0.7 + 0.015 + DecayTray.SIZE.x / 2, 0, ROW_Z)   # just right of it (D192)
+const TRAY_SCALE := 1.0
 
 
 func _ready() -> void:
@@ -206,7 +206,7 @@ func _miniatures() -> void:
 		var plate := _name_plate(id, holder.position + Vector3(0, 0, r + PLATE_GAP))
 		minis[id] = {"node": holder, "height": box.size.y * s, "plate": plate[0], "plate_mat": plate[1]}
 
-## A name plate (D182): a thin aged brass plate lying on the map just south of the landmark's base, the name
+## A name plate (D182): a thin white enamel plate (brass until D193) lying on the map just south of the landmark's base, the name
 ## engraved in dark letters, readable from your seat. Its hinge is its front edge: on hover the back rises and the
 ## plate stands up facing you, like a sign on a desk.
 const PLATE_GAP := 0.004                  # between the base and the plate's back edge
@@ -219,9 +219,9 @@ func _name_plate(id: String, back: Vector3) -> Array:
 	var pivot := Node3D.new()
 	pivot.position = back + Vector3(0, 0.0012, PLATE_DEPTH)   # the hinge, at the front edge
 	add_child(pivot)
-	var mat := _col_mat(Color("#c09a58"), 0.45, 0.3)
+	var mat := _col_mat(Color("#f0ebe0"), 0.5, 0.0)   # white enamel, easier to read than brass (D193)
 	mat.emission_enabled = true
-	mat.emission = Color("#ffcf8a")
+	mat.emission = Color("#fff1d8")
 	mat.emission_energy_multiplier = 0.0
 	var plate := _mesh(_box(Vector3(w, 0.0016, PLATE_DEPTH)), mat, Vector3(0, 0, -PLATE_DEPTH / 2), pivot)
 	plate.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
@@ -686,7 +686,7 @@ func _shots() -> void:
 	tray.set_ice(2)
 	await get_tree().create_timer(1.2).timeout
 	await _save("res://../tests/cabin-tray-ice.png")
-	tray.hover_at(tray.to_global(tray._cell_centre(0, 1)))
+	tray.hover_at(tray.to_global(tray._cell_centre(0, 1)))  # muscle, stage II
 	await _save("res://../tests/cabin-tray-hover.png")
 	tray.hover_at(null)
 	set_hover("")
