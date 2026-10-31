@@ -11,8 +11,7 @@ extends Node3D
 ## metres; positions in the concept's pixels, as in the art script.
 
 const CROP := Rect2(118, 84, 1060, 1058)   # the face's rectangle in the concept, pixels
-const W := 0.21                            # the board's width, metres
-const SIZE := Vector2(W, W * 1058.0 / 1060.0)
+const SIZE := Vector2(DecayTray.SIZE.y * 1060.0 / 1058.0, DecayTray.SIZE.y)   # as deep as the decomposition board (D200)
 const THICK := 0.006
 const FACE_R := 113.0
 const SWEEP := 140.0

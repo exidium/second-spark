@@ -735,3 +735,7 @@ Bruno asked for a second board with three dials (humanity, reputation, expertise
 - `cabin/stats_board.gd` (`StatsBoard`): brass-capped needles that swing to the value, francs as silver coins (every fifth gold) stacked in the pewter dish, up to four small Leyden jars in the sockets (charged: a blue glow on the ball and a little blue light), brass star badges in the two shields, and up to three cards face up in the card spaces (picture and name). `show_stats(p)` takes hum, rep, exp, coin, jars, police and hand. Hover shows the value; click leans in.
 - It sits right of the decomposition board in the row below the map. A copper wire leaves from under its left edge (the coin dish is between the terminal and the edge), runs on the wood in front of the tray and ends at a brass post at the foot of the operating table.
 - Sample values until the rules drive it.
+
+## D200: The stats board as deep as the decomposition board
+Bruno: "make the dial board the same height as the decompositon board please."
+- The stats board's depth on the table is now the decomposition board's (about 22 cm instead of 21), its width following from the concept's proportions, so the two line up front and back in the row.
