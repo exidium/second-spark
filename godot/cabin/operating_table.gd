@@ -2,51 +2,40 @@ class_name OperatingTable
 extends Node3D
 ## Your operating table (D186): a small steel table on the cabin table with the companion lying on it, part by part.
 ## Each of the six parts (head, torso, armL, armR, legL, legR) is empty (a faint outline etched in the steel), muscle
-## (raw red), skin (sewn-on sallow skin) or alive (blue veins and sparks). Built in code, metres, the body's head
-## toward local +x. `set_part(slot, look)` with look "", "muscle", "skin" or "alive".
+## (raw red), skin (sewn-on sallow skin) or alive (the skin with blue veins and sparks). The parts are low-poly models
+## (D187, `art-pipeline/body_parts.py`, assets/cabin/body/<part>-<look>.glb); the table is built in code. Metres, the
+## body's head toward local +x. `set_part(slot, look)` with look "", "muscle", "skin" or "alive".
 
 const TOP := 0.075                     # height of the table top
 const LEN := 0.32
 const WID := 0.13
 const ARC_EVERY := 0.06                # seconds between new sparks
 
-## Each part: its pieces, in metres from the table top's middle, the body's length along x, head toward +x.
-## ["ell", centre, half extents (along the body, up, across), stitched]: a rounded piece (skull, chest, hand, foot).
-## ["limb", from, to, radius at from, radius at to, stitched]: a tapered segment with a round joint at each end.
+## Each part: its model, where its joint end lies on the table top (metres, head toward +x), and whether it is
+## mirrored (the models are of the left arm and leg; left is +z).
 const BODY := {
-	"head": [["ell", Vector3(0.112, 0.016, 0), Vector3(0.019, 0.015, 0.0145), true],
-		["ell", Vector3(0.099, 0.010, 0), Vector3(0.012, 0.009, 0.011), false],
-		["limb", Vector3(0.094, 0.008, 0), Vector3(0.077, 0.009, 0), 0.0068, 0.0076, true]],
-	"torso": [["ell", Vector3(0.056, 0.015, 0), Vector3(0.027, 0.015, 0.033), true],
-		["ell", Vector3(0.022, 0.013, 0), Vector3(0.03, 0.012, 0.024), false],
-		["ell", Vector3(-0.012, 0.012, 0), Vector3(0.02, 0.012, 0.026), true]],
-	"armL": [["limb", Vector3(0.072, 0.009, 0.04), Vector3(0.03, 0.009, 0.045), 0.0085, 0.0066, true],
-		["limb", Vector3(0.03, 0.009, 0.045), Vector3(-0.012, 0.007, 0.047), 0.0066, 0.0052, true],
-		["ell", Vector3(-0.025, 0.005, 0.048), Vector3(0.012, 0.0045, 0.0075), false]],
-	"armR": [["limb", Vector3(0.072, 0.009, -0.04), Vector3(0.03, 0.009, -0.045), 0.0085, 0.0066, true],
-		["limb", Vector3(0.03, 0.009, -0.045), Vector3(-0.012, 0.007, -0.047), 0.0066, 0.0052, true],
-		["ell", Vector3(-0.025, 0.005, -0.048), Vector3(0.012, 0.0045, 0.0075), false]],
-	"legL": [["limb", Vector3(-0.02, 0.012, 0.015), Vector3(-0.08, 0.011, 0.015), 0.0125, 0.0085, true],
-		["limb", Vector3(-0.08, 0.011, 0.015), Vector3(-0.132, 0.008, 0.015), 0.0085, 0.0058, true],
-		["ell", Vector3(-0.139, 0.012, 0.015), Vector3(0.006, 0.012, 0.0075), false]],
-	"legR": [["limb", Vector3(-0.02, 0.012, -0.015), Vector3(-0.08, 0.011, -0.015), 0.0125, 0.0085, true],
-		["limb", Vector3(-0.08, 0.011, -0.015), Vector3(-0.132, 0.008, -0.015), 0.0085, 0.0058, true],
-		["ell", Vector3(-0.139, 0.012, -0.015), Vector3(0.006, 0.012, 0.0075), false]],
+	"head": ["head", Vector3(0.083, 0, 0), false],
+	"torso": ["torso", Vector3(0.088, 0, 0), false],
+	"armL": ["arm", Vector3(0.076, 0, 0.041), false],
+	"armR": ["arm", Vector3(0.076, 0, -0.041), true],
+	"legL": ["leg", Vector3(-0.016, 0, 0.016), false],
+	"legR": ["leg", Vector3(-0.016, 0, -0.016), true],
 }
 
 var looks := {}                        # slot -> "", "muscle", "skin", "alive"
-var parts := {}                        # slot -> {body: Node3D, ghost: Node3D, mats: Array[ShaderMaterial]}
+var parts := {}                        # slot -> {body, muscle, skin, ghost: Node3D, box: AABB}
 var arcs: MeshInstance3D
 var arc_mesh := ImmediateMesh.new()
 var glow: OmniLight3D
 var t_arc := 0.0
 var surge := 0.0                       # extra sparks for a moment after a part comes alive
-var flesh: Shader
+var alive_mat: ShaderMaterial
 var pick: StaticBody3D
 
 
 func _init() -> void:
-	flesh = load("res://cabin/flesh.gdshader")
+	alive_mat = ShaderMaterial.new()
+	alive_mat.shader = load("res://cabin/alive.gdshader")
 	_table()
 	for slot: String in BODY:
 		_part(slot)
@@ -150,80 +139,50 @@ func _table() -> void:
 
 # ---------------------------------------------------------------- the body
 
-var ball: SphereMesh
+func _model(look: String, kind: String, parent: Node3D) -> Node3D:
+	var n := (load("res://assets/cabin/body/%s-%s.glb" % [kind, look]) as PackedScene).instantiate() as Node3D
+	parent.add_child(n)
+	return n
 
-func _ball(parent: Node3D, mat: Material, centre: Vector3, half: Vector3) -> void:
-	var mi := MeshInstance3D.new()
-	mi.mesh = ball
-	mi.material_override = mat
-	parent.add_child(mi)
-	mi.position = centre
-	mi.rotation_degrees.z = -90            # the sphere's poles along the body, so its stitches ring the piece
-	mi.scale = Vector3(half.y, half.x, half.z)
-
-## One piece into `parent`, positions as given (the parent lifts it onto the table top).
-func _piece(parent: Node3D, piece: Array, mat: Material, joint: Material) -> void:
-	if piece[0] == "ell":
-		_ball(parent, mat, piece[1], piece[2])
-		return
-	var a: Vector3 = piece[1]
-	var b: Vector3 = piece[2]
-	var ra: float = piece[3]
-	var rb: float = piece[4]
-	var c := CylinderMesh.new()
-	c.bottom_radius = ra
-	c.top_radius = rb
-	c.height = a.distance_to(b)
-	c.radial_segments = 20
-	c.rings = 3
-	c.cap_top = false
-	c.cap_bottom = false
-	var y := (b - a).normalized()
-	var z := y.cross(Vector3.UP).normalized()
-	var mi := MeshInstance3D.new()
-	mi.mesh = c
-	mi.material_override = mat
-	parent.add_child(mi)
-	mi.transform = Transform3D(Basis(y.cross(z), y, z), (a + b) / 2)
-	_ball(parent, joint, a, Vector3.ONE * ra)
-	_ball(parent, joint, b, Vector3.ONE * rb)
+func _meshes(n: Node) -> Array[MeshInstance3D]:
+	var out: Array[MeshInstance3D] = []
+	for c in n.find_children("*", "MeshInstance3D", true, false):
+		out.append(c as MeshInstance3D)
+	return out
 
 func _part(slot: String) -> void:
-	if ball == null:
-		ball = SphereMesh.new()
-		ball.radius = 1.0
-		ball.height = 2.0
-		ball.radial_segments = 28
-		ball.rings = 14
+	var kind: String = BODY[slot][0]
+	var at: Vector3 = BODY[slot][1]
+	var mirror: bool = BODY[slot][2]
 	var body := Node3D.new()
-	body.position.y = TOP
+	body.position = at + Vector3(0, TOP, 0)
+	if mirror:
+		body.scale.z = -1
 	add_child(body)
-	# Empty: the part's outline, the same pieces pressed almost flat into the steel.
+	var muscle := _model("muscle", kind, body)
+	var skin := _model("skin", kind, body)
+	# Empty: the skin model pressed almost flat into the steel, dark, as an outline of where the part goes.
 	var ghost := Node3D.new()
-	ghost.position.y = TOP + 0.0003
-	ghost.scale = Vector3(1, 0.04, 1)
+	ghost.position = at + Vector3(0, TOP + 0.0003, 0)
+	ghost.scale = Vector3(1, 0.03, -1 if mirror else 1)
 	add_child(ghost)
 	var etch := StandardMaterial3D.new()
 	etch.albedo_color = Color("#2c2e30")
 	etch.metallic = 0.6
 	etch.roughness = 0.7
-	var mats: Array[ShaderMaterial] = []
-	var joint := ShaderMaterial.new()
-	joint.shader = flesh
-	joint.set_shader_parameter("stitch", 0.0)
-	mats.append(joint)
-	for piece: Array in BODY[slot]:
-		var m := ShaderMaterial.new()
-		m.shader = flesh
-		m.set_shader_parameter("stitch", 1.0 if piece[piece.size() - 1] else 0.0)
-		mats.append(m)
-		_piece(body, piece, m, joint)
-		_piece(ghost, piece, etch, etch)
-	for m in mats:
-		m.set_shader_parameter("seed", float(slot.hash() % 97))
-	for g in ghost.get_children():
-		(g as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	parts[slot] = {"body": body, "ghost": ghost, "mats": mats}
+	var flat := _model("skin", kind, ghost)
+	for mi in _meshes(flat):
+		mi.material_override = etch
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# Where sparks can start: the skin model's box, in table space.
+	var box := AABB()
+	var first := true
+	for mi in _meshes(skin):
+		var b: AABB = mi.transform * mi.mesh.get_aabb()
+		box = b if first else box.merge(b)
+		first = false
+	box = body.transform * box
+	parts[slot] = {"body": body, "muscle": muscle, "skin": skin, "ghost": ghost, "box": box}
 
 ## Show one part as "", "muscle", "skin" or "alive". A new or changed part settles onto the table with a little bounce.
 func set_part(slot: String, look: String, animate := true) -> void:
@@ -235,17 +194,19 @@ func set_part(slot: String, look: String, animate := true) -> void:
 	var body: Node3D = p.body
 	body.visible = look != ""
 	(p.ghost as Node3D).visible = look == ""
-	var state := {"muscle": 0, "skin": 1, "alive": 2}.get(look, 0) as int
-	for m: ShaderMaterial in p.mats:
-		m.set_shader_parameter("state", state)
+	(p.muscle as Node3D).visible = look == "muscle"
+	(p.skin as Node3D).visible = look == "skin" or look == "alive"
+	for mi in _meshes(p.skin):
+		mi.material_overlay = alive_mat if look == "alive" else null
 	if look == "alive" and was != "alive":
 		surge = 0.8
 	if animate and look != "" and is_inside_tree():
+		var full := body.scale
 		body.position.y = TOP + 0.012
-		body.scale = Vector3.ONE * 0.92
+		body.scale = full * 0.92
 		var tw := create_tween().set_parallel()
 		tw.tween_property(body, "position:y", TOP, 0.35).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
-		tw.tween_property(body, "scale", Vector3.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.tween_property(body, "scale", full, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 ## From the rules' table: slot -> null or {side: "muscle"|"skin", alive: bool}.
 func show_table(table: Dictionary) -> void:
@@ -277,10 +238,10 @@ func _process(delta: float) -> void:
 		for i in tries:
 			if randf() > 0.45 and surge <= 0.0:
 				continue
-			var piece: Array = BODY[slot][randi() % 2]
-			var a := _on_part(piece)
+			var box: AABB = parts[slot].box
+			var a := _on_part(box)
 			# Half the sparks jump to the steel, half crawl over the part.
-			var b := _on_part(piece) if randf() < 0.5 else Vector3(a.x + randf_range(-0.02, 0.02), TOP + 0.001, signf(a.z if absf(a.z) > 0.001 else 1.0) * (WID / 2 - 0.004))
+			var b := _on_part(box) if randf() < 0.5 else Vector3(a.x + randf_range(-0.02, 0.02), TOP + 0.001, signf(a.z if absf(a.z) > 0.001 else 1.0) * (WID / 2 - 0.004))
 			_bolt(a, b)
 			n += 1
 	if n == 0:
@@ -288,12 +249,11 @@ func _process(delta: float) -> void:
 		arc_mesh.surface_add_vertex(Vector3.ZERO)
 	arc_mesh.surface_end()
 
-func _on_part(piece: Array) -> Vector3:
-	var d := Vector3(randf_range(-1, 1), randf_range(0.2, 1), randf_range(-1, 1)).normalized()
-	if piece[0] == "ell":
-		return piece[1] + Vector3(0, TOP, 0) + d * (piece[2] as Vector3) * 1.05
-	var t := randf()
-	return (piece[1] as Vector3).lerp(piece[2], t) + Vector3(0, TOP, 0) + d * lerpf(piece[3], piece[4], t) * 1.1
+## A point on the upper skin of a part, roughly: inside its box, toward the top.
+func _on_part(box: AABB) -> Vector3:
+	var c := box.get_center()
+	var h := box.size / 2
+	return Vector3(c.x + randf_range(-0.9, 0.9) * h.x, box.position.y + box.size.y * randf_range(0.55, 1.0), c.z + randf_range(-0.6, 0.6) * h.z)
 
 func _bolt(a: Vector3, b: Vector3) -> void:
 	var steps := 6

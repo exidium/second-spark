@@ -1,0 +1,49 @@
+{
+ "about": "The companion's body parts (D187): concepts edited with Nano Banana 2.1 from the two full-body concepts, one image per part and look. Then Prism 3.1 from each concept, Smart Low Poly 3.0 (2,500 triangles head and torso, 1,500 limbs, material restored, seams padded), downloaded to art/source/3dModels/ai/companion/<id>-low.glb, then art-pipeline/body_parts.py into godot/assets/cabin/body/<id>.glb.",
+ "full_body": {
+  "skin": "4bf9c6a2-2cca-4482-b9f5-00f4015e0ad0-0",
+  "muscle": "1a9b60b6-7d2f-4606-b08c-d568ad3de7c6-0"
+ },
+ "parts": {
+  "head-skin": {
+   "concept": "9ee715ac-384a-4f21-96bb-50e0951132f5-0",
+   "prism": "99641099-53ed-40ee-a426-bc82cc550e4b",
+   "low_poly": "473a8d54-f5ea-41f6-bc1a-2b50e449c4a1"
+  },
+  "torso-skin": {
+   "concept": "5cd2d8a7-fe94-4b2c-9f1e-c9042d71ca25-0",
+   "prism": "107f6d88-3ba1-4bf3-94a1-9da5ed5f023f",
+   "low_poly": "d445e42d-f52e-41f5-8a23-04756212e9a2"
+  },
+  "arm-skin": {
+   "concept": "e91a4a0b-dcb5-4f19-8e01-4770126fddc2-0",
+   "prism": "e1cb780f-c914-44c1-96a2-39f180a6718c",
+   "low_poly": "0ea9af22-198a-4d7c-aef5-0c3714d4ced2"
+  },
+  "leg-skin": {
+   "concept": "4c612fd6-2087-4b8b-a5d6-6100bcce6acc-0",
+   "prism": "41009d64-ee97-42a5-aac3-9eb066e7ccc5",
+   "low_poly": "9f6fe3e6-b135-4573-9fb0-862402b4cfed"
+  },
+  "head-muscle": {
+   "concept": "3c7f7a08-dc91-42d9-9199-32294104fa67-0",
+   "prism": "f534483b-c31c-4322-977e-ca3ba9e963b9",
+   "low_poly": "fa0d972b-20d1-4bef-a9ed-16f82aa55534"
+  },
+  "torso-muscle": {
+   "concept": "a9903bc5-6db3-467f-8157-54488161afa0-0",
+   "prism": "a8259080-1eef-4462-8828-7240fc8f6aff",
+   "low_poly": "844f2d7f-7bf4-4a2e-bdef-44afa8aff9bf"
+  },
+  "arm-muscle": {
+   "concept": "a71ce9af-a3da-4e47-b3b6-c9b59de30237-0",
+   "prism": "4db91608-921b-421b-b25b-7b14b4dcf332",
+   "low_poly": "be5cfde4-b3e7-4bff-903d-d703bec06585"
+  },
+  "leg-muscle": {
+   "concept": "3c687c24-a37c-4ea2-bdfa-70baff5ec2ca-0",
+   "prism": "a39d062d-92ba-44a2-bc3b-4d882bdeb3dd",
+   "low_poly": "305a26f8-71b2-4bed-a90d-6ad8cec29c0e"
+  }
+ }
+}
