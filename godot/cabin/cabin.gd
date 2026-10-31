@@ -33,16 +33,15 @@ var t_total := 0.0
 var intro_done := false
 var font: Font
 var shot_mode := false
-## Your things lie in a row below the map, between it and you (D190): operating table, tray, stores.
+## Your things lie in a row below the map, between it and you (D190): the operating table, upright, and the tray, which
+## holds the stores too since D191.
 const ROW_Z := 0.625
-var optable: OperatingTable            # your operating table (D186), three quarters size since D190
-const LAB_AT := Vector3(-0.34, 0, ROW_Z)
-const LAB_SCALE := 0.75
-var tray: DecayTray                    # your decomposition tray (D189)
-const TRAY_AT := Vector3(0.03, 0, ROW_Z)
+var optable: OperatingTable            # your operating table (D186), 0.7 size since D191
+const LAB_AT := Vector3(-0.22, 0, ROW_Z)
+const LAB_SCALE := 0.7
+var tray: DecayTray                    # your decomposition tray (D189), flat since D191
+const TRAY_AT := Vector3(0.12, 0, ROW_Z)
 const TRAY_SCALE := 0.8
-var stores: Stores                     # preserved flesh and bone (D190)
-const STORES_AT := Vector3(0.36, 0, ROW_Z)
 
 
 func _ready() -> void:
@@ -398,7 +397,7 @@ func _candle(pos: Vector3, size: float, turn_deg: float, energy: float) -> void:
 
 func _props() -> void:
 	# Two candles again (D183): front left and back right, each a little stronger than in D181.
-	_candle(Vector3(-0.66, 0, 0.44), 1.15, 30, 0.7)
+	_candle(Vector3(-0.58, 0, 0.56), 1.15, 30, 0.7)
 	_candle(Vector3(0.72, 0, -0.42), 1.3, -50, 0.6)
 	# Bruno's Leyden jar where the specimen jar stood, its upper body glass (D182), and his scalpel by the map.
 	var jar := _prop("res://assets/cabin/props/leiden_glass.glb", Vector3(-0.72, 0, -0.38), 20)
@@ -421,7 +420,7 @@ func _props() -> void:
 				var inside := (m as BaseMaterial3D).duplicate() as BaseMaterial3D
 				inside.cull_mode = BaseMaterial3D.CULL_DISABLED
 				mi.set_surface_override_material(i, inside)
-	_prop("res://assets/cabin/props/scalpel.glb", Vector3(-0.57, 0, 0.7), 62)
+	_prop("res://assets/cabin/props/scalpel.glb", Vector3(-0.38, 0, 0.7), 62)
 	# A brass bell.
 	var bell := Vector3(0.64, 0, 0.3)
 	var brass := _col_mat(Color("#8a6a32"), 0.3, 0.85)
@@ -434,12 +433,13 @@ func _props() -> void:
 	var quill := _mesh(_cyl(0.002, 0.004, 0.22, 6), _col_mat(Color("#e8e2d4"), 0.6), Vector3(0.7, 0.004, 0.72))
 	quill.rotation_degrees = Vector3(0, 30, 88)
 
-## Your operating table (D186) at the left of your row below the map (D190), head toward the middle. Until the rules drive it, it shows
+## Your operating table (D186) at the left of your row below the map (D190), head away from you (D191). Until the rules drive it, it shows
 ## one of each look: muscle, skin and alive, and two damaged parts.
 func _operating_table() -> void:
 	optable = OperatingTable.new()
 	optable.position = LAB_AT
 	optable.scale = Vector3.ONE * LAB_SCALE
+	optable.rotation_degrees.y = 90
 	add_child(optable)
 	optable.pick.set_meta("id", "lab")
 	optable.show_table({"head": {"side": "skin", "alive": false, "dmg": 0}, "torso": {"side": "skin", "alive": true, "dmg": 0},
@@ -451,18 +451,15 @@ func _operating_table() -> void:
 	tray.scale = Vector3.ONE * TRAY_SCALE
 	add_child(tray)
 	tray.show_mats(SAMPLE_MATS)
-	stores = Stores.new()
-	stores.position = STORES_AT
-	add_child(stores)
-	stores.show_stores(4, 7)
+	tray.show_stores(4, 7)
 
 const SAMPLE_MATS := {"muscle": [6, 3, 0, 2], "organ": [2, 4, 1, 0], "blood": [3, 2, 0, 0], "animal": [0, 1, 5, 3]}
 
 func _lab_view() -> Transform3D:
-	return Transform3D(Basis(), LAB_AT + Vector3(0, 0.25, 0.22)).looking_at(LAB_AT + Vector3(0, 0.05, 0), Vector3.UP)
+	return Transform3D(Basis(), LAB_AT + Vector3(0.12, 0.24, 0.2)).looking_at(LAB_AT + Vector3(0, 0.045, 0), Vector3.UP)
 
 func _tray_view() -> Transform3D:
-	return Transform3D(Basis(), TRAY_AT + Vector3(0, 0.24, 0.2)).looking_at(TRAY_AT, Vector3.UP)
+	return Transform3D(Basis(), TRAY_AT + Vector3(0, 0.26, 0.17)).looking_at(TRAY_AT + Vector3(0, 0, -0.01), Vector3.UP)
 
 func _vignette() -> void:
 	var layer := CanvasLayer.new()
@@ -561,6 +558,7 @@ func _update_hover() -> void:
 	if not hit.is_empty() and (hit.collider as Node).has_meta("id"):
 		id = String((hit.collider as Node).get_meta("id"))
 	set_hover(id)
+	tray.hover_at(hit.position if id == "tray" else null)
 
 ## Lift a landmark a little, tilt it, tip its name plate up; drop the last one.
 func set_hover(id: String) -> void:
@@ -622,9 +620,9 @@ func _unhandled_input(e: InputEvent) -> void:
 	if not intro_done:
 		return
 	if e is InputEventMouseButton and e.pressed:
-		if e.button_index == MOUSE_BUTTON_LEFT and hovered == "lab":
-			leaning = "lab"
-			_move_camera(_lab_view())
+		if e.button_index == MOUSE_BUTTON_LEFT and hovered in ["lab", "tray"]:
+			leaning = hovered
+			_move_camera(_lab_view() if hovered == "lab" else _tray_view())
 		elif e.button_index == MOUSE_BUTTON_LEFT and hovered != "":
 			go_to(hovered)
 		elif e.button_index == MOUSE_BUTTON_RIGHT:
@@ -688,9 +686,9 @@ func _shots() -> void:
 	tray.set_ice(2)
 	await get_tree().create_timer(1.2).timeout
 	await _save("res://../tests/cabin-tray-ice.png")
-	cam_from = Transform3D(Basis(), STORES_AT + Vector3(-0.05, 0.16, 0.2)).looking_at(STORES_AT + Vector3(0, 0.02, 0), Vector3.UP)
-	cam_to = cam_from
-	await _save("res://../tests/cabin-stores.png")
+	tray.hover_at(tray.to_global(tray._cell_centre(0, 1)))
+	await _save("res://../tests/cabin-tray-hover.png")
+	tray.hover_at(null)
 	set_hover("")
 	go_to("church")
 	await get_tree().create_timer(1.6).timeout

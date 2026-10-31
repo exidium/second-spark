@@ -20,8 +20,8 @@ const BODY := {
 	"torso": ["torso", Vector3(0.089, 0, 0), 0.0, false],
 	"armL": ["arm", Vector3(0.078, 0, 0.034), 8.0, false],
 	"armR": ["arm", Vector3(0.078, 0, -0.034), -8.0, true],
-	"legL": ["leg", Vector3(-0.005, 0, 0.018), 4.0, false],
-	"legR": ["leg", Vector3(-0.005, 0, -0.018), -4.0, true],
+	"legL": ["leg", Vector3(-0.005, 0, 0.018), 4.0, true],
+	"legR": ["leg", Vector3(-0.005, 0, -0.018), -4.0, false],
 }
 
 var looks := {}                        # slot -> "", "muscle", "skin", "alive"

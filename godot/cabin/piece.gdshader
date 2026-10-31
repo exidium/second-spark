@@ -6,7 +6,7 @@ shader_type spatial;
 
 uniform vec3 fresh : source_color = vec3(0.54, 0.23, 0.16);
 uniform vec3 rotten : source_color = vec3(0.24, 0.2, 0.13);
-uniform int kind = 0;          // 0 muscle, 1 organ, 2 blood, 3 animal, 4 preserved
+uniform int kind = 0;          // 0 muscle, 1 organ, 2 blood, 3 animal, 4 preserved, 5 bone (a cube, D191)
 uniform float rot : hint_range(0.0, 1.0) = 0.0;
 uniform float frost : hint_range(0.0, 1.0) = 0.0;
 instance uniform float seed = 0.0;
@@ -70,6 +70,12 @@ void fragment() {
 		base = fresh * mix(0.25, 0.85, pits) * (0.8 + 0.4 * n);
 		h = pits * 0.8 + n * 0.3;
 		rough = mix(0.3, 0.1, pits);
+	} else if (kind == 5) {
+		// Bone: pale and dry, pitted with small pores.
+		float pores = smoothstep(0.78, 0.9, noise(p * 7.0));
+		base = fresh * (0.86 + 0.22 * n) - vec3(0.25, 0.24, 0.2) * pores;
+		h = n * 0.4 - pores * 0.5;
+		rough = 0.7;
 	} else {
 		// Animal: orange meat with a strip of bristly brown hide along the top.
 		float fur = noise(p * vec3(16.0, 3.0, 16.0));
