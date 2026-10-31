@@ -2,14 +2,13 @@ class_name OperatingTable
 extends Node3D
 ## Your operating table (D186): a small steel table on the cabin table with the companion lying on it, part by part.
 ## Each of the six parts (head, torso, armL, armR, legL, legR) is empty (a faint outline etched in the steel), muscle
-## (raw red), skin (sewn-on sallow skin) or alive (the skin with blue veins and sparks); a damaged part is washed red. The parts are low-poly models
+## (raw red), skin (sewn-on sallow skin) or alive (the skin with a small blue eye over it, D192); a damaged part is washed red. The parts are low-poly models
 ## (D187, `art-pipeline/body_parts.py`, assets/cabin/body/<part>-<look>.glb); the table is built in code. Metres, the
 ## body's head toward local +x. `set_part(slot, look, damage)` with look "", "muscle", "skin" or "alive".
 
-const TOP := 0.075                     # height of the table top
+const TOP := 0.012                     # height of the top: a low slab on the wood, no legs (D192)
 const LEN := 0.32
 const WID := 0.13
-const ARC_EVERY := 0.06                # seconds between new sparks
 
 ## Each part: its model, where its joint end lies on the table top (metres, head toward +x), its turn outward in
 ## degrees, and whether it is mirrored (the models are of the left arm and leg; left is +z). Placed by the full-body
@@ -26,42 +25,23 @@ const BODY := {
 
 var looks := {}                        # slot -> "", "muscle", "skin", "alive"
 var damage := {}                       # slot -> damage on it (0 or 1)
-var parts := {}                        # slot -> {body, muscle, skin, ghost: Node3D, box: AABB, overlay: ShaderMaterial}
-var arcs: MeshInstance3D
-var arc_mesh := ImmediateMesh.new()
-var glow: OmniLight3D
-var t_arc := 0.0
-var surge := 0.0                       # extra sparks for a moment after a part comes alive
+var parts := {}                        # slot -> {body, muscle, skin, ghost: Node3D, eye: MeshInstance3D, overlay: ShaderMaterial}
 var overlay_shader: Shader
+var eye_mat: StandardMaterial3D
 var pick: StaticBody3D
 
 
 func _init() -> void:
 	overlay_shader = load("res://cabin/part_overlay.gdshader")
+	eye_mat = StandardMaterial3D.new()
+	eye_mat.albedo_texture = _eye_texture()
+	eye_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	eye_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_table()
 	for slot: String in BODY:
 		_part(slot)
 		looks[slot] = ""
 		parts[slot].body.visible = false
-	arcs = MeshInstance3D.new()
-	arcs.mesh = arc_mesh
-	var am := ShaderMaterial.new()
-	am.shader = Shader.new()
-	am.shader.code = """
-shader_type spatial;
-render_mode unshaded, blend_add, depth_draw_never, shadows_disabled, cull_disabled;
-void fragment() { ALBEDO = vec3(0.45, 0.75, 1.0) * 6.0; }
-"""
-	arcs.material_override = am
-	arcs.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(arcs)
-	glow = OmniLight3D.new()
-	glow.light_color = Color("#7fb2ff")
-	glow.omni_range = 0.3
-	glow.omni_attenuation = 2.0
-	glow.light_energy = 0.0
-	glow.position = Vector3(0.02, TOP + 0.1, 0)
-	add_child(glow)
 
 
 # ---------------------------------------------------------------- the table
@@ -97,8 +77,8 @@ func _cylm(r: float, h: float, seg := 12) -> CylinderMesh:
 func _table() -> void:
 	var steel := _steel()
 	var dark := _steel(Color("#4a4e50"), 0.5)
-	# The top: a steel slab with a raised lip all round, a drain at the foot.
-	_add(_boxm(Vector3(LEN, 0.006, WID)), steel, Vector3(0, TOP - 0.003, 0))
+	# The top: a solid steel slab lying on the wood, a raised lip all round, a drain at the foot.
+	_add(_boxm(Vector3(LEN, TOP, WID)), steel, Vector3(0, TOP / 2, 0))
 	for s: float in [-1.0, 1.0]:
 		_add(_boxm(Vector3(LEN, 0.006, 0.004)), steel, Vector3(0, TOP + 0.002, s * (WID / 2 - 0.002)))
 		_add(_boxm(Vector3(0.004, 0.006, WID)), steel, Vector3(s * (LEN / 2 - 0.002), TOP + 0.002, 0))
@@ -107,17 +87,6 @@ func _table() -> void:
 	var rest := _add(_cylm(0.012, 0.05, 16), dark, Vector3(LEN / 2 - 0.013, TOP + 0.002, 0))
 	rest.rotation_degrees.x = 90
 	rest.scale = Vector3(1, 1, 0.35)
-	# Legs on small casters, a slatted shelf below.
-	for sx: float in [-1.0, 1.0]:
-		for sz: float in [-1.0, 1.0]:
-			var at := Vector3(sx * (LEN / 2 - 0.015), 0, sz * (WID / 2 - 0.014))
-			_add(_cylm(0.0045, TOP - 0.012), steel, at + Vector3(0, (TOP - 0.012) / 2 + 0.009, 0))
-			_add(_cylm(0.007, 0.006, 12), dark, at + Vector3(0, 0.007, 0)).rotation_degrees.x = 90
-	for i in 5:
-		var z := -WID / 2 + 0.02 + i * (WID - 0.04) / 4.0
-		_add(_boxm(Vector3(LEN - 0.03, 0.002, 0.006)), dark, Vector3(0, 0.024, z))
-	for sz: float in [-1.0, 1.0]:
-		_add(_boxm(Vector3(LEN - 0.03, 0.004, 0.004)), steel, Vector3(0, 0.024, sz * (WID / 2 - 0.014)))
 	# Leather straps with brass buckles across the wrists and ankles hang off the sides.
 	var leather := StandardMaterial3D.new()
 	leather.albedo_color = Color("#3b2618")
@@ -126,8 +95,8 @@ func _table() -> void:
 	for x: float in [-0.12, 0.0]:
 		for s: float in [-1.0, 1.0]:
 			_add(_boxm(Vector3(0.008, 0.001, 0.02)), leather, Vector3(x, TOP + 0.0055, s * (WID / 2 - 0.004)))
-			_add(_boxm(Vector3(0.008, 0.03, 0.0012)), leather, Vector3(x, TOP - 0.012, s * (WID / 2 + 0.0008)))
-			_add(_boxm(Vector3(0.01, 0.008, 0.0015)), brass, Vector3(x, TOP - 0.022, s * (WID / 2 + 0.0015)))
+			_add(_boxm(Vector3(0.008, TOP, 0.0012)), leather, Vector3(x, TOP / 2, s * (WID / 2 + 0.0008)))
+			_add(_boxm(Vector3(0.01, 0.006, 0.0015)), brass, Vector3(x, TOP / 2, s * (WID / 2 + 0.0015)))
 	# For clicks.
 	pick = StaticBody3D.new()
 	var shape := CollisionShape3D.new()
@@ -179,7 +148,7 @@ func _part(slot: String) -> void:
 	for mi in _meshes(flat):
 		mi.material_override = etch
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	# Where sparks can start: the skin model's box, in table space.
+	# Alive (D192): a small blue eye lying flat just over the middle of the part, across the table.
 	var box := AABB()
 	var first := true
 	for mi in _meshes(skin):
@@ -187,20 +156,32 @@ func _part(slot: String) -> void:
 		box = b if first else box.merge(b)
 		first = false
 	box = body.transform * box
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.026, 0.013)
+	var eye := MeshInstance3D.new()
+	eye.mesh = quad
+	eye.material_override = eye_mat
+	eye.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	eye.rotation_degrees = Vector3(-90, 90, 0)
+	var c := box.get_center()
+	eye.position = Vector3(c.x, box.end.y + 0.004, c.z)
+	eye.visible = false
+	add_child(eye)
 	var overlay := ShaderMaterial.new()
 	overlay.shader = overlay_shader
 	overlay.set_shader_parameter("seed", float(slot.hash() % 97))
-	parts[slot] = {"body": body, "muscle": muscle, "skin": skin, "ghost": ghost, "box": box, "overlay": overlay}
+	parts[slot] = {"body": body, "muscle": muscle, "skin": skin, "ghost": ghost, "eye": eye, "overlay": overlay}
 
-## Show one part as "", "muscle", "skin" or "alive", with damage (0 or 1) washing it red. A new or changed part
+## Show one part as "", "muscle", "skin" or "alive" (an eye over it), with damage (0 or 1) washing it red. A new or changed part
 ## settles onto the table with a little bounce.
 func set_part(slot: String, look: String, dmg := 0, animate := true) -> void:
 	var p: Dictionary = parts[slot]
 	var overlay: ShaderMaterial = p.overlay
 	damage[slot] = dmg
-	overlay.set_shader_parameter("alive", 1.0 if look == "alive" else 0.0)
+	overlay.set_shader_parameter("alive", 0.0)
 	overlay.set_shader_parameter("damaged", 1.0 if dmg > 0 and look != "" else 0.0)
-	var on := look == "alive" or (dmg > 0 and look != "")
+	(p.eye as MeshInstance3D).visible = look == "alive"
+	var on := dmg > 0 and look != ""
 	for model: Node3D in [p.muscle, p.skin]:
 		for mi in _meshes(model):
 			mi.material_overlay = overlay if on else null
@@ -213,8 +194,6 @@ func set_part(slot: String, look: String, dmg := 0, animate := true) -> void:
 	(p.ghost as Node3D).visible = look == ""
 	(p.muscle as Node3D).visible = look == "muscle"
 	(p.skin as Node3D).visible = look == "skin" or look == "alive"
-	if look == "alive" and was != "alive":
-		surge = 0.8
 	if animate and look != "" and is_inside_tree():
 		var full := body.scale
 		body.position.y = TOP + 0.012
@@ -230,55 +209,31 @@ func show_table(table: Dictionary) -> void:
 		set_part(slot, "" if t == null else "alive" if t.alive else String(t.side), 0 if t == null else int(t.get("dmg", 0)))
 
 
-# ---------------------------------------------------------------- sparks
+# ---------------------------------------------------------------- the eye
 
-func _process(delta: float) -> void:
-	var alive: Array[String] = []
-	for slot: String in looks:
-		if looks[slot] == "alive":
-			alive.append(slot)
-	surge = maxf(0.0, surge - delta)
-	glow.light_energy = 0.0 if alive.is_empty() else (0.008 + 0.004 * alive.size()) * (0.7 + 0.3 * sin(Time.get_ticks_msec() * 0.008) + randf_range(-0.15, 0.15)) + surge * 0.04
-	t_arc -= delta
-	if t_arc > 0.0:
-		return
-	t_arc = ARC_EVERY
-	arc_mesh.clear_surfaces()
-	if alive.is_empty():
-		return
-	var n := 0
-	arc_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
-	for slot in alive:
-		var tries := 1 + (2 if surge > 0.0 else 0)
-		for i in tries:
-			if randf() > 0.45 and surge <= 0.0:
-				continue
-			var box: AABB = parts[slot].box
-			var a := _on_part(box)
-			# Half the sparks jump to the steel, half crawl over the part.
-			var b := _on_part(box) if randf() < 0.5 else Vector3(a.x + randf_range(-0.02, 0.02), TOP + 0.001, signf(a.z if absf(a.z) > 0.001 else 1.0) * (WID / 2 - 0.004))
-			_bolt(a, b)
-			n += 1
-	if n == 0:
-		arc_mesh.surface_add_vertex(Vector3.ZERO)
-		arc_mesh.surface_add_vertex(Vector3.ZERO)
-	arc_mesh.surface_end()
-
-## A point on the upper skin of a part, roughly: inside its box, toward the top.
-func _on_part(box: AABB) -> Vector3:
-	var c := box.get_center()
-	var h := box.size / 2
-	return Vector3(c.x + randf_range(-0.9, 0.9) * h.x, box.position.y + box.size.y * randf_range(0.55, 1.0), c.z + randf_range(-0.6, 0.6) * h.z)
-
-func _bolt(a: Vector3, b: Vector3) -> void:
-	var steps := 6
-	var prev := a
-	var side := (b - a).cross(Vector3.UP).normalized()
-	for i in range(1, steps + 1):
-		var t := float(i) / steps
-		var p := a.lerp(b, t)
-		if i < steps:
-			p += side * randf_range(-1, 1) * 0.004 + Vector3(0, randf_range(0, 0.005), 0)
-		arc_mesh.surface_add_vertex(prev)
-		arc_mesh.surface_add_vertex(p)
-		prev = p
+## A plain eye drawn in code: an almond outline, a blue iris and a dark pupil, on clear ground.
+static func _eye_texture() -> ImageTexture:
+	var w := 128
+	var h := 64
+	var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+	var blue := Color("#8fbcff")
+	var white := Color("#e8f0ff")
+	var dark := Color("#0e1630")
+	for y in h:
+		for x in w:
+			var u := (x + 0.5) / w * 2.0 - 1.0
+			var v := (y + 0.5) / h * 2.0 - 1.0
+			var lid := 0.92 * (1.0 - u * u)          # the almond's half height at u
+			var c := Color(0, 0, 0, 0)
+			if absf(v) < lid:
+				c = white
+				var r := Vector2(u * 2.0, v).length()   # round in pixels: u spans twice as many
+				if r < 0.62:
+					c = blue
+				if r < 0.26:
+					c = dark
+				if absf(v) > lid - 0.16:
+					c = blue
+			img.set_pixel(x, y, c)
+	img.generate_mipmaps()
+	return ImageTexture.create_from_image(img)

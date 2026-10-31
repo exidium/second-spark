@@ -37,10 +37,10 @@ var shot_mode := false
 ## holds the stores too since D191.
 const ROW_Z := 0.625
 var optable: OperatingTable            # your operating table (D186), 0.7 size since D191
-const LAB_AT := Vector3(-0.22, 0, ROW_Z)
+const LAB_AT := Vector3(-0.5 + OperatingTable.WID * 0.7 / 2, 0, ROW_Z)   # its left edge on the map's (D192)
 const LAB_SCALE := 0.7
 var tray: DecayTray                    # your decomposition tray (D189), flat since D191
-const TRAY_AT := Vector3(0.12, 0, ROW_Z)
+const TRAY_AT := Vector3(-0.5 + OperatingTable.WID * 0.7 + 0.015 + DecayTray.SIZE.x * 0.8 / 2, 0, ROW_Z)   # just right of it (D192)
 const TRAY_SCALE := 0.8
 
 
@@ -397,7 +397,7 @@ func _candle(pos: Vector3, size: float, turn_deg: float, energy: float) -> void:
 
 func _props() -> void:
 	# Two candles again (D183): front left and back right, each a little stronger than in D181.
-	_candle(Vector3(-0.58, 0, 0.56), 1.15, 30, 0.7)
+	_candle(Vector3(-0.7, 0, 0.36), 1.15, 30, 0.7)
 	_candle(Vector3(0.72, 0, -0.42), 1.3, -50, 0.6)
 	# Bruno's Leyden jar where the specimen jar stood, its upper body glass (D182), and his scalpel by the map.
 	var jar := _prop("res://assets/cabin/props/leiden_glass.glb", Vector3(-0.72, 0, -0.38), 20)
@@ -420,7 +420,7 @@ func _props() -> void:
 				var inside := (m as BaseMaterial3D).duplicate() as BaseMaterial3D
 				inside.cull_mode = BaseMaterial3D.CULL_DISABLED
 				mi.set_surface_override_material(i, inside)
-	_prop("res://assets/cabin/props/scalpel.glb", Vector3(-0.38, 0, 0.7), 62)
+	_prop("res://assets/cabin/props/scalpel.glb", Vector3(-0.6, 0, 0.14), 100)
 	# A brass bell.
 	var bell := Vector3(0.64, 0, 0.3)
 	var brass := _col_mat(Color("#8a6a32"), 0.3, 0.85)
@@ -456,7 +456,7 @@ func _operating_table() -> void:
 const SAMPLE_MATS := {"muscle": [6, 3, 0, 2], "organ": [2, 4, 1, 0], "blood": [3, 2, 0, 0], "animal": [0, 1, 5, 3]}
 
 func _lab_view() -> Transform3D:
-	return Transform3D(Basis(), LAB_AT + Vector3(0.12, 0.24, 0.2)).looking_at(LAB_AT + Vector3(0, 0.045, 0), Vector3.UP)
+	return Transform3D(Basis(), LAB_AT + Vector3(0.12, 0.2, 0.2)).looking_at(LAB_AT + Vector3(0, 0.02, 0), Vector3.UP)
 
 func _tray_view() -> Transform3D:
 	return Transform3D(Basis(), TRAY_AT + Vector3(0, 0.26, 0.17)).looking_at(TRAY_AT + Vector3(0, 0, -0.01), Vector3.UP)
