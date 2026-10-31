@@ -718,3 +718,8 @@ Bruno: "Make the blood in the board as small vials... potions. red ones. I didn'
 Bruno: "make the hover numbers in white. remove the plaque behind the numbers."
 - The lit rectangle over the hovered band or field is gone; only the count shows, above it.
 - The cabin's filmic tone map turned plain white labels cream, so the count is drawn over white (1.7) to come out pure white.
+
+## D197: The stage numerals in white, no plates
+Bruno: "do it." (remove the plates behind I to IV and paint the numerals white), then "the numbers are very dark still... I meant the I, II, III, IV".
+- The brass plates are gone: the 3D boxes over them, and the plates painted into the board's face, which `art-pipeline/decay_board.py` now paints out with the wood beside them when it crops the concept into `godot/assets/cabin/decay_board.webp`.
+- I, II, III and IV are white straight on the wood above each stage field, drawn over white (1.7) like the hover count so the tone map keeps them white.

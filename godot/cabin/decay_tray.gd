@@ -102,7 +102,7 @@ func _box(size: Vector3, mat: Material, pos: Vector3) -> MeshInstance3D:
 	add_child(mi)
 	return mi
 
-## The oak slab, its painted face, a raised iron frame over the painted one, brass plates engraved I to IV.
+## The oak slab, its painted face, a raised iron frame over the painted one, the numerals I to IV in white.
 func _board() -> void:
 	var iron := _mat(Color("#2b2a28"), 0.55, 0.6)
 	_box(Vector3(SIZE.x, THICK, SIZE.y), _mat(Color("#2a1c12"), 0.8), Vector3(0, THICK / 2, 0))
@@ -124,19 +124,17 @@ func _board() -> void:
 	for s: float in [-1.0, 1.0]:
 		_box(Vector3(SIZE.x, 0.002, fw), iron, Vector3(0, THICK + 0.001, s * (SIZE.y - fw) / 2))
 		_box(Vector3(fw, 0.002, SIZE.y), iron, Vector3(s * (SIZE.x - fw) / 2, THICK + 0.001, 0))
-	var brass := _mat(Color("#9c7c3c"), 0.35, 0.8)
+	# The stage numerals, white straight on the wood (D197: the brass plates are painted out of the face).
 	for st in 4:
 		var at := px(PLATE_PX[st])
-		_box(Vector3(115.0 / TEX.x * SIZE.x, 0.0012, 26.0 / TEX.y * SIZE.y), brass, at + Vector3(0, 0.0006, 0))
 		var l := Label3D.new()
 		l.text = ["I", "II", "III", "IV"][st]
 		l.font = font
 		l.font_size = 80
 		l.pixel_size = 0.00016
-		l.modulate = Color("#2a1d10")
-		l.shaded = true
+		l.modulate = Color(1.7, 1.7, 1.7)   # over white, as the hover count (D196)
 		l.rotation_degrees.x = -90
-		l.position = at + Vector3(0, 0.0013, 0)
+		l.position = at + Vector3(0, 0.0004, 0)
 		add_child(l)
 
 
