@@ -44,7 +44,6 @@ var keep_shown := {"preserved": 0, "bone": 0}
 var keep_mats := {}
 var pick: StaticBody3D
 var count_label: Label3D
-var count_glow: MeshInstance3D
 var hover_key := ""
 var font: Font
 
@@ -435,7 +434,7 @@ func show_stores(preserved: int, bone: int) -> void:
 				mi.position.y = y + 0.03
 				create_tween().tween_property(mi, "position:y", y, 0.3).set_delay(0.03 * (i - was)).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
-## The pick box (id "tray"), the glow over the hovered band or field and the count above it.
+## The pick box (id "tray") and the count shown over the hovered band or field, white, nothing behind it (D196).
 func _hover_bits() -> void:
 	pick = StaticBody3D.new()
 	var shape := CollisionShape3D.new()
@@ -446,20 +445,13 @@ func _hover_bits() -> void:
 	pick.add_child(shape)
 	pick.set_meta("id", "tray")
 	add_child(pick)
-	var glow := StandardMaterial3D.new()
-	glow.albedo_color = Color(1.0, 0.86, 0.55, 0.16)
-	glow.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	count_glow = _box(Vector3(1, 0.0004, 1), glow, Vector3.ZERO)
-	count_glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	count_glow.visible = false
 	count_label = Label3D.new()
 	count_label.font = font
 	count_label.font_size = 48                 # smaller and white (D195)
 	count_label.pixel_size = 0.0002
 	count_label.outline_size = 10
 	count_label.outline_modulate = Color(0, 0, 0, 0.8)
-	count_label.modulate = Color.WHITE
+	count_label.modulate = Color(1.7, 1.7, 1.7)  # over white: the filmic tone map would turn plain white cream (D196)
 	count_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	count_label.no_depth_test = true
 	count_label.visible = false
@@ -479,13 +471,12 @@ func square_at(local: Vector3) -> String:
 			return kind
 	return ""
 
-## Hover at a point in the world (or null to clear): light what is under it and show its count above it.
+## Hover at a point in the world (or null to clear): show the count of what is under it, above it.
 func hover_at(point: Variant) -> void:
 	var key := "" if point == null else square_at(to_local(point))
 	if key == hover_key:
 		return
 	hover_key = key
-	count_glow.visible = key != ""
 	count_label.visible = key != ""
 	if key == "":
 		return
@@ -502,7 +493,5 @@ func hover_at(point: Variant) -> void:
 		r = _band(MATS.find(mat), int(key.split(":")[1]))
 		text = "%d %s" % [maxi(shown[key], 0), mat]
 	var c := r.get_center()
-	count_glow.position = Vector3(c.x, THICK + 0.0004, c.y)
-	count_glow.scale = Vector3(r.size.x, 1, r.size.y)
 	count_label.text = text
 	count_label.position = Vector3(c.x, THICK + 0.025, c.y)

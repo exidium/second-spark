@@ -713,3 +713,8 @@ Bruno: "the right hand is not mirrored properly. the hand is palm down facing th
 Bruno: "Make the blood in the board as small vials... potions. red ones. I didn't like the quality numbers... make them a bit smaller and in white."
 - Blood on the decomposition board is a small corked glass vial with a round bottom, lying along its band a little askew, filled with deep red (`#7a0710`) that glows faintly so it stays red in the candlelight (`DecayTray._vial()`, `piece.gdshader` kind 2 is now clear glossy liquid). The blood takes its band's material, so it still darkens with its stage and frosts under ice; the vials slide at dawn like the other pieces.
 - The count shown on hover is smaller (48 instead of 72) and plain white with a thin dark outline.
+
+## D196: The hover count is pure white, with nothing behind it
+Bruno: "make the hover numbers in white. remove the plaque behind the numbers."
+- The lit rectangle over the hovered band or field is gone; only the count shows, above it.
+- The cabin's filmic tone map turned plain white labels cream, so the count is drawn over white (1.7) to come out pure white.
