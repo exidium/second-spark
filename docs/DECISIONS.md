@@ -708,3 +708,8 @@ Bruno: "the right hand is not mirrored properly. the hand is palm down facing th
 - `art-pipeline/body_parts.py`: the skin leg is mirrored (`MIRROR`) to be a left leg like the muscle one; the skin arm is turned over along its length (its `flip`) so it lies palm up, thumb outward. Both legs are cut straight across the upper thigh, 0.14 of the leg's length below the hip (`LEG_CUT`), the hole closed in dark flesh, the origin at the cut. The table mirrors the right arm and right leg again (`BODY`), legs placed at their cut (x -0.019).
 - Clicking the operating table now looks straight down over her, head at the top.
 - `CABIN_BODY=skin|muscle` with `-- --shot` lays every part in one look, to check the models.
+
+## D195: Blood as red vials; smaller white counts on the board
+Bruno: "Make the blood in the board as small vials... potions. red ones. I didn't like the quality numbers... make them a bit smaller and in white."
+- Blood on the decomposition board is a small corked glass vial with a round bottom, lying along its band a little askew, filled with deep red (`#7a0710`) that glows faintly so it stays red in the candlelight (`DecayTray._vial()`, `piece.gdshader` kind 2 is now clear glossy liquid). The blood takes its band's material, so it still darkens with its stage and frosts under ice; the vials slide at dawn like the other pieces.
+- The count shown on hover is smaller (48 instead of 72) and plain white with a thin dark outline.

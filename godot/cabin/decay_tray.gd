@@ -28,7 +28,7 @@ const BONE_PX := Rect2(779, 741, 375, 232)
 const FRAME_PX := 30.0                 # the painted iron frame's width
 ## Each material's colour when fresh, and when it has rotted to stage IV (SPEC 6.3: muscle brown, organ purple,
 ## blood red, animal orange); preserved flesh and bone keep.
-const FRESH := {"muscle": Color("#8a3b2a"), "organ": Color("#6b3a6e"), "blood": Color("#8e0f12"), "animal": Color("#b8682c"),
+const FRESH := {"muscle": Color("#8a3b2a"), "organ": Color("#6b3a6e"), "blood": Color("#7a0710"), "animal": Color("#b8682c"),
 	"preserved": Color("#a88272"), "bone": Color("#e6dcc2")}
 const ROTTEN := {"muscle": Color("#3c3420"), "organ": Color("#2f2633"), "blood": Color("#2a0d0c"), "animal": Color("#4a3a22"),
 	"preserved": Color("#a88272"), "bone": Color("#e6dcc2")}
@@ -173,20 +173,52 @@ func _piece_meshes() -> void:
 		organ.height = 0.0072
 		organ.radial_segments = 12
 		organ.rings = 7
-		var clot := SphereMesh.new()
-		clot.radius = 0.004
-		clot.height = 0.0026
-		clot.radial_segments = 16
-		clot.rings = 6
 		var chunk := BoxMesh.new()
 		chunk.size = Vector3(0.0072, 0.0042, 0.0055)
 		chunk.subdivide_width = 3
 		chunk.subdivide_height = 2
 		chunk.subdivide_depth = 3
-		for pair: Array in [["muscle", lump, 0.0016, 260.0], ["organ", organ, 0.0012, 200.0], ["blood", clot, 0.0014, 300.0], ["animal", chunk, 0.0011, 280.0]]:
+		for pair: Array in [["muscle", lump, 0.0016, 260.0], ["organ", organ, 0.0012, 200.0], ["animal", chunk, 0.0011, 280.0]]:
 			if not meshes.has(pair[0]):
 				meshes[pair[0]] = []
 			meshes[pair[0]].append(lumpy(pair[1], pair[2], 17 * k + MATS.find(pair[0]), pair[3]))
+	meshes["blood"] = [_vial()]
+
+## Blood is a small corked glass vial of red (D195), lying along local z: surface 0 the glass, 1 the blood (its
+## band's material, so it darkens as it ages), 2 the cork.
+static func _vial() -> ArrayMesh:
+	var mesh := ArrayMesh.new()
+	var along := Basis(Vector3.RIGHT, PI / 2)
+	for part: Array in [[0.0022, 0.0095, 0.0], [0.0018, 0.0068, -0.0011], [0.0019, 0.002, 0.0052]]:
+		var c := CylinderMesh.new()
+		c.top_radius = part[0]
+		c.bottom_radius = part[0]
+		c.height = part[1]
+		c.radial_segments = 12
+		c.rings = 1
+		var st := SurfaceTool.new()
+		st.append_from(c, 0, Transform3D(along, Vector3(0, 0.0022, part[2])))
+		if mesh.get_surface_count() < 2:
+			# a round bottom on the glass and on the blood
+			var cap := SphereMesh.new()
+			cap.radius = part[0]
+			cap.height = part[0] * 2
+			cap.radial_segments = 12
+			cap.rings = 6
+			st.append_from(cap, 0, Transform3D(Basis(), Vector3(0, 0.0022, part[2] - part[1] / 2)))
+		st.commit(mesh)
+	var glass := StandardMaterial3D.new()
+	glass.albedo_color = Color(0.85, 0.9, 0.92, 0.16)
+	glass.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	glass.roughness = 0.05
+	glass.rim_enabled = true
+	glass.rim = 0.3
+	mesh.surface_set_material(0, glass)
+	var cork := StandardMaterial3D.new()
+	cork.albedo_color = Color("#8a6a48")
+	cork.roughness = 0.9
+	mesh.surface_set_material(2, cork)
+	return mesh
 
 ## The surface of a piece: textured by piece.gdshader, `rot` 0 fresh to 1 at stage IV.
 static func piece_mat(mat: String, rot: float) -> ShaderMaterial:
@@ -225,9 +257,15 @@ func _fill(key: String, n: int) -> void:
 	for i in n:
 		var mi := MeshInstance3D.new()
 		mi.mesh = variants[i % variants.size()]
-		mi.material_override = cell_mats[key]
 		mi.set_instance_shader_parameter("seed", float(i) + MATS.find(mat) * 20.0)
 		var t := _place(mat, i, n)
+		if mat == "blood":
+			# a vial lies flat along the band's depth, a little askew; the blood inside takes the band's material
+			mi.set_surface_override_material(1, cell_mats[key])
+			t.basis = Basis(Vector3.UP, (t.basis.get_euler().y - PI) * 0.12)
+			t.origin.y = 0.0
+		else:
+			mi.material_override = cell_mats[key]
 		mi.transform = Transform3D(t.basis.scaled(Vector3.ONE * _shrink(stage)), t.origin)
 		cell.add_child(mi)
 
@@ -417,11 +455,11 @@ func _hover_bits() -> void:
 	count_glow.visible = false
 	count_label = Label3D.new()
 	count_label.font = font
-	count_label.font_size = 72
+	count_label.font_size = 48                 # smaller and white (D195)
 	count_label.pixel_size = 0.0002
-	count_label.outline_size = 16
-	count_label.outline_modulate = Color("#140c08")
-	count_label.modulate = Color("#f3e6c8")
+	count_label.outline_size = 10
+	count_label.outline_modulate = Color(0, 0, 0, 0.8)
+	count_label.modulate = Color.WHITE
 	count_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	count_label.no_depth_test = true
 	count_label.visible = false

@@ -65,11 +65,10 @@ void fragment() {
 		h = n * 0.6 - veins * 0.4;
 		rough = 0.18;
 	} else if (kind == 2) {
-		// Blood: a glossy clot, nearly black in its pits and folds.
-		float pits = smoothstep(0.35, 0.6, fbm(p * 2.6 + 7.0));
-		base = fresh * mix(0.25, 0.85, pits) * (0.8 + 0.4 * n);
-		h = pits * 0.8 + n * 0.3;
-		rough = mix(0.3, 0.1, pits);
+		// Blood: red liquid in a vial (D195), clear and glossy, barely textured.
+		base = fresh * (0.95 + 0.2 * n);
+		h = n * 0.05;
+		rough = 0.06;
 	} else if (kind == 5) {
 		// Bone: pale and dry, pitted with small pores.
 		float pores = smoothstep(0.78, 0.9, noise(p * 7.0));
@@ -100,6 +99,8 @@ void fragment() {
 	rough = mix(rough, 0.6, rime);
 
 	ALBEDO = base;
+	// The blood in its vial glows faintly, so it stays red in the candlelight.
+	EMISSION = kind == 2 ? vec3(0.5, 0.0, 0.02) * 0.45 * (1.0 - rot) : vec3(0.0);
 	ROUGHNESS = rough;
 	SPECULAR = 0.5;
 	// Bump from the pattern (screen-space derivatives), in metres: a few tenths of a millimetre.
