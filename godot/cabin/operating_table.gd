@@ -14,13 +14,14 @@ const WID := 0.13
 ## degrees, and whether it is mirrored (the models are of the left arm and leg; left is +z). Placed by the full-body
 ## concept's proportions (D188): she is 27 cm crown to sole, the crown at x 0.135; neck cut 0.17 of her height down,
 ## shoulders 0.21 down and 0.125 out, hips 0.52 down and 0.067 out; arms 8 and legs 4 degrees out, as she stands.
+## The legs start at their clean cut below the buttock (D194), 0.14 of the leg's length under the hips.
 const BODY := {
 	"head": ["head", Vector3(0.089, 0, 0), 0.0, false],
 	"torso": ["torso", Vector3(0.089, 0, 0), 0.0, false],
 	"armL": ["arm", Vector3(0.078, 0, 0.034), 8.0, false],
 	"armR": ["arm", Vector3(0.078, 0, -0.034), -8.0, true],
-	"legL": ["leg", Vector3(-0.005, 0, 0.018), 4.0, true],
-	"legR": ["leg", Vector3(-0.005, 0, -0.018), -4.0, false],
+	"legL": ["leg", Vector3(-0.019, 0, 0.018), 4.0, false],
+	"legR": ["leg", Vector3(-0.019, 0, -0.018), -4.0, true],
 }
 
 var looks := {}                        # slot -> "", "muscle", "skin", "alive"

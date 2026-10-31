@@ -456,7 +456,8 @@ func _operating_table() -> void:
 const SAMPLE_MATS := {"muscle": [6, 3, 0, 2], "organ": [2, 4, 1, 0], "blood": [3, 2, 0, 0], "animal": [0, 1, 5, 3]}
 
 func _lab_view() -> Transform3D:
-	return Transform3D(Basis(), LAB_AT + Vector3(0.12, 0.2, 0.2)).looking_at(LAB_AT + Vector3(0, 0.02, 0), Vector3.UP)
+	# Straight down over her, head at the top (D194).
+	return Transform3D(Basis(), LAB_AT + Vector3(0, 0.27, 0)).looking_at(LAB_AT, Vector3.FORWARD)
 
 func _tray_view() -> Transform3D:
 	return Transform3D(Basis(), TRAY_AT + Vector3(0, 0.26, 0.17)).looking_at(TRAY_AT + Vector3(0, 0, -0.01), Vector3.UP)
@@ -642,6 +643,13 @@ func _save(path: String) -> void:
 
 func _shots() -> void:
 	await get_tree().create_timer(5.0).timeout
+	# CABIN_BODY=skin|muscle lays every part in that look, to check the models.
+	var look := OS.get_environment("CABIN_BODY")
+	if look != "":
+		var t := {}
+		for slot: String in OperatingTable.BODY:
+			t[slot] = {"side": look, "alive": false, "dmg": 0}
+		optable.show_table(t)
 	print("CABIN fps %d, minis: %s" % [Engine.get_frames_per_second(), ", ".join(minis.keys().map(func(k: String) -> String: return "%s %.2f" % [k, (minis[k].node as Node3D).scale.y]))])
 	await _save("res://../tests/cabin-1.png")
 	if OS.get_environment("CABIN_TOP") != "":

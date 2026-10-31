@@ -12,6 +12,9 @@ and writes godot/assets/cabin/body/<part>-<look>.glb, ready to lie on the table:
   centred across, resting on z = 0;
 - textures down to 512 px (the parts are a few centimetres long), JPEG.
 The models are of the left arm and leg; the table mirrors them for the right.
+D194: the skin leg was generated as a right leg, so it is mirrored here (MIRROR) to be a left one like the muscle leg;
+the skin arm lay palm down, so it is turned over (flip). Legs end in a clean cut across the upper thigh, below the
+buttock (LEG_CUT of their length from the hip), closed in dark flesh; the origin is at the cut.
 """
 import os
 import sys
@@ -35,11 +38,13 @@ PARTS = {
     "head-muscle": (0.17, 0.11, "max", +1, 0.24, False),
     "torso-skin": (0.42, 0.235, "max", -1, 0.0, False),
     "torso-muscle": (0.42, 0.235, "max", -1, 0.0, False),
-    "arm-skin": (0.39, 0.045, "limb", -1, 0.0, False),
+    "arm-skin": (0.39, 0.045, "limb", -1, 0.0, True),
     "arm-muscle": (0.39, 0.045, "limb", -1, 0.0, False),
     "leg-skin": (0.48, 0.08, "limb", -1, 0.0, False),
     "leg-muscle": (0.48, 0.08, "limb", -1, 0.0, False),
 }
+MIRROR = {"leg-skin"}   # generated as a right leg
+LEG_CUT = 0.14           # of the leg's length, from the hip: the buttock and hip go
 
 
 def load(path):
@@ -72,6 +77,28 @@ def cut_bust(ob, frac):
         bmesh.ops.holes_fill(bm, edges=edges)
     bm.to_mesh(me)
     bm.free()
+
+
+def cut_thigh(ob, c):
+    """Cut the leg straight across at c metres from its hip end (x = 0, the leg runs to -x), close the hole in dark
+    flesh, and move the origin to the cut."""
+    me = ob.data
+    flesh = bpy.data.materials.new("cut")
+    flesh.use_nodes = True
+    flesh.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.25, 0.05, 0.04, 1)
+    me.materials.append(flesh)
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    geom = bm.verts[:] + bm.edges[:] + bm.faces[:]
+    res = bmesh.ops.bisect_plane(bm, geom=geom, plane_co=(-c, 0, 0), plane_no=(1, 0, 0), clear_outer=True)
+    edges = [e for e in res["geom_cut"] if isinstance(e, bmesh.types.BMEdge)]
+    if edges:
+        filled = bmesh.ops.holes_fill(bm, edges=edges)
+        for f in filled["faces"]:
+            f.material_index = len(me.materials) - 1
+    bm.to_mesh(me)
+    bm.free()
+    me.transform(Matrix.Translation((c, 0, 0)))
 
 
 def frame(ob, name):
@@ -153,6 +180,11 @@ def orient(ob, name):
     y0 = (min(c.y for c in co) + max(c.y for c in co)) / 2
     z0 = min(c.z for c in co)
     ob.data.transform(Matrix.Translation((-x0, -y0, -z0)))
+    if name in MIRROR:
+        ob.data.transform(Matrix.Diagonal((1, -1, 1, 1)))
+        ob.data.flip_normals()
+    if name.startswith("leg"):
+        cut_thigh(ob, LEG_CUT * length * H)
     ob.data.update()
     print(f"BODY {name}: length scale {kx:.4f}, width scale {ky:.4f} (ratio {ky / kx:.2f})")
 
