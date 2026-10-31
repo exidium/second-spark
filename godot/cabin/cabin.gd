@@ -544,14 +544,18 @@ func set_hover(id: String) -> void:
 func _plate_hover(id: String, on: bool) -> void:
 	var pv: Node3D = minis[id].plate
 	var mat: StandardMaterial3D = minis[id].plate_mat
+	# Heights are from where the plate rests on the map (D185): it used to drop to y 0, under the map, and vanish.
+	if not pv.has_meta("rest_y"):
+		pv.set_meta("rest_y", pv.position.y)
+	var rest: float = pv.get_meta("rest_y")
 	var tw := create_tween().set_parallel()
 	if on:
 		tw.tween_property(pv, "rotation:x", deg_to_rad(62.0), 0.32).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		tw.tween_property(pv, "position:y", 0.004, 0.2)
+		tw.tween_property(pv, "position:y", rest + 0.004, 0.2)
 		tw.tween_property(mat, "emission_energy_multiplier", 0.35, 0.2)
 	else:
 		tw.tween_property(pv, "rotation:x", 0.0, 0.25).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
-		tw.tween_property(pv, "position:y", 0.0, 0.2)
+		tw.tween_property(pv, "position:y", rest, 0.2)
 		tw.tween_property(mat, "emission_energy_multiplier", 0.0, 0.25)
 
 ## Lean in over a landmark and hop the pawn onto it.

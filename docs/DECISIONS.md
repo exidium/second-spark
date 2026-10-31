@@ -645,3 +645,6 @@ Bruno: "add back the second candle. its too dark now". The back-right candle fro
 
 ## D184: The flame comes from the wick
 Bruno: "the candle isnt right. The fire should be coming fromt he black part of the candle." The flame stood 3.4 cm off the wick, on the rim of the melted top. `WICK` in `cabin.gd` is now measured from candle.glb itself, from the dark texels of the wick near the top: (-0.0003, 0.156, 0.0026) m. Both candles' flames and lights start there.
+
+## D185: Name plates stay after hover
+Bruno: "The plaques go away once you move off them....". On hover-off the plate's height was tweened to y 0, which is under the map, so it sank out of sight. `_plate_hover` now remembers each plate's resting height and moves it relative to that: up 4 mm on hover, back to rest on leave.
