@@ -723,3 +723,8 @@ Bruno: "make the hover numbers in white. remove the plaque behind the numbers."
 Bruno: "do it." (remove the plates behind I to IV and paint the numerals white), then "the numbers are very dark still... I meant the I, II, III, IV".
 - The brass plates are gone: the 3D boxes over them, and the plates painted into the board's face, which `art-pipeline/decay_board.py` now paints out with the wood beside them when it crops the concept into `godot/assets/cabin/decay_board.webp`.
 - I, II, III and IV are white straight on the wood above each stage field, drawn over white (1.7) like the hover count so the tone map keeps them white.
+
+## D198: Board text in plain white, warmed by the light, with a dark rim
+Bruno: "too bright. You can make the white text be affected by the cream color... just make it have enough contrast to see."
+- The stage numerals I to IV and the hover count are plain white again (no longer over white at 1.7), so the tone map and candlelight warm them to cream like the rest of the table.
+- Each has a dark brown outline that keeps it readable on the wood and over the pieces.

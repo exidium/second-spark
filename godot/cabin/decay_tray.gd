@@ -132,7 +132,9 @@ func _board() -> void:
 		l.font = font
 		l.font_size = 80
 		l.pixel_size = 0.00016
-		l.modulate = Color(1.7, 1.7, 1.7)   # over white, as the hover count (D196)
+		l.modulate = Color(1, 1, 1)         # plain white, warmed cream by the candlelight (D198)
+		l.outline_size = 14                 # a dark rim so it reads on the wood
+		l.outline_modulate = Color(0.05, 0.03, 0.02, 0.85)
 		l.rotation_degrees.x = -90
 		l.position = at + Vector3(0, 0.0004, 0)
 		add_child(l)
@@ -449,7 +451,7 @@ func _hover_bits() -> void:
 	count_label.pixel_size = 0.0002
 	count_label.outline_size = 10
 	count_label.outline_modulate = Color(0, 0, 0, 0.8)
-	count_label.modulate = Color(1.7, 1.7, 1.7)  # over white: the filmic tone map would turn plain white cream (D196)
+	count_label.modulate = Color(1, 1, 1)      # plain white, warmed cream by the tone map; the outline keeps it readable (D198)
 	count_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	count_label.no_depth_test = true
 	count_label.visible = false
