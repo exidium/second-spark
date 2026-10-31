@@ -2,40 +2,42 @@ class_name OperatingTable
 extends Node3D
 ## Your operating table (D186): a small steel table on the cabin table with the companion lying on it, part by part.
 ## Each of the six parts (head, torso, armL, armR, legL, legR) is empty (a faint outline etched in the steel), muscle
-## (raw red), skin (sewn-on sallow skin) or alive (the skin with blue veins and sparks). The parts are low-poly models
+## (raw red), skin (sewn-on sallow skin) or alive (the skin with blue veins and sparks); a damaged part is washed yellow. The parts are low-poly models
 ## (D187, `art-pipeline/body_parts.py`, assets/cabin/body/<part>-<look>.glb); the table is built in code. Metres, the
-## body's head toward local +x. `set_part(slot, look)` with look "", "muscle", "skin" or "alive".
+## body's head toward local +x. `set_part(slot, look, damage)` with look "", "muscle", "skin" or "alive".
 
 const TOP := 0.075                     # height of the table top
 const LEN := 0.32
 const WID := 0.13
 const ARC_EVERY := 0.06                # seconds between new sparks
 
-## Each part: its model, where its joint end lies on the table top (metres, head toward +x), and whether it is
-## mirrored (the models are of the left arm and leg; left is +z).
+## Each part: its model, where its joint end lies on the table top (metres, head toward +x), its turn outward in
+## degrees, and whether it is mirrored (the models are of the left arm and leg; left is +z). Placed by the full-body
+## concept's proportions (D188): she is 27 cm crown to sole, the crown at x 0.135; neck cut 0.17 of her height down,
+## shoulders 0.21 down and 0.125 out, hips 0.52 down and 0.067 out; arms 8 and legs 4 degrees out, as she stands.
 const BODY := {
-	"head": ["head", Vector3(0.083, 0, 0), false],
-	"torso": ["torso", Vector3(0.088, 0, 0), false],
-	"armL": ["arm", Vector3(0.076, 0, 0.041), false],
-	"armR": ["arm", Vector3(0.076, 0, -0.041), true],
-	"legL": ["leg", Vector3(-0.016, 0, 0.016), false],
-	"legR": ["leg", Vector3(-0.016, 0, -0.016), true],
+	"head": ["head", Vector3(0.089, 0, 0), 0.0, false],
+	"torso": ["torso", Vector3(0.089, 0, 0), 0.0, false],
+	"armL": ["arm", Vector3(0.078, 0, 0.034), 8.0, false],
+	"armR": ["arm", Vector3(0.078, 0, -0.034), -8.0, true],
+	"legL": ["leg", Vector3(-0.005, 0, 0.018), 4.0, false],
+	"legR": ["leg", Vector3(-0.005, 0, -0.018), -4.0, true],
 }
 
 var looks := {}                        # slot -> "", "muscle", "skin", "alive"
-var parts := {}                        # slot -> {body, muscle, skin, ghost: Node3D, box: AABB}
+var damage := {}                       # slot -> damage on it (0 or 1)
+var parts := {}                        # slot -> {body, muscle, skin, ghost: Node3D, box: AABB, overlay: ShaderMaterial}
 var arcs: MeshInstance3D
 var arc_mesh := ImmediateMesh.new()
 var glow: OmniLight3D
 var t_arc := 0.0
 var surge := 0.0                       # extra sparks for a moment after a part comes alive
-var alive_mat: ShaderMaterial
+var overlay_shader: Shader
 var pick: StaticBody3D
 
 
 func _init() -> void:
-	alive_mat = ShaderMaterial.new()
-	alive_mat.shader = load("res://cabin/alive.gdshader")
+	overlay_shader = load("res://cabin/part_overlay.gdshader")
 	_table()
 	for slot: String in BODY:
 		_part(slot)
@@ -153,9 +155,11 @@ func _meshes(n: Node) -> Array[MeshInstance3D]:
 func _part(slot: String) -> void:
 	var kind: String = BODY[slot][0]
 	var at: Vector3 = BODY[slot][1]
-	var mirror: bool = BODY[slot][2]
+	var turn: float = BODY[slot][2]
+	var mirror: bool = BODY[slot][3]
 	var body := Node3D.new()
 	body.position = at + Vector3(0, TOP, 0)
+	body.rotation_degrees.y = turn
 	if mirror:
 		body.scale.z = -1
 	add_child(body)
@@ -164,6 +168,7 @@ func _part(slot: String) -> void:
 	# Empty: the skin model pressed almost flat into the steel, dark, as an outline of where the part goes.
 	var ghost := Node3D.new()
 	ghost.position = at + Vector3(0, TOP + 0.0003, 0)
+	ghost.rotation_degrees.y = turn
 	ghost.scale = Vector3(1, 0.03, -1 if mirror else 1)
 	add_child(ghost)
 	var etch := StandardMaterial3D.new()
@@ -182,22 +187,32 @@ func _part(slot: String) -> void:
 		box = b if first else box.merge(b)
 		first = false
 	box = body.transform * box
-	parts[slot] = {"body": body, "muscle": muscle, "skin": skin, "ghost": ghost, "box": box}
+	var overlay := ShaderMaterial.new()
+	overlay.shader = overlay_shader
+	overlay.set_shader_parameter("seed", float(slot.hash() % 97))
+	parts[slot] = {"body": body, "muscle": muscle, "skin": skin, "ghost": ghost, "box": box, "overlay": overlay}
 
-## Show one part as "", "muscle", "skin" or "alive". A new or changed part settles onto the table with a little bounce.
-func set_part(slot: String, look: String, animate := true) -> void:
+## Show one part as "", "muscle", "skin" or "alive", with damage (0 or 1) washing it yellow. A new or changed part
+## settles onto the table with a little bounce.
+func set_part(slot: String, look: String, dmg := 0, animate := true) -> void:
+	var p: Dictionary = parts[slot]
+	var overlay: ShaderMaterial = p.overlay
+	damage[slot] = dmg
+	overlay.set_shader_parameter("alive", 1.0 if look == "alive" else 0.0)
+	overlay.set_shader_parameter("damaged", 1.0 if dmg > 0 and look != "" else 0.0)
+	var on := look == "alive" or (dmg > 0 and look != "")
+	for model: Node3D in [p.muscle, p.skin]:
+		for mi in _meshes(model):
+			mi.material_overlay = overlay if on else null
 	if looks.get(slot, "") == look:
 		return
 	var was: String = looks.get(slot, "")
 	looks[slot] = look
-	var p: Dictionary = parts[slot]
 	var body: Node3D = p.body
 	body.visible = look != ""
 	(p.ghost as Node3D).visible = look == ""
 	(p.muscle as Node3D).visible = look == "muscle"
 	(p.skin as Node3D).visible = look == "skin" or look == "alive"
-	for mi in _meshes(p.skin):
-		mi.material_overlay = alive_mat if look == "alive" else null
 	if look == "alive" and was != "alive":
 		surge = 0.8
 	if animate and look != "" and is_inside_tree():
@@ -208,11 +223,11 @@ func set_part(slot: String, look: String, animate := true) -> void:
 		tw.tween_property(body, "position:y", TOP, 0.35).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 		tw.tween_property(body, "scale", full, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
-## From the rules' table: slot -> null or {side: "muscle"|"skin", alive: bool}.
+## From the rules' table: slot -> null or {side: "muscle"|"skin", alive: bool, dmg: int}.
 func show_table(table: Dictionary) -> void:
 	for slot: String in BODY:
 		var t = table.get(slot)
-		set_part(slot, "" if t == null else "alive" if t.alive else String(t.side))
+		set_part(slot, "" if t == null else "alive" if t.alive else String(t.side), 0 if t == null else int(t.get("dmg", 0)))
 
 
 # ---------------------------------------------------------------- sparks

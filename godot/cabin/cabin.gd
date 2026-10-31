@@ -427,16 +427,16 @@ func _props() -> void:
 	quill.rotation_degrees = Vector3(0, 30, 88)
 
 ## Your operating table (D186) on the right of the map, head toward the far candle. Until the rules drive it, it shows
-## one of each look: muscle, skin and alive.
+## one of each look: muscle, skin and alive, and two damaged parts.
 func _operating_table() -> void:
 	optable = OperatingTable.new()
 	optable.position = LAB_AT
 	optable.rotation_degrees.y = 90
 	add_child(optable)
 	optable.pick.set_meta("id", "lab")
-	optable.show_table({"head": {"side": "skin", "alive": false}, "torso": {"side": "skin", "alive": true},
-		"armL": {"side": "muscle", "alive": false}, "armR": {"side": "skin", "alive": true},
-		"legL": {"side": "skin", "alive": false}, "legR": {"side": "muscle", "alive": false}})
+	optable.show_table({"head": {"side": "skin", "alive": false, "dmg": 0}, "torso": {"side": "skin", "alive": true, "dmg": 0},
+		"armL": {"side": "muscle", "alive": false, "dmg": 1}, "armR": {"side": "skin", "alive": true, "dmg": 0},
+		"legL": {"side": "skin", "alive": false, "dmg": 1}, "legR": {"side": "muscle", "alive": false, "dmg": 0}})
 
 func _lab_view() -> Transform3D:
 	return Transform3D(Basis(), LAB_AT + Vector3(-0.2, 0.3, 0.24)).looking_at(LAB_AT + Vector3(0, 0.07, 0), Vector3.UP)

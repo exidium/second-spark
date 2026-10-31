@@ -5,10 +5,10 @@ blender -b --factory-startup --python art-pipeline/body_parts.py [-- part-look .
 Reads the low-poly models in art/source/3dModels/ai/companion/<part>-<look>-low.glb (Prism 3.1, then Smart Low Poly)
 and writes godot/assets/cabin/body/<part>-<look>.glb, ready to lie on the table:
 - on her back, the body's length along +X (head end), up +Z in Blender, so in Godot length +x, up +y;
-- the head and torso were made standing, face to +X; the arm and leg lying along Y (which end is the joint is found
-  from the end that is widest at its narrowest, which way is up from the hand's or foot's shape, with a per-model flip if it guesses wrong);
+- the head and torso were made standing, face to +X; an arm or leg lies along its own longest axis (which end is the
+  joint is found from the end that is widest at its narrowest, which way is up from the hand's or foot's shape, with a per-model flip if it guesses wrong);
 - the heads were made as busts: cut just under the neck stitches and the hole closed;
-- scaled to a length in metres, origin at the joint end (the neck for head and torso, shoulder or hip for a limb),
+- scaled to its length and, separately, its width from the full-body concept (see H), origin at the joint end (the neck for head and torso, shoulder or hip for a limb),
   centred across, resting on z = 0;
 - textures down to 512 px (the parts are a few centimetres long), JPEG.
 The models are of the left arm and leg; the table mirrors them for the right.
@@ -23,17 +23,22 @@ from mathutils import Matrix, Vector
 SRC = "art/source/3dModels/ai/companion"
 DST = "godot/assets/cabin/body"
 
-# part: (length in metres along the body, which way the free end points (+1 toward the head end), bust cut as a
-# fraction of the height from the bottom, flip "up" for limbs)
+# Sizes come from the full-body concept (out/companion/concept-skin.jpg, D188), as fractions of her height crown to
+# sole: head to the neck cut 0.17, shoulders across 0.235, torso neck to hips 0.42, arm 0.39 (upper arm 0.045 thick),
+# leg 0.48 (thigh 0.08 thick), head 0.11 wide. Each part is scaled to its length along the body and, separately, to
+# its width across (thickness scaled the same), so a fat or thin generated model still matches the others.
+H = 0.27   # her height on the table, metres
+# part: (length, width, width taken as "max" across the whole part or "limb" (median over the upper half), which way
+# the free end points (+1 toward the head end), bust cut as a fraction of the height from the bottom, flip up)
 PARTS = {
-    "head-skin": (0.052, +1, 0.2, False),
-    "head-muscle": (0.052, +1, 0.24, False),
-    "torso-skin": (0.112, -1, 0.0, False),
-    "torso-muscle": (0.112, -1, 0.0, False),
-    "arm-skin": (0.112, -1, 0.0, False),
-    "arm-muscle": (0.112, -1, 0.0, False),
-    "leg-skin": (0.128, -1, 0.0, False),
-    "leg-muscle": (0.128, -1, 0.0, False),
+    "head-skin": (0.17, 0.11, "max", +1, 0.2, False),
+    "head-muscle": (0.17, 0.11, "max", +1, 0.24, False),
+    "torso-skin": (0.42, 0.235, "max", -1, 0.0, False),
+    "torso-muscle": (0.42, 0.235, "max", -1, 0.0, False),
+    "arm-skin": (0.39, 0.045, "limb", -1, 0.0, False),
+    "arm-muscle": (0.39, 0.045, "limb", -1, 0.0, False),
+    "leg-skin": (0.48, 0.08, "limb", -1, 0.0, False),
+    "leg-muscle": (0.48, 0.08, "limb", -1, 0.0, False),
 }
 
 
@@ -71,46 +76,47 @@ def cut_bust(ob, frac):
 
 def frame(ob, name):
     """The part's long axis (joint end to free end) and its up direction, in the model's own coordinates."""
-    vs = [v.co.copy() for v in ob.data.vertices]
     if name.startswith(("head", "torso")):
         d = Vector((0, 0, 1)) if name.startswith("head") else Vector((0, 0, -1))
         return d, Vector((1, 0, 0))
-    ys = [v.y for v in vs]
-    lo, hi = min(ys), max(ys)
+    import numpy as np
+    P = np.array([v.co[:] for v in ob.data.vertices])
+    c = P.mean(0)
+    # The limb's own long axis: some models lie diagonally in their file.
+    w, V = np.linalg.eigh(np.cov((P - c).T))
+    ax, e1, e2 = V[:, 2], V[:, 1], V[:, 0]
+    t = (P - c) @ ax
+    lo, hi = t.min(), t.max()
     span = hi - lo
 
     def slab(a, b):
-        return [v for v in vs if a <= v.y <= b]
+        return P[(t >= a) & (t <= b)]
 
-    def radius(sl):
+    def narrow(sl):
         # the narrower width across: a cut thigh or shoulder is round, a foot or a flat hand is narrow one way
-        return min(max(v.x for v in sl) - min(v.x for v in sl), max(v.z for v in sl) - min(v.z for v in sl))
-    lo_s, hi_s = slab(lo, lo + 0.08 * span), slab(hi - 0.08 * span, hi)
-    joint_at_lo = radius(lo_s) > radius(hi_s)
-    d = Vector((0, 1, 0)) if joint_at_lo else Vector((0, -1, 0))
-    # Up: the hand or foot at the free end, against the middle of the limb. A foot's toes stick up; a hand lies
-    # flat, so its thin direction is up.
+        q = sl - c
+        return min(np.ptp(q @ e1), np.ptp(q @ e2))
+    joint_at_lo = narrow(slab(lo, lo + 0.08 * span)) > narrow(slab(hi - 0.08 * span, hi))
+    d = ax if joint_at_lo else -ax
+    # Up: the foot's toes stick up; a hand lies flat, so its thinnest direction across is up.
     end = slab(hi - 0.18 * span, hi) if joint_at_lo else slab(lo, lo + 0.18 * span)
     mid = slab(lo + 0.4 * span, lo + 0.6 * span)
-    ce, cm = sum(end, Vector()) / len(end), sum(mid, Vector()) / len(mid)
     if name.startswith("leg"):
-        up = Vector((ce.x - cm.x, 0, ce.z - cm.z))
+        up = end.mean(0) - mid.mean(0)
     else:
-        # the hand's thinnest direction across the limb
         best = None
         for i in range(36):
-            import math
-            a = math.pi * i / 36
-            n = Vector((math.cos(a), 0, math.sin(a)))
-            ext = max(v.dot(n) for v in end) - min(v.dot(n) for v in end)
+            a = np.pi * i / 36
+            n = np.cos(a) * e1 + np.sin(a) * e2
+            ext = np.ptp((end - c) @ n)
             if best is None or ext < best[0]:
                 best = (ext, n)
         up = best[1]
-    return d, up.normalized()
+    return Vector(d.tolist()), Vector(up.tolist()).normalized()
 
 
 def orient(ob, name):
-    length, sign, cut, flip = PARTS[name]
+    length, width, how, sign, cut, flip = PARTS[name]
     if cut > 0:
         cut_bust(ob, cut)
     d, up = frame(ob, name)
@@ -124,15 +130,31 @@ def orient(ob, name):
     dst = Matrix((td, tu, ts)).transposed()
     r = (dst @ src.transposed()).to_4x4()
     ob.data.transform(r)
-    xs = [v.co.x for v in ob.data.vertices]
-    k = length / (max(xs) - min(xs))
-    ob.data.transform(Matrix.Scale(k, 4))
+    co = [v.co for v in ob.data.vertices]
+    xs = [c.x for c in co]
+    x_lo, x_hi = min(xs), max(xs)
+    if how == "max":
+        across = max(c.y for c in co) - min(c.y for c in co)
+    else:
+        # median width across the upper half of the limb, from its joint end
+        widths = []
+        for i in range(10):
+            f = 0.08 + 0.04 * i
+            x = x_hi - f * (x_hi - x_lo) if sign < 0 else x_lo + f * (x_hi - x_lo)
+            ys = [c.y for c in co if abs(c.x - x) < 0.02 * (x_hi - x_lo)]
+            if ys:
+                widths.append(max(ys) - min(ys))
+        across = sorted(widths)[len(widths) // 2]
+    kx = length * H / (x_hi - x_lo)
+    ky = width * H / across
+    ob.data.transform(Matrix.Diagonal((kx, ky, ky, 1)))
     co = [v.co for v in ob.data.vertices]
     x0 = min(c.x for c in co) if sign > 0 else max(c.x for c in co)
     y0 = (min(c.y for c in co) + max(c.y for c in co)) / 2
     z0 = min(c.z for c in co)
     ob.data.transform(Matrix.Translation((-x0, -y0, -z0)))
     ob.data.update()
+    print(f"BODY {name}: length scale {kx:.4f}, width scale {ky:.4f} (ratio {ky / kx:.2f})")
 
 
 def main():
