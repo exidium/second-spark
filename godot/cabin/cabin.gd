@@ -33,6 +33,8 @@ var t_total := 0.0
 var intro_done := false
 var font: Font
 var shot_mode := false
+var optable: OperatingTable            # your operating table (D186), right of the map
+const LAB_AT := Vector3(0.7, 0, -0.02)
 
 
 func _ready() -> void:
@@ -49,6 +51,7 @@ func _ready() -> void:
 	_village()
 	_pawn()
 	_props()
+	_operating_table()
 	_vignette()
 	cam = Camera3D.new()
 	cam.fov = 50
@@ -423,6 +426,21 @@ func _props() -> void:
 	var quill := _mesh(_cyl(0.002, 0.004, 0.22, 6), _col_mat(Color("#e8e2d4"), 0.6), Vector3(0.5, 0.004, 0.5))
 	quill.rotation_degrees = Vector3(0, 30, 88)
 
+## Your operating table (D186) on the right of the map, head toward the far candle. Until the rules drive it, it shows
+## one of each look: muscle, skin and alive.
+func _operating_table() -> void:
+	optable = OperatingTable.new()
+	optable.position = LAB_AT
+	optable.rotation_degrees.y = 90
+	add_child(optable)
+	optable.pick.set_meta("id", "lab")
+	optable.show_table({"head": {"side": "skin", "alive": false}, "torso": {"side": "skin", "alive": true},
+		"armL": {"side": "muscle", "alive": false}, "armR": {"side": "skin", "alive": true},
+		"legL": {"side": "skin", "alive": false}, "legR": {"side": "muscle", "alive": false}})
+
+func _lab_view() -> Transform3D:
+	return Transform3D(Basis(), LAB_AT + Vector3(-0.2, 0.3, 0.24)).looking_at(LAB_AT + Vector3(0, 0.07, 0), Vector3.UP)
+
 func _vignette() -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = -1
@@ -525,14 +543,14 @@ func _update_hover() -> void:
 func set_hover(id: String) -> void:
 	if id == hovered:
 		return
-	if hovered != "":
+	if hovered != "" and minis.has(hovered):
 		var old: Node3D = minis[hovered].node
 		var tw := create_tween().set_parallel()
 		tw.tween_property(old, "position:y", 0.0, 0.2)
 		tw.tween_property(old, "rotation:z", 0.0, 0.2)
 		_plate_hover(hovered, false)
 	hovered = id
-	if id == "":
+	if id == "" or not minis.has(id):
 		return
 	var n: Node3D = minis[id].node
 	var tw2 := create_tween().set_parallel()
@@ -581,7 +599,10 @@ func _unhandled_input(e: InputEvent) -> void:
 	if not intro_done:
 		return
 	if e is InputEventMouseButton and e.pressed:
-		if e.button_index == MOUSE_BUTTON_LEFT and hovered != "":
+		if e.button_index == MOUSE_BUTTON_LEFT and hovered == "lab":
+			leaning = "lab"
+			_move_camera(_lab_view())
+		elif e.button_index == MOUSE_BUTTON_LEFT and hovered != "":
 			go_to(hovered)
 		elif e.button_index == MOUSE_BUTTON_RIGHT:
 			sit_back()
@@ -622,6 +643,12 @@ func _shots() -> void:
 	set_hover("church")
 	await get_tree().create_timer(0.5).timeout
 	await _save("res://../tests/cabin-2.png")
+	cam_from = _lab_view()
+	cam_to = cam_from
+	await _save("res://../tests/cabin-lab.png")
+	cam_from = Transform3D(Basis(), LAB_AT + Vector3(0, 0.36, 0.02)).looking_at(LAB_AT + Vector3(0, 0.07, 0), Vector3.FORWARD)
+	cam_to = cam_from
+	await _save("res://../tests/cabin-lab-top.png")
 	set_hover("")
 	go_to("church")
 	await get_tree().create_timer(1.6).timeout
