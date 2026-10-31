@@ -642,3 +642,6 @@ Three candidates came from Nano Banana (`gemini-3.1-flash-image`) for a seamless
 
 ## D183: Two candles again
 Bruno: "add back the second candle. its too dark now". The back-right candle from D181 returns at (0.72, -0.42). With two candles each is a little stronger than in D181 (0.7 front left, 0.6 back right, was 0.55 and 0.45), so the far side of the map reads as well as the near side. D182's single candle at 1.1 is gone.
+
+## D184: The flame comes from the wick
+Bruno: "the candle isnt right. The fire should be coming fromt he black part of the candle." The flame stood 3.4 cm off the wick, on the rim of the melted top. `WICK` in `cabin.gd` is now measured from candle.glb itself, from the dark texels of the wick near the top: (-0.0003, 0.156, 0.0026) m. Both candles' flames and lights start there.

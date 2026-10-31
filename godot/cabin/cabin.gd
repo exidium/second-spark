@@ -319,7 +319,7 @@ func _pawn() -> void:
 	pawn.position = pawn_at
 
 ## Bruno's melted candle (D181), with a flame drawn by `flame.gdshader`, a soft glow round it and a flickering light.
-const WICK := Vector3(0.0005, 0.16, 0.0366)   # the wick's tip on candle.glb, in metres at scale 1
+const WICK := Vector3(-0.0003, 0.156, 0.0026)  # the black wick's tip on candle.glb, in metres at scale 1 (D184, measured from its dark texels)
 
 func _prop(path: String, pos: Vector3, turn_deg: float, size := 1.0, shadows := true) -> Node3D:
 	var n := (load(path) as PackedScene).instantiate() as Node3D
