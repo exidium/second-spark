@@ -42,6 +42,8 @@ const LAB_SCALE := 0.7
 var tray: DecayTray                    # your decomposition board (D189, after Bruno's concept since D193)
 const TRAY_AT := Vector3(-0.5 + OperatingTable.WID * 0.7 + 0.015 + DecayTray.SIZE.x / 2, 0, ROW_Z)   # just right of it (D192)
 const TRAY_SCALE := 1.0
+var stats: StatsBoard                  # your stats board (D199): dials, francs, jars, police, cards
+const STATS_AT := Vector3(TRAY_AT.x + DecayTray.SIZE.x / 2 + 0.015 + StatsBoard.SIZE.x / 2, 0, ROW_Z)   # right of the tray
 
 
 func _ready() -> void:
@@ -452,12 +454,81 @@ func _operating_table() -> void:
 	add_child(tray)
 	tray.show_mats(SAMPLE_MATS)
 	tray.show_stores(4, 7)
+	# The stats board (D199), with a sample player until the rules drive it, and the jars' wire to the table.
+	stats = StatsBoard.new()
+	stats.position = STATS_AT
+	add_child(stats)
+	stats.show_stats(_sample_player(), false)
+	_jar_wire()
+
+func _sample_player() -> Dictionary:
+	var g: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/game.json"))
+	var r: Dictionary = g.RESEARCH[1]
+	var h: Dictionary = g.HUMANITY[6]
+	return {"hum": 3, "rep": 9, "exp": 12, "coin": 6, "jars": [true, false, true], "police": 1,
+		"hand": [{"name": r.name, "kind": "research", "art": "res://assets/art/research/research-02.png"},
+			{"name": h.name, "kind": "humanity", "art": "res://assets/art/humanity/humanity-07.png"}]}
+
+## A copper wire from under the stats board's left edge (in line with its jar terminal) onto the wood, along the gap by the tray, in front of it
+## and up to a brass post at the foot of the operating table (D199).
+func _jar_wire() -> void:
+	var post := optable.to_global(Vector3(-OperatingTable.LEN / 2 + 0.014, OperatingTable.TOP, OperatingTable.WID / 2 - 0.012))
+	var brass := _col_mat(Color("#b08a45"), 0.35, 0.85)
+	_mesh(_cyl(0.0018, 0.0022, 0.006, 12), brass, post + Vector3(0, 0.003, 0))
+	var t := stats.wire_exit_global()
+	var edge := STATS_AT.x - StatsBoard.SIZE.x / 2
+	var gap := edge - 0.0075
+	var front := ROW_Z + maxf(DecayTray.SIZE.y, StatsBoard.SIZE.y) / 2 + 0.02
+	var pts: Array[Vector3] = [t + Vector3(0.004, 0, 0), t, Vector3(edge - 0.004, 0.0013, t.z + 0.002),
+		Vector3(gap, 0.0012, t.z + 0.012), Vector3(gap, 0.0012, front - 0.01), Vector3(gap - 0.01, 0.0012, front),
+		Vector3(post.x + 0.02, 0.0012, front + 0.004), Vector3(post.x + 0.004, 0.0012, front - 0.006),
+		Vector3(post.x, 0.003, post.z + 0.004), post + Vector3(0, 0.005, 0)]
+	var curve := Curve3D.new()
+	for i in pts.size():
+		var a := pts[maxi(i - 1, 0)]
+		var b := pts[mini(i + 1, pts.size() - 1)]
+		var tan := (b - a) * 0.25
+		curve.add_point(pts[i], -tan, tan)
+	curve.bake_interval = 0.002
+	var line := curve.get_baked_points()
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var r := 0.0009
+	var seg := 6
+	var rings: Array = []
+	for i in line.size():
+		var fwd := (line[mini(i + 1, line.size() - 1)] - line[maxi(i - 1, 0)]).normalized()
+		var side := fwd.cross(Vector3.UP)
+		if side.length() < 0.01:
+			side = fwd.cross(Vector3.RIGHT)
+		side = side.normalized()
+		var up := side.cross(fwd).normalized()
+		var ring: Array[Vector3] = []
+		for k in seg:
+			var a := k * TAU / seg
+			ring.append(side * cos(a) + up * sin(a))
+		rings.append(ring)
+	for i in line.size() - 1:
+		for k in seg:
+			var k2 := (k + 1) % seg
+			var quad: Array = [[i, k], [i + 1, k], [i + 1, k2], [i, k], [i + 1, k2], [i, k2]]
+			for q: Array in quad:
+				var n: Vector3 = rings[q[0]][q[1]]
+				st.set_normal(n)
+				st.add_vertex(line[q[0]] + n * r)
+	var wire := MeshInstance3D.new()
+	wire.mesh = st.commit()
+	wire.material_override = _col_mat(Color("#b8693a"), 0.35, 0.9)
+	add_child(wire)
 
 const SAMPLE_MATS := {"muscle": [6, 3, 0, 2], "organ": [2, 4, 1, 0], "blood": [3, 2, 0, 0], "animal": [0, 1, 5, 3]}
 
 func _lab_view() -> Transform3D:
 	# Straight down over her, head at the top (D194).
 	return Transform3D(Basis(), LAB_AT + Vector3(0, 0.27, 0)).looking_at(LAB_AT, Vector3.FORWARD)
+
+func _stats_view() -> Transform3D:
+	return Transform3D(Basis(), STATS_AT + Vector3(0, 0.21, 0.13)).looking_at(STATS_AT + Vector3(0, 0, -0.005), Vector3.UP)
 
 func _tray_view() -> Transform3D:
 	return Transform3D(Basis(), TRAY_AT + Vector3(0, 0.26, 0.17)).looking_at(TRAY_AT + Vector3(0, 0, -0.01), Vector3.UP)
@@ -560,6 +631,7 @@ func _update_hover() -> void:
 		id = String((hit.collider as Node).get_meta("id"))
 	set_hover(id)
 	tray.hover_at(hit.position if id == "tray" else null)
+	stats.hover_at(hit.position if id == "stats" else null)
 
 ## Lift a landmark a little, tilt it, tip its name plate up; drop the last one.
 func set_hover(id: String) -> void:
@@ -621,9 +693,9 @@ func _unhandled_input(e: InputEvent) -> void:
 	if not intro_done:
 		return
 	if e is InputEventMouseButton and e.pressed:
-		if e.button_index == MOUSE_BUTTON_LEFT and hovered in ["lab", "tray"]:
+		if e.button_index == MOUSE_BUTTON_LEFT and hovered in ["lab", "tray", "stats"]:
 			leaning = hovered
-			_move_camera(_lab_view() if hovered == "lab" else _tray_view())
+			_move_camera(_lab_view() if hovered == "lab" else _tray_view() if hovered == "tray" else _stats_view())
 		elif e.button_index == MOUSE_BUTTON_LEFT and hovered != "":
 			go_to(hovered)
 		elif e.button_index == MOUSE_BUTTON_RIGHT:
@@ -697,6 +769,15 @@ func _shots() -> void:
 	tray.hover_at(tray.to_global(tray._cell_centre(0, 1)))  # muscle, stage II
 	await _save("res://../tests/cabin-tray-hover.png")
 	tray.hover_at(null)
+	cam_from = _stats_view()
+	cam_to = cam_from
+	await _save("res://../tests/cabin-stats.png")
+	stats.show_stats({"hum": -4, "rep": 15, "exp": 21, "coin": 13, "jars": [true, true, false, true], "police": 2,
+		"hand": stats.hand})
+	await get_tree().create_timer(1.0).timeout
+	stats.hover_at(stats.to_global(stats.px(StatsBoard.DIALS[2][1])))
+	await _save("res://../tests/cabin-stats-after.png")
+	stats.hover_at(null)
 	set_hover("")
 	go_to("church")
 	await get_tree().create_timer(1.6).timeout
