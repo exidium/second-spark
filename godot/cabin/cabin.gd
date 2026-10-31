@@ -14,8 +14,8 @@ const SPOTS := {
 	"hospital": Vector2(47.3, 32.6), "slaughter": Vector2(66.4, 22.8), "first": Vector2(91.3, 11.3),
 	"academy": Vector2(89.3, 37.4), "morgue": Vector2(82.7, 59.3), "alley": Vector2(90.0, 82.9),
 }
-const SIT := Vector3(0, 0.92, 0.78)    # your eyes, high over the south edge: a steeper look down, the map fills the screen (D178)
-const LOOK := Vector3(0, 0, 0.03)      # the map's middle, a little north
+const SIT := Vector3(0, 1.0, 1.02)    # your eyes, high over the south edge, back far enough to see your row of things below the map (D190)
+const LOOK := Vector3(0, 0, 0.24)      # a little south of the map's middle
 
 var cam: Camera3D
 var minis := {}                        # id -> {node, base_y, body}
@@ -23,7 +23,7 @@ var village: Node3D                    # the houses and trees (D180), folded fla
 var hovered := ""
 var leaning := ""
 var pawn: Node3D
-var pawn_at := Vector3(0.12, 0, 0.58)  # on the table, before the map
+var pawn_at := Vector3(0.6, 0, 0.56)   # on the table, right of your row
 var candles := []                      # [OmniLight3D, flame Node3D, base energy, seed, lit 0..1]
 var candle_own := []                   # each candle's small light on its own wax (D181)
 var cam_from := Transform3D()
@@ -33,10 +33,16 @@ var t_total := 0.0
 var intro_done := false
 var font: Font
 var shot_mode := false
-var optable: OperatingTable            # your operating table (D186), bottom left of the map since D189
-const LAB_AT := Vector3(-0.615, 0, 0.21)
-var tray: DecayTray                    # your decomposition tray (D189), right of the map
-const TRAY_AT := Vector3(0.69, 0, -0.02)
+## Your things lie in a row below the map, between it and you (D190): operating table, tray, stores.
+const ROW_Z := 0.625
+var optable: OperatingTable            # your operating table (D186), three quarters size since D190
+const LAB_AT := Vector3(-0.34, 0, ROW_Z)
+const LAB_SCALE := 0.75
+var tray: DecayTray                    # your decomposition tray (D189)
+const TRAY_AT := Vector3(0.03, 0, ROW_Z)
+const TRAY_SCALE := 0.8
+var stores: Stores                     # preserved flesh and bone (D190)
+const STORES_AT := Vector3(0.36, 0, ROW_Z)
 
 
 func _ready() -> void:
@@ -150,7 +156,7 @@ func _sphere(r: float, h := -1.0) -> SphereMesh:
 	return s
 
 func _table() -> void:
-	var top := _mesh(_box(Vector3(2.8, 0.07, 1.8)), _tex_mat("res://assets/cabin/wood.png", Vector3(2.4, 1.6, 1)), Vector3(0, -0.035, -0.1))
+	var top := _mesh(_box(Vector3(2.8, 0.07, 2.2)), _tex_mat("res://assets/cabin/wood.png", Vector3(2.4, 1.95, 1)), Vector3(0, -0.035, 0.1))
 	top.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	# The floor far below and the room's back wall, just enough to catch the last of the light.
 	_mesh(_box(Vector3(12, 0.1, 12)), _col_mat(Color("#0d0b0a"), 1.0), Vector3(0, -0.8, 0))
@@ -392,7 +398,7 @@ func _candle(pos: Vector3, size: float, turn_deg: float, energy: float) -> void:
 
 func _props() -> void:
 	# Two candles again (D183): front left and back right, each a little stronger than in D181.
-	_candle(Vector3(-0.77, 0, -0.19), 1.15, 30, 0.7)
+	_candle(Vector3(-0.66, 0, 0.44), 1.15, 30, 0.7)
 	_candle(Vector3(0.72, 0, -0.42), 1.3, -50, 0.6)
 	# Bruno's Leyden jar where the specimen jar stood, its upper body glass (D182), and his scalpel by the map.
 	var jar := _prop("res://assets/cabin/props/leiden_glass.glb", Vector3(-0.72, 0, -0.38), 20)
@@ -415,25 +421,25 @@ func _props() -> void:
 				var inside := (m as BaseMaterial3D).duplicate() as BaseMaterial3D
 				inside.cull_mode = BaseMaterial3D.CULL_DISABLED
 				mi.set_surface_override_material(i, inside)
-	_prop("res://assets/cabin/props/scalpel.glb", Vector3(-0.57, 0, 0.45), 62)
+	_prop("res://assets/cabin/props/scalpel.glb", Vector3(-0.57, 0, 0.7), 62)
 	# A brass bell.
-	var bell := Vector3(0.62, 0, 0.36)
+	var bell := Vector3(0.64, 0, 0.3)
 	var brass := _col_mat(Color("#8a6a32"), 0.3, 0.85)
 	_mesh(_cyl(0.035, 0.045, 0.01), _col_mat(Color("#2a1d14"), 0.7), bell + Vector3(0, 0.005, 0))
 	_mesh(_cyl(0.012, 0.038, 0.05), brass, bell + Vector3(0, 0.035, 0))
 	_mesh(_sphere(0.012), brass, bell + Vector3(0, 0.066, 0))
 	# A scrap of notes and a quill near your hand.
-	var note := _mesh(_box(Vector3(0.16, 0.002, 0.11)), _col_mat(Color("#cbbf9f"), 0.95), Vector3(0.42, 0.001, 0.52))
+	var note := _mesh(_box(Vector3(0.16, 0.002, 0.11)), _col_mat(Color("#cbbf9f"), 0.95), Vector3(0.62, 0.001, 0.74))
 	note.rotation_degrees.y = -12
-	var quill := _mesh(_cyl(0.002, 0.004, 0.22, 6), _col_mat(Color("#e8e2d4"), 0.6), Vector3(0.5, 0.004, 0.5))
+	var quill := _mesh(_cyl(0.002, 0.004, 0.22, 6), _col_mat(Color("#e8e2d4"), 0.6), Vector3(0.7, 0.004, 0.72))
 	quill.rotation_degrees = Vector3(0, 30, 88)
 
-## Your operating table (D186) at the bottom left of the map (D189), head away from you. Until the rules drive it, it shows
+## Your operating table (D186) at the left of your row below the map (D190), head toward the middle. Until the rules drive it, it shows
 ## one of each look: muscle, skin and alive, and two damaged parts.
 func _operating_table() -> void:
 	optable = OperatingTable.new()
 	optable.position = LAB_AT
-	optable.rotation_degrees.y = 90
+	optable.scale = Vector3.ONE * LAB_SCALE
 	add_child(optable)
 	optable.pick.set_meta("id", "lab")
 	optable.show_table({"head": {"side": "skin", "alive": false, "dmg": 0}, "torso": {"side": "skin", "alive": true, "dmg": 0},
@@ -442,14 +448,21 @@ func _operating_table() -> void:
 	# The decomposition tray (D189), with a sample of materials until the rules drive it.
 	tray = DecayTray.new()
 	tray.position = TRAY_AT
+	tray.scale = Vector3.ONE * TRAY_SCALE
 	add_child(tray)
-	tray.show_mats({"muscle": [6, 3, 0, 2], "organ": [2, 4, 1, 0], "blood": [3, 2, 0, 0], "animal": [0, 1, 5, 3]})
+	tray.show_mats(SAMPLE_MATS)
+	stores = Stores.new()
+	stores.position = STORES_AT
+	add_child(stores)
+	stores.show_stores(4, 7)
+
+const SAMPLE_MATS := {"muscle": [6, 3, 0, 2], "organ": [2, 4, 1, 0], "blood": [3, 2, 0, 0], "animal": [0, 1, 5, 3]}
 
 func _lab_view() -> Transform3D:
-	return Transform3D(Basis(), LAB_AT + Vector3(0.2, 0.3, 0.26)).looking_at(LAB_AT + Vector3(0, 0.07, 0), Vector3.UP)
+	return Transform3D(Basis(), LAB_AT + Vector3(0, 0.25, 0.22)).looking_at(LAB_AT + Vector3(0, 0.05, 0), Vector3.UP)
 
 func _tray_view() -> Transform3D:
-	return Transform3D(Basis(), TRAY_AT + Vector3(-0.12, 0.26, 0.24)).looking_at(TRAY_AT + Vector3(0, 0.0, 0), Vector3.UP)
+	return Transform3D(Basis(), TRAY_AT + Vector3(0, 0.24, 0.2)).looking_at(TRAY_AT, Vector3.UP)
 
 func _vignette() -> void:
 	var layer := CanvasLayer.new()
@@ -656,12 +669,28 @@ func _shots() -> void:
 	cam_from = _lab_view()
 	cam_to = cam_from
 	await _save("res://../tests/cabin-lab.png")
-	cam_from = Transform3D(Basis(), LAB_AT + Vector3(0, 0.36, 0.02)).looking_at(LAB_AT + Vector3(0, 0.07, 0), Vector3.FORWARD)
+	cam_from = Transform3D(Basis(), LAB_AT + Vector3(0, 0.3, 0.01)).looking_at(LAB_AT + Vector3(0, 0.05, 0), Vector3.FORWARD)
 	cam_to = cam_from
 	await _save("res://../tests/cabin-lab-top.png")
 	cam_from = _tray_view()
 	cam_to = cam_from
 	await _save("res://../tests/cabin-tray.png")
+	# Dawn without ice (mid-slide and after), then ice bought.
+	var after := {}
+	for t: String in SAMPLE_MATS:
+		var a: Array = SAMPLE_MATS[t]
+		after[t] = [0, a[0], 0 if t == "blood" else a[1], a[2]]
+	tray.dawn(after, 0)
+	await get_tree().create_timer(1.35).timeout
+	await _save("res://../tests/cabin-tray-dawn.png")
+	await get_tree().create_timer(1.6).timeout
+	await _save("res://../tests/cabin-tray-after.png")
+	tray.set_ice(2)
+	await get_tree().create_timer(1.2).timeout
+	await _save("res://../tests/cabin-tray-ice.png")
+	cam_from = Transform3D(Basis(), STORES_AT + Vector3(-0.05, 0.16, 0.2)).looking_at(STORES_AT + Vector3(0, 0.02, 0), Vector3.UP)
+	cam_to = cam_from
+	await _save("res://../tests/cabin-stores.png")
 	set_hover("")
 	go_to("church")
 	await get_tree().create_timer(1.6).timeout

@@ -5,7 +5,9 @@ extends Node3D
 ## back. Each cell holds one small piece per unit of material (up to 15, so the count can be read by eye), darker and
 ## more shrunken the older the stage. Blood rots after II: a lead bar closes the blood row there and its last two cells
 ## are stained. Everything rots after IV: a deep gutter runs along the right end. Built in code, metres.
-## `show_mats(mats)` takes the rules' `p.mats` (material -> [I, II, III, IV]).
+## `show_mats(mats)` takes the rules' `p.mats` (material -> [I, II, III, IV]), `set_ice(n)` the rules' `p.ice` (D190: frosted
+## cubes on the crossings of the grid), and `dawn(after, ice_after)` plays the night: every cell slides one stage right,
+## blood past II soaks under the lead bar, stage IV tips into the gutter; with ice the cubes melt a size instead.
 
 const MATS := ["muscle", "organ", "blood", "animal"]
 const CELL := Vector2(0.06, 0.045)     # one cell, x by z
@@ -21,7 +23,12 @@ const ROTTEN := {"muscle": Color("#3c3420"), "organ": Color("#2f2633"), "blood":
 
 var cells := {}                        # "material:stage" -> Node3D holding its pieces
 var shown := {}                        # "material:stage" -> count
-var meshes := {}                       # material -> Mesh
+var cell_mats := {}                    # "material:stage" -> ShaderMaterial (piece.gdshader), one per cell
+var meshes := {}                       # material -> [Mesh, ...], a few lumpy variants
+var ice := 0
+var ice_cubes: Array[MeshInstance3D] = []
+var _gutter_x := 0.0
+var _bar_x := 0.0
 var font: Font
 
 
@@ -29,13 +36,16 @@ func _init() -> void:
 	font = load("res://assets/fonts/Amarante-Regular.ttf")
 	_tray()
 	_piece_meshes()
+	_ice()
 	for r in 4:
 		for st in 4:
 			var n := Node3D.new()
 			n.position = _cell_centre(r, st)
 			add_child(n)
-			cells["%s:%d" % [MATS[r], st]] = n
-			shown["%s:%d" % [MATS[r], st]] = 0
+			var key := "%s:%d" % [MATS[r], st]
+			cells[key] = n
+			shown[key] = 0
+			cell_mats[key] = piece_mat(MATS[r], st / 3.0)
 
 
 func _mat(c: Color, rough := 0.5, metal := 0.0) -> StandardMaterial3D:
@@ -110,6 +120,8 @@ func _tray() -> void:
 		s2.rotation_degrees.y = 4.0 if st == 2 else -6.0
 	# Everything rots after IV: a dark gutter along the right end, with a drain hole.
 	var gx := _x0() + grid_w + GUTTER / 2
+	_gutter_x = gx
+	_bar_x = _x0() + WALL / 2 + 2 * (CELL.x + WALL)
 	var gutter := _box(Vector3(GUTTER, 0.002, grid_d), _mat(Color("#2a1a14"), 0.7), Vector3(gx, 0.0035, _z0() + grid_d / 2))
 	gutter.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var drain := CylinderMesh.new()
@@ -141,63 +153,97 @@ func _tray() -> void:
 
 # ---------------------------------------------------------------- the pieces
 
-func _piece_meshes() -> void:
-	# Small low-poly lumps, flat-shaded by their few faces.
-	var lump := SphereMesh.new()
-	lump.radius = 0.0042
-	lump.height = 0.0058
-	lump.radial_segments = 6
-	lump.rings = 3
-	meshes["muscle"] = lump
-	var organ := SphereMesh.new()
-	organ.radius = 0.0045
-	organ.height = 0.0072
-	organ.radial_segments = 7
-	organ.rings = 4
-	meshes["organ"] = organ
-	var clot := SphereMesh.new()
-	clot.radius = 0.004
-	clot.height = 0.0028
-	clot.radial_segments = 8
-	clot.rings = 2
-	meshes["blood"] = clot
-	var chunk := BoxMesh.new()
-	chunk.size = Vector3(0.0072, 0.0042, 0.0055)
-	meshes["animal"] = chunk
+## A primitive pushed in and out by noise along its radius (so the duplicated seam and corner vertices move together),
+## then smooth normals again: a lump, not a ball.
+static func lumpy(base: PrimitiveMesh, amount: float, seed: int, freq: float) -> ArrayMesh:
+	var arr := base.get_mesh_arrays()
+	var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+	var fn := FastNoiseLite.new()
+	fn.seed = seed
+	fn.frequency = freq
+	for i in v.size():
+		v[i] += v[i].normalized() * fn.get_noise_3dv(v[i]) * amount
+	arr[Mesh.ARRAY_VERTEX] = v
+	arr[Mesh.ARRAY_NORMAL] = null
+	arr[Mesh.ARRAY_TANGENT] = null
+	var st := SurfaceTool.new()
+	st.create_from_arrays(arr)
+	st.generate_normals()
+	return st.commit()
 
-## The material of one stage: darker, duller and a little green as it rots.
-func _stage_mat(mat: String, stage: int) -> StandardMaterial3D:
-	var t := stage / 3.0
-	var m := StandardMaterial3D.new()
-	m.albedo_color = (FRESH[mat] as Color).lerp(ROTTEN[mat], t)
-	m.roughness = lerpf(0.25 if mat != "animal" else 0.6, 0.85, t)
-	m.specular_mode = BaseMaterial3D.SPECULAR_SCHLICK_GGX
+func _piece_meshes() -> void:
+	for k in 3:
+		var lump := SphereMesh.new()
+		lump.radius = 0.0042
+		lump.height = 0.0058
+		lump.radial_segments = 10
+		lump.rings = 6
+		var organ := SphereMesh.new()
+		organ.radius = 0.0045
+		organ.height = 0.0072
+		organ.radial_segments = 12
+		organ.rings = 7
+		var clot := SphereMesh.new()
+		clot.radius = 0.004
+		clot.height = 0.0026
+		clot.radial_segments = 16
+		clot.rings = 6
+		var chunk := BoxMesh.new()
+		chunk.size = Vector3(0.0072, 0.0042, 0.0055)
+		chunk.subdivide_width = 3
+		chunk.subdivide_height = 2
+		chunk.subdivide_depth = 3
+		for pair: Array in [["muscle", lump, 0.0016, 260.0], ["organ", organ, 0.0012, 200.0], ["blood", clot, 0.0014, 300.0], ["animal", chunk, 0.0011, 280.0]]:
+			if not meshes.has(pair[0]):
+				meshes[pair[0]] = []
+			meshes[pair[0]].append(lumpy(pair[1], pair[2], 17 * k + MATS.find(pair[0]), pair[3]))
+
+## The surface of a piece: textured by piece.gdshader, `rot` 0 fresh to 1 at stage IV.
+static func piece_mat(mat: String, rot: float) -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://cabin/piece.gdshader")
+	m.set_shader_parameter("fresh", FRESH[mat])
+	m.set_shader_parameter("rotten", ROTTEN[mat])
+	m.set_shader_parameter("kind", ["muscle", "organ", "blood", "animal"].find(mat))
+	m.set_shader_parameter("rot", rot)
+	m.set_shader_parameter("frost", 0.0)
 	return m
 
-## Lay out `n` pieces in a cell, five to a row, a little jumbled; the same cell always jumbles the same way.
+## Where the i-th of n pieces of a material lies in its cell (rows centred), and how it is turned: the same in every
+## stage, so a cell that slides on at dawn is already laid out as the next cell is.
+func _place(mat: String, i: int, n: int) -> Transform3D:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = ("%s:%d" % [mat, i]).hash()
+	var col := i % 5
+	var row := i / 5
+	var rows := (n + 4) / 5
+	var pos := Vector3((col - 2) * 0.0112 + rng.randf_range(-0.0012, 0.0012), 0.0025, (row - (rows - 1) / 2.0) * 0.0128 + rng.randf_range(-0.0012, 0.0012))
+	var b := Basis.from_euler(Vector3(rng.randf_range(-0.4, 0.4), rng.randf_range(0, TAU), rng.randf_range(-0.4, 0.4)))
+	return Transform3D(b.scaled(Vector3.ONE * rng.randf_range(0.85, 1.15)), pos)
+
+func _shrink(stage: int) -> float:
+	return lerpf(1.4, 1.1, stage / 3.0)   # 1.4 times the base lump: big enough to count from the seat
+
+## Lay out `n` pieces in a cell, five to a row, a little jumbled.
 func _fill(key: String, n: int) -> void:
 	var cell: Node3D = cells[key]
 	for c in cell.get_children():
+		cell.remove_child(c)
 		c.queue_free()
 	var mat: String = key.split(":")[0]
 	var stage := int(key.split(":")[1])
-	var m := _stage_mat(mat, stage)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = key.hash()
-	var shrink := lerpf(1.4, 1.1, stage / 3.0)   # 1.4 times the base lump: big enough to count from the seat
+	var variants: Array = meshes[mat]
 	for i in n:
 		var mi := MeshInstance3D.new()
-		mi.mesh = meshes[mat]
-		mi.material_override = m
-		var col := i % 5
-		var row := i / 5
-		mi.position = Vector3((col - 2) * 0.0112 + rng.randf_range(-0.0012, 0.0012), 0.0025, (row - 1) * 0.0128 + rng.randf_range(-0.0012, 0.0012))
-		mi.rotation = Vector3(rng.randf_range(-0.4, 0.4), rng.randf_range(0, TAU), rng.randf_range(-0.4, 0.4))
-		mi.scale = Vector3.ONE * shrink * rng.randf_range(0.85, 1.15)
+		mi.mesh = variants[i % variants.size()]
+		mi.material_override = cell_mats[key]
+		mi.set_instance_shader_parameter("seed", float(i) + MATS.find(mat) * 20.0)
+		var t := _place(mat, i, n)
+		mi.transform = Transform3D(t.basis.scaled(Vector3.ONE * _shrink(stage)), t.origin)
 		cell.add_child(mi)
 
 ## From the rules: material -> [I, II, III, IV]. Changed cells refill; new pieces drop in.
-func show_mats(mats: Dictionary) -> void:
+func show_mats(mats: Dictionary, drop := true) -> void:
 	for mat: String in MATS:
 		var a: Array = mats.get(mat, [0, 0, 0, 0])
 		for st in 4:
@@ -205,13 +251,119 @@ func show_mats(mats: Dictionary) -> void:
 			var n := mini(int(a[st]), 15)
 			if shown[key] == n:
 				continue
-			var was: int = shown[key]
+			var was: int = maxi(shown[key], 0)
 			shown[key] = n
 			_fill(key, n)
-			if n > was and is_inside_tree():
+			if drop and n > was and is_inside_tree():
 				var cell: Node3D = cells[key]
 				for i in range(was, n):
 					var p: Node3D = cell.get_child(i)
 					var y := p.position.y
 					p.position.y = y + 0.03
 					create_tween().tween_property(p, "position:y", y, 0.3).set_delay(0.03 * (i - was)).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+
+
+# ---------------------------------------------------------------- ice and dawn
+
+## Ice (D190): a frosted cube on each inner crossing of the tin walls, full size the day it is bought (ice 2), half
+## melted after one dawn (ice 1). While it lies there the pieces are rimed with frost.
+func _ice() -> void:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.82, 0.9, 1.0, 0.55)
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.roughness = 0.12
+	m.rim_enabled = true
+	m.rim = 0.7
+	m.rim_tint = 0.2
+	m.emission_enabled = true
+	m.emission = Color(0.25, 0.35, 0.5)
+	m.emission_energy_multiplier = 0.25
+	var top := DEPTH * 0.7
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1819
+	for i in range(1, 4):
+		for j in range(1, 4):
+			var mi := MeshInstance3D.new()
+			mi.mesh = lumpy(_ice_box(), 0.0012, i * 7 + j, 120.0)
+			mi.material_override = m
+			mi.position = Vector3(_x0() + WALL / 2 + i * (CELL.x + WALL), top, _z0() + WALL / 2 + j * (CELL.y + WALL))
+			mi.rotation = Vector3(rng.randf_range(-0.2, 0.2), rng.randf_range(0, TAU), rng.randf_range(-0.2, 0.2))
+			mi.scale = Vector3.ZERO
+			mi.visible = false
+			add_child(mi)
+			ice_cubes.append(mi)
+
+static func _ice_box() -> BoxMesh:
+	var b := BoxMesh.new()
+	b.size = Vector3.ONE * 0.013
+	b.subdivide_width = 2
+	b.subdivide_height = 2
+	b.subdivide_depth = 2
+	return b
+
+func _ice_scale(n: int) -> float:
+	return [0.0, 0.6, 1.0][clampi(n, 0, 2)]
+
+## From the rules' `p.ice` (0, 1 or 2). Cubes grow in or melt away.
+func set_ice(n: int, animate := true) -> void:
+	ice = n
+	var s := _ice_scale(n)
+	var tw: Tween = create_tween().set_parallel() if animate and is_inside_tree() else null
+	for c in ice_cubes:
+		if s > 0:
+			c.visible = true
+		if tw:
+			tw.tween_property(c, "scale", Vector3.ONE * s, 0.9).set_trans(Tween.TRANS_SINE)
+		else:
+			c.scale = Vector3.ONE * s
+			c.visible = s > 0
+	for key in cell_mats:
+		var m: ShaderMaterial = cell_mats[key]
+		if tw:
+			tw.tween_property(m, "shader_parameter/frost", 1.0 if n > 0 else 0.0, 0.9)
+		else:
+			m.set_shader_parameter("frost", 1.0 if n > 0 else 0.0)
+	if tw and s == 0:
+		tw.chain().tween_callback(func() -> void:
+			for c in ice_cubes:
+				c.visible = false)
+
+## Dawn: with ice, the cubes melt a size and nothing moves. Without, every cell lifts over the tin wall into the next
+## stage, the rightmost first: blood at II soaks away under the lead bar, stage IV tips into the gutter and is gone.
+## Then the tray shows `after` (the rules' mats after dawn). Await it.
+func dawn(after: Dictionary, ice_after: int) -> void:
+	if ice > 0:
+		set_ice(ice_after)
+		await get_tree().create_timer(1.0).timeout
+		show_mats(after, false)
+		return
+	var last: Tween = null
+	for st in range(3, -1, -1):
+		for mat: String in MATS:
+			var key := "%s:%d" % [mat, st]
+			var cell: Node3D = cells[key]
+			if cell.get_child_count() == 0:
+				continue
+			var from := cell.position
+			var gone := st == 3 or (mat == "blood" and st == 1)
+			var to := Vector3(_gutter_x if st == 3 else (_bar_x if gone else _cell_centre(MATS.find(mat), st + 1).x), from.y, from.z)
+			var grow := _shrink(mini(st + 1, 3)) / _shrink(st)
+			var tw := create_tween()
+			tw.tween_interval(0.35 * (3 - st))
+			tw.tween_method(func(s: float) -> void:
+				cell.position = from.lerp(to, s) + Vector3.UP * sin(PI * s) * 0.016
+				cell.scale = Vector3.ONE * (lerpf(1.0, 0.0, smoothstep(0.4, 1.0, s)) if gone else lerpf(1.0, grow, s)),
+				0.0, 1.0, 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+			if not gone:
+				tw.parallel().tween_property(cell_mats[key], "shader_parameter/rot", (st + 1) / 3.0, 0.9)
+			last = tw
+	if last:
+		await last.finished
+	# Back to rest: every cell in its place, its own stage's look, then the new counts without a drop.
+	for key in cells:
+		var cell: Node3D = cells[key]
+		cell.position = _cell_centre(MATS.find(key.split(":")[0]), int(key.split(":")[1]))
+		cell.scale = Vector3.ONE
+		(cell_mats[key] as ShaderMaterial).set_shader_parameter("rot", int(key.split(":")[1]) / 3.0)
+		shown[key] = -1
+	show_mats(after, false)
