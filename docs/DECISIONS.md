@@ -739,3 +739,8 @@ Bruno asked for a second board with three dials (humanity, reputation, expertise
 ## D200: The stats board as deep as the decomposition board
 Bruno: "make the dial board the same height as the decompositon board please."
 - The stats board's depth on the table is now the decomposition board's (about 22 cm instead of 21), its width following from the concept's proportions, so the two line up front and back in the row.
+
+## D201: Cards on the stats board are the browser game's cards, rounded corners
+Bruno: "us[e] the layout of the card we used in the browser game... also make the corners of the cards rounded."
+- `tools/card_faces.js` renders every research and humanity card with the browser's own `cardHTML` (exposed on `window.__spark` with `handCards`) to `godot/assets/cabin/cards/<id>.png`, corners transparent. The stats board lays the card for each id in the hand at its own proportions, cut out at the rounded corners.
+- Run `python3 build.py && node tools/card_faces.js` after changing a card.

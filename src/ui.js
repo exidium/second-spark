@@ -914,5 +914,5 @@ if(IMG['card-research-bg']) document.documentElement.style.setProperty('--card-r
 if(IMG['card-humanity-bg']) document.documentElement.style.setProperty('--card-humanity', `url("${IMG['card-humanity-bg']}")`);
 if(IMG['card-scientist-bg']) document.documentElement.style.setProperty('--card-scientist', `url("${IMG['card-scientist-bg']}")`);
 try{ window.claude?.hot?.snapshot?.(()=>({S})); }catch(e){}
-window.__spark={ get S(){return S}, set S(v){S=v;}, setPace(v){ PACE=v; }, moveToast, yourTurnToast, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
+window.__spark={ get S(){return S}, set S(v){S=v;}, cardHTML, handCards:()=>[...RESEARCH.map(c=>({...c,kind:'research'})),...HUMANITY.map(c=>({...c,kind:'humanity'}))], setPace(v){ PACE=v; }, moveToast, yourTurnToast, newGame, loop, endLab, planBuild, build, playCard, canPlace, allKeys, aiChoose };
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});

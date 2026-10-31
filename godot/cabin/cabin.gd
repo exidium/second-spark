@@ -466,8 +466,7 @@ func _sample_player() -> Dictionary:
 	var r: Dictionary = g.RESEARCH[1]
 	var h: Dictionary = g.HUMANITY[6]
 	return {"hum": 3, "rep": 9, "exp": 12, "coin": 6, "jars": [true, false, true], "police": 1,
-		"hand": [{"name": r.name, "kind": "research", "art": "res://assets/art/research/research-02.png"},
-			{"name": h.name, "kind": "humanity", "art": "res://assets/art/humanity/humanity-07.png"}]}
+		"hand": [{"id": r.id, "name": r.name, "kind": "research"}, {"id": h.id, "name": h.name, "kind": "humanity"}]}
 
 ## A copper wire from under the stats board's left edge (in line with its jar terminal) onto the wood, along the gap by the tray, in front of it
 ## and up to a brass post at the foot of the operating table (D199).

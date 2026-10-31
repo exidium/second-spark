@@ -301,7 +301,8 @@ func set_police(n: int, animate := true) -> void:
 
 # ---------------------------------------------------------------- cards
 
-## Up to three cards in the hand, face up: parchment, the card's picture, its name.
+## Up to three cards in the hand, face up, each the browser game's card for its id (D201): rendered with its
+## rounded corners by `tools/card_faces.js` into assets/cabin/cards/<id>.png.
 func set_hand(cards: Array) -> void:
 	hand = cards.slice(0, 3)
 	for i in 3:
@@ -311,37 +312,29 @@ func set_hand(cards: Array) -> void:
 			_card(card_nodes[i], hand[i], CARDS[i])
 
 func _card(parent: Node3D, card: Dictionary, slot: Rect2) -> void:
-	var w := _len(slot.size.x) * 0.9
-	var h := w * 7.0 / 5.0
-	h = minf(h, _len(slot.size.y) * 0.94)
-	var paper := _mat(Color("#d9c9a3"), 0.85)
-	_add(_boxm(Vector3(w, 0.0006, h)), paper, Vector3(0, 0.0004, 0), parent)
-	var humane: bool = String(card.get("kind", "")) == "humanity"
-	var border := _mat(Color("#3a5a8a") if humane else Color("#6a2a1c"), 0.7)
-	for s: float in [-1.0, 1.0]:
-		_add(_boxm(Vector3(w, 0.0002, 0.0012)), border, Vector3(0, 0.0008, s * (h / 2 - 0.0008)), parent)
-		_add(_boxm(Vector3(0.0012, 0.0002, h)), border, Vector3(s * (w / 2 - 0.0008), 0.0008, 0), parent)
-	var art_path := String(card.get("art", ""))
-	if art_path != "" and ResourceLoader.exists(art_path):
-		var pic := PlaneMesh.new()
-		pic.size = Vector2(w * 0.86, w * 0.86 * 0.75)
-		var pm := StandardMaterial3D.new()
-		pm.albedo_texture = load(art_path)
-		pm.roughness = 0.9
-		_add(pic, pm, Vector3(0, 0.0009, -h / 2 + 0.003 + pic.size.y / 2), parent)
-	var name := Label3D.new()
-	name.text = String(card.get("name", ""))
-	name.font = font
-	name.font_size = 40
-	name.pixel_size = 0.00007
-	name.width = w / name.pixel_size * 0.9
-	name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	name.modulate = Color("#2a1a10")
-	name.outline_size = 0
-	name.shaded = true
-	name.rotation_degrees.x = -90
-	name.position = Vector3(0, 0.001, h * 0.18)
-	parent.add_child(name)
+	var path := "res://assets/cabin/cards/%s.png" % String(card.get("id", ""))
+	if not ResourceLoader.exists(path):
+		return
+	var tex: Texture2D = load(path)
+	# As wide as the space allows, or as tall: the card keeps its own proportions.
+	var w := _len(slot.size.x) * 0.92
+	var h := w * tex.get_height() / tex.get_width()
+	var hmax := _len(slot.size.y) * 0.95
+	if h > hmax:
+		w *= hmax / h
+		h = hmax
+	var q := PlaneMesh.new()
+	q.size = Vector2(w, h)
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = tex
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR    # the rounded corners
+	m.alpha_scissor_threshold = 0.5
+	m.roughness = 0.85
+	m.emission_enabled = true                  # as the boards' faces: the card stays readable in the candlelight
+	m.emission_texture = tex
+	m.emission_energy_multiplier = 0.15
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	_add(q, m, Vector3(0, 0.0006, 0), parent)
 	if is_inside_tree():
 		parent.position.y = THICK + 0.015
 		create_tween().tween_property(parent, "position:y", THICK, 0.3).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -349,7 +342,7 @@ func _card(parent: Node3D, card: Dictionary, slot: Rect2) -> void:
 
 # ---------------------------------------------------------------- all at once
 
-## From the rules' player: hum, rep, exp, coin, jars, police, hand (cards with name, kind and art).
+## From the rules' player: hum, rep, exp, coin, jars, police, hand (cards with id and name).
 func show_stats(p: Dictionary, animate := true) -> void:
 	_turn(DIALS[0], int(p.get("hum", 0)), animate)
 	_turn(DIALS[1], int(p.get("rep", 0)), animate)
