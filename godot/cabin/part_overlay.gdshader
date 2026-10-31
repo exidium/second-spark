@@ -1,5 +1,5 @@
 // Drawn over a body part as an overlay, added on top so the part's own texture shows through (D187, D188):
-// alive: blue veins of light pulsing under the skin; damaged: the whole part washed yellow, brighter at its edges,
+// alive: blue veins of light pulsing under the skin; damaged: the whole part washed red (D189, was yellow), brighter at its edges,
 // breathing slowly. Either or both.
 shader_type spatial;
 render_mode unshaded, blend_add, depth_draw_never, shadows_disabled;
@@ -49,6 +49,6 @@ void fragment() {
 	vec3 blue = (vec3(0.25, 0.55, 1.0) * vein * (pulse * 1.1 + 0.2) * flick + vec3(0.01, 0.03, 0.07) * pulse) * alive;
 	float rim = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 2.0);
 	float breathe = 0.75 + 0.25 * sin(TIME * 2.2 + seed);
-	vec3 yellow = vec3(0.42, 0.32, 0.0) * (0.12 + 0.7 * rim) * breathe * damaged;
-	ALBEDO = blue + yellow;
+	vec3 red = vec3(0.55, 0.03, 0.02) * (0.12 + 0.7 * rim) * breathe * damaged;
+	ALBEDO = blue + red;
 }

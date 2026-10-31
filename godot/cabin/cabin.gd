@@ -33,8 +33,10 @@ var t_total := 0.0
 var intro_done := false
 var font: Font
 var shot_mode := false
-var optable: OperatingTable            # your operating table (D186), right of the map
-const LAB_AT := Vector3(0.7, 0, -0.02)
+var optable: OperatingTable            # your operating table (D186), bottom left of the map since D189
+const LAB_AT := Vector3(-0.615, 0, 0.21)
+var tray: DecayTray                    # your decomposition tray (D189), right of the map
+const TRAY_AT := Vector3(0.69, 0, -0.02)
 
 
 func _ready() -> void:
@@ -390,7 +392,7 @@ func _candle(pos: Vector3, size: float, turn_deg: float, energy: float) -> void:
 
 func _props() -> void:
 	# Two candles again (D183): front left and back right, each a little stronger than in D181.
-	_candle(Vector3(-0.68, 0, 0.18), 1.15, 30, 0.7)
+	_candle(Vector3(-0.77, 0, -0.19), 1.15, 30, 0.7)
 	_candle(Vector3(0.72, 0, -0.42), 1.3, -50, 0.6)
 	# Bruno's Leyden jar where the specimen jar stood, its upper body glass (D182), and his scalpel by the map.
 	var jar := _prop("res://assets/cabin/props/leiden_glass.glb", Vector3(-0.72, 0, -0.38), 20)
@@ -413,7 +415,7 @@ func _props() -> void:
 				var inside := (m as BaseMaterial3D).duplicate() as BaseMaterial3D
 				inside.cull_mode = BaseMaterial3D.CULL_DISABLED
 				mi.set_surface_override_material(i, inside)
-	_prop("res://assets/cabin/props/scalpel.glb", Vector3(-0.6, 0, 0.44), 62)
+	_prop("res://assets/cabin/props/scalpel.glb", Vector3(-0.57, 0, 0.45), 62)
 	# A brass bell.
 	var bell := Vector3(0.62, 0, 0.36)
 	var brass := _col_mat(Color("#8a6a32"), 0.3, 0.85)
@@ -426,7 +428,7 @@ func _props() -> void:
 	var quill := _mesh(_cyl(0.002, 0.004, 0.22, 6), _col_mat(Color("#e8e2d4"), 0.6), Vector3(0.5, 0.004, 0.5))
 	quill.rotation_degrees = Vector3(0, 30, 88)
 
-## Your operating table (D186) on the right of the map, head toward the far candle. Until the rules drive it, it shows
+## Your operating table (D186) at the bottom left of the map (D189), head away from you. Until the rules drive it, it shows
 ## one of each look: muscle, skin and alive, and two damaged parts.
 func _operating_table() -> void:
 	optable = OperatingTable.new()
@@ -437,9 +439,17 @@ func _operating_table() -> void:
 	optable.show_table({"head": {"side": "skin", "alive": false, "dmg": 0}, "torso": {"side": "skin", "alive": true, "dmg": 0},
 		"armL": {"side": "muscle", "alive": false, "dmg": 1}, "armR": {"side": "skin", "alive": true, "dmg": 0},
 		"legL": {"side": "skin", "alive": false, "dmg": 1}, "legR": {"side": "muscle", "alive": false, "dmg": 0}})
+	# The decomposition tray (D189), with a sample of materials until the rules drive it.
+	tray = DecayTray.new()
+	tray.position = TRAY_AT
+	add_child(tray)
+	tray.show_mats({"muscle": [6, 3, 0, 2], "organ": [2, 4, 1, 0], "blood": [3, 2, 0, 0], "animal": [0, 1, 5, 3]})
 
 func _lab_view() -> Transform3D:
-	return Transform3D(Basis(), LAB_AT + Vector3(-0.2, 0.3, 0.24)).looking_at(LAB_AT + Vector3(0, 0.07, 0), Vector3.UP)
+	return Transform3D(Basis(), LAB_AT + Vector3(0.2, 0.3, 0.26)).looking_at(LAB_AT + Vector3(0, 0.07, 0), Vector3.UP)
+
+func _tray_view() -> Transform3D:
+	return Transform3D(Basis(), TRAY_AT + Vector3(-0.12, 0.26, 0.24)).looking_at(TRAY_AT + Vector3(0, 0.0, 0), Vector3.UP)
 
 func _vignette() -> void:
 	var layer := CanvasLayer.new()
@@ -649,6 +659,9 @@ func _shots() -> void:
 	cam_from = Transform3D(Basis(), LAB_AT + Vector3(0, 0.36, 0.02)).looking_at(LAB_AT + Vector3(0, 0.07, 0), Vector3.FORWARD)
 	cam_to = cam_from
 	await _save("res://../tests/cabin-lab-top.png")
+	cam_from = _tray_view()
+	cam_to = cam_from
+	await _save("res://../tests/cabin-tray.png")
 	set_hover("")
 	go_to("church")
 	await get_tree().create_timer(1.6).timeout

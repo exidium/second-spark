@@ -2,7 +2,7 @@ class_name OperatingTable
 extends Node3D
 ## Your operating table (D186): a small steel table on the cabin table with the companion lying on it, part by part.
 ## Each of the six parts (head, torso, armL, armR, legL, legR) is empty (a faint outline etched in the steel), muscle
-## (raw red), skin (sewn-on sallow skin) or alive (the skin with blue veins and sparks); a damaged part is washed yellow. The parts are low-poly models
+## (raw red), skin (sewn-on sallow skin) or alive (the skin with blue veins and sparks); a damaged part is washed red. The parts are low-poly models
 ## (D187, `art-pipeline/body_parts.py`, assets/cabin/body/<part>-<look>.glb); the table is built in code. Metres, the
 ## body's head toward local +x. `set_part(slot, look, damage)` with look "", "muscle", "skin" or "alive".
 
@@ -192,7 +192,7 @@ func _part(slot: String) -> void:
 	overlay.set_shader_parameter("seed", float(slot.hash() % 97))
 	parts[slot] = {"body": body, "muscle": muscle, "skin": skin, "ghost": ghost, "box": box, "overlay": overlay}
 
-## Show one part as "", "muscle", "skin" or "alive", with damage (0 or 1) washing it yellow. A new or changed part
+## Show one part as "", "muscle", "skin" or "alive", with damage (0 or 1) washing it red. A new or changed part
 ## settles onto the table with a little bounce.
 func set_part(slot: String, look: String, dmg := 0, animate := true) -> void:
 	var p: Dictionary = parts[slot]
