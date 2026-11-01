@@ -760,7 +760,7 @@ const IMG = {"alive-armL": "art/body/alive-armL.png?v=567e82cf", "alive-armR": "
    Tabletop Simulator sheets). Names, wording and art are our own.
    Material arrays are [muscle, organ, blood, bone].
    ========================================================= */
-const MAX_ROUNDS = 12, SAVE_KEY = 'second-spark-paris-v5';
+const MAX_ROUNDS = 12, SAVE_KEY = 'second-spark-paris-v6';
 const MATS = ['muscle','organ','blood','animal'];
 const MAT_N = {muscle:'Muscle', organ:'Organ', blood:'Blood', bone:'Bone', animal:'Animal'};
 const KEY = {M:'muscle', O:'organ', B:'blood', X:'bone'};
@@ -769,12 +769,15 @@ const SLOT6 = ['head','torso','armL','armR','legL','legR'];
 const BODY_CENTRES = {"head": [49.7, 7.4], "torso": [49.7, 34.4], "armL": [21.5, 36.8], "armR": [77.9, 36.7], "legL": [41.0, 71.8], "legR": [58.4, 71.8]}; // part centres in % of the body image, from tools/body_parts.py
 const SLOT_T = {head:'head', torso:'torso', armL:'arm', armR:'arm', legL:'leg', legR:'leg'};
 const SLOT_N = {head:'Head', torso:'Torso', armL:'Left arm', armR:'Right arm', legL:'Left leg', legR:'Right leg'};
+// Bruno's table (D204): each step has its own expertise (expS start, expC skin); ani is the VP lost when a step uses
+// any animal.
 const PARTS = {
-  head:  {n:'Head',  exp:14, start:{M:4,O:5,X:3}, comp:{M:2,O:2,B:3}, vpS:[10,8,5,3], vpC:[7,5,3,1], alive:6},
-  torso: {n:'Torso', exp:8,  start:{M:5,O:4,B:2,X:3}, comp:{M:4,B:3}, vpS:[8,6,4,2], vpC:[6,4,3,1], alive:5},
-  arm:   {n:'Arm',   exp:3,  start:{M:3,O:1,B:2,X:2}, comp:{M:3,B:2}, vpS:[5,4,2,1], vpC:[3,2,1,1], alive:3},
-  leg:   {n:'Leg',   exp:0,  start:{M:4,B:2,X:3}, comp:{M:3,B:2}, vpS:[5,4,2,1], vpC:[3,2,1,1], alive:3},
+  head:  {n:'Head',  expS:10, expC:18, start:{M:2,O:3,X:3}, comp:{M:3,O:5,B:3}, vpS:[8,8,5,5], vpC:[11,7,7,7], ani:2, alive:14},
+  torso: {n:'Torso', expS:7,  expC:15, start:{M:4,O:4,X:5}, comp:{M:5,O:6,B:4}, vpS:[7,7,4,4], vpC:[10,6,6,6], ani:2, alive:12},
+  arm:   {n:'Arm',   expS:3,  expC:7,  start:{M:3,O:2,X:3}, comp:{M:3,O:3,B:3}, vpS:[4,4,2,2], vpC:[6,3,3,3], ani:1, alive:8},
+  leg:   {n:'Leg',   expS:5,  expC:10, start:{M:4,O:2,X:4}, comp:{M:3,O:4,B:5}, vpS:[5,5,3,3], vpC:[8,4,4,4], ani:1, alive:10},
 };
+function stepExp(P,step){ return step==='start'?P.expS:P.expC; }
 const GRAY = ['alive','damage','damage','heart','blank','blank'];
 const BLUE = ['alive','alive','damage','heart','blank','blank'];
 
@@ -1190,7 +1193,7 @@ function checkObjectives(){
    ========================================================= */
 function newGame(name, nRivals, charId, opts){
   opts=opts||{}; const fast=opts.fast; gameToken++; humanResolve=null; labResolve=null;
-  S = {v:5, uid:1, round:1, first:0, cur:0, phase:'event', captain:0, ev:null, card:null, closed:{}, occ:{}, bump:[], fast:!!fast,
+  S = {v:6, uid:1, round:1, first:0, cur:0, phase:'event', captain:0, ev:null, card:null, closed:{}, occ:{}, bump:[], fast:!!fast,
        decks:{cemetery:[],hospital:[],morgue:[],square:[],sc:[],re:[],hu:[]}, removed:[], hosp:[], square:[], docks:[], researchRow:[], humanityRow:[],
        locEnc:null, thwart:null, log:[], dawn:[], final:null, claimed:{}, objectives:shuffle(OBJECTIVES.map(o=>o.id)).slice(0,4)};
   const chars=shuffle(CHARACTERS.map(c=>c.id).filter(c=>c!==charId));
@@ -1711,9 +1714,9 @@ function planBuild(p, slot, policy, opts){
       for(const st of allowed){ const take=Math.min(n,m.animal[st]); if(take){ m.animal[st]-=take; n-=take; animal+=take; worst=Math.max(worst,st+1);} if(!n) break; } }
     if(n){ ok=false; break; }
   }
-  const expOK = p.exp>=P.exp;
+  const expOK = p.exp>=stepExp(P,step);
   const table = step==='start'?P.vpS:P.vpC;
-  const vp = ok ? Math.max(0, table[Math.max(1,worst)-1] - (animal>=3?2:animal?1:0)) : 0;
+  const vp = ok ? Math.max(0, table[Math.max(1,worst)-1] - (animal?P.ani:0)) : 0;
   return {ok: ok&&expOK, matsOK:ok, expOK, step, req, vp, worst, animal, mats:m, bone};
 }
 function build(i, slot, policy, opts){
@@ -1724,7 +1727,8 @@ function build(i, slot, policy, opts){
   p.mats=pl.mats; p.bone=pl.bone;
   if(opts.steady){ const c=p.hand.find(h=>h.id==='steady'); p.hand=p.hand.filter(h=>h!==c); applyGain(p,c.gain,'research'); }
   if(opts.surgeon) p.surgeonUsed=true;
-  if(pl.step==='start') p.table[slot]={side:'muscle', alive:false, dmg:0}; else { p.table[slot].side='skin'; }
+  // stage1/stage2: the stage of the oldest material each step used, for the notepad's circled points.
+  if(pl.step==='start') p.table[slot]={side:'muscle', alive:false, dmg:0, stage1:Math.max(1,pl.worst)}; else { p.table[slot].side='skin'; p.table[slot].stage2=Math.max(1,pl.worst); }
   p.vp+=pl.vp; setExp(p,1);
   log(`${B(p)} ${pl.step==='start'?'starts':'completes'} the ${SLOT_N[slot].toLowerCase()} (+${pl.vp} VP).`);
   checkObjectives();
@@ -1915,7 +1919,7 @@ function finish(reason){
    ========================================================= */
 function aiNeeds(p){
   const steps=[];
-  for(const s of SLOT6){ const st=nextStep(p,s); if(!st) continue; const P=PARTS[SLOT_T[s]]; steps.push({s, st, req:st==='start'?P.start:P.comp, exp:P.exp}); }
+  for(const s of SLOT6){ const st=nextStep(p,s); if(!st) continue; const P=PARTS[SLOT_T[s]]; steps.push({s, st, req:st==='start'?P.start:P.comp, exp:stepExp(P,st)}); }
   steps.sort((a,b)=>(a.st==='comp'?-1:0)-(b.st==='comp'?-1:0) || a.exp-b.exp);
   const near=steps.filter(x=>x.exp<=p.exp+4).slice(0,2);
   const need={M:0,O:0,B:0,X:0}; near.forEach(x=>Object.entries(x.req).forEach(([k,n])=>need[k]+=n));
@@ -2062,7 +2066,7 @@ function aiLab(i){
    PERSISTENCE
    ========================================================= */
 function save(){ try{ if(S && !S.fast) localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
-function loadSaved(){ try{ const t=localStorage.getItem(SAVE_KEY); if(!t) return null; const s=JSON.parse(t); return s&&s.v===5&&s.phase!=='end'?s:null; }catch(e){ return null; } }
+function loadSaved(){ try{ const t=localStorage.getItem(SAVE_KEY); if(!t) return null; const s=JSON.parse(t); return s&&s.v===6&&s.phase!=='end'?s:null; }catch(e){ return null; } }
 
 /* =========================================================
    EXTRA ART
@@ -2733,12 +2737,12 @@ function eventNowHTML(){
 }
 function vpLine(arr){ return `VP by oldest material used: ${arr.map((v,k)=>`<span class="vpst">${ROMAN[k]} <b>${v}</b></span>`).join(' ')}`; }
 function pointsTable(){
-  const row=(n,P,cnt)=>`<tr><td>${n}${cnt>1?` <small>×${cnt}</small>`:''}</td>${P.vpS.map(v=>`<td class="m">${v}</td>`).join('')}${P.vpC.map(v=>`<td class="s">${v}</td>`).join('')}<td class="a">${P.alive}</td></tr>`;
+  const row=(n,P,cnt)=>`<tr><td>${n}${cnt>1?` <small>×${cnt}</small>`:''}</td><td class="m">${P.expS}</td>${P.vpS.map(v=>`<td class="m">${v}</td>`).join('')}<td class="s">${P.expC}</td>${P.vpC.map(v=>`<td class="s">${v}</td>`).join('')}<td class="a">${P.alive}</td></tr>`;
   return `<div class="ptable"><table><thead>
-    <tr><th></th><th colspan="4" class="m">Muscle (start)</th><th colspan="4" class="s">Skin (complete)</th><th class="a">Alive</th></tr>
-    <tr><th>Part</th>${['I','II','III','IV'].map(r=>`<th class="m">${r}</th>`).join('')}${['I','II','III','IV'].map(r=>`<th class="s">${r}</th>`).join('')}<th class="a">end</th></tr></thead><tbody>
+    <tr><th></th><th colspan="5" class="m">Muscle (start)</th><th colspan="5" class="s">Skin (complete)</th><th class="a">Alive</th></tr>
+    <tr><th>Part</th><th class="m">exp</th>${['I','II','III','IV'].map(r=>`<th class="m">${r}</th>`).join('')}<th class="s">exp</th>${['I','II','III','IV'].map(r=>`<th class="s">${r}</th>`).join('')}<th class="a">end</th></tr></thead><tbody>
     ${row('Head',PARTS.head,1)}${row('Torso',PARTS.torso,1)}${row('Arm',PARTS.arm,2)}${row('Leg',PARTS.leg,2)}</tbody></table>
-    <p>Each step scores VP by the stage of the oldest material you use (I is freshest). Animal costs 1 VP (2 if 3 or more). Alive points count at the end of the game.</p></div>`;
+    <p>Each step needs its expertise and scores VP by the stage of the oldest material you use (I is freshest). Using any animal costs the part's animal VP (2 head and torso, 1 arm and leg). Alive points count at the end of the game.</p></div>`;
 }
 function anatomyHTML(p,ro){
   const lab=!ro&&S.phase==='lab';
@@ -2749,10 +2753,10 @@ function anatomyHTML(p,ro){
     if(step){
       const opts={steady:!ro&&uiOpts.steady, surgeon:!ro&&uiOpts.surgeon};
       const f=planBuild(p,s,'fresh',opts), o=planBuild(p,s,'old',opts);
-      const lack = !f.expOK ? `Needs expertise ${P.exp}` : !f.matsOK ? 'Not enough materials' : '';
+      const lack = !f.expOK ? `Needs expertise ${stepExp(P,step)}` : !f.matsOK ? 'Not enough materials' : '';
       const btns = lab ? (f.ok ? `<button class="animate" data-act="build" data-slot="${s}" data-pol="fresh">${step==='start'?'Start':'Add skin'} · +${f.vp} VP</button>${o.ok&&o.vp!==f.vp?`<button class="chip" data-act="build" data-slot="${s}" data-pol="old">Use oldest first · +${o.vp} VP</button>`:''}` : `<span style="font-size:12px;color:var(--muted)">${lack}</span>`)
         : ro ? (f.ok?`<span style="font-size:12px;color:var(--crim)">Could build this tonight</span>`:'') : (f.ok?`<span style="font-size:12px;color:var(--verd)">Ready to build tonight</span>`:`<span style="font-size:12px;color:var(--muted)">${lack}</span>`);
-      body=`<div class="areq">${step==='start'?'Start (muscle)':'Add skin'}: ${P.exp?`exp ${P.exp} · `:''}${reqHTML(f.req)} </div><div class="areq vpline">${vpLine(step==='start'?P.vpS:P.vpC)} · alive later: <b>${P.alive}</b></div><div class="abtns">${btns}</div>`;
+      body=`<div class="areq">${step==='start'?'Start (muscle)':'Add skin'}: exp ${stepExp(P,step)} · ${reqHTML(f.req)} </div><div class="areq vpline">${vpLine(step==='start'?P.vpS:P.vpC)} · alive later: <b>${P.alive}</b></div><div class="abtns">${btns}</div>`;
     } else if(!t.alive) body=`<div class="areq">Complete. Throw the switch to bring it to life: <b>+${P.alive} points</b> at the end.</div>`;
     else body=`<div class="areq">Alive: <b>+${P.alive} points</b> at the end, as long as it stays alive.</div>`;
     return `<div class="arow"><div class="atop"><span class="aname">${SLOT_N[s]}</span><span>${t&&t.dmg?`<span class="dmg">damaged · </span>`:''}${state}</span></div>${body}</div>`;
@@ -2969,7 +2973,7 @@ function render(){
    BOOT
    ========================================================= */
 function start(data){
-  if(data && data.S && data.S.v===5){ S=data.S; render(); loop(); }
+  if(data && data.S && data.S.v===6){ S=data.S; render(); loop(); }
   else { S=null; render(); }
 }
 if(IMG['bg-wall']) document.documentElement.style.setProperty('--bg-tile', `url("${IMG['bg-wall']}")`);

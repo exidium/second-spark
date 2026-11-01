@@ -757,3 +757,10 @@ Bruno: "why are you putting files outside of the 3dGame folder? Everything relat
 - `../3dGame/` (github.com/exidium/3dGame, private) now holds `godot/`, `art-pipeline/`, `art/source/3dModels/`, `art/source/town/`, `art/town/`, the map and board concepts and card sources in `art/source/ui/`, `tools/gdcheck.sh`, `tools/export_godot_data.js`, the cabin, town and Godot shots in `tests/`, and the trials in `trials/`. Its history was split out of second-spark with git filter-repo.
 - second-spark keeps the browser game: `src/`, `dist/`, `build.py`, its tests and art, `docs/SPEC.md`. The rules and data stay here; `../3dGame/tools/export_godot_data.js` reads `src/data.js` and `art/` from this folder.
 - Both folders have the full decision log up to D202. From D203 on, each logs only its own changes; second-spark logs this move too.
+
+## D204: The parts follow Bruno's table
+Bruno drew the parts table on the 3D game's notepad (3dGame D220 to D223), then: "Don't correct the data. I've corrected myself and that's what you should follow", and "update the rules with my numbers."
+- `PARTS` in `src/data.js` now has his numbers. Each step has its own expertise (`expS` to start, `expC` to add skin; `stepExp()`): head 10 and 18, torso 7 and 15, arm 3 and 7, leg 5 and 10. Bone belongs to the start step, organ is in every step, and the costs, points and alive points are his (SPEC 8.1).
+- The animal cost is per part (`ani`): using any animal in a step costs 2 VP on the head or torso, 1 on an arm or leg, in place of 1 VP (2 with 3 or more).
+- A built step records the stage of its oldest material (`stage1` for the start, `stage2` for the skin) in its operating table slot, for the 3D notepad's circled points. Save shape changed: `SAVE_KEY` v6, `S.v` 6.
+- The lab panel and the points table show each step's expertise; SPEC 8.1 updated.

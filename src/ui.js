@@ -667,12 +667,12 @@ function eventNowHTML(){
 }
 function vpLine(arr){ return `VP by oldest material used: ${arr.map((v,k)=>`<span class="vpst">${ROMAN[k]} <b>${v}</b></span>`).join(' ')}`; }
 function pointsTable(){
-  const row=(n,P,cnt)=>`<tr><td>${n}${cnt>1?` <small>×${cnt}</small>`:''}</td>${P.vpS.map(v=>`<td class="m">${v}</td>`).join('')}${P.vpC.map(v=>`<td class="s">${v}</td>`).join('')}<td class="a">${P.alive}</td></tr>`;
+  const row=(n,P,cnt)=>`<tr><td>${n}${cnt>1?` <small>×${cnt}</small>`:''}</td><td class="m">${P.expS}</td>${P.vpS.map(v=>`<td class="m">${v}</td>`).join('')}<td class="s">${P.expC}</td>${P.vpC.map(v=>`<td class="s">${v}</td>`).join('')}<td class="a">${P.alive}</td></tr>`;
   return `<div class="ptable"><table><thead>
-    <tr><th></th><th colspan="4" class="m">Muscle (start)</th><th colspan="4" class="s">Skin (complete)</th><th class="a">Alive</th></tr>
-    <tr><th>Part</th>${['I','II','III','IV'].map(r=>`<th class="m">${r}</th>`).join('')}${['I','II','III','IV'].map(r=>`<th class="s">${r}</th>`).join('')}<th class="a">end</th></tr></thead><tbody>
+    <tr><th></th><th colspan="5" class="m">Muscle (start)</th><th colspan="5" class="s">Skin (complete)</th><th class="a">Alive</th></tr>
+    <tr><th>Part</th><th class="m">exp</th>${['I','II','III','IV'].map(r=>`<th class="m">${r}</th>`).join('')}<th class="s">exp</th>${['I','II','III','IV'].map(r=>`<th class="s">${r}</th>`).join('')}<th class="a">end</th></tr></thead><tbody>
     ${row('Head',PARTS.head,1)}${row('Torso',PARTS.torso,1)}${row('Arm',PARTS.arm,2)}${row('Leg',PARTS.leg,2)}</tbody></table>
-    <p>Each step scores VP by the stage of the oldest material you use (I is freshest). Animal costs 1 VP (2 if 3 or more). Alive points count at the end of the game.</p></div>`;
+    <p>Each step needs its expertise and scores VP by the stage of the oldest material you use (I is freshest). Using any animal costs the part's animal VP (2 head and torso, 1 arm and leg). Alive points count at the end of the game.</p></div>`;
 }
 function anatomyHTML(p,ro){
   const lab=!ro&&S.phase==='lab';
@@ -683,10 +683,10 @@ function anatomyHTML(p,ro){
     if(step){
       const opts={steady:!ro&&uiOpts.steady, surgeon:!ro&&uiOpts.surgeon};
       const f=planBuild(p,s,'fresh',opts), o=planBuild(p,s,'old',opts);
-      const lack = !f.expOK ? `Needs expertise ${P.exp}` : !f.matsOK ? 'Not enough materials' : '';
+      const lack = !f.expOK ? `Needs expertise ${stepExp(P,step)}` : !f.matsOK ? 'Not enough materials' : '';
       const btns = lab ? (f.ok ? `<button class="animate" data-act="build" data-slot="${s}" data-pol="fresh">${step==='start'?'Start':'Add skin'} · +${f.vp} VP</button>${o.ok&&o.vp!==f.vp?`<button class="chip" data-act="build" data-slot="${s}" data-pol="old">Use oldest first · +${o.vp} VP</button>`:''}` : `<span style="font-size:12px;color:var(--muted)">${lack}</span>`)
         : ro ? (f.ok?`<span style="font-size:12px;color:var(--crim)">Could build this tonight</span>`:'') : (f.ok?`<span style="font-size:12px;color:var(--verd)">Ready to build tonight</span>`:`<span style="font-size:12px;color:var(--muted)">${lack}</span>`);
-      body=`<div class="areq">${step==='start'?'Start (muscle)':'Add skin'}: ${P.exp?`exp ${P.exp} · `:''}${reqHTML(f.req)} </div><div class="areq vpline">${vpLine(step==='start'?P.vpS:P.vpC)} · alive later: <b>${P.alive}</b></div><div class="abtns">${btns}</div>`;
+      body=`<div class="areq">${step==='start'?'Start (muscle)':'Add skin'}: exp ${stepExp(P,step)} · ${reqHTML(f.req)} </div><div class="areq vpline">${vpLine(step==='start'?P.vpS:P.vpC)} · alive later: <b>${P.alive}</b></div><div class="abtns">${btns}</div>`;
     } else if(!t.alive) body=`<div class="areq">Complete. Throw the switch to bring it to life: <b>+${P.alive} points</b> at the end.</div>`;
     else body=`<div class="areq">Alive: <b>+${P.alive} points</b> at the end, as long as it stays alive.</div>`;
     return `<div class="arow"><div class="atop"><span class="aname">${SLOT_N[s]}</span><span>${t&&t.dmg?`<span class="dmg">damaged · </span>`:''}${state}</span></div>${body}</div>`;
@@ -903,7 +903,7 @@ function render(){
    BOOT
    ========================================================= */
 function start(data){
-  if(data && data.S && data.S.v===5){ S=data.S; render(); loop(); }
+  if(data && data.S && data.S.v===6){ S=data.S; render(); loop(); }
   else { S=null; render(); }
 }
 if(IMG['bg-wall']) document.documentElement.style.setProperty('--bg-tile', `url("${IMG['bg-wall']}")`);

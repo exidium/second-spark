@@ -342,17 +342,17 @@ Six parts: head, torso, left arm, right arm, left leg, right leg. Each is built 
 1. **Start** (muscle side).
 2. **Add skin** (complete).
 
-Each step needs the expertise threshold and the materials below, gives VP and **+1 expertise**. **[tuned]**: costs and expertise thresholds.
+Each step needs its own expertise threshold and the materials below, gives VP and **+1 expertise**. Numbers from Bruno's table (D204).
 
-| Part | Expertise | Start (muscle) needs | Muscle VP by stage I/II/III/IV | Skin needs | Skin VP I/II/III/IV | Alive (end) |
-|---|---|---|---|---|---|---|
-| Head | 14 | 4 muscle, 5 organ, 3 bone | 10 / 8 / 5 / 3 | 2 muscle, 2 organ, 3 blood | 7 / 5 / 3 / 1 | 6 |
-| Torso | 8 | 5 muscle, 4 organ, 2 blood, 3 bone | 8 / 6 / 4 / 2 | 4 muscle, 3 blood | 6 / 4 / 3 / 1 | 5 |
-| Arm (×2) | 3 | 3 muscle, 1 organ, 2 blood, 2 bone | 5 / 4 / 2 / 1 | 3 muscle, 2 blood | 3 / 2 / 1 / 1 | 3 |
-| Leg (×2) | 0 | 4 muscle, 2 blood, 3 bone | 5 / 4 / 2 / 1 | 3 muscle, 2 blood | 3 / 2 / 1 / 1 | 3 |
+| Part | Start exp | Start (muscle) needs | Muscle VP by stage I/II/III/IV | Skin exp | Skin needs | Skin VP I/II/III/IV | Animal | Alive (end) |
+|---|---|---|---|---|---|---|---|---|
+| Head | 10 | 2 muscle, 3 organ, 3 bone | 8 / 8 / 5 / 5 | 18 | 3 muscle, 5 organ, 3 blood | 11 / 7 / 7 / 7 | −2 | 14 |
+| Torso | 7 | 4 muscle, 4 organ, 5 bone | 7 / 7 / 4 / 4 | 15 | 5 muscle, 6 organ, 4 blood | 10 / 6 / 6 / 6 | −2 | 12 |
+| Arm (×2) | 3 | 3 muscle, 2 organ, 3 bone | 4 / 4 / 2 / 2 | 7 | 3 muscle, 3 organ, 3 blood | 6 / 3 / 3 / 3 | −1 | 8 |
+| Leg (×2) | 5 | 4 muscle, 2 organ, 4 bone | 5 / 5 / 3 / 3 | 10 | 3 muscle, 4 organ, 5 blood | 8 / 4 / 4 / 4 | −1 | 10 |
 
 - VP is set by the **oldest stage** used among the staged materials.
-- **Animal** substitutes for muscle, organ or blood (blood only from animal at stage I or II). Using any animal costs 1 VP, 3 or more costs 2 VP (minimum 0).
+- **Animal** substitutes for muscle, organ or blood (blood only from animal at stage I or II). Using any animal in a step costs that part's Animal VP (minimum 0).
 - Two buttons per buildable step: **Start / Add skin** (freshest materials first) and **Use oldest first** (shown only when it gives a different VP).
 - Steady Hands (−1 of each material) and Surgeon (−1 of one material) are checkboxes above the part list at night.
 

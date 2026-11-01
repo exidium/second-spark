@@ -104,7 +104,7 @@ function checkObjectives(){
    ========================================================= */
 function newGame(name, nRivals, charId, opts){
   opts=opts||{}; const fast=opts.fast; gameToken++; humanResolve=null; labResolve=null;
-  S = {v:5, uid:1, round:1, first:0, cur:0, phase:'event', captain:0, ev:null, card:null, closed:{}, occ:{}, bump:[], fast:!!fast,
+  S = {v:6, uid:1, round:1, first:0, cur:0, phase:'event', captain:0, ev:null, card:null, closed:{}, occ:{}, bump:[], fast:!!fast,
        decks:{cemetery:[],hospital:[],morgue:[],square:[],sc:[],re:[],hu:[]}, removed:[], hosp:[], square:[], docks:[], researchRow:[], humanityRow:[],
        locEnc:null, thwart:null, log:[], dawn:[], final:null, claimed:{}, objectives:shuffle(OBJECTIVES.map(o=>o.id)).slice(0,4)};
   const chars=shuffle(CHARACTERS.map(c=>c.id).filter(c=>c!==charId));
@@ -625,9 +625,9 @@ function planBuild(p, slot, policy, opts){
       for(const st of allowed){ const take=Math.min(n,m.animal[st]); if(take){ m.animal[st]-=take; n-=take; animal+=take; worst=Math.max(worst,st+1);} if(!n) break; } }
     if(n){ ok=false; break; }
   }
-  const expOK = p.exp>=P.exp;
+  const expOK = p.exp>=stepExp(P,step);
   const table = step==='start'?P.vpS:P.vpC;
-  const vp = ok ? Math.max(0, table[Math.max(1,worst)-1] - (animal>=3?2:animal?1:0)) : 0;
+  const vp = ok ? Math.max(0, table[Math.max(1,worst)-1] - (animal?P.ani:0)) : 0;
   return {ok: ok&&expOK, matsOK:ok, expOK, step, req, vp, worst, animal, mats:m, bone};
 }
 function build(i, slot, policy, opts){
@@ -638,7 +638,8 @@ function build(i, slot, policy, opts){
   p.mats=pl.mats; p.bone=pl.bone;
   if(opts.steady){ const c=p.hand.find(h=>h.id==='steady'); p.hand=p.hand.filter(h=>h!==c); applyGain(p,c.gain,'research'); }
   if(opts.surgeon) p.surgeonUsed=true;
-  if(pl.step==='start') p.table[slot]={side:'muscle', alive:false, dmg:0}; else { p.table[slot].side='skin'; }
+  // stage1/stage2: the stage of the oldest material each step used, for the notepad's circled points.
+  if(pl.step==='start') p.table[slot]={side:'muscle', alive:false, dmg:0, stage1:Math.max(1,pl.worst)}; else { p.table[slot].side='skin'; p.table[slot].stage2=Math.max(1,pl.worst); }
   p.vp+=pl.vp; setExp(p,1);
   log(`${B(p)} ${pl.step==='start'?'starts':'completes'} the ${SLOT_N[slot].toLowerCase()} (+${pl.vp} VP).`);
   checkObjectives();
@@ -829,7 +830,7 @@ function finish(reason){
    ========================================================= */
 function aiNeeds(p){
   const steps=[];
-  for(const s of SLOT6){ const st=nextStep(p,s); if(!st) continue; const P=PARTS[SLOT_T[s]]; steps.push({s, st, req:st==='start'?P.start:P.comp, exp:P.exp}); }
+  for(const s of SLOT6){ const st=nextStep(p,s); if(!st) continue; const P=PARTS[SLOT_T[s]]; steps.push({s, st, req:st==='start'?P.start:P.comp, exp:stepExp(P,st)}); }
   steps.sort((a,b)=>(a.st==='comp'?-1:0)-(b.st==='comp'?-1:0) || a.exp-b.exp);
   const near=steps.filter(x=>x.exp<=p.exp+4).slice(0,2);
   const need={M:0,O:0,B:0,X:0}; near.forEach(x=>Object.entries(x.req).forEach(([k,n])=>need[k]+=n));
@@ -976,4 +977,4 @@ function aiLab(i){
    PERSISTENCE
    ========================================================= */
 function save(){ try{ if(S && !S.fast) localStorage.setItem(SAVE_KEY, JSON.stringify(S)); }catch(e){} }
-function loadSaved(){ try{ const t=localStorage.getItem(SAVE_KEY); if(!t) return null; const s=JSON.parse(t); return s&&s.v===5&&s.phase!=='end'?s:null; }catch(e){ return null; } }
+function loadSaved(){ try{ const t=localStorage.getItem(SAVE_KEY); if(!t) return null; const s=JSON.parse(t); return s&&s.v===6&&s.phase!=='end'?s:null; }catch(e){ return null; } }

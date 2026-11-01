@@ -4,7 +4,7 @@
    Tabletop Simulator sheets). Names, wording and art are our own.
    Material arrays are [muscle, organ, blood, bone].
    ========================================================= */
-const MAX_ROUNDS = 12, SAVE_KEY = 'second-spark-paris-v5';
+const MAX_ROUNDS = 12, SAVE_KEY = 'second-spark-paris-v6';
 const MATS = ['muscle','organ','blood','animal'];
 const MAT_N = {muscle:'Muscle', organ:'Organ', blood:'Blood', bone:'Bone', animal:'Animal'};
 const KEY = {M:'muscle', O:'organ', B:'blood', X:'bone'};
@@ -13,12 +13,15 @@ const SLOT6 = ['head','torso','armL','armR','legL','legR'];
 const BODY_CENTRES = {"head": [49.7, 7.4], "torso": [49.7, 34.4], "armL": [21.5, 36.8], "armR": [77.9, 36.7], "legL": [41.0, 71.8], "legR": [58.4, 71.8]}; // part centres in % of the body image, from tools/body_parts.py
 const SLOT_T = {head:'head', torso:'torso', armL:'arm', armR:'arm', legL:'leg', legR:'leg'};
 const SLOT_N = {head:'Head', torso:'Torso', armL:'Left arm', armR:'Right arm', legL:'Left leg', legR:'Right leg'};
+// Bruno's table (D204): each step has its own expertise (expS start, expC skin); ani is the VP lost when a step uses
+// any animal.
 const PARTS = {
-  head:  {n:'Head',  exp:14, start:{M:4,O:5,X:3}, comp:{M:2,O:2,B:3}, vpS:[10,8,5,3], vpC:[7,5,3,1], alive:6},
-  torso: {n:'Torso', exp:8,  start:{M:5,O:4,B:2,X:3}, comp:{M:4,B:3}, vpS:[8,6,4,2], vpC:[6,4,3,1], alive:5},
-  arm:   {n:'Arm',   exp:3,  start:{M:3,O:1,B:2,X:2}, comp:{M:3,B:2}, vpS:[5,4,2,1], vpC:[3,2,1,1], alive:3},
-  leg:   {n:'Leg',   exp:0,  start:{M:4,B:2,X:3}, comp:{M:3,B:2}, vpS:[5,4,2,1], vpC:[3,2,1,1], alive:3},
+  head:  {n:'Head',  expS:10, expC:18, start:{M:2,O:3,X:3}, comp:{M:3,O:5,B:3}, vpS:[8,8,5,5], vpC:[11,7,7,7], ani:2, alive:14},
+  torso: {n:'Torso', expS:7,  expC:15, start:{M:4,O:4,X:5}, comp:{M:5,O:6,B:4}, vpS:[7,7,4,4], vpC:[10,6,6,6], ani:2, alive:12},
+  arm:   {n:'Arm',   expS:3,  expC:7,  start:{M:3,O:2,X:3}, comp:{M:3,O:3,B:3}, vpS:[4,4,2,2], vpC:[6,3,3,3], ani:1, alive:8},
+  leg:   {n:'Leg',   expS:5,  expC:10, start:{M:4,O:2,X:4}, comp:{M:3,O:4,B:5}, vpS:[5,5,3,3], vpC:[8,4,4,4], ani:1, alive:10},
 };
+function stepExp(P,step){ return step==='start'?P.expS:P.expC; }
 const GRAY = ['alive','damage','damage','heart','blank','blank'];
 const BLUE = ['alive','alive','damage','heart','blank','blank'];
 
