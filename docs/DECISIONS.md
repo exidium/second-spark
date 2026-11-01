@@ -751,3 +751,9 @@ Bruno, after the pixel cards: "I forgot the cards are in pixel art. Can we remak
 - Icons are finished ink-and-watercolour drawings (heart and broken heart as the symbol heart, brain, medal, coin, Leyden jar, grey and blue die), `art-pipeline/card_icons.py` into `art/source/ui/cards/icon-*.png`. Rough pencil is only for the map.
 - `python3 art-pipeline/cards.py [ids]` draws all 32 from `godot/data/game.json` on `art/source/ui/cards/humanity.png` and `research.png`, cuts the corners round and transparent, and writes `godot/assets/cabin/cards/<id>.webp` (600 px wide, mipmaps on) and the sheet `tests/cards.png`. It replaces `tools/card_faces.js` (D201), which is removed; `window.__spark.cardHTML` and `handCards` stay as test hooks.
 - Trials (pencil rounds, mockups) are in `../3dGame/cards/`, outside the repo.
+
+## D203: The 3D game moves to its own folder and repo, 3dGame
+Bruno: "why are you putting files outside of the 3dGame folder? Everything related to the 3d game needs to be in that folder... do a search to see if there aren't any files and folders you're using outside of the 3dGame folder and organize please." He chose its own repo with the history kept, and the decision log copied into both.
+- `../3dGame/` (github.com/exidium/3dGame, private) now holds `godot/`, `art-pipeline/`, `art/source/3dModels/`, `art/source/town/`, `art/town/`, the map and board concepts and card sources in `art/source/ui/`, `tools/gdcheck.sh`, `tools/export_godot_data.js`, the cabin, town and Godot shots in `tests/`, and the trials in `trials/`. Its history was split out of second-spark with git filter-repo.
+- second-spark keeps the browser game: `src/`, `dist/`, `build.py`, its tests and art, `docs/SPEC.md`. The rules and data stay here; `../3dGame/tools/export_godot_data.js` reads `src/data.js` and `art/` from this folder.
+- Both folders have the full decision log up to D202. From D203 on, each logs only its own changes; second-spark logs this move too.
