@@ -301,8 +301,8 @@ func set_police(n: int, animate := true) -> void:
 
 # ---------------------------------------------------------------- cards
 
-## Up to three cards in the hand, face up, each the browser game's card for its id (D201): rendered with its
-## rounded corners by `tools/card_faces.js` into assets/cabin/cards/<id>.png.
+## Up to three cards in the hand, face up: drawn after the original cards by `art-pipeline/cards.py` (D202) into
+## assets/cabin/cards/<id>.webp, with rounded transparent corners.
 func set_hand(cards: Array) -> void:
 	hand = cards.slice(0, 3)
 	for i in 3:
@@ -312,7 +312,7 @@ func set_hand(cards: Array) -> void:
 			_card(card_nodes[i], hand[i], CARDS[i])
 
 func _card(parent: Node3D, card: Dictionary, slot: Rect2) -> void:
-	var path := "res://assets/cabin/cards/%s.png" % String(card.get("id", ""))
+	var path := "res://assets/cabin/cards/%s.webp" % String(card.get("id", ""))
 	if not ResourceLoader.exists(path):
 		return
 	var tex: Texture2D = load(path)
