@@ -135,9 +135,10 @@ function newGame(name, nRivals, charId, opts){
 function refreshBoard(){
   const n=S.players.length;
   S.hosp=[drawCadaver('hospital'),drawCadaver('hospital')];
-  S.docks=[drawScoundrel(),drawScoundrel(),drawScoundrel()];
-  S.researchRow=[drawResearch(),drawResearch(),drawResearch()];
-  S.humanityRow=[drawHumanity(),drawHumanity(),drawHumanity()].filter(Boolean);
+  // The three open scoundrels, research and humanity cards stay until taken; a taken one is replaced only at the next dawn (D205).
+  while(S.docks.length<3) S.docks.push(drawScoundrel());
+  while(S.researchRow.length<3) S.researchRow.push(drawResearch());
+  for(let k=S.humanityRow.length;k<3;k++){ const c=drawHumanity(); if(c) S.humanityRow.push(c); }
   S.square=[];
 }
 
@@ -548,7 +549,7 @@ async function hireScoundrel(i, cardId, how, row, unethical){
   const p=S.players[i]; const c=row.find(x=>x.id===cardId); if(!c) return;
   const cost=scCost(c); if(cost>p.coin) return;
   p.coin-=cost; setHum(p,-scHcost(c));
-  if(row===S.docks){ S.docks.splice(S.docks.indexOf(c),1,drawScoundrel()); }
+  if(row===S.docks){ S.docks.splice(S.docks.indexOf(c),1); }   // replaced at the next dawn
   if(c.kind==='cut') p.lastDark=S.round;
   if(unethical && c.kind==='cut'){ const u=p.hand.find(h=>h.id==='unethical'); if(u && charged(p)){ dischargeOne(p); p.hand=p.hand.filter(h=>h!==u); applyGain(p,u.gain,'research'); log(`${B(p)} hires a Cutthroat for an unethical experiment.`); return; } }
   if(c.kind==='thief'){ const cards=[]; for(let k=0;k<c.draw;k++) cards.push(S.hosp.length?S.hosp.shift():drawCadaver('hospital'));

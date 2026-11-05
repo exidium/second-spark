@@ -140,10 +140,10 @@ Each space holds one meeple. **Sci** = scientist only. Costs listed are in franc
 | Charge Jars | Charge 3 jars (scientist) or 2 (assistant) |
 
 ### 5.3 Face-up displays (refreshed every dawn)
-- **Academy:** 3 research cards. A taken card is not replaced until dawn (a dashed slot shows the gap); with none left, Take a research card is unavailable.
-- **Saint-Roch:** 3 humanity cards. Same rule: no replacement until dawn; with none left only a scientist may atone, for the humanity.
+- **Academy:** 3 research cards. Cards nobody takes stay; a taken card is not replaced until dawn (a dashed slot shows the gap); with none left, Take a research card is unavailable.
+- **Saint-Roch:** 3 humanity cards. Same rule: the rest stay, no replacement until dawn; with none left only a scientist may atone, for the humanity.
 - **Hospital:** exactly 2 bodies. Not replaced until dawn. If both are gone, Retrieve is unavailable.
-- **Docks:** 3 scoundrels. A hired one is replaced immediately.
+- **Docks:** 3 scoundrels. Same rule: those not hired stay, a hired one is replaced at dawn; with none left, Hire is unavailable.
 - **Public Square:** bodies only appear after an execution (1 body with 2 players, 2 with 3 or 4). Discarded at dawn.
 - **Graveyard and Morgue are hidden:** cards are only drawn when you use the space.
 

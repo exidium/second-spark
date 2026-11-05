@@ -764,3 +764,6 @@ Bruno drew the parts table on the 3D game's notepad (3dGame D220 to D223), then:
 - The animal cost is per part (`ani`): using any animal in a step costs 2 VP on the head or torso, 1 on an arm or leg, in place of 1 VP (2 with 3 or more).
 - A built step records the stage of its oldest material (`stage1` for the start, `stage2` for the skin) in its operating table slot, for the 3D notepad's circled points. Save shape changed: `SAVE_KEY` v6, `S.v` 6.
 - The lab panel and the points table show each step's expertise; SPEC 8.1 updated.
+
+## D205: Open cards wait for dawn to be replaced
+Bruno (for the 3D game, 3dGame D268): "If one card gets purchased, it only replaces the next day." The three open research cards, humanity cards and scoundrels stay until someone takes them; at dawn only the empty places are filled (`refreshBoard` tops them up instead of dealing three new ones). A hired scoundrel is no longer replaced at once, so the Docks can run out for the day. The Hospital's two bodies are still dealt fresh each dawn. Kept in step with `../3dGame/godot/scripts/rules/game.gd`.
