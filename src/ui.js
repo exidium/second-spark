@@ -203,7 +203,7 @@ async function chooseScoundrel(p, row, intro, canCancel){
 function marketState(){ return {jars:0, ice:false, sellBone:0, sellPres:0, pickle:false}; }
 function marketBody(p, o, reg){
   const hasPickle=p.hand.some(h=>h.id==='preserve');
-  const jarCost=k=> S.ev==='hardtimes' ? Math.ceil(k/2)*2 : 2*k;
+  const jarCost=k=> 2*k;
   const cash=()=>p.coin + o.sellBone + o.sellPres*(2+(o.pickle?1:0)) - jarCost(o.jars) - (o.ice?1:0);
   const rerender=()=>renderModal();
   const step=(k,d,max)=>reg(()=>{ o[k]=clamp(o[k]+d,0,max); if(cash()<0) o[k]-=d; rerender(); });
@@ -212,7 +212,7 @@ function marketBody(p, o, reg){
   return `<div class="opts">
     ${row('Sell 2 bone for 1 franc',`You have ${p.bone} bone.`,'sellBone',Math.floor(p.bone/2))}
     ${row(`Sell 3 preserved flesh for ${fr(2+(o.pickle?1:0))}`,`You have ${p.preserved} preserved. Preserve flesh in your lab at night.`,'sellPres',Math.floor(p.preserved/3))}
-    ${row(`Buy a Leyden jar ${icon('jar','🏺','si')} (2 francs)`,`${S.ev==='hardtimes'?'Hard Times: buy 1, get 1 free. ':''}You have ${p.jars.length} of 4. New jars are empty unless lightning is in the air.`,'jars',4-p.jars.length)}
+    ${row(`Buy a Leyden jar ${icon('jar','🏺','si')} (2 francs)`,`${S.ev==='hardtimes'?'Hard Times: each jar you buy brings 1 free. ':''}You have ${p.jars.length} of 4. New jars are empty unless lightning is in the air.`,'jars',S.ev==='hardtimes'?Math.floor((5-p.jars.length)/2):4-p.jars.length)}
     <div class="opt" style="cursor:default"><span><span class="ot">Buy an ice block ${icon('ice','🧊','si')} (1 franc)</span><small>Stops decay for the next 2 dawns.${p.ice?` You have ${p.ice} left.`:''}</small></span><button class="tog" style="color:var(--parch);border-color:var(--line2)" data-mfn="${reg(()=>{ o.ice=!o.ice; if(cash()<0) o.ice=false; rerender(); })}">${o.ice?'Buying':'Buy'}</button></div>
     ${hasPickle?`<label class="opt" style="cursor:pointer"><span><span class="ot">Play Pickling Jars</span><small>+1 franc per preserved sale.</small></span><input type="checkbox" ${o.pickle?'checked':''} data-mfn="${reg(()=>{ o.pickle=!o.pickle; rerender(); })}"></label>`:''}
     </div><p class="num" style="text-align:right;margin-top:10px">Francs after: <b>${fr(cash())}</b></p>`;

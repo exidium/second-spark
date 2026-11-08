@@ -567,9 +567,10 @@ async function doMarket(i,o){
   const sp=Math.min(o.sellPres||0, Math.floor(p.preserved/3)); if(sp){ p.preserved-=3*sp; let g=2*sp;
     const pick=o.pickle && p.hand.find(h=>h.id==='preserve'); if(pick){ p.hand=p.hand.filter(h=>h!==pick); g+=sp; }
     p.coin+=g; bits.push(`sells ${3*sp} preserved flesh`); }
-  let bj=Math.min(o.jars||0, 4-p.jars.length); let paid=0;
-  for(let k=0;k<bj;k++){ const free = S.ev==='hardtimes' && k%2===1; if(!free){ if(p.coin<2) break; p.coin-=2; } p.jars.push(S.ev==='storm'||S.ev==='meat'||S.ev==='graves'||S.ev==='cholera'||S.ev==='darkres'||S.ev==='storm2'); paid++; }
-  if(paid) bits.push(`buys ${paid} jar${paid>1?'s':''}`);
+  // Hard Times: each jar paid for brings a second one free, while there is room (D207).
+  const lit=['storm','meat','graves','cholera','darkres','storm2'].includes(S.ev); let paid=0, free=0;
+  for(let k=0;k<(o.jars||0);k++){ if(p.jars.length>=4||p.coin<2) break; p.coin-=2; p.jars.push(lit); paid++; if(S.ev==='hardtimes'&&p.jars.length<4){ p.jars.push(lit); free++; } }
+  if(paid) bits.push(`buys ${paid} jar${paid>1?'s':''}${free?` and gets ${free} free`:''}`);
   if(o.ice && p.coin>=1){ p.coin-=1; p.ice=2; bits.push('buys ice'); }
   log(`${B(p)} at the Market ${bits.join(', ')||'browses'}.`);
 }

@@ -770,3 +770,6 @@ Bruno (for the 3D game, 3dGame D268): "If one card gets purchased, it only repla
 
 ## D206: Rivals go by their scientist's name
 Bruno, for the 3D game (3dGame D289): "yes, they should", when asked whether a rival should take the name of the scientist they play rather than a name of their own. A rival is named after their character card (`CHARACTERS[].name`); `RIVALS` now gives only the colour and the temperament.
+
+## D207: Hard Times, buy a jar, get one free
+Bruno (for the 3D game, 3dGame D290): "if I bought one lightened bottle, I would get one free. I bought two bottles and got one free, so fix that." Under Hard Times each Leyden jar you pay for brings a second one free, while you have room (4 jars at most). Before, every second jar was free. The Market's jar count is now the jars you pay for. Kept in step with `../3dGame/godot/scripts/rules/game.gd`.
