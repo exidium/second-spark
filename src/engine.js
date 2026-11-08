@@ -110,7 +110,8 @@ function newGame(name, nRivals, charId, opts){
   const chars=shuffle(CHARACTERS.map(c=>c.id).filter(c=>c!==charId));
   const mine = charId && charId!=='random' ? charId : chars.pop();
   S.players=[mkPlayer(name||'Dr Torres', YOU_COLOR, !!opts.allAI, opts.allAI?{ruthless:0,scholar:0,careful:0}:null, mine)];
-  RIVALS.slice(0,nRivals).forEach(r=>S.players.push(mkPlayer(r.name, r.color, true, r, chars.pop())));
+  // A rival goes by their scientist's name (D206).
+  RIVALS.slice(0,nRivals).forEach(r=>{ const c=chars.pop(); S.players.push(mkPlayer(CHARACTERS.find(x=>x.id===c).name, r.color, true, r, c)); });
   const n=S.players.length;
   S.players.forEach(p=>{ p.coin=n; if(hasChar(p,'charlatan')) setRep(p,3); if(hasChar(p,'human')) p.hum=2; if(hasChar(p,'surgeon')) setExp(p,2); });
   S.first=rnd(n);

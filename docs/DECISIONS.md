@@ -767,3 +767,6 @@ Bruno drew the parts table on the 3D game's notepad (3dGame D220 to D223), then:
 
 ## D205: Open cards wait for dawn to be replaced
 Bruno (for the 3D game, 3dGame D268): "If one card gets purchased, it only replaces the next day." The three open research cards, humanity cards and scoundrels stay until someone takes them; at dawn only the empty places are filled (`refreshBoard` tops them up instead of dealing three new ones). A hired scoundrel is no longer replaced at once, so the Docks can run out for the day. The Hospital's two bodies are still dealt fresh each dawn. Kept in step with `../3dGame/godot/scripts/rules/game.gd`.
+
+## D206: Rivals go by their scientist's name
+Bruno, for the 3D game (3dGame D289): "yes, they should", when asked whether a rival should take the name of the scientist they play rather than a name of their own. A rival is named after their character card (`CHARACTERS[].name`); `RIVALS` now gives only the colour and the temperament.
